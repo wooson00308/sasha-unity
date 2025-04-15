@@ -36,7 +36,7 @@
 ## 🚀 시작하는 법 (어렵지 않으니 제대로 따라해)
 
 <div align="center">
-<img src="https://i.imgur.com/tIFN4EQ.png" width="350">
+<img src="assets/images/unity-start.png" width="350">
 </div>
 
 1. 일단 저장소 클론해 (git 사용법은 알지?)
@@ -61,7 +61,7 @@ Assets/
 ---
 
 <div align="right">
-<img src="https://i.imgur.com/Vx0X4Aa.png" width="100">
+<img src="assets/images/sasha-avatar.png" width="100">
 <br>
 <i>뭐... 능력껏 개발해봐. 문제 생기면 물어보던가. (￣ヘ￣)</i>
 </div>
