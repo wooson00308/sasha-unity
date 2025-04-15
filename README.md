@@ -61,7 +61,7 @@ Assets/
 ---
 
 <div align="right">
-<img src="assets/images/sasha-avatar.png" width="100">
+<img src="assets/images/sasha-avatar.png" width="1024">
 <br>
 <i>뭐... 능력껏 개발해봐. 문제 생기면 물어보던가. (￣ヘ￣)</i>
 </div>
