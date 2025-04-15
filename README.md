@@ -34,11 +34,6 @@
 - NPOI - 엑셀 데이터 필요하면 이거
 
 ## 🚀 시작하는 법 (어렵지 않으니 제대로 따라해)
-
-<div align="center">
-<img src="Assets/Images/unity-start.png" width="350">
-</div>
-
 1. 일단 저장소 클론해 (git 사용법은 알지?)
 2. Unity 6.0.0 이상으로 열어 (그 이하면 동작 안 할 수도 있으니까 별 말 말고 업데이트해)
 3. SampleScene 확인하고 거기서부터 시작해 (처음부터 다 만들기엔 귀찮잖아)
@@ -59,9 +54,3 @@ Assets/
 > **메모 문서는 root/Docs 디렉토리나 루트에만 *.md 파일로 작성해. Assets 안에는 넣지 말고.**
 
 ---
-
-<div align="right">
-<img src="Assets/Images/sasha-avatar.png" width="1024">
-<br>
-<i>뭐... 능력껏 개발해봐. 문제 생기면 물어보던가. (￣ヘ￣)</i>
-</div>
