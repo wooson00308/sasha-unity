@@ -1,4 +1,9 @@
 ---
+description: unity project coding
+globs: 
+alwaysApply: false
+---
+---
 description: unity project rules
 globs: 
 alwaysApply: false

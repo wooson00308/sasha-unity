@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using AF.Combat;
+using AF.EventBus;
 
 namespace AF.Services
 {
@@ -50,6 +52,8 @@ namespace AF.Services
                     Debug.LogError($"{serviceObject.name}은(는) IService를 구현하지 않았습니다.");
                 }
             }
+            
+            RegisterCoreServices();
         }
         
         /// <summary>
@@ -77,6 +81,23 @@ namespace AF.Services
             var registerMethod = typeof(ServiceLocator).GetMethod("RegisterService");
             var genericRegisterMethod = registerMethod.MakeGenericMethod(concreteType);
             genericRegisterMethod.Invoke(_serviceLocator, new object[] { service });
+        }
+        
+        /// <summary>
+        /// 기본 서비스들을 등록합니다.
+        /// </summary>
+        private void RegisterCoreServices()
+        {
+            // 이벤트 버스 서비스 등록
+            ServiceLocator.Instance.RegisterService(new EventBusService());
+            
+            // 텍스트 로거 서비스 등록
+            ServiceLocator.Instance.RegisterService(new TextLoggerService());
+
+            // 전투 시뮬레이터 서비스 등록 (인터페이스 타입으로 등록)
+            ServiceLocator.Instance.RegisterService<ICombatSimulatorService>(new CombatSimulatorService());
+            
+            // 필요한 다른 서비스 등록...
         }
         
         private void OnDestroy()
@@ -131,15 +152,5 @@ namespace AF.Services
             }
         }
         #endif
-    }
-    
-    /// <summary>
-    /// 서비스 종료 우선순위 지정을 위한 직렬화 가능 클래스
-    /// </summary>
-    [System.Serializable]
-    public class ShutdownOrderItem
-    {
-        public System.Type serviceType;
-        public int shutdownPriority;
     }
 } 

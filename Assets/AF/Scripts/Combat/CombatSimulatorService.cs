@@ -38,16 +38,17 @@ namespace AF.Combat
         /// </summary>
         public void Initialize()
         {
-            _eventBus = new EventBus.EventBus();
+            _eventBus = ServiceLocator.Instance.GetService<EventBusService>().Bus;
             _participants = new List<ArmoredFrame>();
             _teamAssignments = new Dictionary<ArmoredFrame, int>();
             _isInCombat = false;
             _currentTurn = 0;
             _currentBattleId = null;
             
+            // Debug.Log("[CombatSimulatorService] 서비스 초기화 완료");
             Debug.Log("[CombatSimulatorService] 서비스 초기화 완료");
         }
-        
+
         /// <summary>
         /// 서비스 종료
         /// </summary>
@@ -55,6 +56,8 @@ namespace AF.Combat
         {
             if (_isInCombat)
             {
+                // Debug.LogWarning("[CombatSimulatorService] 전투 중 강제 종료..."); // Optional: Keep Debug for forced shutdowns?
+                Debug.LogWarning("[CombatSimulatorService] 전투 중 강제 종료...");
                 EndCombat(CombatSessionEvents.CombatEndEvent.ResultType.Aborted);
             }
             
@@ -62,6 +65,7 @@ namespace AF.Combat
             _participants = null;
             _teamAssignments = null;
             
+            // Debug.Log("[CombatSimulatorService] 서비스 종료");
             Debug.Log("[CombatSimulatorService] 서비스 종료");
         }
         
@@ -72,8 +76,7 @@ namespace AF.Combat
         {
             if (_isInCombat)
             {
-                Debug.LogWarning("[CombatSimulatorService] 이미 전투가 진행 중입니다. 기존 전투를 종료합니다.");
-                EndCombat(CombatSessionEvents.CombatEndEvent.ResultType.Aborted);
+                Debug.LogWarning("[CombatSimulatorService] 이미 전투가 진행 중입니다. 기존 전투를 종료합니다."); // Keep Debug for editor warning?
             }
             
             // 기본 초기화
@@ -92,6 +95,7 @@ namespace AF.Combat
             var startEvent = new CombatSessionEvents.CombatStartEvent(participants, _currentBattleId, battleName, battleLocation);
             _eventBus.Publish(startEvent);
             
+            // Debug.Log($"[CombatSimulatorService] 전투 시작: {battleName} (ID: {_currentBattleId})");
             Debug.Log($"[CombatSimulatorService] 전투 시작: {battleName} (ID: {_currentBattleId})");
             
             // 자동 처리 모드인 경우 첫 턴 시작
@@ -110,7 +114,7 @@ namespace AF.Combat
         {
             if (!_isInCombat)
             {
-                Debug.LogWarning("[CombatSimulatorService] 진행 중인 전투가 없습니다.");
+                Debug.LogWarning("[CombatSimulatorService] 진행 중인 전투가 없습니다."); // Keep Debug for editor warning?
                 return;
             }
             
@@ -134,6 +138,7 @@ namespace AF.Combat
             _participants.Clear();
             _teamAssignments.Clear();
             
+            // Debug.Log($"[CombatSimulatorService] 전투 종료: {_battleName} (ID: {_currentBattleId}, 결과: {result})");
             Debug.Log($"[CombatSimulatorService] 전투 종료: {_battleName} (ID: {_currentBattleId}, 결과: {result})");
             
             _currentBattleId = null;
@@ -147,6 +152,7 @@ namespace AF.Combat
         {
             if (!_isInCombat)
             {
+                // Debug.LogWarning("[CombatSimulatorService] 진행 중인 전투가 없습니다.");
                 Debug.LogWarning("[CombatSimulatorService] 진행 중인 전투가 없습니다.");
                 return false;
             }
@@ -165,7 +171,7 @@ namespace AF.Combat
             _currentActiveUnit = GetNextActiveUnit();
             if (_currentActiveUnit == null)
             {
-                Debug.LogWarning("[CombatSimulatorService] 활성화 가능한 유닛이 없습니다. 전투를 종료합니다.");
+                Debug.LogWarning("[CombatSimulatorService] 활성화 가능한 유닛이 없습니다. 전투를 종료합니다."); // Keep Debug for editor warning?
                 EndCombat();
                 return false;
             }
@@ -174,7 +180,16 @@ namespace AF.Combat
             var turnStartEvent = new CombatSessionEvents.TurnStartEvent(_currentTurn, _currentActiveUnit, _currentBattleId);
             _eventBus.Publish(turnStartEvent);
             
-            Debug.Log($"[CombatSimulatorService] 턴 {_currentTurn} 시작: {_currentActiveUnit.Name}의 턴");
+            // Debug.Log($"[CombatSimulatorService] 턴 {_currentTurn} 시작: {_currentActiveUnit.Name}의 턴"); 
+            // This is already logged via TurnStartEvent in TextLogger
+            
+            // Determine and perform action for the active unit
+            var action = DetermineActionForUnit(_currentActiveUnit);
+            if (action != null)
+            {
+                PerformAction(_currentActiveUnit, action.Item1, action.Item2, action.Item3);
+            }
+            
             return true;
         }
         
@@ -185,6 +200,7 @@ namespace AF.Combat
         {
             if (!_isInCombat || actor != _currentActiveUnit)
             {
+                // Debug.LogWarning("[CombatSimulatorService] 유효하지 않은 행동 요청입니다.");
                 Debug.LogWarning("[CombatSimulatorService] 유효하지 않은 행동 요청입니다.");
                 return false;
             }
@@ -192,6 +208,9 @@ namespace AF.Combat
             // 행동 시작 이벤트 발행
             var actionStartEvent = new CombatActionEvents.ActionStartEvent(actor, actionType, _currentTurn, parameters);
             _eventBus.Publish(actionStartEvent);
+            
+            // 디버그 로그 추가 (LogLevel 수정)
+            Debug.Log($"행동 시작: {actor.Name}, 행동 유형: {actionType}, 턴: {_currentTurn}");
             
             // 행동 처리 결과 (기본적으로 성공으로 설정)
             bool success = true;
@@ -203,28 +222,51 @@ namespace AF.Combat
                 case CombatActionEvents.ActionType.Attack:
                     if (parameters.Length >= 2 && parameters[0] is ArmoredFrame target && parameters[1] is Weapon weapon)
                     {
+                        Debug.Log($"공격 파라미터 확인: 대상={target.Name}, 무기={weapon.Name}");
                         success = PerformAttack(actor, target, weapon);
-                        resultDescription = success ? "공격이 성공했습니다." : "공격이 실패했습니다.";
+                        resultDescription = success ? $"{target.Name}에게 공격 성공" : $"{target.Name}에게 공격 실패";
                     }
                     else
                     {
                         success = false;
-                        resultDescription = "잘못된 공격 매개변수입니다.";
+                        resultDescription = "공격 파라미터가 잘못되었습니다 (대상 또는 무기 누락).";
+                        // Debug.LogError($"[{_currentBattleId}-T{_currentTurn}] {actor.Name}: 공격 파라미터 오류");
+                        Debug.LogError($"[{_currentBattleId}-T{_currentTurn}] {actor.Name}: 공격 파라미터 오류");
                     }
                     break;
                 
-                // 추가 행동 유형에 대한 처리는 나중에 구현
+                case CombatActionEvents.ActionType.Move:
+                    // TODO: 이동 로직 구현
+                    resultDescription = "이동 로직 미구현";
+                    success = false;
+                    break;
+                
+                case CombatActionEvents.ActionType.Defend:
+                    // TODO: 방어 로직 구현
+                    resultDescription = "방어 로직 미구현";
+                    success = false;
+                    break;
+                
                 default:
-                    resultDescription = "아직 구현되지 않은 행동 유형입니다.";
+                    resultDescription = "알 수 없는 행동 유형입니다.";
                     success = false;
                     break;
             }
             
-            // 행동 완료 이벤트 발행
+            // 행동 완료 이벤트 발행 (수정됨)
             var actionCompletedEvent = new CombatActionEvents.ActionCompletedEvent(actor, actionType, success, resultDescription, _currentTurn);
             _eventBus.Publish(actionCompletedEvent);
             
-            Debug.Log($"[CombatSimulatorService] 행동 수행: {actor.Name}, 행동: {actionType}, 결과: {resultDescription}");
+            // 디버그 로그는 유지
+            if (success)
+            {
+                Debug.Log($"행동 성공: {resultDescription}");
+            }
+            else
+            {
+                Debug.Log($"행동 실패: {resultDescription}");
+            }
+            
             return success;
         }
         
@@ -233,29 +275,34 @@ namespace AF.Combat
         /// </summary>
         public bool PerformAttack(ArmoredFrame attacker, ArmoredFrame target, Weapon weapon)
         {
+            // 메서드 시작 지점 로그 (LogLevel 수정)
+            Debug.Log($"시작: {attacker.Name}이(가) {target.Name}을(를) {weapon.Name}(으)로 공격 시도");
+            
             if (!_isInCombat || attacker != _currentActiveUnit)
             {
+                // Debug.LogWarning("[CombatSimulatorService] 유효하지 않은 공격 요청입니다.");
                 Debug.LogWarning("[CombatSimulatorService] 유효하지 않은 공격 요청입니다.");
                 return false;
             }
             
-            // 공격 가능 여부 체크
             if (target == null || !_participants.Contains(target) || !target.IsOperational)
             {
+                // Debug.LogWarning("[CombatSimulatorService] 유효하지 않은 대상입니다.");
                 Debug.LogWarning("[CombatSimulatorService] 유효하지 않은 대상입니다.");
                 return false;
             }
             
             if (weapon == null)
             {
+                // Debug.LogWarning("[CombatSimulatorService] 유효하지 않은 무기입니다.");
                 Debug.LogWarning("[CombatSimulatorService] 유효하지 않은 무기입니다.");
                 return false;
             }
             
-            // 팀 검증 (같은 팀은 공격 불가)
             if (_teamAssignments.ContainsKey(attacker) && _teamAssignments.ContainsKey(target) && 
                 _teamAssignments[attacker] == _teamAssignments[target])
             {
+                // Debug.LogWarning("[CombatSimulatorService] 같은 팀원을 공격할 수 없습니다.");
                 Debug.LogWarning("[CombatSimulatorService] 같은 팀원을 공격할 수 없습니다.");
                 return false;
             }
@@ -263,6 +310,9 @@ namespace AF.Combat
             // 명중 판정 (간단한 랜덤 방식 사용, 차후에 더 복잡한 로직으로 대체 가능)
             float accuracyRoll = UnityEngine.Random.value;
             bool hit = accuracyRoll <= 0.7f; // 70% 명중률 (임시)
+            
+            // 추가 로그: 명중 판정 결과 (LogLevel 수정)
+            Debug.Log($"명중 판정: {(hit ? "성공" : "실패")} (Roll: {accuracyRoll})");
             
             // 무기 발사 이벤트 발행
             var weaponFiredEvent = new CombatActionEvents.WeaponFiredEvent(attacker, target, weapon, hit, accuracyRoll);
@@ -277,8 +327,26 @@ namespace AF.Combat
                 // 방어력 및 기타 요소를 고려한 최종 데미지 계산
                 float calculatedDamage = rawDamage * 0.8f; // 예시로 80%만 적용
                 
-                // 타겟팅할 파츠 결정 (현재는 랜덤)
-                PartType targetPartType = GetRandomTargetPart();
+                // 추가 로그: 데미지 계산 (LogLevel 수정)
+                Debug.Log($"데미지 계산: 기본 {rawDamage}, 계산 후 {calculatedDamage}");
+
+                PartType targetPartType;
+
+                // 파츠 정보 가져오기 (내구도 등)
+                Part damagedPart;
+                float currentDurability;
+                float maxDurability;
+
+                do
+                {
+                    // 타겟팅할 파츠 결정 (현재는 랜덤)
+                    targetPartType = GetRandomTargetPart();
+                    damagedPart = target.GetPart(targetPartType);
+                    currentDurability = damagedPart != null ? damagedPart.CurrentDurability : 0f;
+                } while (currentDurability <= 0);
+
+                // 추가 로그: 타겟 파츠 (LogLevel 수정)
+                Debug.Log($"타겟 파츠: {targetPartType}");
                 
                 // 데미지 계산 이벤트 발행
                 var damageCalculatedEvent = new DamageEvents.DamageCalculatedEvent(
@@ -290,13 +358,23 @@ namespace AF.Combat
                 bool isCritical = UnityEngine.Random.value <= 0.2f; // 20% 크리티컬 확률
                 float finalDamage = isCritical ? calculatedDamage * 1.5f : calculatedDamage;
                 
+                // 추가 로그: 크리티컬 및 최종 데미지 (LogLevel 수정)
+                Debug.Log($"최종 데미지: {finalDamage} {(isCritical ? "(크리티컬!)" : "")}");
+                
+                // 추가 로그: 데미지 적용 시도 (LogLevel 수정)
+                Debug.Log($"{target.Name}의 {targetPartType}에 {finalDamage} 데미지 적용 시도");
+                
                 // 실제 데미지 적용
                 bool partDestroyed = target.ApplyDamage(targetPartType, finalDamage);
                 
-                // 파츠 정보 가져오기 (내구도 등)
-                Part damagedPart = target.GetPart(targetPartType);
-                float currentDurability = damagedPart != null ? damagedPart.CurrentDurability : 0f;
-                float maxDurability = damagedPart != null ? damagedPart.MaxDurability : 0f;
+                // 추가 로그: 파츠 파괴 여부 (LogLevel 수정)
+                Debug.Log($"파츠 파괴 여부: {(partDestroyed ? "파괴됨" : "파괴되지 않음")}");
+
+                currentDurability = damagedPart != null ? damagedPart.CurrentDurability : 0f;
+                maxDurability = damagedPart != null ? damagedPart.MaxDurability : 0f;
+
+                // 추가 로그: 파츠 남은 내구도 (LogLevel 수정)
+                Debug.Log($"파츠 내구도: {currentDurability}/{maxDurability}");
                 
                 // 데미지 적용 이벤트 발행
                 var damageAppliedEvent = new DamageEvents.DamageAppliedEvent(
@@ -312,12 +390,16 @@ namespace AF.Combat
                         $"{targetPartType} 파트가 파괴되었습니다.", 
                         $"{target.Name}의 성능이 감소했습니다.");
                     _eventBus.Publish(partDestroyedEvent);
+                    
+                    // 추가 로그: 파츠 파괴 상세 정보 (LogLevel 수정, Danger 유지 -> Error)
+                    Debug.LogError($"파츠 파괴 상세: {target.Name}의 {targetPartType} 파츠가 파괴됨 (성능 감소)");
                 }
                 
                 // 타겟이 전투 불능 상태가 된 경우 처리
                 if (!target.IsOperational)
                 {
-                    Debug.Log($"[CombatSimulatorService] {target.Name}이(가) 전투 불능 상태가 되었습니다.");
+                    // Debug.Log($"[CombatSimulatorService] {target.Name}이(가) 전투 불능 상태가 되었습니다.");
+                    Debug.LogError($"[CombatSimulatorService] {target.Name}이(가) 전투 불능 상태가 되었습니다.");
                     
                     // 전투 종료 조건 체크
                     CheckBattleEndCondition();
@@ -331,8 +413,13 @@ namespace AF.Combat
                     attacker, target, weapon.Damage, avoidanceType, 
                     $"{target.Name}이(가) 공격을 회피했습니다.");
                 _eventBus.Publish(damageAvoidedEvent);
+                
+                // 추가 로그: 회피 상세 정보 (LogLevel 수정)
+                Debug.Log($"회피 상세: {target.Name}이(가) {attacker.Name}의 공격을 회피함 (회피 유형: {avoidanceType})");
             }
             
+            // 메서드 종료 로그 (LogLevel 수정)
+            Debug.Log($"종료: {attacker.Name}의 공격 {(hit ? "명중" : "빗나감")}");
             return hit;
         }
         
@@ -382,6 +469,64 @@ namespace AF.Combat
             return _participants
                 .Where(p => _teamAssignments.ContainsKey(p) && _teamAssignments[p] != teamId)
                 .ToList();
+        }
+        
+        /// <summary>
+        /// 주어진 유닛의 행동을 결정합니다. (현재는 가장 가까운 적 공격)
+        /// </summary>
+        /// <param name="activeUnit">행동을 결정할 유닛</param>
+        /// <returns>결정된 행동 정보 (타입, 대상, 무기) 또는 null</returns>
+        private Tuple<CombatActionEvents.ActionType, ArmoredFrame, Weapon> DetermineActionForUnit(ArmoredFrame activeUnit)
+        {
+            var enemies = GetEnemies(activeUnit);
+            if (enemies == null || enemies.Count == 0)
+            {
+                // Debug.Log($"[{_currentBattleId}-T{_currentTurn}] {activeUnit.Name}: 공격할 적이 없습니다. 턴을 넘깁니다.");
+                Debug.Log($"[{_currentBattleId}-T{_currentTurn}] {activeUnit.Name}: 공격할 적이 없습니다. 턴을 넘깁니다.");
+                return null; 
+            }
+
+            // 가장 가까운 적 찾기
+            ArmoredFrame closestEnemy = null;
+            float minDistance = float.MaxValue;
+
+            // Use the Position property instead of transform.position
+            Vector3 currentUnitPosition = activeUnit.Position; 
+
+            foreach (var enemy in enemies)
+            {
+                if (!enemy.IsOperational) continue;
+                
+                // Use the Position property instead of transform.position
+                Vector3 enemyPosition = enemy.Position; 
+                float distance = Vector3.Distance(currentUnitPosition, enemyPosition);
+                
+                if (distance < minDistance)
+                {
+                    minDistance = distance;
+                    closestEnemy = enemy;
+                }
+            }
+
+            if (closestEnemy == null)
+            {
+                 // Debug.Log($"[{_currentBattleId}-T{_currentTurn}] {activeUnit.Name}: 유효한 적을 찾지 못했습니다. 턴을 넘깁니다.");
+                 Debug.LogWarning($"[{_currentBattleId}-T{_currentTurn}] {activeUnit.Name}: 유효한 적을 찾지 못했습니다. 턴을 넘깁니다.");
+                 return null;
+            }
+
+            // 사용할 무기 선택 (첫 번째 무기)
+            Weapon weaponToUse = activeUnit.GetEquippedWeapons().FirstOrDefault();
+            if (weaponToUse == null)
+            {
+                // Debug.LogWarning($"[{_currentBattleId}-T{_currentTurn}] {activeUnit.Name}: 사용할 수 있는 무기가 없습니다.");
+                Debug.LogWarning($"[{_currentBattleId}-T{_currentTurn}] {activeUnit.Name}: 사용할 수 있는 무기가 없습니다.");
+                return null; // TODO: 무기 없을 때 다른 행동 (이동 등) 고려
+            }
+
+            // Debug.Log($"[{_currentBattleId}-T{_currentTurn}] {activeUnit.Name}: 가장 가까운 적 {closestEnemy.Name}(거리: {minDistance:F1})에게 {weaponToUse.Name}(으)로 공격 결정.");
+            Debug.Log($"[{_currentBattleId}-T{_currentTurn}] {activeUnit.Name}: 가장 가까운 적 {closestEnemy.Name}(거리: {minDistance:F1})에게 {weaponToUse.Name}(으)로 공격 결정.");
+            return Tuple.Create(CombatActionEvents.ActionType.Attack, closestEnemy, weaponToUse);
         }
         
         #region 유틸리티 메서드
@@ -484,10 +629,10 @@ namespace AF.Combat
         {
             var result = DetermineCombatResult();
             
-            // 승패가 결정된 경우 (무승부가 아닌 경우)
             if (result != CombatSessionEvents.CombatEndEvent.ResultType.Draw || 
                 !_participants.Any(p => p.IsOperational))
             {
+                // Debug.Log($"[CombatSimulatorService] 전투 종료 조건 충족: {result}");
                 Debug.Log($"[CombatSimulatorService] 전투 종료 조건 충족: {result}");
                 EndCombat(result);
             }

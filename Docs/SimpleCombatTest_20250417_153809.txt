@@ -1,0 +1,411 @@
+=== 전투 로그: SimpleCombatTest ===
+생성 시간: 2025-04-17 오후 3:38:09
+==================================================
+
+[15:38:09] [턴 0] [INFO] Created Test AF: Player AF, Team: 0, Pos: (0.00, 0.00, 0.00)
+[15:38:09] [턴 0] [INFO] Created Test AF: Enemy AF, Team: 1, Pos: (10.00, 0.00, 0.00)
+[15:38:09] [턴 0] [SYSTEM] 전투 시작: Simple Test Battle
+위치: (0.00, 0.00, 0.00)
+참가자:
+- Player AF (Standard)
+- Enemy AF (Standard)
+
+[15:38:09] [턴 0] [SYSTEM] Battle Started with ID: BATTLE_20250417_153809_6202
+[15:38:09] [턴 0] [SYSTEM] --- Turn 1 Processing --- 
+[15:38:09] [턴 1] [INFO] 턴 1 시작 - 활성 유닛: Player AF
+[15:38:09] [턴 1] [INFO] Player AF(이)가 공격 행동을 시작합니다.
+[15:38:09] [턴 1] [WARNING] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 빗나감 (정확도 판정: 0.77)
+[15:38:09] [턴 1] [SUCCESS] Enemy AF(이)가 30.0 데미지를 회피함: Enemy AF이(가) 공격을 회피했습니다.
+[15:38:09] [턴 1] [WARNING] Player AF의 공격 행동 실패: Enemy AF에게 공격 실패
+[15:38:09] [턴 1] [SYSTEM] --- Turn 2 Processing --- 
+[15:38:09] [턴 1] [INFO] 턴 1 종료 - 활성 유닛: Player AF
+[15:38:09] [턴 2] [INFO] 턴 2 시작 - 활성 유닛: Enemy AF
+[15:38:09] [턴 2] [INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[15:38:09] [턴 2] [SUCCESS] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.20)
+[15:38:09] [턴 2] [INFO] 데미지 계산: Enemy AF → Player AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Head)
+[15:38:09] [턴 2] [DANGER] Player AF(이)가 24.0 데미지를 받음 (부위: Head, 남은 내구도: 52 %)
+[15:38:09] [턴 2] [SUCCESS] Enemy AF의 공격 행동 성공: Player AF에게 공격 성공
+[15:38:09] [턴 2] [SYSTEM] --- Turn 3 Processing --- 
+[15:38:09] [턴 2] [INFO] 턴 2 종료 - 활성 유닛: Enemy AF
+[15:38:09] [턴 3] [INFO] 턴 3 시작 - 활성 유닛: Player AF
+[15:38:09] [턴 3] [INFO] Player AF(이)가 공격 행동을 시작합니다.
+[15:38:09] [턴 3] [WARNING] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 빗나감 (정확도 판정: 0.94)
+[15:38:09] [턴 3] [SUCCESS] Enemy AF(이)가 30.0 데미지를 회피함: Enemy AF이(가) 공격을 회피했습니다.
+[15:38:09] [턴 3] [WARNING] Player AF의 공격 행동 실패: Enemy AF에게 공격 실패
+[15:38:09] [턴 3] [SYSTEM] --- Turn 4 Processing --- 
+[15:38:09] [턴 3] [INFO] 턴 3 종료 - 활성 유닛: Player AF
+[15:38:09] [턴 4] [INFO] 턴 4 시작 - 활성 유닛: Enemy AF
+[15:38:09] [턴 4] [INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[15:38:09] [턴 4] [SUCCESS] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.47)
+[15:38:09] [턴 4] [INFO] 데미지 계산: Enemy AF → Player AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Body)
+[15:38:09] [턴 4] [DANGER] Player AF(이)가 24.0 데미지를 받음 (부위: Body, 남은 내구도: 84 %)
+[15:38:09] [턴 4] [SUCCESS] Enemy AF의 공격 행동 성공: Player AF에게 공격 성공
+[15:38:09] [턴 4] [SYSTEM] --- Turn 5 Processing --- 
+[15:38:09] [턴 4] [INFO] 턴 4 종료 - 활성 유닛: Enemy AF
+[15:38:09] [턴 5] [INFO] 턴 5 시작 - 활성 유닛: Player AF
+[15:38:09] [턴 5] [INFO] Player AF(이)가 공격 행동을 시작합니다.
+[15:38:09] [턴 5] [SUCCESS] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.23)
+[15:38:09] [턴 5] [INFO] 데미지 계산: Player AF → Enemy AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Legs)
+[15:38:09] [턴 5] [CRITICAL] Enemy AF(이)가 36.0 데미지를 받음 [치명타!] (부위: Legs, 남은 내구도: 64 %)
+[15:38:09] [턴 5] [SUCCESS] Player AF의 공격 행동 성공: Enemy AF에게 공격 성공
+[15:38:09] [턴 5] [SYSTEM] --- Turn 6 Processing --- 
+[15:38:09] [턴 5] [INFO] 턴 5 종료 - 활성 유닛: Player AF
+[15:38:09] [턴 6] [INFO] 턴 6 시작 - 활성 유닛: Enemy AF
+[15:38:09] [턴 6] [INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[15:38:09] [턴 6] [SUCCESS] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.05)
+[15:38:09] [턴 6] [INFO] 데미지 계산: Enemy AF → Player AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Body)
+[15:38:09] [턴 6] [DANGER] Player AF(이)가 24.0 데미지를 받음 (부위: Body, 남은 내구도: 68 %)
+[15:38:09] [턴 6] [SUCCESS] Enemy AF의 공격 행동 성공: Player AF에게 공격 성공
+[15:38:09] [턴 6] [SYSTEM] --- Turn 7 Processing --- 
+[15:38:09] [턴 6] [INFO] 턴 6 종료 - 활성 유닛: Enemy AF
+[15:38:09] [턴 7] [INFO] 턴 7 시작 - 활성 유닛: Player AF
+[15:38:09] [턴 7] [INFO] Player AF(이)가 공격 행동을 시작합니다.
+[15:38:09] [턴 7] [WARNING] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 빗나감 (정확도 판정: 0.78)
+[15:38:09] [턴 7] [SUCCESS] Enemy AF(이)가 30.0 데미지를 회피함: Enemy AF이(가) 공격을 회피했습니다.
+[15:38:09] [턴 7] [WARNING] Player AF의 공격 행동 실패: Enemy AF에게 공격 실패
+[15:38:09] [턴 7] [SYSTEM] --- Turn 8 Processing --- 
+[15:38:09] [턴 7] [INFO] 턴 7 종료 - 활성 유닛: Player AF
+[15:38:09] [턴 8] [INFO] 턴 8 시작 - 활성 유닛: Enemy AF
+[15:38:09] [턴 8] [INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[15:38:09] [턴 8] [SUCCESS] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.07)
+[15:38:09] [턴 8] [INFO] 데미지 계산: Enemy AF → Player AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Arm)
+[15:38:09] [턴 8] [DANGER] Player AF(이)가 24.0 데미지를 받음 (부위: Arm, 남은 내구도: 70 %)
+[15:38:09] [턴 8] [SUCCESS] Enemy AF의 공격 행동 성공: Player AF에게 공격 성공
+[15:38:09] [턴 8] [SYSTEM] --- Turn 9 Processing --- 
+[15:38:09] [턴 8] [INFO] 턴 8 종료 - 활성 유닛: Enemy AF
+[15:38:09] [턴 9] [INFO] 턴 9 시작 - 활성 유닛: Player AF
+[15:38:09] [턴 9] [INFO] Player AF(이)가 공격 행동을 시작합니다.
+[15:38:09] [턴 9] [SUCCESS] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.46)
+[15:38:09] [턴 9] [INFO] 데미지 계산: Player AF → Enemy AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Arm)
+[15:38:09] [턴 9] [DANGER] Enemy AF(이)가 24.0 데미지를 받음 (부위: Arm, 남은 내구도: 70 %)
+[15:38:09] [턴 9] [SUCCESS] Player AF의 공격 행동 성공: Enemy AF에게 공격 성공
+[15:38:09] [턴 9] [SYSTEM] --- Turn 10 Processing --- 
+[15:38:09] [턴 9] [INFO] 턴 9 종료 - 활성 유닛: Player AF
+[15:38:09] [턴 10] [INFO] 턴 10 시작 - 활성 유닛: Enemy AF
+[15:38:09] [턴 10] [INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[15:38:09] [턴 10] [WARNING] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 빗나감 (정확도 판정: 0.73)
+[15:38:09] [턴 10] [SUCCESS] Player AF(이)가 30.0 데미지를 회피함: Player AF이(가) 공격을 회피했습니다.
+[15:38:09] [턴 10] [WARNING] Enemy AF의 공격 행동 실패: Player AF에게 공격 실패
+[15:38:09] [턴 10] [SYSTEM] --- Turn 11 Processing --- 
+[15:38:09] [턴 10] [INFO] 턴 10 종료 - 활성 유닛: Enemy AF
+[15:38:09] [턴 11] [INFO] 턴 11 시작 - 활성 유닛: Player AF
+[15:38:09] [턴 11] [INFO] Player AF(이)가 공격 행동을 시작합니다.
+[15:38:09] [턴 11] [WARNING] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 빗나감 (정확도 판정: 0.97)
+[15:38:09] [턴 11] [SUCCESS] Enemy AF(이)가 30.0 데미지를 회피함: Enemy AF이(가) 공격을 회피했습니다.
+[15:38:09] [턴 11] [WARNING] Player AF의 공격 행동 실패: Enemy AF에게 공격 실패
+[15:38:09] [턴 11] [SYSTEM] --- Turn 12 Processing --- 
+[15:38:09] [턴 11] [INFO] 턴 11 종료 - 활성 유닛: Player AF
+[15:38:09] [턴 12] [INFO] 턴 12 시작 - 활성 유닛: Enemy AF
+[15:38:09] [턴 12] [INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[15:38:09] [턴 12] [SUCCESS] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.23)
+[15:38:09] [턴 12] [INFO] 데미지 계산: Enemy AF → Player AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Head)
+[15:38:09] [턴 12] [DANGER] Player AF(이)가 24.0 데미지를 받음 (부위: Head, 남은 내구도: 4 %)
+[15:38:09] [턴 12] [SUCCESS] Enemy AF의 공격 행동 성공: Player AF에게 공격 성공
+[15:38:09] [턴 12] [SYSTEM] --- Turn 13 Processing --- 
+[15:38:09] [턴 12] [INFO] 턴 12 종료 - 활성 유닛: Enemy AF
+[15:38:09] [턴 13] [INFO] 턴 13 시작 - 활성 유닛: Player AF
+[15:38:09] [턴 13] [INFO] Player AF(이)가 공격 행동을 시작합니다.
+[15:38:09] [턴 13] [WARNING] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 빗나감 (정확도 판정: 0.95)
+[15:38:09] [턴 13] [SUCCESS] Enemy AF(이)가 30.0 데미지를 회피함: Enemy AF이(가) 공격을 회피했습니다.
+[15:38:09] [턴 13] [WARNING] Player AF의 공격 행동 실패: Enemy AF에게 공격 실패
+[15:38:09] [턴 13] [SYSTEM] --- Turn 14 Processing --- 
+[15:38:09] [턴 13] [INFO] 턴 13 종료 - 활성 유닛: Player AF
+[15:38:09] [턴 14] [INFO] 턴 14 시작 - 활성 유닛: Enemy AF
+[15:38:09] [턴 14] [INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[15:38:09] [턴 14] [SUCCESS] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.17)
+[15:38:09] [턴 14] [INFO] 데미지 계산: Enemy AF → Player AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Body)
+[15:38:09] [턴 14] [DANGER] Player AF(이)가 24.0 데미지를 받음 (부위: Body, 남은 내구도: 52 %)
+[15:38:09] [턴 14] [SUCCESS] Enemy AF의 공격 행동 성공: Player AF에게 공격 성공
+[15:38:09] [턴 14] [SYSTEM] --- Turn 15 Processing --- 
+[15:38:09] [턴 14] [INFO] 턴 14 종료 - 활성 유닛: Enemy AF
+[15:38:09] [턴 15] [INFO] 턴 15 시작 - 활성 유닛: Player AF
+[15:38:09] [턴 15] [INFO] Player AF(이)가 공격 행동을 시작합니다.
+[15:38:09] [턴 15] [SUCCESS] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.43)
+[15:38:09] [턴 15] [INFO] 데미지 계산: Player AF → Enemy AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Body)
+[15:38:09] [턴 15] [DANGER] Enemy AF(이)가 24.0 데미지를 받음 (부위: Body, 남은 내구도: 84 %)
+[15:38:09] [턴 15] [SUCCESS] Player AF의 공격 행동 성공: Enemy AF에게 공격 성공
+[15:38:09] [턴 15] [SYSTEM] --- Turn 16 Processing --- 
+[15:38:09] [턴 15] [INFO] 턴 15 종료 - 활성 유닛: Player AF
+[15:38:09] [턴 16] [INFO] 턴 16 시작 - 활성 유닛: Enemy AF
+[15:38:09] [턴 16] [INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[15:38:09] [턴 16] [SUCCESS] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.07)
+[15:38:09] [턴 16] [INFO] 데미지 계산: Enemy AF → Player AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Head)
+[15:38:09] [턴 16] [DANGER] Player AF(이)가 24.0 데미지를 받음 (부위: Head, 남은 내구도: 0 %)
+[15:38:09] [턴 16] [CRITICAL] Player AF의 Head 파츠가 파괴됨!
+효과:
+- Head 파트가 파괴되었습니다.
+- Player AF의 성능이 감소했습니다.
+
+[15:38:09] [턴 16] [SUCCESS] Enemy AF의 공격 행동 성공: Player AF에게 공격 성공
+[15:38:09] [턴 16] [SYSTEM] --- Turn 17 Processing --- 
+[15:38:09] [턴 16] [INFO] 턴 16 종료 - 활성 유닛: Enemy AF
+[15:38:09] [턴 17] [INFO] 턴 17 시작 - 활성 유닛: Player AF
+[15:38:09] [턴 17] [INFO] Player AF(이)가 공격 행동을 시작합니다.
+[15:38:09] [턴 17] [SUCCESS] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.38)
+[15:38:09] [턴 17] [INFO] 데미지 계산: Player AF → Enemy AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Body)
+[15:38:09] [턴 17] [DANGER] Enemy AF(이)가 24.0 데미지를 받음 (부위: Body, 남은 내구도: 68 %)
+[15:38:09] [턴 17] [SUCCESS] Player AF의 공격 행동 성공: Enemy AF에게 공격 성공
+[15:38:09] [턴 17] [SYSTEM] --- Turn 18 Processing --- 
+[15:38:09] [턴 17] [INFO] 턴 17 종료 - 활성 유닛: Player AF
+[15:38:09] [턴 18] [INFO] 턴 18 시작 - 활성 유닛: Enemy AF
+[15:38:09] [턴 18] [INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[15:38:09] [턴 18] [SUCCESS] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.34)
+[15:38:09] [턴 18] [INFO] 데미지 계산: Enemy AF → Player AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Legs)
+[15:38:09] [턴 18] [DANGER] Player AF(이)가 24.0 데미지를 받음 (부위: Legs, 남은 내구도: 76 %)
+[15:38:09] [턴 18] [SUCCESS] Enemy AF의 공격 행동 성공: Player AF에게 공격 성공
+[15:38:09] [턴 18] [SYSTEM] --- Turn 19 Processing --- 
+[15:38:09] [턴 18] [INFO] 턴 18 종료 - 활성 유닛: Enemy AF
+[15:38:09] [턴 19] [INFO] 턴 19 시작 - 활성 유닛: Player AF
+[15:38:09] [턴 19] [INFO] Player AF(이)가 공격 행동을 시작합니다.
+[15:38:09] [턴 19] [SUCCESS] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.23)
+[15:38:09] [턴 19] [INFO] 데미지 계산: Player AF → Enemy AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Body)
+[15:38:09] [턴 19] [DANGER] Enemy AF(이)가 24.0 데미지를 받음 (부위: Body, 남은 내구도: 52 %)
+[15:38:09] [턴 19] [SUCCESS] Player AF의 공격 행동 성공: Enemy AF에게 공격 성공
+[15:38:09] [턴 19] [SYSTEM] --- Turn 20 Processing --- 
+[15:38:09] [턴 19] [INFO] 턴 19 종료 - 활성 유닛: Player AF
+[15:38:09] [턴 20] [INFO] 턴 20 시작 - 활성 유닛: Enemy AF
+[15:38:09] [턴 20] [INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[15:38:09] [턴 20] [SUCCESS] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.37)
+[15:38:09] [턴 20] [INFO] 데미지 계산: Enemy AF → Player AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Legs)
+[15:38:09] [턴 20] [DANGER] Player AF(이)가 24.0 데미지를 받음 (부위: Legs, 남은 내구도: 52 %)
+[15:38:09] [턴 20] [SUCCESS] Enemy AF의 공격 행동 성공: Player AF에게 공격 성공
+[15:38:09] [턴 20] [SYSTEM] --- Turn 21 Processing --- 
+[15:38:09] [턴 20] [INFO] 턴 20 종료 - 활성 유닛: Enemy AF
+[15:38:09] [턴 21] [INFO] 턴 21 시작 - 활성 유닛: Player AF
+[15:38:09] [턴 21] [INFO] Player AF(이)가 공격 행동을 시작합니다.
+[15:38:09] [턴 21] [SUCCESS] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.10)
+[15:38:09] [턴 21] [INFO] 데미지 계산: Player AF → Enemy AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Head)
+[15:38:09] [턴 21] [DANGER] Enemy AF(이)가 24.0 데미지를 받음 (부위: Head, 남은 내구도: 52 %)
+[15:38:09] [턴 21] [SUCCESS] Player AF의 공격 행동 성공: Enemy AF에게 공격 성공
+[15:38:09] [턴 21] [SYSTEM] --- Turn 22 Processing --- 
+[15:38:09] [턴 21] [INFO] 턴 21 종료 - 활성 유닛: Player AF
+[15:38:09] [턴 22] [INFO] 턴 22 시작 - 활성 유닛: Enemy AF
+[15:38:09] [턴 22] [INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[15:38:09] [턴 22] [SUCCESS] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.37)
+[15:38:09] [턴 22] [INFO] 데미지 계산: Enemy AF → Player AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Legs)
+[15:38:09] [턴 22] [CRITICAL] Player AF(이)가 36.0 데미지를 받음 [치명타!] (부위: Legs, 남은 내구도: 16 %)
+[15:38:09] [턴 22] [SUCCESS] Enemy AF의 공격 행동 성공: Player AF에게 공격 성공
+[15:38:09] [턴 22] [SYSTEM] --- Turn 23 Processing --- 
+[15:38:09] [턴 22] [INFO] 턴 22 종료 - 활성 유닛: Enemy AF
+[15:38:09] [턴 23] [INFO] 턴 23 시작 - 활성 유닛: Player AF
+[15:38:09] [턴 23] [INFO] Player AF(이)가 공격 행동을 시작합니다.
+[15:38:09] [턴 23] [SUCCESS] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.38)
+[15:38:09] [턴 23] [INFO] 데미지 계산: Player AF → Enemy AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Legs)
+[15:38:09] [턴 23] [DANGER] Enemy AF(이)가 24.0 데미지를 받음 (부위: Legs, 남은 내구도: 40 %)
+[15:38:09] [턴 23] [SUCCESS] Player AF의 공격 행동 성공: Enemy AF에게 공격 성공
+[15:38:09] [턴 23] [SYSTEM] --- Turn 24 Processing --- 
+[15:38:09] [턴 23] [INFO] 턴 23 종료 - 활성 유닛: Player AF
+[15:38:09] [턴 24] [INFO] 턴 24 시작 - 활성 유닛: Enemy AF
+[15:38:09] [턴 24] [INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[15:38:09] [턴 24] [SUCCESS] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.30)
+[15:38:09] [턴 24] [INFO] 데미지 계산: Enemy AF → Player AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Arm)
+[15:38:09] [턴 24] [DANGER] Player AF(이)가 24.0 데미지를 받음 (부위: Arm, 남은 내구도: 40 %)
+[15:38:09] [턴 24] [SUCCESS] Enemy AF의 공격 행동 성공: Player AF에게 공격 성공
+[15:38:09] [턴 24] [SYSTEM] --- Turn 25 Processing --- 
+[15:38:09] [턴 24] [INFO] 턴 24 종료 - 활성 유닛: Enemy AF
+[15:38:09] [턴 25] [INFO] 턴 25 시작 - 활성 유닛: Player AF
+[15:38:09] [턴 25] [INFO] Player AF(이)가 공격 행동을 시작합니다.
+[15:38:09] [턴 25] [WARNING] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 빗나감 (정확도 판정: 0.99)
+[15:38:09] [턴 25] [SUCCESS] Enemy AF(이)가 30.0 데미지를 회피함: Enemy AF이(가) 공격을 회피했습니다.
+[15:38:09] [턴 25] [WARNING] Player AF의 공격 행동 실패: Enemy AF에게 공격 실패
+[15:38:09] [턴 25] [SYSTEM] --- Turn 26 Processing --- 
+[15:38:09] [턴 25] [INFO] 턴 25 종료 - 활성 유닛: Player AF
+[15:38:09] [턴 26] [INFO] 턴 26 시작 - 활성 유닛: Enemy AF
+[15:38:09] [턴 26] [INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[15:38:09] [턴 26] [WARNING] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 빗나감 (정확도 판정: 0.71)
+[15:38:09] [턴 26] [SUCCESS] Player AF(이)가 30.0 데미지를 회피함: Player AF이(가) 공격을 회피했습니다.
+[15:38:09] [턴 26] [WARNING] Enemy AF의 공격 행동 실패: Player AF에게 공격 실패
+[15:38:09] [턴 26] [SYSTEM] --- Turn 27 Processing --- 
+[15:38:09] [턴 26] [INFO] 턴 26 종료 - 활성 유닛: Enemy AF
+[15:38:09] [턴 27] [INFO] 턴 27 시작 - 활성 유닛: Player AF
+[15:38:09] [턴 27] [INFO] Player AF(이)가 공격 행동을 시작합니다.
+[15:38:09] [턴 27] [SUCCESS] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.33)
+[15:38:09] [턴 27] [INFO] 데미지 계산: Player AF → Enemy AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Head)
+[15:38:09] [턴 27] [DANGER] Enemy AF(이)가 24.0 데미지를 받음 (부위: Head, 남은 내구도: 4 %)
+[15:38:09] [턴 27] [SUCCESS] Player AF의 공격 행동 성공: Enemy AF에게 공격 성공
+[15:38:09] [턴 27] [SYSTEM] --- Turn 28 Processing --- 
+[15:38:09] [턴 27] [INFO] 턴 27 종료 - 활성 유닛: Player AF
+[15:38:09] [턴 28] [INFO] 턴 28 시작 - 활성 유닛: Enemy AF
+[15:38:09] [턴 28] [INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[15:38:09] [턴 28] [SUCCESS] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.52)
+[15:38:09] [턴 28] [INFO] 데미지 계산: Enemy AF → Player AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Legs)
+[15:38:09] [턴 28] [DANGER] Player AF(이)가 24.0 데미지를 받음 (부위: Legs, 남은 내구도: 0 %)
+[15:38:09] [턴 28] [CRITICAL] Player AF의 Legs 파츠가 파괴됨!
+효과:
+- Legs 파트가 파괴되었습니다.
+- Player AF의 성능이 감소했습니다.
+
+[15:38:09] [턴 28] [SUCCESS] Enemy AF의 공격 행동 성공: Player AF에게 공격 성공
+[15:38:09] [턴 28] [SYSTEM] --- Turn 29 Processing --- 
+[15:38:09] [턴 28] [INFO] 턴 28 종료 - 활성 유닛: Enemy AF
+[15:38:09] [턴 29] [INFO] 턴 29 시작 - 활성 유닛: Player AF
+[15:38:09] [턴 29] [INFO] Player AF(이)가 공격 행동을 시작합니다.
+[15:38:09] [턴 29] [SUCCESS] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.30)
+[15:38:09] [턴 29] [INFO] 데미지 계산: Player AF → Enemy AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Arm)
+[15:38:09] [턴 29] [CRITICAL] Enemy AF(이)가 36.0 데미지를 받음 [치명타!] (부위: Arm, 남은 내구도: 25 %)
+[15:38:09] [턴 29] [SUCCESS] Player AF의 공격 행동 성공: Enemy AF에게 공격 성공
+[15:38:09] [턴 29] [SYSTEM] --- Turn 30 Processing --- 
+[15:38:09] [턴 29] [INFO] 턴 29 종료 - 활성 유닛: Player AF
+[15:38:09] [턴 30] [INFO] 턴 30 시작 - 활성 유닛: Enemy AF
+[15:38:09] [턴 30] [INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[15:38:09] [턴 30] [SUCCESS] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.65)
+[15:38:09] [턴 30] [INFO] 데미지 계산: Enemy AF → Player AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Arm)
+[15:38:09] [턴 30] [DANGER] Player AF(이)가 24.0 데미지를 받음 (부위: Arm, 남은 내구도: 10 %)
+[15:38:09] [턴 30] [SUCCESS] Enemy AF의 공격 행동 성공: Player AF에게 공격 성공
+[15:38:09] [턴 30] [SYSTEM] --- Turn 31 Processing --- 
+[15:38:09] [턴 30] [INFO] 턴 30 종료 - 활성 유닛: Enemy AF
+[15:38:09] [턴 31] [INFO] 턴 31 시작 - 활성 유닛: Player AF
+[15:38:09] [턴 31] [INFO] Player AF(이)가 공격 행동을 시작합니다.
+[15:38:09] [턴 31] [SUCCESS] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.22)
+[15:38:09] [턴 31] [INFO] 데미지 계산: Player AF → Enemy AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Body)
+[15:38:09] [턴 31] [DANGER] Enemy AF(이)가 24.0 데미지를 받음 (부위: Body, 남은 내구도: 36 %)
+[15:38:09] [턴 31] [SUCCESS] Player AF의 공격 행동 성공: Enemy AF에게 공격 성공
+[15:38:09] [턴 31] [SYSTEM] --- Turn 32 Processing --- 
+[15:38:09] [턴 31] [INFO] 턴 31 종료 - 활성 유닛: Player AF
+[15:38:09] [턴 32] [INFO] 턴 32 시작 - 활성 유닛: Enemy AF
+[15:38:09] [턴 32] [INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[15:38:09] [턴 32] [SUCCESS] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.02)
+[15:38:09] [턴 32] [INFO] 데미지 계산: Enemy AF → Player AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Body)
+[15:38:09] [턴 32] [DANGER] Player AF(이)가 24.0 데미지를 받음 (부위: Body, 남은 내구도: 36 %)
+[15:38:09] [턴 32] [SUCCESS] Enemy AF의 공격 행동 성공: Player AF에게 공격 성공
+[15:38:09] [턴 32] [SYSTEM] --- Turn 33 Processing --- 
+[15:38:09] [턴 32] [INFO] 턴 32 종료 - 활성 유닛: Enemy AF
+[15:38:09] [턴 33] [INFO] 턴 33 시작 - 활성 유닛: Player AF
+[15:38:09] [턴 33] [INFO] Player AF(이)가 공격 행동을 시작합니다.
+[15:38:09] [턴 33] [WARNING] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 빗나감 (정확도 판정: 0.81)
+[15:38:09] [턴 33] [SUCCESS] Enemy AF(이)가 30.0 데미지를 회피함: Enemy AF이(가) 공격을 회피했습니다.
+[15:38:09] [턴 33] [WARNING] Player AF의 공격 행동 실패: Enemy AF에게 공격 실패
+[15:38:09] [턴 33] [SYSTEM] --- Turn 34 Processing --- 
+[15:38:09] [턴 33] [INFO] 턴 33 종료 - 활성 유닛: Player AF
+[15:38:09] [턴 34] [INFO] 턴 34 시작 - 활성 유닛: Enemy AF
+[15:38:09] [턴 34] [INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[15:38:09] [턴 34] [SUCCESS] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.19)
+[15:38:09] [턴 34] [INFO] 데미지 계산: Enemy AF → Player AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Body)
+[15:38:09] [턴 34] [DANGER] Player AF(이)가 24.0 데미지를 받음 (부위: Body, 남은 내구도: 20 %)
+[15:38:09] [턴 34] [SUCCESS] Enemy AF의 공격 행동 성공: Player AF에게 공격 성공
+[15:38:09] [턴 34] [SYSTEM] --- Turn 35 Processing --- 
+[15:38:09] [턴 34] [INFO] 턴 34 종료 - 활성 유닛: Enemy AF
+[15:38:09] [턴 35] [INFO] 턴 35 시작 - 활성 유닛: Player AF
+[15:38:09] [턴 35] [INFO] Player AF(이)가 공격 행동을 시작합니다.
+[15:38:09] [턴 35] [SUCCESS] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.21)
+[15:38:09] [턴 35] [INFO] 데미지 계산: Player AF → Enemy AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Arm)
+[15:38:09] [턴 35] [DANGER] Enemy AF(이)가 24.0 데미지를 받음 (부위: Arm, 남은 내구도: 0 %)
+[15:38:09] [턴 35] [CRITICAL] Enemy AF의 Arm 파츠가 파괴됨!
+효과:
+- Arm 파트가 파괴되었습니다.
+- Enemy AF의 성능이 감소했습니다.
+
+[15:38:09] [턴 35] [SUCCESS] Player AF의 공격 행동 성공: Enemy AF에게 공격 성공
+[15:38:09] [턴 35] [SYSTEM] --- Turn 36 Processing --- 
+[15:38:09] [턴 35] [INFO] 턴 35 종료 - 활성 유닛: Player AF
+[15:38:09] [턴 36] [INFO] 턴 36 시작 - 활성 유닛: Enemy AF
+[15:38:09] [턴 36] [INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[15:38:09] [턴 36] [SUCCESS] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.53)
+[15:38:09] [턴 36] [INFO] 데미지 계산: Enemy AF → Player AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Arm)
+[15:38:09] [턴 36] [DANGER] Player AF(이)가 24.0 데미지를 받음 (부위: Arm, 남은 내구도: 0 %)
+[15:38:09] [턴 36] [CRITICAL] Player AF의 Arm 파츠가 파괴됨!
+효과:
+- Arm 파트가 파괴되었습니다.
+- Player AF의 성능이 감소했습니다.
+
+[15:38:09] [턴 36] [SUCCESS] Enemy AF의 공격 행동 성공: Player AF에게 공격 성공
+[15:38:09] [턴 36] [SYSTEM] --- Turn 37 Processing --- 
+[15:38:09] [턴 36] [INFO] 턴 36 종료 - 활성 유닛: Enemy AF
+[15:38:09] [턴 37] [INFO] 턴 37 시작 - 활성 유닛: Player AF
+[15:38:09] [턴 37] [INFO] Player AF(이)가 공격 행동을 시작합니다.
+[15:38:09] [턴 37] [SUCCESS] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.03)
+[15:38:09] [턴 37] [INFO] 데미지 계산: Player AF → Enemy AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Legs)
+[15:38:09] [턴 37] [DANGER] Enemy AF(이)가 24.0 데미지를 받음 (부위: Legs, 남은 내구도: 16 %)
+[15:38:09] [턴 37] [SUCCESS] Player AF의 공격 행동 성공: Enemy AF에게 공격 성공
+[15:38:09] [턴 37] [SYSTEM] --- Turn 38 Processing --- 
+[15:38:09] [턴 37] [INFO] 턴 37 종료 - 활성 유닛: Player AF
+[15:38:09] [턴 38] [INFO] 턴 38 시작 - 활성 유닛: Enemy AF
+[15:38:09] [턴 38] [INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[15:38:09] [턴 38] [WARNING] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 빗나감 (정확도 판정: 0.71)
+[15:38:09] [턴 38] [SUCCESS] Player AF(이)가 30.0 데미지를 회피함: Player AF이(가) 공격을 회피했습니다.
+[15:38:09] [턴 38] [WARNING] Enemy AF의 공격 행동 실패: Player AF에게 공격 실패
+[15:38:09] [턴 38] [SYSTEM] --- Turn 39 Processing --- 
+[15:38:09] [턴 38] [INFO] 턴 38 종료 - 활성 유닛: Enemy AF
+[15:38:09] [턴 39] [INFO] 턴 39 시작 - 활성 유닛: Player AF
+[15:38:09] [턴 39] [INFO] Player AF(이)가 공격 행동을 시작합니다.
+[15:38:09] [턴 39] [SUCCESS] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.19)
+[15:38:09] [턴 39] [INFO] 데미지 계산: Player AF → Enemy AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Legs)
+[15:38:09] [턴 39] [CRITICAL] Enemy AF(이)가 36.0 데미지를 받음 [치명타!] (부위: Legs, 남은 내구도: 0 %)
+[15:38:09] [턴 39] [CRITICAL] Enemy AF의 Legs 파츠가 파괴됨!
+효과:
+- Legs 파트가 파괴되었습니다.
+- Enemy AF의 성능이 감소했습니다.
+
+[15:38:09] [턴 39] [SUCCESS] Player AF의 공격 행동 성공: Enemy AF에게 공격 성공
+[15:38:09] [턴 39] [SYSTEM] --- Turn 40 Processing --- 
+[15:38:09] [턴 39] [INFO] 턴 39 종료 - 활성 유닛: Player AF
+[15:38:09] [턴 40] [INFO] 턴 40 시작 - 활성 유닛: Enemy AF
+[15:38:09] [턴 40] [INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[15:38:09] [턴 40] [SUCCESS] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.12)
+[15:38:09] [턴 40] [INFO] 데미지 계산: Enemy AF → Player AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Body)
+[15:38:09] [턴 40] [DANGER] Player AF(이)가 24.0 데미지를 받음 (부위: Body, 남은 내구도: 4 %)
+[15:38:09] [턴 40] [SUCCESS] Enemy AF의 공격 행동 성공: Player AF에게 공격 성공
+[15:38:09] [턴 40] [SYSTEM] --- Turn 41 Processing --- 
+[15:38:09] [턴 40] [INFO] 턴 40 종료 - 활성 유닛: Enemy AF
+[15:38:09] [턴 41] [INFO] 턴 41 시작 - 활성 유닛: Player AF
+[15:38:09] [턴 41] [INFO] Player AF(이)가 공격 행동을 시작합니다.
+[15:38:09] [턴 41] [SUCCESS] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.37)
+[15:38:09] [턴 41] [INFO] 데미지 계산: Player AF → Enemy AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Head)
+[15:38:09] [턴 41] [DANGER] Enemy AF(이)가 24.0 데미지를 받음 (부위: Head, 남은 내구도: 0 %)
+[15:38:09] [턴 41] [CRITICAL] Enemy AF의 Head 파츠가 파괴됨!
+효과:
+- Head 파트가 파괴되었습니다.
+- Enemy AF의 성능이 감소했습니다.
+
+[15:38:09] [턴 41] [SUCCESS] Player AF의 공격 행동 성공: Enemy AF에게 공격 성공
+[15:38:09] [턴 41] [SYSTEM] --- Turn 42 Processing --- 
+[15:38:09] [턴 41] [INFO] 턴 41 종료 - 활성 유닛: Player AF
+[15:38:09] [턴 42] [INFO] 턴 42 시작 - 활성 유닛: Enemy AF
+[15:38:09] [턴 42] [INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[15:38:09] [턴 42] [WARNING] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 빗나감 (정확도 판정: 0.82)
+[15:38:09] [턴 42] [SUCCESS] Player AF(이)가 30.0 데미지를 회피함: Player AF이(가) 공격을 회피했습니다.
+[15:38:09] [턴 42] [WARNING] Enemy AF의 공격 행동 실패: Player AF에게 공격 실패
+[15:38:09] [턴 42] [SYSTEM] --- Turn 43 Processing --- 
+[15:38:09] [턴 42] [INFO] 턴 42 종료 - 활성 유닛: Enemy AF
+[15:38:09] [턴 43] [INFO] 턴 43 시작 - 활성 유닛: Player AF
+[15:38:09] [턴 43] [INFO] Player AF(이)가 공격 행동을 시작합니다.
+[15:38:09] [턴 43] [SUCCESS] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.04)
+[15:38:09] [턴 43] [INFO] 데미지 계산: Player AF → Enemy AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Body)
+[15:38:09] [턴 43] [CRITICAL] Enemy AF(이)가 36.0 데미지를 받음 [치명타!] (부위: Body, 남은 내구도: 12 %)
+[15:38:09] [턴 43] [SUCCESS] Player AF의 공격 행동 성공: Enemy AF에게 공격 성공
+[15:38:09] [턴 43] [SYSTEM] --- Turn 44 Processing --- 
+[15:38:09] [턴 43] [INFO] 턴 43 종료 - 활성 유닛: Player AF
+[15:38:09] [턴 44] [INFO] 턴 44 시작 - 활성 유닛: Enemy AF
+[15:38:09] [턴 44] [INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[15:38:09] [턴 44] [WARNING] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 빗나감 (정확도 판정: 0.79)
+[15:38:09] [턴 44] [SUCCESS] Player AF(이)가 30.0 데미지를 회피함: Player AF이(가) 공격을 회피했습니다.
+[15:38:09] [턴 44] [WARNING] Enemy AF의 공격 행동 실패: Player AF에게 공격 실패
+[15:38:09] [턴 44] [SYSTEM] --- Turn 45 Processing --- 
+[15:38:09] [턴 44] [INFO] 턴 44 종료 - 활성 유닛: Enemy AF
+[15:38:09] [턴 45] [INFO] 턴 45 시작 - 활성 유닛: Player AF
+[15:38:09] [턴 45] [INFO] Player AF(이)가 공격 행동을 시작합니다.
+[15:38:09] [턴 45] [WARNING] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 빗나감 (정확도 판정: 0.94)
+[15:38:09] [턴 45] [SUCCESS] Enemy AF(이)가 30.0 데미지를 회피함: Enemy AF이(가) 공격을 회피했습니다.
+[15:38:09] [턴 45] [WARNING] Player AF의 공격 행동 실패: Enemy AF에게 공격 실패
+[15:38:09] [턴 45] [SYSTEM] --- Turn 46 Processing --- 
+[15:38:09] [턴 45] [INFO] 턴 45 종료 - 활성 유닛: Player AF
+[15:38:09] [턴 46] [INFO] 턴 46 시작 - 활성 유닛: Enemy AF
+[15:38:09] [턴 46] [INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[15:38:09] [턴 46] [SUCCESS] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.47)
+[15:38:09] [턴 46] [INFO] 데미지 계산: Enemy AF → Player AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Body)
+[15:38:09] [턴 46] [DANGER] Player AF(이)가 24.0 데미지를 받음 (부위: Body, 남은 내구도: 0 %)
+[15:38:09] [턴 46] [CRITICAL] Player AF의 Body 파츠가 파괴됨!
+효과:
+- Body 파트가 파괴되었습니다.
+- Player AF의 성능이 감소했습니다.
+
+[15:38:09] [턴 46] [SYSTEM] 전투 종료: Defeat
+지속 시간: 0.00초
+생존자:
+- Enemy AF
+
+[15:38:09] [턴 46] [SUCCESS] Enemy AF의 공격 행동 성공: Player AF에게 공격 성공
+[15:38:09] [턴 46] [SYSTEM] === Combat Test End ===
+
+==================================================
+로그 항목 수: 367

@@ -1,0 +1,204 @@
+---
+description: sasha-unity project development
+globs: 
+alwaysApply: false
+---
+// NOTE: Do not generate or use any members that do not exist.
+
+# 아머드 프레임(AF) 프로젝트 API 문서
+
+이 문서는 아머드 프레임(AF) 프로젝트의 주요 클래스와 인터페이스의 공개(public) 프로퍼티와 메서드를 정리한 참조 문서입니다.
+
+## 목차
+
+1. [AF.Services](mdc:#afservices)
+2. [AF.EventBus](mdc:#afeventbus)
+3. [AF.Models](mdc:#afmodels)
+4. [AF.Combat](mdc:#afcombat)
+
+---
+
+## AF.Services
+
+서비스 관리 및 의존성 주입을 위한 네임스페이스입니다.
+
+### IService
+
+모든 서비스가 구현해야 하는 기본 인터페이스입니다.
+
+**Public 메서드:**
+- `void Initialize()` - 서비스 초기화 메서드
+- `void Shutdown()` - 서비스 종료 메서드
+
+### ServiceLocator
+
+서비스 로케이터 패턴을 구현한 클래스로, 다양한 서비스에 대한 중앙 액세스 포인트를 제공합니다.
+
+**Public 프로퍼티:**
+- `static ServiceLocator Instance` - 싱글톤 인스턴스에 접근하기 위한 프로퍼티
+
+**Public 메서드:**
+- `void RegisterService<T>(T service)` - 서비스를 등록
+- `T GetService<T>()` - 등록된 서비스를 가져옴
+- `bool HasService<T>()` - 특정 서비스가 등록되어 있는지 확인
+- `bool RemoveService<T>()` - 등록된 서비스를 제거
+- `void ClearAllServices()` - 모든 서비스를 제거
+
+### ServiceExtensions
+
+ServiceLocator 클래스에 대한 확장 메서드 모음입니다.
+
+**Public 메서드:**
+- `T GetService<T>(this MonoBehaviour component)` - MonoBehaviour에서 서비스를 쉽게 가져오기 위한 확장 메서드
+- `bool HasService<T>(this MonoBehaviour component)` - 서비스가 등록되어 있는지 확인하는 확장 메서드
+- `T TryGetService<T>(this MonoBehaviour component)` - 서비스를 안전하게 가져오는 확장 메서드 (없으면 null 반환)
+
+### IExampleService
+
+서비스 로케이터 패턴 예제를 위한 샘플 서비스 인터페이스입니다.
+
+**Public 메서드:**
+- `void DoSomething()` - 예제 메서드
+- `string GetServiceInfo()` - 서비스 정보 반환 메서드
+
+### ExampleService
+
+서비스 로케이터 패턴 사용 예제를 위한 간단한 서비스 구현입니다.
+
+**Public 메서드:**
+- `void Initialize()` - 서비스 초기화 메서드
+- `void Shutdown()` - 서비스 종료 및 리소스 정리 메서드
+- `void DoSomething()` - 서비스 예제 메서드
+- `string GetServiceInfo()` - 서비스 상태 확인 메서드
+
+## AF.EventBus
+
+이벤트 버스 시스템을 구현한 네임스페이스입니다.
+
+### IEvent
+
+모든 이벤트가 구현해야 하는 기본 인터페이스입니다.
+
+### EventBus
+
+이벤트 버스 시스템의 핵심 클래스로, 이벤트 구독, 발행, 해제 기능을 제공합니다.
+
+**Public 메서드:**
+- `void Subscribe<T>(Action<T> listener)` - 지정된 이벤트 타입에 대한 리스너 등록
+- `void Unsubscribe<T>(Action<T> listener)` - 지정된 이벤트 타입에 대한 리스너 등록 해제
+- `void Publish<T>(T eventData)` - 지정된 이벤트를 발행
+- `void Clear()` - 모든 이벤트 구독을 제거
+- `void SetLogging(bool enable)` - 로깅 활성화 여부를 설정
+- `Dictionary<string, int> GetRegisteredEvents()` - 현재 등록된 모든 이벤트 타입과 리스너 수를 반환
+
+### EventBusService
+
+이벤트 버스 기능을 서비스로 제공하는 클래스입니다.
+
+**Public 메서드:**
+- `void Initialize()` - 서비스 초기화 메서드
+- `void Shutdown()` - 서비스 종료 메서드
+
+## AF.Models
+
+게임의 데이터 모델을 정의하는 네임스페이스입니다.
+
+### Weapon
+
+ArmoredFrame에 장착 가능한 무기 클래스입니다.
+
+**Public 프로퍼티:**
+- `string Name` - 무기의 이름
+- `WeaponType Type` - 무기의 타입 (근접, 중거리, 원거리)
+- `DamageType DamageType` - 데미지 타입 (물리, 에너지, 폭발, 관통, 전기)
+- `float Damage` - 기본 데미지
+- `float Accuracy` - 정확도 (0.0 ~ 1.0)
+- `float Range` - 사거리 (유닛 단위)
+- `float AttackSpeed` - 공격 속도 (초당 공격 횟수)
+- `float CurrentHeat` - 현재 과열도
+- `bool IsOperational` - 무기가 현재 작동 가능한지 여부
+- `IReadOnlyList<string> SpecialEffects` - 특수 효과 목록
+
+**Public 메서드:**
+- `Weapon()` - 기본 생성자
+- `Weapon(string name, WeaponType type, DamageType damageType, float damage, float accuracy, float range, float attackSpeed, float overheatPerShot)` - 상세 정보를 지정하는 생성자
+- `bool Fire()` - 무기를 발사
+- `void Cooldown(float cooldownAmount)` - 무기의 과열도를 냉각
+- `void AddSpecialEffect(string effect)` - 특수 효과를 추가
+- `void Repair()` - 무기를 수리
+- `void DamageWeapon()` - 무기를 손상시킴
+- `float CalculateDamage(float attackerAccuracyMod, float targetEvasionMod)` - 실제 데미지를 계산 (명중률 고려)
+
+### ArmoredFrame
+
+메카닉 유닛을 나타내는 클래스입니다.
+
+**Public 프로퍼티:**
+- `string Name` - 유닛의 이름
+- `bool IsOperational` - 유닛이 현재 작동 가능한지 여부
+- `Pilot Pilot` - 조종사 정보
+- `Frame Frame` - 프레임 정보
+- `List<Part> Parts` - 장착된 부품 목록
+- `List<Weapon> Weapons` - 장착된 무기 목록
+- `Stats BaseStats` - 기본 스탯
+- `Stats CurrentStats` - 현재 스탯 (효과, 데미지 등 반영)
+
+**Public 메서드:**
+(주요 메서드만 나열)
+- `ArmoredFrame(string name, Pilot pilot, Frame frame)` - 기본 생성자
+- `void AddPart(Part part)` - 부품 추가
+- `void RemovePart(Part part)` - 부품 제거
+- `void AddWeapon(Weapon weapon)` - 무기 추가
+- `void RemoveWeapon(Weapon weapon)` - 무기 제거
+- `bool TakeDamage(float amount, DamageType damageType, PartType targetPartType = PartType.None)` - 데미지를 받음
+- `void Repair(float amount, PartType partType = PartType.None)` - 유닛 수리
+- `void RecalculateStats()` - 스탯 재계산
+
+## AF.Combat
+
+전투 시스템을 구현한 네임스페이스입니다.
+
+### ICombatSimulatorService
+
+전투 시뮬레이션 서비스 인터페이스입니다.
+
+**Public 프로퍼티:**
+- `string CurrentBattleId` - 현재 전투 ID
+- `bool IsInCombat` - 전투 중인지 여부
+- `int CurrentTurn` - 현재 턴 번호
+- `ArmoredFrame CurrentActiveUnit` - 현재 활성화된 유닛
+
+**Public 메서드:**
+- `void Initialize()` - 서비스 초기화
+- `void Shutdown()` - 서비스 종료
+- `string StartCombat(ArmoredFrame[] participants, string battleName, bool autoProcess = false)` - 전투 시작
+- `void EndCombat(CombatSessionEvents.CombatEndEvent.ResultType? forceResult = null)` - 전투 종료
+- `bool ProcessNextTurn()` - 다음 턴으로 진행
+- `bool PerformAction(ArmoredFrame actor, CombatActionEvents.ActionType actionType, params object[] parameters)` - 특정 행동 수행
+- `bool PerformAttack(ArmoredFrame attacker, ArmoredFrame target, Weapon weapon)` - 공격 수행
+- `bool IsUnitDefeated(ArmoredFrame unit)` - 유닛 패배 여부 확인
+- `List<ArmoredFrame> GetParticipants()` - 모든 참가자 가져오기
+- `List<ArmoredFrame> GetAllies(ArmoredFrame forUnit)` - 특정 유닛의 아군 가져오기
+- `List<ArmoredFrame> GetEnemies(ArmoredFrame forUnit)` - 특정 유닛의 적군 가져오기
+
+### ITextLogger
+
+전투 로그를 기록하기 위한 인터페이스입니다.
+
+**Public 메서드:**
+- `void Initialize()` - 초기화
+- `void Shutdown()` - 종료
+- `void LogCombatStart(string battleId, string battleName, ArmoredFrame[] participants)` - 전투 시작 로그
+- `void LogCombatEnd(string battleId, CombatSessionEvents.CombatEndEvent.ResultType result, ArmoredFrame[] survivors, float duration)` - 전투 종료 로그
+- `void LogTurnStart(string battleId, int turnNumber, ArmoredFrame activeUnit)` - 턴 시작 로그
+- `void LogTurnEnd(string battleId, int turnNumber, ArmoredFrame activeUnit)` - 턴 종료 로그
+- `void LogAction(string battleId, ArmoredFrame actor, CombatActionEvents.ActionType actionType, bool success, string description)` - 행동 로그
+- `void LogAttack(string battleId, ArmoredFrame attacker, ArmoredFrame target, Weapon weapon, float damage, bool critical, PartType targetPart)` - 공격 로그
+- `void LogDamage(string battleId, ArmoredFrame target, float damage, DamageType damageType, PartType targetPart)` - 데미지 로그
+- `void LogStatusEffect(string battleId, ArmoredFrame target, string effectName, bool applied)` - 상태 효과 로그
+- `void LogUnitDefeat(string battleId, ArmoredFrame defeatedUnit)` - 유닛 패배 로그
+- `string GetCombatLog(string battleId)` - 특정 전투의 전체 로그 가져오기
+
+---
+
+*이 문서는 각 네임스페이스별 주요 클래스와 인터페이스의 공개 API를 요약한 것입니다. 자세한 내용은 각 코드 파일의 XML 문서 주석을 참조하세요.*

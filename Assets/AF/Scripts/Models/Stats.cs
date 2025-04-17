@@ -59,9 +59,11 @@ namespace AF.Models
         public Stats() { }
 
         /// <summary>
-        /// 모든 스탯을 지정하는 생성자
+        /// 모든 스탯을 지정하는 생성자 (기본값 설정 추가)
         /// </summary>
-        public Stats(float attackPower, float defense, float speed, float accuracy, float evasion, float durability, float energyEfficiency)
+        public Stats(float attackPower = 1.0f, float defense = 1.0f, float speed = 1.0f, 
+                     float accuracy = 1.0f, float evasion = 1.0f, float durability = 100.0f, 
+                     float energyEfficiency = 1.0f)
         {
             _attackPower = attackPower;
             _defense = defense;

@@ -1,4 +1,9 @@
 ---
+description: sasha-unity project development
+globs: 
+alwaysApply: false
+---
+---
 description: sasha-unity project
 globs: 
 alwaysApply: false
