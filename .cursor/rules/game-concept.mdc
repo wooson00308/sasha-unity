@@ -1,4 +1,9 @@
 ---
+description: 
+globs: *.cs
+alwaysApply: false
+---
+---
 description: sasha-unity project development
 globs: 
 alwaysApply: false

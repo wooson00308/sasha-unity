@@ -1,4 +1,9 @@
 ---
+description: 
+globs: *.cs
+alwaysApply: false
+---
+---
 description: unity project coding
 globs: 
 alwaysApply: false

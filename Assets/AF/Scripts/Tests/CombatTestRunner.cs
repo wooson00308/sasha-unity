@@ -3,6 +3,7 @@ using AF.Models;
 using AF.Combat;
 using AF.Services;
 using System.Collections.Generic;
+using System;
 
 namespace AF.Tests
 {
@@ -90,11 +91,11 @@ namespace AF.Tests
                      // 전투가 중간에 종료된 경우 (예: 한쪽 전멸)
                      break;
                  }
-                 // 각 턴의 상세 로그를 보고 싶다면 여기서 출력 가능
-                 if (_logCombatDetails)
-                 {
-                     //LogCurrentTurnDetails();
-                 }
+                 // 각 턴의 상세 로그는 CombatSimulatorService에서 처리
+                 // if (_logCombatDetails)
+                 // {
+                 //     // LogCurrentTurnDetails(); // 이 부분 삭제
+                 // }
             }
             
             // 4. 전투 종료 확인
@@ -159,11 +160,5 @@ namespace AF.Tests
             Log($"Created Test AF: {name}, Team: {teamId}, Pos: {position}", LogLevel.Info);
             return af;
         }
-        
-        // TODO: 각 턴의 상세 정보를 로깅하는 메서드 구현
-        // private void LogCurrentTurnDetails()
-        // {
-        //     // 현재 유닛, 체력, 위치 등 정보 로깅
-        // }
     }
 } 

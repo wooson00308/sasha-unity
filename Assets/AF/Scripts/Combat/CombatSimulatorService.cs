@@ -16,6 +16,8 @@ namespace AF.Combat
     {
         // 이벤트 버스 참조
         private EventBus.EventBus _eventBus;
+        // 텍스트 로거 서비스 참조 추가
+        private TextLoggerService _textLogger;
         
         // 전투 상태 관련 필드
         private string _currentBattleId;
@@ -26,6 +28,8 @@ namespace AF.Combat
         private ArmoredFrame _currentActiveUnit;
         private Dictionary<ArmoredFrame, int> _teamAssignments; // 팀 할당 정보 (ArmoredFrame -> 팀 ID)
         private float _combatStartTime;
+        // 이전 턴 파츠 내구도 기록용 딕셔너리 추가
+        private Dictionary<(ArmoredFrame, PartType), float> _previousPartDurability;
         
         // 프로퍼티 구현
         public string CurrentBattleId => _currentBattleId;
@@ -39,8 +43,13 @@ namespace AF.Combat
         public void Initialize()
         {
             _eventBus = ServiceLocator.Instance.GetService<EventBusService>().Bus;
+            // TextLoggerService 가져오기 추가
+            _textLogger = ServiceLocator.Instance.GetService<TextLoggerService>(); 
+            
             _participants = new List<ArmoredFrame>();
             _teamAssignments = new Dictionary<ArmoredFrame, int>();
+            // 이전 내구도 딕셔너리 초기화 추가
+            _previousPartDurability = new Dictionary<(ArmoredFrame, PartType), float>();
             _isInCombat = false;
             _currentTurn = 0;
             _currentBattleId = null;
@@ -64,6 +73,8 @@ namespace AF.Combat
             _eventBus = null;
             _participants = null;
             _teamAssignments = null;
+            // 이전 내구도 딕셔너리 초기화 추가 (종료 시)
+            _previousPartDurability = null; 
             
             // Debug.Log("[CombatSimulatorService] 서비스 종료");
             Debug.Log("[CombatSimulatorService] 서비스 종료");
@@ -89,6 +100,9 @@ namespace AF.Combat
             // 참가자 설정
             _participants = new List<ArmoredFrame>(participants);
             AssignTeams(participants);
+            // 이전 내구도 딕셔너리 초기화 및 초기값 설정
+            _previousPartDurability.Clear();
+            InitializePreviousDurability();
             
             // 이벤트 발행
             Vector3 battleLocation = Vector3.zero; // 기본값으로 설정, 필요한 경우 위치 정보 추가
@@ -137,6 +151,8 @@ namespace AF.Combat
             _currentActiveUnit = null;
             _participants.Clear();
             _teamAssignments.Clear();
+            // 이전 내구도 딕셔너리 비우기 추가
+            _previousPartDurability.Clear();
             
             // Debug.Log($"[CombatSimulatorService] 전투 종료: {_battleName} (ID: {_currentBattleId}, 결과: {result})");
             Debug.Log($"[CombatSimulatorService] 전투 종료: {_battleName} (ID: {_currentBattleId}, 결과: {result})");
@@ -189,6 +205,9 @@ namespace AF.Combat
             {
                 PerformAction(_currentActiveUnit, action.Item1, action.Item2, action.Item3);
             }
+
+            // 턴 종료 전 모든 유닛 상태 로깅
+            LogAllUnitDetails();
             
             return true;
         }
@@ -652,6 +671,110 @@ namespace AF.Combat
             return partTypes[randomIndex];
         }
         
+        /// <summary>
+        /// 모든 참가 유닛의 상세 상태를 로깅합니다.
+        /// </summary>
+        private void LogAllUnitDetails()
+        {
+            _textLogger.TextLogger.Log("--- Current Units Status ---", LogLevel.Info);
+            foreach (var unit in _participants)
+            {
+                LogUnitDetails(unit);
+            }
+            _textLogger.TextLogger.Log("----------------------------", LogLevel.Info);
+        }
+
+        /// <summary>
+        /// 특정 유닛의 상세 상태를 로깅합니다.
+        /// </summary>
+        private void LogUnitDetails(ArmoredFrame unit)
+        {
+            if (unit == null) return;
+
+            _textLogger.TextLogger.Log($"  Unit: {unit.Name} {(unit.IsOperational ? "(Operational)" : "(DESTROYED)")}", LogLevel.Info);
+
+            // 파츠 상태 로깅
+            _textLogger.TextLogger.Log("    Parts Status:", LogLevel.Info);
+            foreach (PartType partType in Enum.GetValues(typeof(PartType)))
+            {
+                Part part = unit.GetPart(partType);
+                if (part != null)
+                {
+                    string status;
+                    var key = (unit, partType); // 딕셔너리 키 생성
+                    float currentDurability = part.CurrentDurability;
+
+                    if (part.IsOperational)
+                    {
+                        string changeIndicator = "";
+                        // 이전 내구도 가져오기 및 변화량 계산
+                        if (_previousPartDurability.TryGetValue(key, out float previousDurability))
+                        {
+                            float durabilityChange = currentDurability - previousDurability;
+                            if (Mathf.Abs(durabilityChange) > 0.01f) // 부동소수점 오차 고려
+                            {
+                                changeIndicator = $" [{(durabilityChange > 0 ? "+" : "")}{durabilityChange:F0}]";
+                            }
+                        }
+                        status = $"OK ({currentDurability:F0}/{part.MaxDurability:F0}){changeIndicator}";
+                        // 현재 내구도를 다음 턴 비교를 위해 업데이트
+                        _previousPartDurability[key] = currentDurability;
+                    }
+                    else
+                    {
+                        status = "DESTROYED";
+                        // 파괴된 파츠는 딕셔너리에서 제거
+                        _previousPartDurability.Remove(key); 
+                    }
+                    _textLogger.TextLogger.Log($"      - {partType}: {status}", LogLevel.Info);
+                }
+                else
+                {
+                    // _textLogger.TextLogger.Log($"      - {partType}: N/A", LogLevel.Info); // N/A 파츠는 굳이 로깅 안 함
+                }
+            }
+
+            // 무기 상태 로깅 (임시로 작동 가능한 무기만)
+            _textLogger.TextLogger.Log("    Weapon Status:", LogLevel.Info);
+            var weapons = unit.GetEquippedWeapons(); 
+            if (weapons.Count > 0)
+            {
+                foreach (var weapon in weapons)
+                {
+                    // TODO: 나중에 Weapon 상태 (과열, 손상 등)를 더 상세히 표시하도록 개선
+                    string status = weapon.IsOperational ? "Operational" : "Damaged/Overheated"; 
+                    _textLogger.TextLogger.Log($"      - {weapon.Name}: {status}", LogLevel.Info);
+                }
+            }
+            else
+            {
+                _textLogger.TextLogger.Log("      - No operational weapons.", LogLevel.Info);
+            }
+        }
+        
         #endregion
+        
+        #region 내부 유틸리티 메서드 (Private Helper Methods)
+
+        /// <summary>
+        /// 전투 시작 시 모든 참가자의 초기 파츠 내구도를 기록합니다.
+        /// </summary>
+        private void InitializePreviousDurability()
+        {
+            foreach (var unit in _participants)
+            {
+                foreach (PartType partType in Enum.GetValues(typeof(PartType)))
+                {
+                    Part part = unit.GetPart(partType);
+                    if (part != null && part.IsOperational)
+                    {
+                        var key = (unit, partType);
+                        _previousPartDurability[key] = part.CurrentDurability;
+                    }
+                }
+            }
+        }
+
+        #endregion // 내부 유틸리티 메서드 끝
     }
 } 
