@@ -51,6 +51,11 @@ namespace AF.Models
         [SerializeField] private float _overheatPerShot;
 
         /// <summary>
+        /// 이 무기를 사용하는 데 드는 기본 AP 소모량
+        /// </summary>
+        [SerializeField] private float _baseAPCost = 2.0f; // 기본 공격 AP 소모 2로 설정
+
+        /// <summary>
         /// 현재 과열도
         /// </summary>
         private float _currentHeat;
@@ -73,6 +78,7 @@ namespace AF.Models
         public float Accuracy => _accuracy;
         public float Range => _range;
         public float AttackSpeed => _attackSpeed;
+        public float BaseAPCost => _baseAPCost;
         public float CurrentHeat => _currentHeat;
         public bool IsOperational => _isOperational;
         public IReadOnlyList<string> SpecialEffects => _specialEffects;
@@ -108,6 +114,25 @@ namespace AF.Models
             _range = Mathf.Max(1.0f, range);
             _attackSpeed = Mathf.Max(0.1f, attackSpeed);
             _overheatPerShot = Mathf.Max(0.0f, overheatPerShot);
+            _currentHeat = 0.0f;
+            _specialEffects = new List<string>();
+            _isOperational = true;
+        }
+
+        /// <summary>
+        /// 상세 정보를 지정하는 생성자
+        /// </summary>
+        public Weapon(string name, WeaponType type, DamageType damageType, float damage, float accuracy, float range, float attackSpeed, float overheatPerShot, float baseAPCost)
+        {
+            _name = name;
+            _type = type;
+            _damageType = damageType;
+            _damage = damage;
+            _accuracy = Mathf.Clamp01(accuracy);
+            _range = Mathf.Max(1.0f, range);
+            _attackSpeed = Mathf.Max(0.1f, attackSpeed);
+            _overheatPerShot = Mathf.Max(0.0f, overheatPerShot);
+            _baseAPCost = Mathf.Max(0.1f, baseAPCost); // 최소 AP 소모량 제한
             _currentHeat = 0.0f;
             _specialEffects = new List<string>();
             _isOperational = true;

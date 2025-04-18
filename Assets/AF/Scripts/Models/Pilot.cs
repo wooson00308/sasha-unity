@@ -70,7 +70,7 @@ namespace AF.Models
             _level = 1;
             _experience = 0;
             _experienceToNextLevel = 100;
-            _specialization = SpecializationType.Combat;
+            _specialization = SpecializationType.StandardCombat;
             _skills = new List<string>();
             _specializationBonus = CalculateSpecializationBonus();
         }
@@ -146,21 +146,29 @@ namespace AF.Models
 
             switch (_specialization)
             {
-                case SpecializationType.Combat:
+                case SpecializationType.StandardCombat:
                     // 공격 전문화: 공격력과 정확도 보너스
-                    return new Stats(0.2f, 0, 0, 0.15f, 0, 0, 0);
+                    return new Stats(0.2f, 0, 0, 0.15f, 0, 0, 1.0f, 0, 0);
+                
+                case SpecializationType.MeleeCombat:
+                    // 근접 전투 전문화: 공격력, 방어력, 내구도 보너스
+                    return new Stats(0.25f, 0.15f, 0.05f, 0f, 0f, 15.0f, 1.0f, 0f, 0f);
+                
+                case SpecializationType.RangedCombat:
+                    // 원거리 전투 전문화: 정확도, 속도, 약간의 공격력/에너지 효율 보너스
+                    return new Stats(0.1f, 0f, 0.15f, 0.25f, 0f, 0f, 1.05f, 0f, 0f);
                 
                 case SpecializationType.Defense:
                     // 방어 전문화: 방어력과 내구도 보너스
-                    return new Stats(0, 0.2f, 0, 0, 0.15f, 20.0f, 0);
+                    return new Stats(0, 0.2f, 0, 0, 0.15f, 20.0f, 1.0f, 0, 0);
                 
                 case SpecializationType.Support:
                     // 지원 전문화: 속도와 에너지 효율 보너스
-                    return new Stats(0, 0, 0.15f, 0, 0, 0, 0.2f);
+                    return new Stats(0, 0, 0.15f, 0, 0, 0, 1.2f, 0, 0);
                 
                 case SpecializationType.Engineering:
                     // 기계 전문화: 균형 잡힌 보너스
-                    return new Stats(0.1f, 0.1f, 0.1f, 0.05f, 0.05f, 10.0f, 0.1f);
+                    return new Stats(0.1f, 0.1f, 0.1f, 0.05f, 0.05f, 10.0f, 1.1f, 0, 0);
                 
                 default:
                     return bonus;
@@ -186,7 +194,7 @@ namespace AF.Models
             // 전문화에 따른 기본 스킬 추가
             switch (_specialization)
             {
-                case SpecializationType.Combat:
+                case SpecializationType.StandardCombat:
                     AddSkill($"Combat Skill Lv{_level / 3}");
                     break;
                 case SpecializationType.Defense:

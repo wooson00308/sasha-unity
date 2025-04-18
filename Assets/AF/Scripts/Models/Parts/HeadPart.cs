@@ -13,6 +13,11 @@ namespace AF.Models
         {
         }
 
+        public HeadPart(string name, Stats stats, float durability, float weight)
+            : base(name, PartType.Head, stats, durability, weight)
+        {
+        }
+
         public override void OnDestroyed(ArmoredFrame parentAF)
         {
             Debug.Log($"{parentAF.Name}의 헤드 파츠({_name})가 파괴되었습니다! 명중률 관련 패널티 적용 가능.");

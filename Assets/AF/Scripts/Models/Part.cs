@@ -26,6 +26,11 @@ namespace AF.Models
         [SerializeField] protected Stats _stats;
 
         /// <summary>
+        /// 파츠의 무게
+        /// </summary>
+        [SerializeField] protected float _weight = 10f; // 기본 무게 10으로 설정
+
+        /// <summary>
         /// 현재 내구도
         /// </summary>
         [SerializeField] protected float _currentDurability;
@@ -49,6 +54,7 @@ namespace AF.Models
         public string Name => _name;
         public PartType Type => _type;
         public Stats PartStats => _stats;
+        public float Weight => _weight;
         public float CurrentDurability => _currentDurability;
         public float MaxDurability => _maxDurability;
         public bool IsOperational => _isOperational;
@@ -115,5 +121,20 @@ namespace AF.Models
         /// 파츠 파괴 시 적용되는 효과를 구현합니다.
         /// </summary>
         public abstract void OnDestroyed(ArmoredFrame parentAF);
+
+        /// <summary>
+        /// 무게를 받는 생성자 오버로드
+        /// </summary>
+        protected Part(string name, PartType type, Stats stats, float durability, float weight)
+        {
+            _name = name;
+            _type = type;
+            _stats = stats;
+            _maxDurability = durability;
+            _currentDurability = durability;
+            _isOperational = true;
+            _abilities = new List<string>();
+            _weight = weight; // 전달받은 무게 설정
+        }
     }
 } 

@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5fd8c816985b1e4ba3eee2c446bc307, type: 3}
+  m_Name: ARM_STD_01
+  m_EditorClassIdentifier: 
+  PartID: ARM_STD_01
+  PartName: "\uD45C\uC900 \uD314 \uC720\uB2DB"
+  PartType: 3
+  Stat_AttackPower: 1
+  Stat_Defense: 0.05
+  Stat_Speed: 0
+  Stat_Accuracy: 0
+  Stat_Evasion: 0
+  Stat_Durability: 0
+  Stat_EnergyEff: 0.5
+  Stat_MaxAP: 0
+  Stat_APRecovery: 0
+  MaxDurability: 85
+  PartWeight: 17
+  Abilities: []
+  Notes: "\uC790\uB3D9 \uC0DD\uC131"

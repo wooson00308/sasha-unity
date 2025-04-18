@@ -1,0 +1,2160 @@
+=== 전투 로그: SimpleCombatTest ===
+생성 시간: 2025-04-18 오후 12:13:55
+==================================================
+
+[INFO] Created Test AF: Player AF, Team: 0, Pos: (0.00, 0.00, 0.00)
+[INFO] Created Test AF: Enemy AF, Team: 1, Pos: (40.00, 0.00, 0.00)
+[SYSTEM] 전투 시작: Simple Test Battle
+위치: (0.00, 0.00, 0.00)
+참가자:
+- Player AF (Standard)
+- Enemy AF (Standard)
+
+[SYSTEM] Battle Started with ID: BATTLE_20250418_121355_1740
+[SYSTEM] --- Turn 1 Processing --- 
+[INFO] 턴 1 시작 - 활성 유닛: Player AF
+[INFO] Player AF(이)가 이동 행동을 시작합니다.
+[SUCCESS] Player AF의 이동 행동 성공: Enemy AF 방향으로 13.0 유닛 이동
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (13.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:6.0 / Def:16.0 / Spd:13.0 / Acc:6.0 / Eva:6.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (50/50)
+[INFO]       - Body (Test Body): OK (150/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (80/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (100/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (100/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (40.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:6.0 / Def:16.0 / Spd:13.0 / Acc:6.0 / Eva:6.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (50/50)
+[INFO]       - Body (Test Body): OK (150/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (80/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (100/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (100/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 2 Processing --- 
+[INFO] 턴 1 종료 - 활성 유닛: Player AF
+[INFO] 턴 2 시작 - 활성 유닛: Enemy AF
+[INFO] Enemy AF(이)가 이동 행동을 시작합니다.
+[SUCCESS] Enemy AF의 이동 행동 성공: Player AF 방향으로 13.0 유닛 이동
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (13.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:6.0 / Def:16.0 / Spd:13.0 / Acc:6.0 / Eva:6.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (50/50)
+[INFO]       - Body (Test Body): OK (150/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (80/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (100/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (100/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:6.0 / Def:16.0 / Spd:13.0 / Acc:6.0 / Eva:6.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (50/50)
+[INFO]       - Body (Test Body): OK (150/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (80/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (100/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (100/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 3 Processing --- 
+[INFO] 턴 2 종료 - 활성 유닛: Enemy AF
+[INFO] 턴 3 시작 - 활성 유닛: Player AF
+[INFO] Player AF(이)가 이동 행동을 시작합니다.
+[SUCCESS] Player AF의 이동 행동 성공: Enemy AF 방향으로 13.0 유닛 이동
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:6.0 / Def:16.0 / Spd:13.0 / Acc:6.0 / Eva:6.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (50/50)
+[INFO]       - Body (Test Body): OK (150/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (80/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (100/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (100/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:6.0 / Def:16.0 / Spd:13.0 / Acc:6.0 / Eva:6.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (50/50)
+[INFO]       - Body (Test Body): OK (150/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (80/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (100/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (100/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 4 Processing --- 
+[INFO] 턴 3 종료 - 활성 유닛: Player AF
+[INFO] 턴 4 시작 - 활성 유닛: Enemy AF
+[INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.25)
+[INFO] 데미지 계산: Enemy AF → Player AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Legs)
+[DANGER] Player AF(이)가 24.0 데미지를 받음 (부위: Legs, 남은 내구도: 76 %)
+[SUCCESS] Enemy AF의 공격 행동 성공: Player AF에게 공격 성공
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:6.0 / Def:16.0 / Spd:13.0 / Acc:6.0 / Eva:6.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (50/50)
+[INFO]       - Body (Test Body): OK (150/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (80/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (76/100) [-24]
+[INFO]       - Leg_Right (Test Right Leg): OK (100/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:6.0 / Def:16.0 / Spd:13.0 / Acc:6.0 / Eva:6.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (50/50)
+[INFO]       - Body (Test Body): OK (150/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (80/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (100/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (100/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 5 Processing --- 
+[INFO] 턴 4 종료 - 활성 유닛: Enemy AF
+[INFO] 턴 5 시작 - 활성 유닛: Player AF
+[INFO] Player AF(이)가 공격 행동을 시작합니다.
+[WARNING] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 빗나감 (정확도 판정: 0.97)
+[SUCCESS] Enemy AF(이)가 30.0 데미지를 회피함: Enemy AF이(가) 공격을 회피했습니다.
+[WARNING] Player AF의 공격 행동 실패: Enemy AF에게 공격 실패
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:6.0 / Def:16.0 / Spd:13.0 / Acc:6.0 / Eva:6.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (50/50)
+[INFO]       - Body (Test Body): OK (150/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (80/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (76/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (100/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:6.0 / Def:16.0 / Spd:13.0 / Acc:6.0 / Eva:6.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (50/50)
+[INFO]       - Body (Test Body): OK (150/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (80/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (100/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (100/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 6 Processing --- 
+[INFO] 턴 5 종료 - 활성 유닛: Player AF
+[INFO] 턴 6 시작 - 활성 유닛: Enemy AF
+[INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[WARNING] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 빗나감 (정확도 판정: 0.94)
+[SUCCESS] Player AF(이)가 30.0 데미지를 회피함: Player AF이(가) 공격을 회피했습니다.
+[WARNING] Enemy AF의 공격 행동 실패: Player AF에게 공격 실패
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:6.0 / Def:16.0 / Spd:13.0 / Acc:6.0 / Eva:6.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (50/50)
+[INFO]       - Body (Test Body): OK (150/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (80/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (76/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (100/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:6.0 / Def:16.0 / Spd:13.0 / Acc:6.0 / Eva:6.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (50/50)
+[INFO]       - Body (Test Body): OK (150/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (80/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (100/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (100/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 7 Processing --- 
+[INFO] 턴 6 종료 - 활성 유닛: Enemy AF
+[INFO] 턴 7 시작 - 활성 유닛: Player AF
+[INFO] Player AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.24)
+[INFO] 데미지 계산: Player AF → Enemy AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Head)
+[DANGER] Enemy AF(이)가 24.0 데미지를 받음 (부위: Head, 남은 내구도: 52 %)
+[SUCCESS] Player AF의 공격 행동 성공: Enemy AF에게 공격 성공
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:6.0 / Def:16.0 / Spd:13.0 / Acc:6.0 / Eva:6.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (50/50)
+[INFO]       - Body (Test Body): OK (150/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (80/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (76/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (100/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:6.0 / Def:16.0 / Spd:13.0 / Acc:6.0 / Eva:6.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (26/50) [-24]
+[INFO]       - Body (Test Body): OK (150/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (80/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (100/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (100/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 8 Processing --- 
+[INFO] 턴 7 종료 - 활성 유닛: Player AF
+[INFO] 턴 8 시작 - 활성 유닛: Enemy AF
+[INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.11)
+[INFO] 데미지 계산: Enemy AF → Player AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Legs)
+[CRITICAL] Player AF(이)가 36.0 데미지를 받음 [치명타!] (부위: Legs, 남은 내구도: 40 %)
+[SUCCESS] Enemy AF의 공격 행동 성공: Player AF에게 공격 성공
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:6.0 / Def:16.0 / Spd:13.0 / Acc:6.0 / Eva:6.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (50/50)
+[INFO]       - Body (Test Body): OK (150/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (80/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (40/100) [-36]
+[INFO]       - Leg_Right (Test Right Leg): OK (100/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:6.0 / Def:16.0 / Spd:13.0 / Acc:6.0 / Eva:6.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (26/50)
+[INFO]       - Body (Test Body): OK (150/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (80/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (100/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (100/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 9 Processing --- 
+[INFO] 턴 8 종료 - 활성 유닛: Enemy AF
+[INFO] 턴 9 시작 - 활성 유닛: Player AF
+[INFO] Player AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.60)
+[INFO] 데미지 계산: Player AF → Enemy AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Legs)
+[DANGER] Enemy AF(이)가 24.0 데미지를 받음 (부위: Legs, 남은 내구도: 76 %)
+[SUCCESS] Player AF의 공격 행동 성공: Enemy AF에게 공격 성공
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:6.0 / Def:16.0 / Spd:13.0 / Acc:6.0 / Eva:6.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (50/50)
+[INFO]       - Body (Test Body): OK (150/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (80/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (40/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (100/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:6.0 / Def:16.0 / Spd:13.0 / Acc:6.0 / Eva:6.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (26/50)
+[INFO]       - Body (Test Body): OK (150/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (80/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (100/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (76/100) [-24]
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 10 Processing --- 
+[INFO] 턴 9 종료 - 활성 유닛: Player AF
+[INFO] 턴 10 시작 - 활성 유닛: Enemy AF
+[INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.51)
+[INFO] 데미지 계산: Enemy AF → Player AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Body)
+[CRITICAL] Player AF(이)가 36.0 데미지를 받음 [치명타!] (부위: Body, 남은 내구도: 76 %)
+[SUCCESS] Enemy AF의 공격 행동 성공: Player AF에게 공격 성공
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:6.0 / Def:16.0 / Spd:13.0 / Acc:6.0 / Eva:6.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (50/50)
+[INFO]       - Body (Test Body): OK (114/150) [-36]
+[INFO]       - Arm_Left (Test Left Arm): OK (80/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (40/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (100/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:6.0 / Def:16.0 / Spd:13.0 / Acc:6.0 / Eva:6.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (26/50)
+[INFO]       - Body (Test Body): OK (150/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (80/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (100/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (76/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 11 Processing --- 
+[INFO] 턴 10 종료 - 활성 유닛: Enemy AF
+[INFO] 턴 11 시작 - 활성 유닛: Player AF
+[INFO] Player AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.49)
+[INFO] 데미지 계산: Player AF → Enemy AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Body)
+[DANGER] Enemy AF(이)가 24.0 데미지를 받음 (부위: Body, 남은 내구도: 84 %)
+[SUCCESS] Player AF의 공격 행동 성공: Enemy AF에게 공격 성공
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:6.0 / Def:16.0 / Spd:13.0 / Acc:6.0 / Eva:6.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (50/50)
+[INFO]       - Body (Test Body): OK (114/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (80/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (40/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (100/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:6.0 / Def:16.0 / Spd:13.0 / Acc:6.0 / Eva:6.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (26/50)
+[INFO]       - Body (Test Body): OK (126/150) [-24]
+[INFO]       - Arm_Left (Test Left Arm): OK (80/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (100/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (76/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 12 Processing --- 
+[INFO] 턴 11 종료 - 활성 유닛: Player AF
+[INFO] 턴 12 시작 - 활성 유닛: Enemy AF
+[INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[WARNING] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 빗나감 (정확도 판정: 0.75)
+[SUCCESS] Player AF(이)가 30.0 데미지를 회피함: Player AF이(가) 공격을 회피했습니다.
+[WARNING] Enemy AF의 공격 행동 실패: Player AF에게 공격 실패
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:6.0 / Def:16.0 / Spd:13.0 / Acc:6.0 / Eva:6.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (50/50)
+[INFO]       - Body (Test Body): OK (114/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (80/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (40/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (100/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:6.0 / Def:16.0 / Spd:13.0 / Acc:6.0 / Eva:6.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (26/50)
+[INFO]       - Body (Test Body): OK (126/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (80/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (100/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (76/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 13 Processing --- 
+[INFO] 턴 12 종료 - 활성 유닛: Enemy AF
+[INFO] 턴 13 시작 - 활성 유닛: Player AF
+[INFO] Player AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.59)
+[INFO] 데미지 계산: Player AF → Enemy AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Arm)
+[DANGER] Enemy AF(이)가 24.0 데미지를 받음 (부위: Arm, 남은 내구도: 70 %)
+[SUCCESS] Player AF의 공격 행동 성공: Enemy AF에게 공격 성공
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:6.0 / Def:16.0 / Spd:13.0 / Acc:6.0 / Eva:6.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (50/50)
+[INFO]       - Body (Test Body): OK (114/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (80/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (40/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (100/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:6.0 / Def:16.0 / Spd:13.0 / Acc:6.0 / Eva:6.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (26/50)
+[INFO]       - Body (Test Body): OK (126/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (56/80) [-24]
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (100/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (76/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 14 Processing --- 
+[INFO] 턴 13 종료 - 활성 유닛: Player AF
+[INFO] 턴 14 시작 - 활성 유닛: Enemy AF
+[INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.08)
+[INFO] 데미지 계산: Enemy AF → Player AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Legs)
+[DANGER] Player AF(이)가 24.0 데미지를 받음 (부위: Legs, 남은 내구도: 16 %)
+[SUCCESS] Enemy AF의 공격 행동 성공: Player AF에게 공격 성공
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:6.0 / Def:16.0 / Spd:13.0 / Acc:6.0 / Eva:6.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (50/50)
+[INFO]       - Body (Test Body): OK (114/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (80/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (16/100) [-24]
+[INFO]       - Leg_Right (Test Right Leg): OK (100/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:6.0 / Def:16.0 / Spd:13.0 / Acc:6.0 / Eva:6.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (26/50)
+[INFO]       - Body (Test Body): OK (126/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (56/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (100/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (76/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 15 Processing --- 
+[INFO] 턴 14 종료 - 활성 유닛: Enemy AF
+[INFO] 턴 15 시작 - 활성 유닛: Player AF
+[INFO] Player AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.52)
+[INFO] 데미지 계산: Player AF → Enemy AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Arm)
+[CRITICAL] Enemy AF(이)가 36.0 데미지를 받음 [치명타!] (부위: Arm, 남은 내구도: 55 %)
+[SUCCESS] Player AF의 공격 행동 성공: Enemy AF에게 공격 성공
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:6.0 / Def:16.0 / Spd:13.0 / Acc:6.0 / Eva:6.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (50/50)
+[INFO]       - Body (Test Body): OK (114/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (80/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (16/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (100/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:6.0 / Def:16.0 / Spd:13.0 / Acc:6.0 / Eva:6.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (26/50)
+[INFO]       - Body (Test Body): OK (126/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (56/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (44/80) [-36]
+[INFO]       - Leg_Left (Test Left Leg): OK (100/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (76/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 16 Processing --- 
+[INFO] 턴 15 종료 - 활성 유닛: Player AF
+[INFO] 턴 16 시작 - 활성 유닛: Enemy AF
+[INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[WARNING] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 빗나감 (정확도 판정: 0.94)
+[SUCCESS] Player AF(이)가 30.0 데미지를 회피함: Player AF이(가) 공격을 회피했습니다.
+[WARNING] Enemy AF의 공격 행동 실패: Player AF에게 공격 실패
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:6.0 / Def:16.0 / Spd:13.0 / Acc:6.0 / Eva:6.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (50/50)
+[INFO]       - Body (Test Body): OK (114/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (80/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (16/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (100/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:6.0 / Def:16.0 / Spd:13.0 / Acc:6.0 / Eva:6.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (26/50)
+[INFO]       - Body (Test Body): OK (126/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (56/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (44/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (100/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (76/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 17 Processing --- 
+[INFO] 턴 16 종료 - 활성 유닛: Enemy AF
+[INFO] 턴 17 시작 - 활성 유닛: Player AF
+[INFO] Player AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.40)
+[INFO] 데미지 계산: Player AF → Enemy AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Head)
+[DANGER] Enemy AF(이)가 24.0 데미지를 받음 (부위: Head, 남은 내구도: 4 %)
+[SUCCESS] Player AF의 공격 행동 성공: Enemy AF에게 공격 성공
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:6.0 / Def:16.0 / Spd:13.0 / Acc:6.0 / Eva:6.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (50/50)
+[INFO]       - Body (Test Body): OK (114/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (80/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (16/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (100/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:6.0 / Def:16.0 / Spd:13.0 / Acc:6.0 / Eva:6.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (2/50) [-24]
+[INFO]       - Body (Test Body): OK (126/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (56/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (44/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (100/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (76/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 18 Processing --- 
+[INFO] 턴 17 종료 - 활성 유닛: Player AF
+[INFO] 턴 18 시작 - 활성 유닛: Enemy AF
+[INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.16)
+[INFO] 데미지 계산: Enemy AF → Player AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Legs)
+[CRITICAL] Player AF의 Legs 파츠가 파괴됨!
+효과:
+- Leg_Left 파츠 파괴
+- Player AF의 성능 저하 예상
+
+[DANGER] Player AF(이)가 24.0 데미지를 받음 (부위: Legs, 남은 내구도: 0 %)
+[CRITICAL] Player AF의 Legs 파츠가 파괴됨!
+효과:
+- Leg_Left 파트가 파괴되었습니다.
+- Player AF의 성능이 감소했습니다.
+
+[SUCCESS] Enemy AF의 공격 행동 성공: Player AF에게 공격 성공
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:5.0 / Def:15.0 / Spd:11.0 / Acc:5.0 / Eva:5.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (50/50)
+[INFO]       - Body (Test Body): OK (114/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (80/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): DESTROYED
+[INFO]       - Leg_Right (Test Right Leg): OK (100/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:6.0 / Def:16.0 / Spd:13.0 / Acc:6.0 / Eva:6.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (2/50)
+[INFO]       - Body (Test Body): OK (126/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (56/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (44/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (100/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (76/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 19 Processing --- 
+[INFO] 턴 18 종료 - 활성 유닛: Enemy AF
+[INFO] 턴 19 시작 - 활성 유닛: Player AF
+[INFO] Player AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.50)
+[INFO] 데미지 계산: Player AF → Enemy AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Arm)
+[DANGER] Enemy AF(이)가 24.0 데미지를 받음 (부위: Arm, 남은 내구도: 40 %)
+[SUCCESS] Player AF의 공격 행동 성공: Enemy AF에게 공격 성공
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:5.0 / Def:15.0 / Spd:11.0 / Acc:5.0 / Eva:5.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (50/50)
+[INFO]       - Body (Test Body): OK (114/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (80/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): DESTROYED
+[INFO]       - Leg_Right (Test Right Leg): OK (100/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:6.0 / Def:16.0 / Spd:13.0 / Acc:6.0 / Eva:6.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (2/50)
+[INFO]       - Body (Test Body): OK (126/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (32/80) [-24]
+[INFO]       - Arm_Right (Test Right Arm): OK (44/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (100/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (76/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 20 Processing --- 
+[INFO] 턴 19 종료 - 활성 유닛: Player AF
+[INFO] 턴 20 시작 - 활성 유닛: Enemy AF
+[INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.00)
+[INFO] 데미지 계산: Enemy AF → Player AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Arm)
+[CRITICAL] Player AF(이)가 36.0 데미지를 받음 [치명타!] (부위: Arm, 남은 내구도: 55 %)
+[SUCCESS] Enemy AF의 공격 행동 성공: Player AF에게 공격 성공
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:5.0 / Def:15.0 / Spd:11.0 / Acc:5.0 / Eva:5.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (50/50)
+[INFO]       - Body (Test Body): OK (114/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (44/80) [-36]
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): DESTROYED
+[INFO]       - Leg_Right (Test Right Leg): OK (100/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:6.0 / Def:16.0 / Spd:13.0 / Acc:6.0 / Eva:6.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (2/50)
+[INFO]       - Body (Test Body): OK (126/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (32/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (44/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (100/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (76/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 21 Processing --- 
+[INFO] 턴 20 종료 - 활성 유닛: Enemy AF
+[INFO] 턴 21 시작 - 활성 유닛: Player AF
+[INFO] Player AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.26)
+[INFO] 데미지 계산: Player AF → Enemy AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Head)
+[CRITICAL] Enemy AF의 Head 파츠가 파괴됨!
+효과:
+- Head 파츠 파괴
+- Enemy AF의 성능 저하 예상
+
+[DANGER] Enemy AF(이)가 24.0 데미지를 받음 (부위: Head, 남은 내구도: 0 %)
+[CRITICAL] Enemy AF의 Head 파츠가 파괴됨!
+효과:
+- Head 파트가 파괴되었습니다.
+- Enemy AF의 성능이 감소했습니다.
+
+[SUCCESS] Player AF의 공격 행동 성공: Enemy AF에게 공격 성공
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:5.0 / Def:15.0 / Spd:11.0 / Acc:5.0 / Eva:5.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (50/50)
+[INFO]       - Body (Test Body): OK (114/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (44/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): DESTROYED
+[INFO]       - Leg_Right (Test Right Leg): OK (100/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:5.0 / Def:15.0 / Spd:12.0 / Acc:5.0 / Eva:5.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (126/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (32/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (44/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (100/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (76/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 22 Processing --- 
+[INFO] 턴 21 종료 - 활성 유닛: Player AF
+[INFO] 턴 22 시작 - 활성 유닛: Enemy AF
+[INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.51)
+[INFO] 데미지 계산: Enemy AF → Player AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Head)
+[DANGER] Player AF(이)가 24.0 데미지를 받음 (부위: Head, 남은 내구도: 52 %)
+[SUCCESS] Enemy AF의 공격 행동 성공: Player AF에게 공격 성공
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:5.0 / Def:15.0 / Spd:11.0 / Acc:5.0 / Eva:5.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (26/50) [-24]
+[INFO]       - Body (Test Body): OK (114/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (44/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): DESTROYED
+[INFO]       - Leg_Right (Test Right Leg): OK (100/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:5.0 / Def:15.0 / Spd:12.0 / Acc:5.0 / Eva:5.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (126/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (32/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (44/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (100/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (76/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 23 Processing --- 
+[INFO] 턴 22 종료 - 활성 유닛: Enemy AF
+[INFO] 턴 23 시작 - 활성 유닛: Player AF
+[INFO] Player AF(이)가 공격 행동을 시작합니다.
+[WARNING] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 빗나감 (정확도 판정: 0.95)
+[SUCCESS] Enemy AF(이)가 30.0 데미지를 회피함: Enemy AF이(가) 공격을 회피했습니다.
+[WARNING] Player AF의 공격 행동 실패: Enemy AF에게 공격 실패
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:5.0 / Def:15.0 / Spd:11.0 / Acc:5.0 / Eva:5.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (26/50)
+[INFO]       - Body (Test Body): OK (114/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (44/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): DESTROYED
+[INFO]       - Leg_Right (Test Right Leg): OK (100/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:5.0 / Def:15.0 / Spd:12.0 / Acc:5.0 / Eva:5.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (126/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (32/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (44/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (100/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (76/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 24 Processing --- 
+[INFO] 턴 23 종료 - 활성 유닛: Player AF
+[INFO] 턴 24 시작 - 활성 유닛: Enemy AF
+[INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.24)
+[INFO] 데미지 계산: Enemy AF → Player AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Arm)
+[DANGER] Player AF(이)가 24.0 데미지를 받음 (부위: Arm, 남은 내구도: 25 %)
+[SUCCESS] Enemy AF의 공격 행동 성공: Player AF에게 공격 성공
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:5.0 / Def:15.0 / Spd:11.0 / Acc:5.0 / Eva:5.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (26/50)
+[INFO]       - Body (Test Body): OK (114/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (20/80) [-24]
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): DESTROYED
+[INFO]       - Leg_Right (Test Right Leg): OK (100/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:5.0 / Def:15.0 / Spd:12.0 / Acc:5.0 / Eva:5.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (126/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (32/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (44/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (100/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (76/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 25 Processing --- 
+[INFO] 턴 24 종료 - 활성 유닛: Enemy AF
+[INFO] 턴 25 시작 - 활성 유닛: Player AF
+[INFO] Player AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.18)
+[INFO] 데미지 계산: Player AF → Enemy AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Arm)
+[CRITICAL] Enemy AF의 Arm 파츠가 파괴됨!
+효과:
+- Arm_Left 파츠 파괴
+- Enemy AF의 성능 저하 예상
+
+[CRITICAL] Enemy AF(이)가 36.0 데미지를 받음 [치명타!] (부위: Arm, 남은 내구도: 0 %)
+[CRITICAL] Enemy AF의 Arm 파츠가 파괴됨!
+효과:
+- Arm_Left 파트가 파괴되었습니다.
+- Enemy AF의 성능이 감소했습니다.
+
+[SUCCESS] Player AF의 공격 행동 성공: Enemy AF에게 공격 성공
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:5.0 / Def:15.0 / Spd:11.0 / Acc:5.0 / Eva:5.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (26/50)
+[INFO]       - Body (Test Body): OK (114/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (20/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): DESTROYED
+[INFO]       - Leg_Right (Test Right Leg): OK (100/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:4.0 / Def:14.0 / Spd:11.0 / Acc:4.0 / Eva:4.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (126/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): OK (44/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (100/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (76/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 26 Processing --- 
+[INFO] 턴 25 종료 - 활성 유닛: Player AF
+[INFO] 턴 26 시작 - 활성 유닛: Enemy AF
+[INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.28)
+[INFO] 데미지 계산: Enemy AF → Player AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Legs)
+[DANGER] Player AF(이)가 24.0 데미지를 받음 (부위: Legs, 남은 내구도: 76 %)
+[SUCCESS] Enemy AF의 공격 행동 성공: Player AF에게 공격 성공
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:5.0 / Def:15.0 / Spd:11.0 / Acc:5.0 / Eva:5.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (26/50)
+[INFO]       - Body (Test Body): OK (114/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (20/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): DESTROYED
+[INFO]       - Leg_Right (Test Right Leg): OK (76/100) [-24]
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:4.0 / Def:14.0 / Spd:11.0 / Acc:4.0 / Eva:4.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (126/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): OK (44/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (100/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (76/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 27 Processing --- 
+[INFO] 턴 26 종료 - 활성 유닛: Enemy AF
+[INFO] 턴 27 시작 - 활성 유닛: Player AF
+[INFO] Player AF(이)가 공격 행동을 시작합니다.
+[WARNING] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 빗나감 (정확도 판정: 0.97)
+[SUCCESS] Enemy AF(이)가 30.0 데미지를 회피함: Enemy AF이(가) 공격을 회피했습니다.
+[WARNING] Player AF의 공격 행동 실패: Enemy AF에게 공격 실패
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:5.0 / Def:15.0 / Spd:11.0 / Acc:5.0 / Eva:5.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (26/50)
+[INFO]       - Body (Test Body): OK (114/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (20/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): DESTROYED
+[INFO]       - Leg_Right (Test Right Leg): OK (76/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:4.0 / Def:14.0 / Spd:11.0 / Acc:4.0 / Eva:4.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (126/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): OK (44/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (100/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (76/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 28 Processing --- 
+[INFO] 턴 27 종료 - 활성 유닛: Player AF
+[INFO] 턴 28 시작 - 활성 유닛: Enemy AF
+[INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.64)
+[INFO] 데미지 계산: Enemy AF → Player AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Legs)
+[DANGER] Player AF(이)가 24.0 데미지를 받음 (부위: Legs, 남은 내구도: 52 %)
+[SUCCESS] Enemy AF의 공격 행동 성공: Player AF에게 공격 성공
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:5.0 / Def:15.0 / Spd:11.0 / Acc:5.0 / Eva:5.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (26/50)
+[INFO]       - Body (Test Body): OK (114/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (20/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): DESTROYED
+[INFO]       - Leg_Right (Test Right Leg): OK (52/100) [-24]
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:4.0 / Def:14.0 / Spd:11.0 / Acc:4.0 / Eva:4.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (126/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): OK (44/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (100/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (76/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 29 Processing --- 
+[INFO] 턴 28 종료 - 활성 유닛: Enemy AF
+[INFO] 턴 29 시작 - 활성 유닛: Player AF
+[INFO] Player AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.33)
+[INFO] 데미지 계산: Player AF → Enemy AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Legs)
+[DANGER] Enemy AF(이)가 24.0 데미지를 받음 (부위: Legs, 남은 내구도: 52 %)
+[SUCCESS] Player AF의 공격 행동 성공: Enemy AF에게 공격 성공
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:5.0 / Def:15.0 / Spd:11.0 / Acc:5.0 / Eva:5.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (26/50)
+[INFO]       - Body (Test Body): OK (114/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (20/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): DESTROYED
+[INFO]       - Leg_Right (Test Right Leg): OK (52/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:4.0 / Def:14.0 / Spd:11.0 / Acc:4.0 / Eva:4.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (126/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): OK (44/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (100/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (52/100) [-24]
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 30 Processing --- 
+[INFO] 턴 29 종료 - 활성 유닛: Player AF
+[INFO] 턴 30 시작 - 활성 유닛: Enemy AF
+[INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[WARNING] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 빗나감 (정확도 판정: 0.91)
+[SUCCESS] Player AF(이)가 30.0 데미지를 회피함: Player AF이(가) 공격을 회피했습니다.
+[WARNING] Enemy AF의 공격 행동 실패: Player AF에게 공격 실패
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:5.0 / Def:15.0 / Spd:11.0 / Acc:5.0 / Eva:5.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (26/50)
+[INFO]       - Body (Test Body): OK (114/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (20/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): DESTROYED
+[INFO]       - Leg_Right (Test Right Leg): OK (52/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:4.0 / Def:14.0 / Spd:11.0 / Acc:4.0 / Eva:4.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (126/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): OK (44/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (100/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (52/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 31 Processing --- 
+[INFO] 턴 30 종료 - 활성 유닛: Enemy AF
+[INFO] 턴 31 시작 - 활성 유닛: Player AF
+[INFO] Player AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.24)
+[INFO] 데미지 계산: Player AF → Enemy AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Legs)
+[CRITICAL] Enemy AF(이)가 36.0 데미지를 받음 [치명타!] (부위: Legs, 남은 내구도: 64 %)
+[SUCCESS] Player AF의 공격 행동 성공: Enemy AF에게 공격 성공
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:5.0 / Def:15.0 / Spd:11.0 / Acc:5.0 / Eva:5.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (26/50)
+[INFO]       - Body (Test Body): OK (114/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (20/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): DESTROYED
+[INFO]       - Leg_Right (Test Right Leg): OK (52/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:4.0 / Def:14.0 / Spd:11.0 / Acc:4.0 / Eva:4.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (126/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): OK (44/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (64/100) [-36]
+[INFO]       - Leg_Right (Test Right Leg): OK (52/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 32 Processing --- 
+[INFO] 턴 31 종료 - 활성 유닛: Player AF
+[INFO] 턴 32 시작 - 활성 유닛: Enemy AF
+[INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[WARNING] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 빗나감 (정확도 판정: 0.77)
+[SUCCESS] Player AF(이)가 30.0 데미지를 회피함: Player AF이(가) 공격을 회피했습니다.
+[WARNING] Enemy AF의 공격 행동 실패: Player AF에게 공격 실패
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:5.0 / Def:15.0 / Spd:11.0 / Acc:5.0 / Eva:5.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (26/50)
+[INFO]       - Body (Test Body): OK (114/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (20/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): DESTROYED
+[INFO]       - Leg_Right (Test Right Leg): OK (52/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:4.0 / Def:14.0 / Spd:11.0 / Acc:4.0 / Eva:4.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (126/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): OK (44/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (64/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (52/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 33 Processing --- 
+[INFO] 턴 32 종료 - 활성 유닛: Enemy AF
+[INFO] 턴 33 시작 - 활성 유닛: Player AF
+[INFO] Player AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.08)
+[INFO] 데미지 계산: Player AF → Enemy AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Arm)
+[DANGER] Enemy AF(이)가 24.0 데미지를 받음 (부위: Arm, 남은 내구도: 25 %)
+[SUCCESS] Player AF의 공격 행동 성공: Enemy AF에게 공격 성공
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:5.0 / Def:15.0 / Spd:11.0 / Acc:5.0 / Eva:5.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (26/50)
+[INFO]       - Body (Test Body): OK (114/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (20/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): DESTROYED
+[INFO]       - Leg_Right (Test Right Leg): OK (52/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:4.0 / Def:14.0 / Spd:11.0 / Acc:4.0 / Eva:4.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (126/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): OK (20/80) [-24]
+[INFO]       - Leg_Left (Test Left Leg): OK (64/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (52/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 34 Processing --- 
+[INFO] 턴 33 종료 - 활성 유닛: Player AF
+[INFO] 턴 34 시작 - 활성 유닛: Enemy AF
+[INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.29)
+[INFO] 데미지 계산: Enemy AF → Player AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Head)
+[DANGER] Player AF(이)가 24.0 데미지를 받음 (부위: Head, 남은 내구도: 4 %)
+[SUCCESS] Enemy AF의 공격 행동 성공: Player AF에게 공격 성공
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:5.0 / Def:15.0 / Spd:11.0 / Acc:5.0 / Eva:5.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (2/50) [-24]
+[INFO]       - Body (Test Body): OK (114/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (20/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): DESTROYED
+[INFO]       - Leg_Right (Test Right Leg): OK (52/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:4.0 / Def:14.0 / Spd:11.0 / Acc:4.0 / Eva:4.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (126/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): OK (20/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (64/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (52/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 35 Processing --- 
+[INFO] 턴 34 종료 - 활성 유닛: Enemy AF
+[INFO] 턴 35 시작 - 활성 유닛: Player AF
+[INFO] Player AF(이)가 공격 행동을 시작합니다.
+[WARNING] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 빗나감 (정확도 판정: 0.96)
+[SUCCESS] Enemy AF(이)가 30.0 데미지를 회피함: Enemy AF이(가) 공격을 회피했습니다.
+[WARNING] Player AF의 공격 행동 실패: Enemy AF에게 공격 실패
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:5.0 / Def:15.0 / Spd:11.0 / Acc:5.0 / Eva:5.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (2/50)
+[INFO]       - Body (Test Body): OK (114/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (20/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): DESTROYED
+[INFO]       - Leg_Right (Test Right Leg): OK (52/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:4.0 / Def:14.0 / Spd:11.0 / Acc:4.0 / Eva:4.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (126/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): OK (20/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (64/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (52/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 36 Processing --- 
+[INFO] 턴 35 종료 - 활성 유닛: Player AF
+[INFO] 턴 36 시작 - 활성 유닛: Enemy AF
+[INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[WARNING] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 빗나감 (정확도 판정: 0.92)
+[SUCCESS] Player AF(이)가 30.0 데미지를 회피함: Player AF이(가) 공격을 회피했습니다.
+[WARNING] Enemy AF의 공격 행동 실패: Player AF에게 공격 실패
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:5.0 / Def:15.0 / Spd:11.0 / Acc:5.0 / Eva:5.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (2/50)
+[INFO]       - Body (Test Body): OK (114/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (20/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): DESTROYED
+[INFO]       - Leg_Right (Test Right Leg): OK (52/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:4.0 / Def:14.0 / Spd:11.0 / Acc:4.0 / Eva:4.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (126/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): OK (20/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (64/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (52/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 37 Processing --- 
+[INFO] 턴 36 종료 - 활성 유닛: Enemy AF
+[INFO] 턴 37 시작 - 활성 유닛: Player AF
+[INFO] Player AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.36)
+[INFO] 데미지 계산: Player AF → Enemy AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Legs)
+[DANGER] Enemy AF(이)가 24.0 데미지를 받음 (부위: Legs, 남은 내구도: 28 %)
+[SUCCESS] Player AF의 공격 행동 성공: Enemy AF에게 공격 성공
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:5.0 / Def:15.0 / Spd:11.0 / Acc:5.0 / Eva:5.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): OK (2/50)
+[INFO]       - Body (Test Body): OK (114/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (20/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): DESTROYED
+[INFO]       - Leg_Right (Test Right Leg): OK (52/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:4.0 / Def:14.0 / Spd:11.0 / Acc:4.0 / Eva:4.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (126/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): OK (20/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (64/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (28/100) [-24]
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 38 Processing --- 
+[INFO] 턴 37 종료 - 활성 유닛: Player AF
+[INFO] 턴 38 시작 - 활성 유닛: Enemy AF
+[INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.06)
+[INFO] 데미지 계산: Enemy AF → Player AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Head)
+[CRITICAL] Player AF의 Head 파츠가 파괴됨!
+효과:
+- Head 파츠 파괴
+- Player AF의 성능 저하 예상
+
+[DANGER] Player AF(이)가 24.0 데미지를 받음 (부위: Head, 남은 내구도: 0 %)
+[CRITICAL] Player AF의 Head 파츠가 파괴됨!
+효과:
+- Head 파트가 파괴되었습니다.
+- Player AF의 성능이 감소했습니다.
+
+[SUCCESS] Enemy AF의 공격 행동 성공: Player AF에게 공격 성공
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:4.0 / Def:14.0 / Spd:10.0 / Acc:4.0 / Eva:4.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (114/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (20/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): DESTROYED
+[INFO]       - Leg_Right (Test Right Leg): OK (52/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:4.0 / Def:14.0 / Spd:11.0 / Acc:4.0 / Eva:4.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (126/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): OK (20/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (64/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (28/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 39 Processing --- 
+[INFO] 턴 38 종료 - 활성 유닛: Enemy AF
+[INFO] 턴 39 시작 - 활성 유닛: Player AF
+[INFO] Player AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.33)
+[INFO] 데미지 계산: Player AF → Enemy AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Legs)
+[DANGER] Enemy AF(이)가 24.0 데미지를 받음 (부위: Legs, 남은 내구도: 40 %)
+[SUCCESS] Player AF의 공격 행동 성공: Enemy AF에게 공격 성공
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:4.0 / Def:14.0 / Spd:10.0 / Acc:4.0 / Eva:4.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (114/150)
+[INFO]       - Arm_Left (Test Left Arm): OK (20/80)
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): DESTROYED
+[INFO]       - Leg_Right (Test Right Leg): OK (52/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:4.0 / Def:14.0 / Spd:11.0 / Acc:4.0 / Eva:4.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (126/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): OK (20/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (40/100) [-24]
+[INFO]       - Leg_Right (Test Right Leg): OK (28/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 40 Processing --- 
+[INFO] 턴 39 종료 - 활성 유닛: Player AF
+[INFO] 턴 40 시작 - 활성 유닛: Enemy AF
+[INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.21)
+[INFO] 데미지 계산: Enemy AF → Player AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Arm)
+[CRITICAL] Player AF의 Arm 파츠가 파괴됨!
+효과:
+- Arm_Left 파츠 파괴
+- Player AF의 성능 저하 예상
+
+[CRITICAL] Player AF(이)가 36.0 데미지를 받음 [치명타!] (부위: Arm, 남은 내구도: 0 %)
+[CRITICAL] Player AF의 Arm 파츠가 파괴됨!
+효과:
+- Arm_Left 파트가 파괴되었습니다.
+- Player AF의 성능이 감소했습니다.
+
+[SUCCESS] Enemy AF의 공격 행동 성공: Player AF에게 공격 성공
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:3.0 / Def:13.0 / Spd:9.0 / Acc:3.0 / Eva:3.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (114/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): DESTROYED
+[INFO]       - Leg_Right (Test Right Leg): OK (52/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:4.0 / Def:14.0 / Spd:11.0 / Acc:4.0 / Eva:4.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (126/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): OK (20/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (40/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (28/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 41 Processing --- 
+[INFO] 턴 40 종료 - 활성 유닛: Enemy AF
+[INFO] 턴 41 시작 - 활성 유닛: Player AF
+[INFO] Player AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.54)
+[INFO] 데미지 계산: Player AF → Enemy AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Body)
+[CRITICAL] Enemy AF(이)가 36.0 데미지를 받음 [치명타!] (부위: Body, 남은 내구도: 60 %)
+[SUCCESS] Player AF의 공격 행동 성공: Enemy AF에게 공격 성공
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:3.0 / Def:13.0 / Spd:9.0 / Acc:3.0 / Eva:3.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (114/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): DESTROYED
+[INFO]       - Leg_Right (Test Right Leg): OK (52/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:4.0 / Def:14.0 / Spd:11.0 / Acc:4.0 / Eva:4.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (90/150) [-36]
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): OK (20/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (40/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (28/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 42 Processing --- 
+[INFO] 턴 41 종료 - 활성 유닛: Player AF
+[INFO] 턴 42 시작 - 활성 유닛: Enemy AF
+[INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[WARNING] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 빗나감 (정확도 판정: 0.71)
+[SUCCESS] Player AF(이)가 30.0 데미지를 회피함: Player AF이(가) 공격을 회피했습니다.
+[WARNING] Enemy AF의 공격 행동 실패: Player AF에게 공격 실패
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:3.0 / Def:13.0 / Spd:9.0 / Acc:3.0 / Eva:3.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (114/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): DESTROYED
+[INFO]       - Leg_Right (Test Right Leg): OK (52/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:4.0 / Def:14.0 / Spd:11.0 / Acc:4.0 / Eva:4.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (90/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): OK (20/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (40/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (28/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 43 Processing --- 
+[INFO] 턴 42 종료 - 활성 유닛: Enemy AF
+[INFO] 턴 43 시작 - 활성 유닛: Player AF
+[INFO] Player AF(이)가 공격 행동을 시작합니다.
+[WARNING] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 빗나감 (정확도 판정: 0.99)
+[SUCCESS] Enemy AF(이)가 30.0 데미지를 회피함: Enemy AF이(가) 공격을 회피했습니다.
+[WARNING] Player AF의 공격 행동 실패: Enemy AF에게 공격 실패
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:3.0 / Def:13.0 / Spd:9.0 / Acc:3.0 / Eva:3.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (114/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): DESTROYED
+[INFO]       - Leg_Right (Test Right Leg): OK (52/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:4.0 / Def:14.0 / Spd:11.0 / Acc:4.0 / Eva:4.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (90/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): OK (20/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (40/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (28/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 44 Processing --- 
+[INFO] 턴 43 종료 - 활성 유닛: Player AF
+[INFO] 턴 44 시작 - 활성 유닛: Enemy AF
+[INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.16)
+[INFO] 데미지 계산: Enemy AF → Player AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Legs)
+[CRITICAL] Player AF(이)가 36.0 데미지를 받음 [치명타!] (부위: Legs, 남은 내구도: 16 %)
+[SUCCESS] Enemy AF의 공격 행동 성공: Player AF에게 공격 성공
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:3.0 / Def:13.0 / Spd:9.0 / Acc:3.0 / Eva:3.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (114/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): DESTROYED
+[INFO]       - Leg_Right (Test Right Leg): OK (16/100) [-36]
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:4.0 / Def:14.0 / Spd:11.0 / Acc:4.0 / Eva:4.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (90/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): OK (20/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (40/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (28/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 45 Processing --- 
+[INFO] 턴 44 종료 - 활성 유닛: Enemy AF
+[INFO] 턴 45 시작 - 활성 유닛: Player AF
+[INFO] Player AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.53)
+[INFO] 데미지 계산: Player AF → Enemy AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Legs)
+[DANGER] Enemy AF(이)가 24.0 데미지를 받음 (부위: Legs, 남은 내구도: 4 %)
+[SUCCESS] Player AF의 공격 행동 성공: Enemy AF에게 공격 성공
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:3.0 / Def:13.0 / Spd:9.0 / Acc:3.0 / Eva:3.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (114/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): OK (80/80)
+[INFO]       - Leg_Left (Test Left Leg): DESTROYED
+[INFO]       - Leg_Right (Test Right Leg): OK (16/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:4.0 / Def:14.0 / Spd:11.0 / Acc:4.0 / Eva:4.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (90/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): OK (20/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (40/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (4/100) [-24]
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 46 Processing --- 
+[INFO] 턴 45 종료 - 활성 유닛: Player AF
+[INFO] 턴 46 시작 - 활성 유닛: Enemy AF
+[INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.44)
+[INFO] 데미지 계산: Enemy AF → Player AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Arm)
+[CRITICAL] Player AF(이)가 36.0 데미지를 받음 [치명타!] (부위: Arm, 남은 내구도: 55 %)
+[SUCCESS] Enemy AF의 공격 행동 성공: Player AF에게 공격 성공
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:3.0 / Def:13.0 / Spd:9.0 / Acc:3.0 / Eva:3.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (114/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): OK (44/80) [-36]
+[INFO]       - Leg_Left (Test Left Leg): DESTROYED
+[INFO]       - Leg_Right (Test Right Leg): OK (16/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:4.0 / Def:14.0 / Spd:11.0 / Acc:4.0 / Eva:4.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (90/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): OK (20/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (40/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (4/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 47 Processing --- 
+[INFO] 턴 46 종료 - 활성 유닛: Enemy AF
+[INFO] 턴 47 시작 - 활성 유닛: Player AF
+[INFO] Player AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.22)
+[INFO] 데미지 계산: Player AF → Enemy AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Body)
+[DANGER] Enemy AF(이)가 24.0 데미지를 받음 (부위: Body, 남은 내구도: 44 %)
+[SUCCESS] Player AF의 공격 행동 성공: Enemy AF에게 공격 성공
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:3.0 / Def:13.0 / Spd:9.0 / Acc:3.0 / Eva:3.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (114/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): OK (44/80)
+[INFO]       - Leg_Left (Test Left Leg): DESTROYED
+[INFO]       - Leg_Right (Test Right Leg): OK (16/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:4.0 / Def:14.0 / Spd:11.0 / Acc:4.0 / Eva:4.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (66/150) [-24]
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): OK (20/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (40/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (4/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 48 Processing --- 
+[INFO] 턴 47 종료 - 활성 유닛: Player AF
+[INFO] 턴 48 시작 - 활성 유닛: Enemy AF
+[INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[WARNING] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 빗나감 (정확도 판정: 0.84)
+[SUCCESS] Player AF(이)가 30.0 데미지를 회피함: Player AF이(가) 공격을 회피했습니다.
+[WARNING] Enemy AF의 공격 행동 실패: Player AF에게 공격 실패
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:3.0 / Def:13.0 / Spd:9.0 / Acc:3.0 / Eva:3.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (114/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): OK (44/80)
+[INFO]       - Leg_Left (Test Left Leg): DESTROYED
+[INFO]       - Leg_Right (Test Right Leg): OK (16/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:4.0 / Def:14.0 / Spd:11.0 / Acc:4.0 / Eva:4.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (66/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): OK (20/80)
+[INFO]       - Leg_Left (Test Left Leg): OK (40/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (4/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 49 Processing --- 
+[INFO] 턴 48 종료 - 활성 유닛: Enemy AF
+[INFO] 턴 49 시작 - 활성 유닛: Player AF
+[INFO] Player AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.01)
+[INFO] 데미지 계산: Player AF → Enemy AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Arm)
+[CRITICAL] Enemy AF의 Arm 파츠가 파괴됨!
+효과:
+- Arm_Right 파츠 파괴
+- Enemy AF의 성능 저하 예상
+
+[DANGER] Enemy AF(이)가 24.0 데미지를 받음 (부위: Arm, 남은 내구도: 0 %)
+[CRITICAL] Enemy AF의 Arm 파츠가 파괴됨!
+효과:
+- Arm_Right 파트가 파괴되었습니다.
+- Enemy AF의 성능이 감소했습니다.
+
+[SUCCESS] Player AF의 공격 행동 성공: Enemy AF에게 공격 성공
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:3.0 / Def:13.0 / Spd:9.0 / Acc:3.0 / Eva:3.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (114/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): OK (44/80)
+[INFO]       - Leg_Left (Test Left Leg): DESTROYED
+[INFO]       - Leg_Right (Test Right Leg): OK (16/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:3.0 / Def:13.0 / Spd:10.0 / Acc:3.0 / Eva:3.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (66/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): DESTROYED
+[INFO]       - Leg_Left (Test Left Leg): OK (40/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (4/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 50 Processing --- 
+[INFO] 턴 49 종료 - 활성 유닛: Player AF
+[INFO] 턴 50 시작 - 활성 유닛: Enemy AF
+[INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[WARNING] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 빗나감 (정확도 판정: 0.94)
+[SUCCESS] Player AF(이)가 30.0 데미지를 회피함: Player AF이(가) 공격을 회피했습니다.
+[WARNING] Enemy AF의 공격 행동 실패: Player AF에게 공격 실패
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:3.0 / Def:13.0 / Spd:9.0 / Acc:3.0 / Eva:3.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (114/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): OK (44/80)
+[INFO]       - Leg_Left (Test Left Leg): DESTROYED
+[INFO]       - Leg_Right (Test Right Leg): OK (16/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:3.0 / Def:13.0 / Spd:10.0 / Acc:3.0 / Eva:3.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (66/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): DESTROYED
+[INFO]       - Leg_Left (Test Left Leg): OK (40/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (4/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 51 Processing --- 
+[INFO] 턴 50 종료 - 활성 유닛: Enemy AF
+[INFO] 턴 51 시작 - 활성 유닛: Player AF
+[INFO] Player AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.38)
+[INFO] 데미지 계산: Player AF → Enemy AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Body)
+[DANGER] Enemy AF(이)가 24.0 데미지를 받음 (부위: Body, 남은 내구도: 28 %)
+[SUCCESS] Player AF의 공격 행동 성공: Enemy AF에게 공격 성공
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:3.0 / Def:13.0 / Spd:9.0 / Acc:3.0 / Eva:3.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (114/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): OK (44/80)
+[INFO]       - Leg_Left (Test Left Leg): DESTROYED
+[INFO]       - Leg_Right (Test Right Leg): OK (16/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:3.0 / Def:13.0 / Spd:10.0 / Acc:3.0 / Eva:3.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (42/150) [-24]
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): DESTROYED
+[INFO]       - Leg_Left (Test Left Leg): OK (40/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (4/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 52 Processing --- 
+[INFO] 턴 51 종료 - 활성 유닛: Player AF
+[INFO] 턴 52 시작 - 활성 유닛: Enemy AF
+[INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.34)
+[INFO] 데미지 계산: Enemy AF → Player AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Body)
+[DANGER] Player AF(이)가 24.0 데미지를 받음 (부위: Body, 남은 내구도: 60 %)
+[SUCCESS] Enemy AF의 공격 행동 성공: Player AF에게 공격 성공
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:3.0 / Def:13.0 / Spd:9.0 / Acc:3.0 / Eva:3.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (90/150) [-24]
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): OK (44/80)
+[INFO]       - Leg_Left (Test Left Leg): DESTROYED
+[INFO]       - Leg_Right (Test Right Leg): OK (16/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:3.0 / Def:13.0 / Spd:10.0 / Acc:3.0 / Eva:3.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (42/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): DESTROYED
+[INFO]       - Leg_Left (Test Left Leg): OK (40/100)
+[INFO]       - Leg_Right (Test Right Leg): OK (4/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 53 Processing --- 
+[INFO] 턴 52 종료 - 활성 유닛: Enemy AF
+[INFO] 턴 53 시작 - 활성 유닛: Player AF
+[INFO] Player AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.56)
+[INFO] 데미지 계산: Player AF → Enemy AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Legs)
+[CRITICAL] Enemy AF의 Legs 파츠가 파괴됨!
+효과:
+- Leg_Right 파츠 파괴
+- Enemy AF의 성능 저하 예상
+
+[DANGER] Enemy AF(이)가 24.0 데미지를 받음 (부위: Legs, 남은 내구도: 0 %)
+[CRITICAL] Enemy AF의 Legs 파츠가 파괴됨!
+효과:
+- Leg_Right 파트가 파괴되었습니다.
+- Enemy AF의 성능이 감소했습니다.
+
+[SUCCESS] Player AF의 공격 행동 성공: Enemy AF에게 공격 성공
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:3.0 / Def:13.0 / Spd:9.0 / Acc:3.0 / Eva:3.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (90/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): OK (44/80)
+[INFO]       - Leg_Left (Test Left Leg): DESTROYED
+[INFO]       - Leg_Right (Test Right Leg): OK (16/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:2.0 / Def:12.0 / Spd:8.0 / Acc:2.0 / Eva:2.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (42/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): DESTROYED
+[INFO]       - Leg_Left (Test Left Leg): OK (40/100)
+[INFO]       - Leg_Right (Test Right Leg): DESTROYED
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 54 Processing --- 
+[INFO] 턴 53 종료 - 활성 유닛: Player AF
+[INFO] 턴 54 시작 - 활성 유닛: Enemy AF
+[INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.48)
+[INFO] 데미지 계산: Enemy AF → Player AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Body)
+[DANGER] Player AF(이)가 24.0 데미지를 받음 (부위: Body, 남은 내구도: 44 %)
+[SUCCESS] Enemy AF의 공격 행동 성공: Player AF에게 공격 성공
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:3.0 / Def:13.0 / Spd:9.0 / Acc:3.0 / Eva:3.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (66/150) [-24]
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): OK (44/80)
+[INFO]       - Leg_Left (Test Left Leg): DESTROYED
+[INFO]       - Leg_Right (Test Right Leg): OK (16/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:2.0 / Def:12.0 / Spd:8.0 / Acc:2.0 / Eva:2.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (42/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): DESTROYED
+[INFO]       - Leg_Left (Test Left Leg): OK (40/100)
+[INFO]       - Leg_Right (Test Right Leg): DESTROYED
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 55 Processing --- 
+[INFO] 턴 54 종료 - 활성 유닛: Enemy AF
+[INFO] 턴 55 시작 - 활성 유닛: Player AF
+[INFO] Player AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.33)
+[INFO] 데미지 계산: Player AF → Enemy AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Legs)
+[DANGER] Enemy AF(이)가 24.0 데미지를 받음 (부위: Legs, 남은 내구도: 16 %)
+[SUCCESS] Player AF의 공격 행동 성공: Enemy AF에게 공격 성공
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:3.0 / Def:13.0 / Spd:9.0 / Acc:3.0 / Eva:3.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (66/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): OK (44/80)
+[INFO]       - Leg_Left (Test Left Leg): DESTROYED
+[INFO]       - Leg_Right (Test Right Leg): OK (16/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:2.0 / Def:12.0 / Spd:8.0 / Acc:2.0 / Eva:2.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (42/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): DESTROYED
+[INFO]       - Leg_Left (Test Left Leg): OK (16/100) [-24]
+[INFO]       - Leg_Right (Test Right Leg): DESTROYED
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 56 Processing --- 
+[INFO] 턴 55 종료 - 활성 유닛: Player AF
+[INFO] 턴 56 시작 - 활성 유닛: Enemy AF
+[INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[WARNING] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 빗나감 (정확도 판정: 0.93)
+[SUCCESS] Player AF(이)가 30.0 데미지를 회피함: Player AF이(가) 공격을 회피했습니다.
+[WARNING] Enemy AF의 공격 행동 실패: Player AF에게 공격 실패
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:3.0 / Def:13.0 / Spd:9.0 / Acc:3.0 / Eva:3.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (66/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): OK (44/80)
+[INFO]       - Leg_Left (Test Left Leg): DESTROYED
+[INFO]       - Leg_Right (Test Right Leg): OK (16/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:2.0 / Def:12.0 / Spd:8.0 / Acc:2.0 / Eva:2.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (42/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): DESTROYED
+[INFO]       - Leg_Left (Test Left Leg): OK (16/100)
+[INFO]       - Leg_Right (Test Right Leg): DESTROYED
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 57 Processing --- 
+[INFO] 턴 56 종료 - 활성 유닛: Enemy AF
+[INFO] 턴 57 시작 - 활성 유닛: Player AF
+[INFO] Player AF(이)가 공격 행동을 시작합니다.
+[WARNING] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 빗나감 (정확도 판정: 0.89)
+[SUCCESS] Enemy AF(이)가 30.0 데미지를 회피함: Enemy AF이(가) 공격을 회피했습니다.
+[WARNING] Player AF의 공격 행동 실패: Enemy AF에게 공격 실패
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:3.0 / Def:13.0 / Spd:9.0 / Acc:3.0 / Eva:3.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (66/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): OK (44/80)
+[INFO]       - Leg_Left (Test Left Leg): DESTROYED
+[INFO]       - Leg_Right (Test Right Leg): OK (16/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:2.0 / Def:12.0 / Spd:8.0 / Acc:2.0 / Eva:2.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (42/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): DESTROYED
+[INFO]       - Leg_Left (Test Left Leg): OK (16/100)
+[INFO]       - Leg_Right (Test Right Leg): DESTROYED
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 58 Processing --- 
+[INFO] 턴 57 종료 - 활성 유닛: Player AF
+[INFO] 턴 58 시작 - 활성 유닛: Enemy AF
+[INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[WARNING] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 빗나감 (정확도 판정: 0.99)
+[SUCCESS] Player AF(이)가 30.0 데미지를 회피함: Player AF이(가) 공격을 회피했습니다.
+[WARNING] Enemy AF의 공격 행동 실패: Player AF에게 공격 실패
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:3.0 / Def:13.0 / Spd:9.0 / Acc:3.0 / Eva:3.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (66/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): OK (44/80)
+[INFO]       - Leg_Left (Test Left Leg): DESTROYED
+[INFO]       - Leg_Right (Test Right Leg): OK (16/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:2.0 / Def:12.0 / Spd:8.0 / Acc:2.0 / Eva:2.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (42/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): DESTROYED
+[INFO]       - Leg_Left (Test Left Leg): OK (16/100)
+[INFO]       - Leg_Right (Test Right Leg): DESTROYED
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 59 Processing --- 
+[INFO] 턴 58 종료 - 활성 유닛: Enemy AF
+[INFO] 턴 59 시작 - 활성 유닛: Player AF
+[INFO] Player AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.48)
+[INFO] 데미지 계산: Player AF → Enemy AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Body)
+[DANGER] Enemy AF(이)가 24.0 데미지를 받음 (부위: Body, 남은 내구도: 12 %)
+[SUCCESS] Player AF의 공격 행동 성공: Enemy AF에게 공격 성공
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:3.0 / Def:13.0 / Spd:9.0 / Acc:3.0 / Eva:3.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (66/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): OK (44/80)
+[INFO]       - Leg_Left (Test Left Leg): DESTROYED
+[INFO]       - Leg_Right (Test Right Leg): OK (16/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:2.0 / Def:12.0 / Spd:8.0 / Acc:2.0 / Eva:2.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (18/150) [-24]
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): DESTROYED
+[INFO]       - Leg_Left (Test Left Leg): OK (16/100)
+[INFO]       - Leg_Right (Test Right Leg): DESTROYED
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 60 Processing --- 
+[INFO] 턴 59 종료 - 활성 유닛: Player AF
+[INFO] 턴 60 시작 - 활성 유닛: Enemy AF
+[INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.63)
+[INFO] 데미지 계산: Enemy AF → Player AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Body)
+[CRITICAL] Player AF(이)가 36.0 데미지를 받음 [치명타!] (부위: Body, 남은 내구도: 20 %)
+[SUCCESS] Enemy AF의 공격 행동 성공: Player AF에게 공격 성공
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:3.0 / Def:13.0 / Spd:9.0 / Acc:3.0 / Eva:3.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (30/150) [-36]
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): OK (44/80)
+[INFO]       - Leg_Left (Test Left Leg): DESTROYED
+[INFO]       - Leg_Right (Test Right Leg): OK (16/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:2.0 / Def:12.0 / Spd:8.0 / Acc:2.0 / Eva:2.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (18/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): DESTROYED
+[INFO]       - Leg_Left (Test Left Leg): OK (16/100)
+[INFO]       - Leg_Right (Test Right Leg): DESTROYED
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 61 Processing --- 
+[INFO] 턴 60 종료 - 활성 유닛: Enemy AF
+[INFO] 턴 61 시작 - 활성 유닛: Player AF
+[INFO] Player AF(이)가 공격 행동을 시작합니다.
+[WARNING] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 빗나감 (정확도 판정: 0.74)
+[SUCCESS] Enemy AF(이)가 30.0 데미지를 회피함: Enemy AF이(가) 공격을 회피했습니다.
+[WARNING] Player AF의 공격 행동 실패: Enemy AF에게 공격 실패
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:3.0 / Def:13.0 / Spd:9.0 / Acc:3.0 / Eva:3.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (30/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): OK (44/80)
+[INFO]       - Leg_Left (Test Left Leg): DESTROYED
+[INFO]       - Leg_Right (Test Right Leg): OK (16/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:2.0 / Def:12.0 / Spd:8.0 / Acc:2.0 / Eva:2.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (18/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): DESTROYED
+[INFO]       - Leg_Left (Test Left Leg): OK (16/100)
+[INFO]       - Leg_Right (Test Right Leg): DESTROYED
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 62 Processing --- 
+[INFO] 턴 61 종료 - 활성 유닛: Player AF
+[INFO] 턴 62 시작 - 활성 유닛: Enemy AF
+[INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[WARNING] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 빗나감 (정확도 판정: 0.75)
+[SUCCESS] Player AF(이)가 30.0 데미지를 회피함: Player AF이(가) 공격을 회피했습니다.
+[WARNING] Enemy AF의 공격 행동 실패: Player AF에게 공격 실패
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:3.0 / Def:13.0 / Spd:9.0 / Acc:3.0 / Eva:3.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (30/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): OK (44/80)
+[INFO]       - Leg_Left (Test Left Leg): DESTROYED
+[INFO]       - Leg_Right (Test Right Leg): OK (16/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:2.0 / Def:12.0 / Spd:8.0 / Acc:2.0 / Eva:2.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (18/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): DESTROYED
+[INFO]       - Leg_Left (Test Left Leg): OK (16/100)
+[INFO]       - Leg_Right (Test Right Leg): DESTROYED
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 63 Processing --- 
+[INFO] 턴 62 종료 - 활성 유닛: Enemy AF
+[INFO] 턴 63 시작 - 활성 유닛: Player AF
+[INFO] Player AF(이)가 공격 행동을 시작합니다.
+[WARNING] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 빗나감 (정확도 판정: 0.78)
+[SUCCESS] Enemy AF(이)가 30.0 데미지를 회피함: Enemy AF이(가) 공격을 회피했습니다.
+[WARNING] Player AF의 공격 행동 실패: Enemy AF에게 공격 실패
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:3.0 / Def:13.0 / Spd:9.0 / Acc:3.0 / Eva:3.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (30/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): OK (44/80)
+[INFO]       - Leg_Left (Test Left Leg): DESTROYED
+[INFO]       - Leg_Right (Test Right Leg): OK (16/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:2.0 / Def:12.0 / Spd:8.0 / Acc:2.0 / Eva:2.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (18/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): DESTROYED
+[INFO]       - Leg_Left (Test Left Leg): OK (16/100)
+[INFO]       - Leg_Right (Test Right Leg): DESTROYED
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 64 Processing --- 
+[INFO] 턴 63 종료 - 활성 유닛: Player AF
+[INFO] 턴 64 시작 - 활성 유닛: Enemy AF
+[INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[WARNING] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 빗나감 (정확도 판정: 0.80)
+[SUCCESS] Player AF(이)가 30.0 데미지를 회피함: Player AF이(가) 공격을 회피했습니다.
+[WARNING] Enemy AF의 공격 행동 실패: Player AF에게 공격 실패
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:3.0 / Def:13.0 / Spd:9.0 / Acc:3.0 / Eva:3.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (30/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): OK (44/80)
+[INFO]       - Leg_Left (Test Left Leg): DESTROYED
+[INFO]       - Leg_Right (Test Right Leg): OK (16/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:2.0 / Def:12.0 / Spd:8.0 / Acc:2.0 / Eva:2.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (18/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): DESTROYED
+[INFO]       - Leg_Left (Test Left Leg): OK (16/100)
+[INFO]       - Leg_Right (Test Right Leg): DESTROYED
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 65 Processing --- 
+[INFO] 턴 64 종료 - 활성 유닛: Enemy AF
+[INFO] 턴 65 시작 - 활성 유닛: Player AF
+[INFO] Player AF(이)가 공격 행동을 시작합니다.
+[WARNING] Player AF(이)가 Enemy AF에게 Test Rifle(으)로 공격: 빗나감 (정확도 판정: 0.97)
+[SUCCESS] Enemy AF(이)가 30.0 데미지를 회피함: Enemy AF이(가) 공격을 회피했습니다.
+[WARNING] Player AF의 공격 행동 실패: Enemy AF에게 공격 실패
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Player AF (Operational) at (26.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:3.0 / Def:13.0 / Spd:9.0 / Acc:3.0 / Eva:3.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (30/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): OK (44/80)
+[INFO]       - Leg_Left (Test Left Leg): DESTROYED
+[INFO]       - Leg_Right (Test Right Leg): OK (16/100)
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO]   Unit: Enemy AF (Operational) at (27.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:2.0 / Def:12.0 / Spd:8.0 / Acc:2.0 / Eva:2.1
+[INFO]     Parts Status:
+[INFO]       - Head (Test Head): DESTROYED
+[INFO]       - Body (Test Body): OK (18/150)
+[INFO]       - Arm_Left (Test Left Arm): DESTROYED
+[INFO]       - Arm_Right (Test Right Arm): DESTROYED
+[INFO]       - Leg_Left (Test Left Leg): OK (16/100)
+[INFO]       - Leg_Right (Test Right Leg): DESTROYED
+[INFO]     Weapon Status:
+[INFO]       - Test Rifle: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 66 Processing --- 
+[INFO] 턴 65 종료 - 활성 유닛: Player AF
+[INFO] 턴 66 시작 - 활성 유닛: Enemy AF
+[INFO] Enemy AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Enemy AF(이)가 Player AF에게 Test Rifle(으)로 공격: 명중 (정확도 판정: 0.26)
+[INFO] 데미지 계산: Enemy AF → Player AF 원본 데미지: 30.0, 최종 데미지: 24.0 (Physical 타입, 대상 부위: Body)
+[CRITICAL] Player AF의 Body 파츠가 파괴됨!
+효과:
+- Body 파츠 파괴
+- Player AF의 성능 저하 예상
+
+[CRITICAL] Player AF(이)가 36.0 데미지를 받음 [치명타!] (부위: Body, 남은 내구도: 0 %)
+[CRITICAL] Player AF의 Body 파츠가 파괴됨!
+효과:
+- Body 파트가 파괴되었습니다.
+- Player AF의 성능이 감소했습니다.
+
+[SYSTEM] 전투 종료: Defeat
+지속 시간: 0.00초
+생존자:
+- Enemy AF
+
+[SUCCESS] Enemy AF의 공격 행동 성공: Player AF에게 공격 성공
+[INFO] --- Current Units Status ---
+[INFO] ----------------------------
+[SYSTEM] === Combat Test End ===
+
+==================================================
+로그 항목 수: 2080

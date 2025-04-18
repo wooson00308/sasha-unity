@@ -1,0 +1,907 @@
+=== 전투 로그: SimpleCombatTest ===
+생성 시간: 2025-04-18 오후 2:21:01
+==================================================
+
+[INFO] --- Creating Test ArmoredFrame: Speedster AF (Team: 0, Type: Light) at (0.00, 0.00, 0.00) ---
+[INFO] --- Finished Creating Test ArmoredFrame: Speedster AF (Team: 0) --- Summary ---
+  Position: (0.00, 0.00, 0.00)
+  Frame: LightTestFrame (Type: StandardFrame)
+  Pilot: AgilePilot 0 (Spec: Evasion)
+  Parts Status:
+    - Head (Light Head): OK (40/40)
+    - Body (Light Body): OK (120/120)
+    - Arm_Left (Light Left Arm): OK (60/60)
+    - Arm_Right (Light Right Arm): OK (60/60)
+    - Leg_Left (Light Left Leg): OK (80/80)
+    - Leg_Right (Light Right Leg): OK (80/80)
+  Weapon Status:
+    - Light Rifle (Type: MidRange, Dmg: 25): Operational
+---------------------------------------------------------
+
+[INFO] --- Creating Test ArmoredFrame: Tanker AF (Team: 1, Type: Heavy) at (40.00, 0.00, 0.00) ---
+[INFO] --- Finished Creating Test ArmoredFrame: Tanker AF (Team: 1) --- Summary ---
+  Position: (40.00, 0.00, 0.00)
+  Frame: HeavyTestFrame (Type: StandardFrame)
+  Pilot: TankPilot 1 (Spec: Defense)
+  Parts Status:
+    - Head (Heavy Head): OK (70/70)
+    - Body (Heavy Body): OK (200/200)
+    - Arm_Left (Heavy Left Arm): OK (110/110)
+    - Arm_Right (Heavy Right Arm): OK (110/110)
+    - Leg_Left (Heavy Left Leg): OK (150/150)
+    - Leg_Right (Heavy Right Leg): OK (150/150)
+  Weapon Status:
+    - Heavy Cannon (Type: LongRange, Dmg: 50): Operational
+---------------------------------------------------------
+
+[SYSTEM] 전투 시작: Simple Test Battle
+위치: (0.00, 0.00, 0.00)
+참가자:
+- Speedster AF (Standard)
+- Tanker AF (Standard)
+
+[SYSTEM] Battle Started with ID: BATTLE_20250418_142101_9290
+[SYSTEM] --- Turn 1 Processing --- 
+[INFO] 턴 1 시작 - 활성 유닛: Speedster AF
+[INFO] [T1] Speedster AF: 상태 효과 처리 시작
+[INFO] [T1] Speedster AF: 상태 효과 처리 완료
+[INFO]     Speedster AF 공격(Light Rifle) AP 계산: 무기(1.5) / 효율(9.2) => 최종 0.5
+[INFO]     Speedster AF 이동 AP 계산: 무게(133) 페널티 1.33, 속도(26) 보너스 1.30 => 최종 0.5
+[INFO] [BATTLE_20250418_142101_9290-T1] Speedster AF: 이동 행동 결정 (대상: Tanker AF, AP 소모: 0.5).
+[INFO]     Speedster AF 이동 AP 계산: 무게(133) 페널티 1.33, 속도(26) 보너스 1.30 => 최종 0.5
+[INFO] Speedster AF(이)가 이동 행동을 시작합니다.
+[SUCCESS] Speedster AF의 이동 행동 성공: Tanker AF 방향으로 26.0 유닛 이동
+[INFO]     Speedster AF 공격(Light Rifle) AP 계산: 무기(1.5) / 효율(9.2) => 최종 0.5
+[INFO]     Speedster AF 이동 AP 계산: 무게(133) 페널티 1.33, 속도(26) 보너스 1.30 => 최종 0.5
+[INFO] [BATTLE_20250418_142101_9290-T1] Speedster AF: 이동 행동 결정 (대상: Tanker AF, AP 소모: 0.5).
+[INFO]     Speedster AF 이동 AP 계산: 무게(133) 페널티 1.33, 속도(26) 보너스 1.30 => 최종 0.5
+[INFO] Speedster AF(이)가 이동 행동을 시작합니다.
+[SUCCESS] Speedster AF의 이동 행동 성공: Tanker AF 방향으로 14.0 유닛 이동
+[INFO]     Speedster AF 공격(Light Rifle) AP 계산: 무기(1.5) / 효율(9.2) => 최종 0.5
+[INFO]     Speedster AF 이동 AP 계산: 무게(133) 페널티 1.33, 속도(26) 보너스 1.30 => 최종 0.5
+[INFO] [BATTLE_20250418_142101_9290-T1] Speedster AF: 공격 행동 결정 (대상: Tanker AF, AP 소모: 0.5).
+[INFO]     Speedster AF 공격(Light Rifle) AP 계산: 무기(1.5) / 효율(9.2) => 최종 0.5
+[INFO] Speedster AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Speedster AF(이)가 Tanker AF에게 Light Rifle(으)로 공격: 명중 (정확도 판정: 0.62)
+[INFO] 데미지 계산: Speedster AF → Tanker AF 원본 데미지: 25.0, 최종 데미지: 20.0 (Physical 타입, 대상 부위: Arm)
+[DANGER] Tanker AF(이)가 20.0 데미지를 받음 (부위: Arm, 남은 내구도: 82 %)
+[SUCCESS] Speedster AF의 공격 행동 성공: Tanker AF에게 공격 성공
+[INFO]     Speedster AF 공격(Light Rifle) AP 계산: 무기(1.5) / 효율(9.2) => 최종 0.5
+[INFO]     Speedster AF 이동 AP 계산: 무게(133) 페널티 1.33, 속도(26) 보너스 1.30 => 최종 0.5
+[INFO] [BATTLE_20250418_142101_9290-T1] Speedster AF: 공격 행동 결정 (대상: Tanker AF, AP 소모: 0.5).
+[INFO]     Speedster AF 공격(Light Rifle) AP 계산: 무기(1.5) / 효율(9.2) => 최종 0.5
+[INFO] Speedster AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Speedster AF(이)가 Tanker AF에게 Light Rifle(으)로 공격: 명중 (정확도 판정: 0.47)
+[INFO] 데미지 계산: Speedster AF → Tanker AF 원본 데미지: 25.0, 최종 데미지: 20.0 (Physical 타입, 대상 부위: Arm)
+[CRITICAL] Tanker AF(이)가 30.0 데미지를 받음 [치명타!] (부위: Arm, 남은 내구도: 73 %)
+[SUCCESS] Speedster AF의 공격 행동 성공: Tanker AF에게 공격 성공
+[INFO]     Speedster AF 공격(Light Rifle) AP 계산: 무기(1.5) / 효율(9.2) => 최종 0.5
+[INFO]     Speedster AF 이동 AP 계산: 무게(133) 페널티 1.33, 속도(26) 보너스 1.30 => 최종 0.5
+[INFO] [BATTLE_20250418_142101_9290-T1] Speedster AF: 공격 행동 결정 (대상: Tanker AF, AP 소모: 0.5).
+[INFO]     Speedster AF 공격(Light Rifle) AP 계산: 무기(1.5) / 효율(9.2) => 최종 0.5
+[INFO] Speedster AF(이)가 공격 행동을 시작합니다.
+[WARNING] Speedster AF(이)가 Tanker AF에게 Light Rifle(으)로 공격: 빗나감 (정확도 판정: 0.86)
+[SUCCESS] Tanker AF(이)가 25.0 데미지를 회피함: Tanker AF이(가) 공격을 회피했습니다.
+[WARNING] Speedster AF의 공격 행동 실패: Tanker AF에게 공격 실패
+[WARNING] [BATTLE_20250418_142101_9290-T1] Speedster AF: 행동 실패 또는 비활성화로 턴 내 행동 중단.
+[WARNING] [BATTLE_20250418_142101_9290-T1] Speedster AF: 턴당 최대 행동 횟수(5) 도달.
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Speedster AF (Operational) at (40.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:11.0 / Def:11.0 / Spd:26.0 / Acc:8.8 / Eva:7.6
+[INFO]     Parts Status:
+[INFO]       - Head (Light Head): OK (40/40)
+[INFO]       - Body (Light Body): OK (120/120)
+[INFO]       - Arm_Left (Light Left Arm): OK (60/60)
+[INFO]       - Arm_Right (Light Right Arm): OK (60/60)
+[INFO]       - Leg_Left (Light Left Leg): OK (80/80)
+[INFO]       - Leg_Right (Light Right Leg): OK (80/80)
+[INFO]     Weapon Status:
+[INFO]       - Light Rifle: Operational
+[INFO]   Unit: Tanker AF (Operational) at (40.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:13.0 / Def:29.2 / Spd:11.0 / Acc:7.6 / Eva:7.3
+[INFO]     Parts Status:
+[INFO]       - Head (Heavy Head): OK (70/70)
+[INFO]       - Body (Heavy Body): OK (200/200)
+[INFO]       - Arm_Left (Heavy Left Arm): OK (90/110) [-20]
+[INFO]       - Arm_Right (Heavy Right Arm): OK (80/110) [-30]
+[INFO]       - Leg_Left (Heavy Left Leg): OK (150/150)
+[INFO]       - Leg_Right (Heavy Right Leg): OK (150/150)
+[INFO]     Weapon Status:
+[INFO]       - Heavy Cannon: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 2 Processing --- 
+[INFO] 턴 1 종료 - 활성 유닛: Speedster AF
+[INFO] 턴 2 시작 - 활성 유닛: Tanker AF
+[INFO] [T2] Tanker AF: 상태 효과 처리 시작
+[INFO] [T2] Tanker AF: 상태 효과 처리 완료
+[INFO]     Tanker AF 공격(Heavy Cannon) AP 계산: 무기(3.0) / 효율(7.8) => 최종 0.5
+[INFO]     Tanker AF 이동 AP 계산: 무게(259) 페널티 2.59, 속도(11) 보너스 0.55 => 최종 2.5
+[INFO] [BATTLE_20250418_142101_9290-T2] Tanker AF: 공격 행동 결정 (대상: Speedster AF, AP 소모: 0.5).
+[INFO]     Tanker AF 공격(Heavy Cannon) AP 계산: 무기(3.0) / 효율(7.8) => 최종 0.5
+[INFO] Tanker AF(이)가 공격 행동을 시작합니다.
+[WARNING] Tanker AF(이)가 Speedster AF에게 Heavy Cannon(으)로 공격: 빗나감 (정확도 판정: 0.86)
+[SUCCESS] Speedster AF(이)가 50.0 데미지를 회피함: Speedster AF이(가) 공격을 회피했습니다.
+[WARNING] Tanker AF의 공격 행동 실패: Speedster AF에게 공격 실패
+[WARNING] [BATTLE_20250418_142101_9290-T2] Tanker AF: 행동 실패 또는 비활성화로 턴 내 행동 중단.
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Speedster AF (Operational) at (40.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:11.0 / Def:11.0 / Spd:26.0 / Acc:8.8 / Eva:7.6
+[INFO]     Parts Status:
+[INFO]       - Head (Light Head): OK (40/40)
+[INFO]       - Body (Light Body): OK (120/120)
+[INFO]       - Arm_Left (Light Left Arm): OK (60/60)
+[INFO]       - Arm_Right (Light Right Arm): OK (60/60)
+[INFO]       - Leg_Left (Light Left Leg): OK (80/80)
+[INFO]       - Leg_Right (Light Right Leg): OK (80/80)
+[INFO]     Weapon Status:
+[INFO]       - Light Rifle: Operational
+[INFO]   Unit: Tanker AF (Operational) at (40.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:13.0 / Def:29.2 / Spd:11.0 / Acc:7.6 / Eva:7.3
+[INFO]     Parts Status:
+[INFO]       - Head (Heavy Head): OK (70/70)
+[INFO]       - Body (Heavy Body): OK (200/200)
+[INFO]       - Arm_Left (Heavy Left Arm): OK (90/110)
+[INFO]       - Arm_Right (Heavy Right Arm): OK (80/110)
+[INFO]       - Leg_Left (Heavy Left Leg): OK (150/150)
+[INFO]       - Leg_Right (Heavy Right Leg): OK (150/150)
+[INFO]     Weapon Status:
+[INFO]       - Heavy Cannon: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 3 Processing --- 
+[INFO] 턴 2 종료 - 활성 유닛: Tanker AF
+[INFO] 턴 3 시작 - 활성 유닛: Speedster AF
+[INFO] [T3] Speedster AF: 상태 효과 처리 시작
+[INFO] [T3] Speedster AF: 상태 효과 처리 완료
+[INFO]     Speedster AF 공격(Light Rifle) AP 계산: 무기(1.5) / 효율(9.2) => 최종 0.5
+[INFO]     Speedster AF 이동 AP 계산: 무게(133) 페널티 1.33, 속도(26) 보너스 1.30 => 최종 0.5
+[INFO] [BATTLE_20250418_142101_9290-T3] Speedster AF: 공격 행동 결정 (대상: Tanker AF, AP 소모: 0.5).
+[INFO]     Speedster AF 공격(Light Rifle) AP 계산: 무기(1.5) / 효율(9.2) => 최종 0.5
+[INFO] Speedster AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Speedster AF(이)가 Tanker AF에게 Light Rifle(으)로 공격: 명중 (정확도 판정: 0.18)
+[INFO] 데미지 계산: Speedster AF → Tanker AF 원본 데미지: 25.0, 최종 데미지: 20.0 (Physical 타입, 대상 부위: Arm)
+[CRITICAL] Tanker AF(이)가 30.0 데미지를 받음 [치명타!] (부위: Arm, 남은 내구도: 55 %)
+[SUCCESS] Speedster AF의 공격 행동 성공: Tanker AF에게 공격 성공
+[INFO]     Speedster AF 공격(Light Rifle) AP 계산: 무기(1.5) / 효율(9.2) => 최종 0.5
+[INFO]     Speedster AF 이동 AP 계산: 무게(133) 페널티 1.33, 속도(26) 보너스 1.30 => 최종 0.5
+[INFO] [BATTLE_20250418_142101_9290-T3] Speedster AF: 공격 행동 결정 (대상: Tanker AF, AP 소모: 0.5).
+[INFO]     Speedster AF 공격(Light Rifle) AP 계산: 무기(1.5) / 효율(9.2) => 최종 0.5
+[INFO] Speedster AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Speedster AF(이)가 Tanker AF에게 Light Rifle(으)로 공격: 명중 (정확도 판정: 0.14)
+[INFO] 데미지 계산: Speedster AF → Tanker AF 원본 데미지: 25.0, 최종 데미지: 20.0 (Physical 타입, 대상 부위: Legs)
+[DANGER] Tanker AF(이)가 20.0 데미지를 받음 (부위: Legs, 남은 내구도: 87 %)
+[SUCCESS] Speedster AF의 공격 행동 성공: Tanker AF에게 공격 성공
+[INFO]     Speedster AF 공격(Light Rifle) AP 계산: 무기(1.5) / 효율(9.2) => 최종 0.5
+[INFO]     Speedster AF 이동 AP 계산: 무게(133) 페널티 1.33, 속도(26) 보너스 1.30 => 최종 0.5
+[INFO] [BATTLE_20250418_142101_9290-T3] Speedster AF: 공격 행동 결정 (대상: Tanker AF, AP 소모: 0.5).
+[INFO]     Speedster AF 공격(Light Rifle) AP 계산: 무기(1.5) / 효율(9.2) => 최종 0.5
+[INFO] Speedster AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Speedster AF(이)가 Tanker AF에게 Light Rifle(으)로 공격: 명중 (정확도 판정: 0.10)
+[INFO] 데미지 계산: Speedster AF → Tanker AF 원본 데미지: 25.0, 최종 데미지: 20.0 (Physical 타입, 대상 부위: Arm)
+[DANGER] Tanker AF(이)가 20.0 데미지를 받음 (부위: Arm, 남은 내구도: 36 %)
+[SUCCESS] Speedster AF의 공격 행동 성공: Tanker AF에게 공격 성공
+[INFO]     Speedster AF 공격(Light Rifle) AP 계산: 무기(1.5) / 효율(9.2) => 최종 0.5
+[INFO]     Speedster AF 이동 AP 계산: 무게(133) 페널티 1.33, 속도(26) 보너스 1.30 => 최종 0.5
+[INFO] [BATTLE_20250418_142101_9290-T3] Speedster AF: 공격 행동 결정 (대상: Tanker AF, AP 소모: 0.5).
+[INFO]     Speedster AF 공격(Light Rifle) AP 계산: 무기(1.5) / 효율(9.2) => 최종 0.5
+[INFO] Speedster AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Speedster AF(이)가 Tanker AF에게 Light Rifle(으)로 공격: 명중 (정확도 판정: 0.57)
+[INFO] 데미지 계산: Speedster AF → Tanker AF 원본 데미지: 25.0, 최종 데미지: 20.0 (Physical 타입, 대상 부위: Legs)
+[DANGER] Tanker AF(이)가 20.0 데미지를 받음 (부위: Legs, 남은 내구도: 73 %)
+[SUCCESS] Speedster AF의 공격 행동 성공: Tanker AF에게 공격 성공
+[INFO]     Speedster AF 공격(Light Rifle) AP 계산: 무기(1.5) / 효율(9.2) => 최종 0.5
+[INFO]     Speedster AF 이동 AP 계산: 무게(133) 페널티 1.33, 속도(26) 보너스 1.30 => 최종 0.5
+[INFO] [BATTLE_20250418_142101_9290-T3] Speedster AF: 공격 행동 결정 (대상: Tanker AF, AP 소모: 0.5).
+[INFO]     Speedster AF 공격(Light Rifle) AP 계산: 무기(1.5) / 효율(9.2) => 최종 0.5
+[INFO] Speedster AF(이)가 공격 행동을 시작합니다.
+[WARNING] Speedster AF(이)가 Tanker AF에게 Light Rifle(으)로 공격: 빗나감 (정확도 판정: 0.71)
+[SUCCESS] Tanker AF(이)가 25.0 데미지를 회피함: Tanker AF이(가) 공격을 회피했습니다.
+[WARNING] Speedster AF의 공격 행동 실패: Tanker AF에게 공격 실패
+[WARNING] [BATTLE_20250418_142101_9290-T3] Speedster AF: 행동 실패 또는 비활성화로 턴 내 행동 중단.
+[WARNING] [BATTLE_20250418_142101_9290-T3] Speedster AF: 턴당 최대 행동 횟수(5) 도달.
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Speedster AF (Operational) at (40.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:11.0 / Def:11.0 / Spd:26.0 / Acc:8.8 / Eva:7.6
+[INFO]     Parts Status:
+[INFO]       - Head (Light Head): OK (40/40)
+[INFO]       - Body (Light Body): OK (120/120)
+[INFO]       - Arm_Left (Light Left Arm): OK (60/60)
+[INFO]       - Arm_Right (Light Right Arm): OK (60/60)
+[INFO]       - Leg_Left (Light Left Leg): OK (80/80)
+[INFO]       - Leg_Right (Light Right Leg): OK (80/80)
+[INFO]     Weapon Status:
+[INFO]       - Light Rifle: Operational
+[INFO]   Unit: Tanker AF (Operational) at (40.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:13.0 / Def:29.2 / Spd:11.0 / Acc:7.6 / Eva:7.3
+[INFO]     Parts Status:
+[INFO]       - Head (Heavy Head): OK (70/70)
+[INFO]       - Body (Heavy Body): OK (200/200)
+[INFO]       - Arm_Left (Heavy Left Arm): OK (40/110) [-50]
+[INFO]       - Arm_Right (Heavy Right Arm): OK (80/110)
+[INFO]       - Leg_Left (Heavy Left Leg): OK (150/150)
+[INFO]       - Leg_Right (Heavy Right Leg): OK (110/150) [-40]
+[INFO]     Weapon Status:
+[INFO]       - Heavy Cannon: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 4 Processing --- 
+[INFO] 턴 3 종료 - 활성 유닛: Speedster AF
+[INFO] 턴 4 시작 - 활성 유닛: Tanker AF
+[INFO] [T4] Tanker AF: 상태 효과 처리 시작
+[INFO] [T4] Tanker AF: 상태 효과 처리 완료
+[INFO]     Tanker AF 공격(Heavy Cannon) AP 계산: 무기(3.0) / 효율(7.8) => 최종 0.5
+[INFO]     Tanker AF 이동 AP 계산: 무게(259) 페널티 2.59, 속도(11) 보너스 0.55 => 최종 2.5
+[INFO] [BATTLE_20250418_142101_9290-T4] Tanker AF: 공격 행동 결정 (대상: Speedster AF, AP 소모: 0.5).
+[INFO]     Tanker AF 공격(Heavy Cannon) AP 계산: 무기(3.0) / 효율(7.8) => 최종 0.5
+[INFO] Tanker AF(이)가 공격 행동을 시작합니다.
+[WARNING] Tanker AF(이)가 Speedster AF에게 Heavy Cannon(으)로 공격: 빗나감 (정확도 판정: 0.75)
+[SUCCESS] Speedster AF(이)가 50.0 데미지를 회피함: Speedster AF이(가) 공격을 회피했습니다.
+[WARNING] Tanker AF의 공격 행동 실패: Speedster AF에게 공격 실패
+[WARNING] [BATTLE_20250418_142101_9290-T4] Tanker AF: 행동 실패 또는 비활성화로 턴 내 행동 중단.
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Speedster AF (Operational) at (40.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:11.0 / Def:11.0 / Spd:26.0 / Acc:8.8 / Eva:7.6
+[INFO]     Parts Status:
+[INFO]       - Head (Light Head): OK (40/40)
+[INFO]       - Body (Light Body): OK (120/120)
+[INFO]       - Arm_Left (Light Left Arm): OK (60/60)
+[INFO]       - Arm_Right (Light Right Arm): OK (60/60)
+[INFO]       - Leg_Left (Light Left Leg): OK (80/80)
+[INFO]       - Leg_Right (Light Right Leg): OK (80/80)
+[INFO]     Weapon Status:
+[INFO]       - Light Rifle: Operational
+[INFO]   Unit: Tanker AF (Operational) at (40.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:13.0 / Def:29.2 / Spd:11.0 / Acc:7.6 / Eva:7.3
+[INFO]     Parts Status:
+[INFO]       - Head (Heavy Head): OK (70/70)
+[INFO]       - Body (Heavy Body): OK (200/200)
+[INFO]       - Arm_Left (Heavy Left Arm): OK (40/110)
+[INFO]       - Arm_Right (Heavy Right Arm): OK (80/110)
+[INFO]       - Leg_Left (Heavy Left Leg): OK (150/150)
+[INFO]       - Leg_Right (Heavy Right Leg): OK (110/150)
+[INFO]     Weapon Status:
+[INFO]       - Heavy Cannon: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 5 Processing --- 
+[INFO] 턴 4 종료 - 활성 유닛: Tanker AF
+[INFO] 턴 5 시작 - 활성 유닛: Speedster AF
+[INFO] [T5] Speedster AF: 상태 효과 처리 시작
+[INFO] [T5] Speedster AF: 상태 효과 처리 완료
+[INFO]     Speedster AF 공격(Light Rifle) AP 계산: 무기(1.5) / 효율(9.2) => 최종 0.5
+[INFO]     Speedster AF 이동 AP 계산: 무게(133) 페널티 1.33, 속도(26) 보너스 1.30 => 최종 0.5
+[INFO] [BATTLE_20250418_142101_9290-T5] Speedster AF: 공격 행동 결정 (대상: Tanker AF, AP 소모: 0.5).
+[INFO]     Speedster AF 공격(Light Rifle) AP 계산: 무기(1.5) / 효율(9.2) => 최종 0.5
+[INFO] Speedster AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Speedster AF(이)가 Tanker AF에게 Light Rifle(으)로 공격: 명중 (정확도 판정: 0.46)
+[INFO] 데미지 계산: Speedster AF → Tanker AF 원본 데미지: 25.0, 최종 데미지: 20.0 (Physical 타입, 대상 부위: Arm)
+[DANGER] Tanker AF(이)가 20.0 데미지를 받음 (부위: Arm, 남은 내구도: 18 %)
+[SUCCESS] Speedster AF의 공격 행동 성공: Tanker AF에게 공격 성공
+[INFO]     Speedster AF 공격(Light Rifle) AP 계산: 무기(1.5) / 효율(9.2) => 최종 0.5
+[INFO]     Speedster AF 이동 AP 계산: 무게(133) 페널티 1.33, 속도(26) 보너스 1.30 => 최종 0.5
+[INFO] [BATTLE_20250418_142101_9290-T5] Speedster AF: 공격 행동 결정 (대상: Tanker AF, AP 소모: 0.5).
+[INFO]     Speedster AF 공격(Light Rifle) AP 계산: 무기(1.5) / 효율(9.2) => 최종 0.5
+[INFO] Speedster AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Speedster AF(이)가 Tanker AF에게 Light Rifle(으)로 공격: 명중 (정확도 판정: 0.57)
+[INFO] 데미지 계산: Speedster AF → Tanker AF 원본 데미지: 25.0, 최종 데미지: 20.0 (Physical 타입, 대상 부위: Legs)
+[DANGER] Tanker AF(이)가 20.0 데미지를 받음 (부위: Legs, 남은 내구도: 87 %)
+[SUCCESS] Speedster AF의 공격 행동 성공: Tanker AF에게 공격 성공
+[INFO]     Speedster AF 공격(Light Rifle) AP 계산: 무기(1.5) / 효율(9.2) => 최종 0.5
+[INFO]     Speedster AF 이동 AP 계산: 무게(133) 페널티 1.33, 속도(26) 보너스 1.30 => 최종 0.5
+[INFO] [BATTLE_20250418_142101_9290-T5] Speedster AF: 공격 행동 결정 (대상: Tanker AF, AP 소모: 0.5).
+[INFO]     Speedster AF 공격(Light Rifle) AP 계산: 무기(1.5) / 효율(9.2) => 최종 0.5
+[INFO] Speedster AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Speedster AF(이)가 Tanker AF에게 Light Rifle(으)로 공격: 명중 (정확도 판정: 0.40)
+[INFO] 데미지 계산: Speedster AF → Tanker AF 원본 데미지: 25.0, 최종 데미지: 20.0 (Physical 타입, 대상 부위: Legs)
+[DANGER] Tanker AF(이)가 20.0 데미지를 받음 (부위: Legs, 남은 내구도: 60 %)
+[SUCCESS] Speedster AF의 공격 행동 성공: Tanker AF에게 공격 성공
+[INFO]     Speedster AF 공격(Light Rifle) AP 계산: 무기(1.5) / 효율(9.2) => 최종 0.5
+[INFO]     Speedster AF 이동 AP 계산: 무게(133) 페널티 1.33, 속도(26) 보너스 1.30 => 최종 0.5
+[INFO] [BATTLE_20250418_142101_9290-T5] Speedster AF: 공격 행동 결정 (대상: Tanker AF, AP 소모: 0.5).
+[INFO]     Speedster AF 공격(Light Rifle) AP 계산: 무기(1.5) / 효율(9.2) => 최종 0.5
+[INFO] Speedster AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Speedster AF(이)가 Tanker AF에게 Light Rifle(으)로 공격: 명중 (정확도 판정: 0.64)
+[INFO] 데미지 계산: Speedster AF → Tanker AF 원본 데미지: 25.0, 최종 데미지: 20.0 (Physical 타입, 대상 부위: Arm)
+[CRITICAL] Tanker AF의 Arm 파츠가 파괴됨!
+효과:
+- Arm_Left 파츠 파괴
+- Tanker AF의 성능 저하 예상
+
+[DANGER] Tanker AF(이)가 20.0 데미지를 받음 (부위: Arm, 남은 내구도: 0 %)
+[CRITICAL] Tanker AF의 Arm 파츠가 파괴됨!
+효과:
+- Arm_Left 파트가 파괴되었습니다.
+- Tanker AF의 성능이 감소했습니다.
+
+[SUCCESS] Speedster AF의 공격 행동 성공: Tanker AF에게 공격 성공
+[INFO]     Speedster AF 공격(Light Rifle) AP 계산: 무기(1.5) / 효율(9.2) => 최종 0.5
+[INFO]     Speedster AF 이동 AP 계산: 무게(133) 페널티 1.33, 속도(26) 보너스 1.30 => 최종 0.5
+[INFO] [BATTLE_20250418_142101_9290-T5] Speedster AF: 공격 행동 결정 (대상: Tanker AF, AP 소모: 0.5).
+[INFO]     Speedster AF 공격(Light Rifle) AP 계산: 무기(1.5) / 효율(9.2) => 최종 0.5
+[INFO] Speedster AF(이)가 공격 행동을 시작합니다.
+[WARNING] Speedster AF(이)가 Tanker AF에게 Light Rifle(으)로 공격: 빗나감 (정확도 판정: 0.90)
+[SUCCESS] Tanker AF(이)가 25.0 데미지를 회피함: Tanker AF이(가) 공격을 회피했습니다.
+[WARNING] Speedster AF의 공격 행동 실패: Tanker AF에게 공격 실패
+[WARNING] [BATTLE_20250418_142101_9290-T5] Speedster AF: 행동 실패 또는 비활성화로 턴 내 행동 중단.
+[WARNING] [BATTLE_20250418_142101_9290-T5] Speedster AF: 턴당 최대 행동 횟수(5) 도달.
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Speedster AF (Operational) at (40.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:11.0 / Def:11.0 / Spd:26.0 / Acc:8.8 / Eva:7.6
+[INFO]     Parts Status:
+[INFO]       - Head (Light Head): OK (40/40)
+[INFO]       - Body (Light Body): OK (120/120)
+[INFO]       - Arm_Left (Light Left Arm): OK (60/60)
+[INFO]       - Arm_Right (Light Right Arm): OK (60/60)
+[INFO]       - Leg_Left (Light Left Leg): OK (80/80)
+[INFO]       - Leg_Right (Light Right Leg): OK (80/80)
+[INFO]     Weapon Status:
+[INFO]       - Light Rifle: Operational
+[INFO]   Unit: Tanker AF (Operational) at (40.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:12.0 / Def:28.2 / Spd:10.0 / Acc:6.6 / Eva:6.3
+[INFO]     Parts Status:
+[INFO]       - Head (Heavy Head): OK (70/70)
+[INFO]       - Body (Heavy Body): OK (200/200)
+[INFO]       - Arm_Left (Heavy Left Arm): DESTROYED
+[INFO]       - Arm_Right (Heavy Right Arm): OK (80/110)
+[INFO]       - Leg_Left (Heavy Left Leg): OK (130/150) [-20]
+[INFO]       - Leg_Right (Heavy Right Leg): OK (90/150) [-20]
+[INFO]     Weapon Status:
+[INFO]       - Heavy Cannon: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 6 Processing --- 
+[INFO] 턴 5 종료 - 활성 유닛: Speedster AF
+[INFO] 턴 6 시작 - 활성 유닛: Tanker AF
+[INFO] [T6] Tanker AF: 상태 효과 처리 시작
+[INFO] [T6] Tanker AF: 상태 효과 처리 완료
+[INFO]     Tanker AF 공격(Heavy Cannon) AP 계산: 무기(3.0) / 효율(6.8) => 최종 0.5
+[INFO]     Tanker AF 이동 AP 계산: 무게(237) 페널티 2.37, 속도(10) 보너스 0.50 => 최종 2.4
+[INFO] [BATTLE_20250418_142101_9290-T6] Tanker AF: 공격 행동 결정 (대상: Speedster AF, AP 소모: 0.5).
+[INFO]     Tanker AF 공격(Heavy Cannon) AP 계산: 무기(3.0) / 효율(6.8) => 최종 0.5
+[INFO] Tanker AF(이)가 공격 행동을 시작합니다.
+[WARNING] Tanker AF(이)가 Speedster AF에게 Heavy Cannon(으)로 공격: 빗나감 (정확도 판정: 0.77)
+[SUCCESS] Speedster AF(이)가 50.0 데미지를 회피함: Speedster AF이(가) 공격을 회피했습니다.
+[WARNING] Tanker AF의 공격 행동 실패: Speedster AF에게 공격 실패
+[WARNING] [BATTLE_20250418_142101_9290-T6] Tanker AF: 행동 실패 또는 비활성화로 턴 내 행동 중단.
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Speedster AF (Operational) at (40.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:11.0 / Def:11.0 / Spd:26.0 / Acc:8.8 / Eva:7.6
+[INFO]     Parts Status:
+[INFO]       - Head (Light Head): OK (40/40)
+[INFO]       - Body (Light Body): OK (120/120)
+[INFO]       - Arm_Left (Light Left Arm): OK (60/60)
+[INFO]       - Arm_Right (Light Right Arm): OK (60/60)
+[INFO]       - Leg_Left (Light Left Leg): OK (80/80)
+[INFO]       - Leg_Right (Light Right Leg): OK (80/80)
+[INFO]     Weapon Status:
+[INFO]       - Light Rifle: Operational
+[INFO]   Unit: Tanker AF (Operational) at (40.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:12.0 / Def:28.2 / Spd:10.0 / Acc:6.6 / Eva:6.3
+[INFO]     Parts Status:
+[INFO]       - Head (Heavy Head): OK (70/70)
+[INFO]       - Body (Heavy Body): OK (200/200)
+[INFO]       - Arm_Left (Heavy Left Arm): DESTROYED
+[INFO]       - Arm_Right (Heavy Right Arm): OK (80/110)
+[INFO]       - Leg_Left (Heavy Left Leg): OK (130/150)
+[INFO]       - Leg_Right (Heavy Right Leg): OK (90/150)
+[INFO]     Weapon Status:
+[INFO]       - Heavy Cannon: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 7 Processing --- 
+[INFO] 턴 6 종료 - 활성 유닛: Tanker AF
+[INFO] 턴 7 시작 - 활성 유닛: Speedster AF
+[INFO] [T7] Speedster AF: 상태 효과 처리 시작
+[INFO] [T7] Speedster AF: 상태 효과 처리 완료
+[INFO]     Speedster AF 공격(Light Rifle) AP 계산: 무기(1.5) / 효율(9.2) => 최종 0.5
+[INFO]     Speedster AF 이동 AP 계산: 무게(133) 페널티 1.33, 속도(26) 보너스 1.30 => 최종 0.5
+[INFO] [BATTLE_20250418_142101_9290-T7] Speedster AF: 공격 행동 결정 (대상: Tanker AF, AP 소모: 0.5).
+[INFO]     Speedster AF 공격(Light Rifle) AP 계산: 무기(1.5) / 효율(9.2) => 최종 0.5
+[INFO] Speedster AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Speedster AF(이)가 Tanker AF에게 Light Rifle(으)로 공격: 명중 (정확도 판정: 0.31)
+[INFO] 데미지 계산: Speedster AF → Tanker AF 원본 데미지: 25.0, 최종 데미지: 20.0 (Physical 타입, 대상 부위: Body)
+[DANGER] Tanker AF(이)가 20.0 데미지를 받음 (부위: Body, 남은 내구도: 90 %)
+[SUCCESS] Speedster AF의 공격 행동 성공: Tanker AF에게 공격 성공
+[INFO]     Speedster AF 공격(Light Rifle) AP 계산: 무기(1.5) / 효율(9.2) => 최종 0.5
+[INFO]     Speedster AF 이동 AP 계산: 무게(133) 페널티 1.33, 속도(26) 보너스 1.30 => 최종 0.5
+[INFO] [BATTLE_20250418_142101_9290-T7] Speedster AF: 공격 행동 결정 (대상: Tanker AF, AP 소모: 0.5).
+[INFO]     Speedster AF 공격(Light Rifle) AP 계산: 무기(1.5) / 효율(9.2) => 최종 0.5
+[INFO] Speedster AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Speedster AF(이)가 Tanker AF에게 Light Rifle(으)로 공격: 명중 (정확도 판정: 0.37)
+[INFO] 데미지 계산: Speedster AF → Tanker AF 원본 데미지: 25.0, 최종 데미지: 20.0 (Physical 타입, 대상 부위: Body)
+[DANGER] Tanker AF(이)가 20.0 데미지를 받음 (부위: Body, 남은 내구도: 80 %)
+[SUCCESS] Speedster AF의 공격 행동 성공: Tanker AF에게 공격 성공
+[INFO]     Speedster AF 공격(Light Rifle) AP 계산: 무기(1.5) / 효율(9.2) => 최종 0.5
+[INFO]     Speedster AF 이동 AP 계산: 무게(133) 페널티 1.33, 속도(26) 보너스 1.30 => 최종 0.5
+[INFO] [BATTLE_20250418_142101_9290-T7] Speedster AF: 공격 행동 결정 (대상: Tanker AF, AP 소모: 0.5).
+[INFO]     Speedster AF 공격(Light Rifle) AP 계산: 무기(1.5) / 효율(9.2) => 최종 0.5
+[INFO] Speedster AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Speedster AF(이)가 Tanker AF에게 Light Rifle(으)로 공격: 명중 (정확도 판정: 0.02)
+[INFO] 데미지 계산: Speedster AF → Tanker AF 원본 데미지: 25.0, 최종 데미지: 20.0 (Physical 타입, 대상 부위: Head)
+[DANGER] Tanker AF(이)가 20.0 데미지를 받음 (부위: Head, 남은 내구도: 71 %)
+[SUCCESS] Speedster AF의 공격 행동 성공: Tanker AF에게 공격 성공
+[INFO]     Speedster AF 공격(Light Rifle) AP 계산: 무기(1.5) / 효율(9.2) => 최종 0.5
+[INFO]     Speedster AF 이동 AP 계산: 무게(133) 페널티 1.33, 속도(26) 보너스 1.30 => 최종 0.5
+[INFO] [BATTLE_20250418_142101_9290-T7] Speedster AF: 공격 행동 결정 (대상: Tanker AF, AP 소모: 0.5).
+[INFO]     Speedster AF 공격(Light Rifle) AP 계산: 무기(1.5) / 효율(9.2) => 최종 0.5
+[INFO] Speedster AF(이)가 공격 행동을 시작합니다.
+[WARNING] Speedster AF(이)가 Tanker AF에게 Light Rifle(으)로 공격: 빗나감 (정확도 판정: 0.80)
+[SUCCESS] Tanker AF(이)가 25.0 데미지를 회피함: Tanker AF이(가) 공격을 회피했습니다.
+[WARNING] Speedster AF의 공격 행동 실패: Tanker AF에게 공격 실패
+[WARNING] [BATTLE_20250418_142101_9290-T7] Speedster AF: 행동 실패 또는 비활성화로 턴 내 행동 중단.
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Speedster AF (Operational) at (40.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:11.0 / Def:11.0 / Spd:26.0 / Acc:8.8 / Eva:7.6
+[INFO]     Parts Status:
+[INFO]       - Head (Light Head): OK (40/40)
+[INFO]       - Body (Light Body): OK (120/120)
+[INFO]       - Arm_Left (Light Left Arm): OK (60/60)
+[INFO]       - Arm_Right (Light Right Arm): OK (60/60)
+[INFO]       - Leg_Left (Light Left Leg): OK (80/80)
+[INFO]       - Leg_Right (Light Right Leg): OK (80/80)
+[INFO]     Weapon Status:
+[INFO]       - Light Rifle: Operational
+[INFO]   Unit: Tanker AF (Operational) at (40.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:12.0 / Def:28.2 / Spd:10.0 / Acc:6.6 / Eva:6.3
+[INFO]     Parts Status:
+[INFO]       - Head (Heavy Head): OK (50/70) [-20]
+[INFO]       - Body (Heavy Body): OK (160/200) [-40]
+[INFO]       - Arm_Left (Heavy Left Arm): DESTROYED
+[INFO]       - Arm_Right (Heavy Right Arm): OK (80/110)
+[INFO]       - Leg_Left (Heavy Left Leg): OK (130/150)
+[INFO]       - Leg_Right (Heavy Right Leg): OK (90/150)
+[INFO]     Weapon Status:
+[INFO]       - Heavy Cannon: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 8 Processing --- 
+[INFO] 턴 7 종료 - 활성 유닛: Speedster AF
+[INFO] 턴 8 시작 - 활성 유닛: Tanker AF
+[INFO] [T8] Tanker AF: 상태 효과 처리 시작
+[INFO] [T8] Tanker AF: 상태 효과 처리 완료
+[INFO]     Tanker AF 공격(Heavy Cannon) AP 계산: 무기(3.0) / 효율(6.8) => 최종 0.5
+[INFO]     Tanker AF 이동 AP 계산: 무게(237) 페널티 2.37, 속도(10) 보너스 0.50 => 최종 2.4
+[INFO] [BATTLE_20250418_142101_9290-T8] Tanker AF: 공격 행동 결정 (대상: Speedster AF, AP 소모: 0.5).
+[INFO]     Tanker AF 공격(Heavy Cannon) AP 계산: 무기(3.0) / 효율(6.8) => 최종 0.5
+[INFO] Tanker AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Tanker AF(이)가 Speedster AF에게 Heavy Cannon(으)로 공격: 명중 (정확도 판정: 0.54)
+[INFO] 데미지 계산: Tanker AF → Speedster AF 원본 데미지: 50.0, 최종 데미지: 40.0 (Explosive 타입, 대상 부위: Arm)
+[DANGER] Speedster AF(이)가 40.0 데미지를 받음 (부위: Arm, 남은 내구도: 33 %)
+[SUCCESS] Tanker AF의 공격 행동 성공: Speedster AF에게 공격 성공
+[INFO]     Tanker AF 공격(Heavy Cannon) AP 계산: 무기(3.0) / 효율(6.8) => 최종 0.5
+[INFO]     Tanker AF 이동 AP 계산: 무게(237) 페널티 2.37, 속도(10) 보너스 0.50 => 최종 2.4
+[INFO] [BATTLE_20250418_142101_9290-T8] Tanker AF: 공격 행동 결정 (대상: Speedster AF, AP 소모: 0.5).
+[INFO]     Tanker AF 공격(Heavy Cannon) AP 계산: 무기(3.0) / 효율(6.8) => 최종 0.5
+[INFO] Tanker AF(이)가 공격 행동을 시작합니다.
+[WARNING] Tanker AF(이)가 Speedster AF에게 Heavy Cannon(으)로 공격: 빗나감 (정확도 판정: 1.00)
+[SUCCESS] Speedster AF(이)가 50.0 데미지를 회피함: Speedster AF이(가) 공격을 회피했습니다.
+[WARNING] Tanker AF의 공격 행동 실패: Speedster AF에게 공격 실패
+[WARNING] [BATTLE_20250418_142101_9290-T8] Tanker AF: 행동 실패 또는 비활성화로 턴 내 행동 중단.
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Speedster AF (Operational) at (40.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:11.0 / Def:11.0 / Spd:26.0 / Acc:8.8 / Eva:7.6
+[INFO]     Parts Status:
+[INFO]       - Head (Light Head): OK (40/40)
+[INFO]       - Body (Light Body): OK (120/120)
+[INFO]       - Arm_Left (Light Left Arm): OK (20/60) [-40]
+[INFO]       - Arm_Right (Light Right Arm): OK (60/60)
+[INFO]       - Leg_Left (Light Left Leg): OK (80/80)
+[INFO]       - Leg_Right (Light Right Leg): OK (80/80)
+[INFO]     Weapon Status:
+[INFO]       - Light Rifle: Operational
+[INFO]   Unit: Tanker AF (Operational) at (40.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:12.0 / Def:28.2 / Spd:10.0 / Acc:6.6 / Eva:6.3
+[INFO]     Parts Status:
+[INFO]       - Head (Heavy Head): OK (50/70)
+[INFO]       - Body (Heavy Body): OK (160/200)
+[INFO]       - Arm_Left (Heavy Left Arm): DESTROYED
+[INFO]       - Arm_Right (Heavy Right Arm): OK (80/110)
+[INFO]       - Leg_Left (Heavy Left Leg): OK (130/150)
+[INFO]       - Leg_Right (Heavy Right Leg): OK (90/150)
+[INFO]     Weapon Status:
+[INFO]       - Heavy Cannon: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 9 Processing --- 
+[INFO] 턴 8 종료 - 활성 유닛: Tanker AF
+[INFO] 턴 9 시작 - 활성 유닛: Speedster AF
+[INFO] [T9] Speedster AF: 상태 효과 처리 시작
+[INFO] [T9] Speedster AF: 상태 효과 처리 완료
+[INFO]     Speedster AF 공격(Light Rifle) AP 계산: 무기(1.5) / 효율(9.2) => 최종 0.5
+[INFO]     Speedster AF 이동 AP 계산: 무게(133) 페널티 1.33, 속도(26) 보너스 1.30 => 최종 0.5
+[INFO] [BATTLE_20250418_142101_9290-T9] Speedster AF: 공격 행동 결정 (대상: Tanker AF, AP 소모: 0.5).
+[INFO]     Speedster AF 공격(Light Rifle) AP 계산: 무기(1.5) / 효율(9.2) => 최종 0.5
+[INFO] Speedster AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Speedster AF(이)가 Tanker AF에게 Light Rifle(으)로 공격: 명중 (정확도 판정: 0.32)
+[INFO] 데미지 계산: Speedster AF → Tanker AF 원본 데미지: 25.0, 최종 데미지: 20.0 (Physical 타입, 대상 부위: Legs)
+[DANGER] Tanker AF(이)가 20.0 데미지를 받음 (부위: Legs, 남은 내구도: 47 %)
+[SUCCESS] Speedster AF의 공격 행동 성공: Tanker AF에게 공격 성공
+[INFO]     Speedster AF 공격(Light Rifle) AP 계산: 무기(1.5) / 효율(9.2) => 최종 0.5
+[INFO]     Speedster AF 이동 AP 계산: 무게(133) 페널티 1.33, 속도(26) 보너스 1.30 => 최종 0.5
+[INFO] [BATTLE_20250418_142101_9290-T9] Speedster AF: 공격 행동 결정 (대상: Tanker AF, AP 소모: 0.5).
+[INFO]     Speedster AF 공격(Light Rifle) AP 계산: 무기(1.5) / 효율(9.2) => 최종 0.5
+[INFO] Speedster AF(이)가 공격 행동을 시작합니다.
+[WARNING] Speedster AF(이)가 Tanker AF에게 Light Rifle(으)로 공격: 빗나감 (정확도 판정: 0.74)
+[SUCCESS] Tanker AF(이)가 25.0 데미지를 회피함: Tanker AF이(가) 공격을 회피했습니다.
+[WARNING] Speedster AF의 공격 행동 실패: Tanker AF에게 공격 실패
+[WARNING] [BATTLE_20250418_142101_9290-T9] Speedster AF: 행동 실패 또는 비활성화로 턴 내 행동 중단.
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Speedster AF (Operational) at (40.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:11.0 / Def:11.0 / Spd:26.0 / Acc:8.8 / Eva:7.6
+[INFO]     Parts Status:
+[INFO]       - Head (Light Head): OK (40/40)
+[INFO]       - Body (Light Body): OK (120/120)
+[INFO]       - Arm_Left (Light Left Arm): OK (20/60)
+[INFO]       - Arm_Right (Light Right Arm): OK (60/60)
+[INFO]       - Leg_Left (Light Left Leg): OK (80/80)
+[INFO]       - Leg_Right (Light Right Leg): OK (80/80)
+[INFO]     Weapon Status:
+[INFO]       - Light Rifle: Operational
+[INFO]   Unit: Tanker AF (Operational) at (40.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:12.0 / Def:28.2 / Spd:10.0 / Acc:6.6 / Eva:6.3
+[INFO]     Parts Status:
+[INFO]       - Head (Heavy Head): OK (50/70)
+[INFO]       - Body (Heavy Body): OK (160/200)
+[INFO]       - Arm_Left (Heavy Left Arm): DESTROYED
+[INFO]       - Arm_Right (Heavy Right Arm): OK (80/110)
+[INFO]       - Leg_Left (Heavy Left Leg): OK (130/150)
+[INFO]       - Leg_Right (Heavy Right Leg): OK (70/150) [-20]
+[INFO]     Weapon Status:
+[INFO]       - Heavy Cannon: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 10 Processing --- 
+[INFO] 턴 9 종료 - 활성 유닛: Speedster AF
+[INFO] 턴 10 시작 - 활성 유닛: Tanker AF
+[INFO] [T10] Tanker AF: 상태 효과 처리 시작
+[INFO] [T10] Tanker AF: 상태 효과 처리 완료
+[INFO]     Tanker AF 공격(Heavy Cannon) AP 계산: 무기(3.0) / 효율(6.8) => 최종 0.5
+[INFO]     Tanker AF 이동 AP 계산: 무게(237) 페널티 2.37, 속도(10) 보너스 0.50 => 최종 2.4
+[INFO] [BATTLE_20250418_142101_9290-T10] Tanker AF: 공격 행동 결정 (대상: Speedster AF, AP 소모: 0.5).
+[INFO]     Tanker AF 공격(Heavy Cannon) AP 계산: 무기(3.0) / 효율(6.8) => 최종 0.5
+[INFO] Tanker AF(이)가 공격 행동을 시작합니다.
+[WARNING] Tanker AF(이)가 Speedster AF에게 Heavy Cannon(으)로 공격: 빗나감 (정확도 판정: 0.75)
+[SUCCESS] Speedster AF(이)가 50.0 데미지를 회피함: Speedster AF이(가) 공격을 회피했습니다.
+[WARNING] Tanker AF의 공격 행동 실패: Speedster AF에게 공격 실패
+[WARNING] [BATTLE_20250418_142101_9290-T10] Tanker AF: 행동 실패 또는 비활성화로 턴 내 행동 중단.
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Speedster AF (Operational) at (40.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:11.0 / Def:11.0 / Spd:26.0 / Acc:8.8 / Eva:7.6
+[INFO]     Parts Status:
+[INFO]       - Head (Light Head): OK (40/40)
+[INFO]       - Body (Light Body): OK (120/120)
+[INFO]       - Arm_Left (Light Left Arm): OK (20/60)
+[INFO]       - Arm_Right (Light Right Arm): OK (60/60)
+[INFO]       - Leg_Left (Light Left Leg): OK (80/80)
+[INFO]       - Leg_Right (Light Right Leg): OK (80/80)
+[INFO]     Weapon Status:
+[INFO]       - Light Rifle: Operational
+[INFO]   Unit: Tanker AF (Operational) at (40.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:12.0 / Def:28.2 / Spd:10.0 / Acc:6.6 / Eva:6.3
+[INFO]     Parts Status:
+[INFO]       - Head (Heavy Head): OK (50/70)
+[INFO]       - Body (Heavy Body): OK (160/200)
+[INFO]       - Arm_Left (Heavy Left Arm): DESTROYED
+[INFO]       - Arm_Right (Heavy Right Arm): OK (80/110)
+[INFO]       - Leg_Left (Heavy Left Leg): OK (130/150)
+[INFO]       - Leg_Right (Heavy Right Leg): OK (70/150)
+[INFO]     Weapon Status:
+[INFO]       - Heavy Cannon: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 11 Processing --- 
+[INFO] 턴 10 종료 - 활성 유닛: Tanker AF
+[INFO] 턴 11 시작 - 활성 유닛: Speedster AF
+[INFO] [T11] Speedster AF: 상태 효과 처리 시작
+[INFO] [T11] Speedster AF: 상태 효과 처리 완료
+[INFO]     Speedster AF 공격(Light Rifle) AP 계산: 무기(1.5) / 효율(9.2) => 최종 0.5
+[INFO]     Speedster AF 이동 AP 계산: 무게(133) 페널티 1.33, 속도(26) 보너스 1.30 => 최종 0.5
+[INFO] [BATTLE_20250418_142101_9290-T11] Speedster AF: 공격 행동 결정 (대상: Tanker AF, AP 소모: 0.5).
+[INFO]     Speedster AF 공격(Light Rifle) AP 계산: 무기(1.5) / 효율(9.2) => 최종 0.5
+[INFO] Speedster AF(이)가 공격 행동을 시작합니다.
+[WARNING] Speedster AF(이)가 Tanker AF에게 Light Rifle(으)로 공격: 빗나감 (정확도 판정: 0.75)
+[SUCCESS] Tanker AF(이)가 25.0 데미지를 회피함: Tanker AF이(가) 공격을 회피했습니다.
+[WARNING] Speedster AF의 공격 행동 실패: Tanker AF에게 공격 실패
+[WARNING] [BATTLE_20250418_142101_9290-T11] Speedster AF: 행동 실패 또는 비활성화로 턴 내 행동 중단.
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Speedster AF (Operational) at (40.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:11.0 / Def:11.0 / Spd:26.0 / Acc:8.8 / Eva:7.6
+[INFO]     Parts Status:
+[INFO]       - Head (Light Head): OK (40/40)
+[INFO]       - Body (Light Body): OK (120/120)
+[INFO]       - Arm_Left (Light Left Arm): OK (20/60)
+[INFO]       - Arm_Right (Light Right Arm): OK (60/60)
+[INFO]       - Leg_Left (Light Left Leg): OK (80/80)
+[INFO]       - Leg_Right (Light Right Leg): OK (80/80)
+[INFO]     Weapon Status:
+[INFO]       - Light Rifle: Operational
+[INFO]   Unit: Tanker AF (Operational) at (40.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:12.0 / Def:28.2 / Spd:10.0 / Acc:6.6 / Eva:6.3
+[INFO]     Parts Status:
+[INFO]       - Head (Heavy Head): OK (50/70)
+[INFO]       - Body (Heavy Body): OK (160/200)
+[INFO]       - Arm_Left (Heavy Left Arm): DESTROYED
+[INFO]       - Arm_Right (Heavy Right Arm): OK (80/110)
+[INFO]       - Leg_Left (Heavy Left Leg): OK (130/150)
+[INFO]       - Leg_Right (Heavy Right Leg): OK (70/150)
+[INFO]     Weapon Status:
+[INFO]       - Heavy Cannon: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 12 Processing --- 
+[INFO] 턴 11 종료 - 활성 유닛: Speedster AF
+[INFO] 턴 12 시작 - 활성 유닛: Tanker AF
+[INFO] [T12] Tanker AF: 상태 효과 처리 시작
+[INFO] [T12] Tanker AF: 상태 효과 처리 완료
+[INFO]     Tanker AF 공격(Heavy Cannon) AP 계산: 무기(3.0) / 효율(6.8) => 최종 0.5
+[INFO]     Tanker AF 이동 AP 계산: 무게(237) 페널티 2.37, 속도(10) 보너스 0.50 => 최종 2.4
+[INFO] [BATTLE_20250418_142101_9290-T12] Tanker AF: 공격 행동 결정 (대상: Speedster AF, AP 소모: 0.5).
+[INFO]     Tanker AF 공격(Heavy Cannon) AP 계산: 무기(3.0) / 효율(6.8) => 최종 0.5
+[INFO] Tanker AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Tanker AF(이)가 Speedster AF에게 Heavy Cannon(으)로 공격: 명중 (정확도 판정: 0.45)
+[INFO] 데미지 계산: Tanker AF → Speedster AF 원본 데미지: 50.0, 최종 데미지: 40.0 (Explosive 타입, 대상 부위: Body)
+[DANGER] Speedster AF(이)가 40.0 데미지를 받음 (부위: Body, 남은 내구도: 67 %)
+[SUCCESS] Tanker AF의 공격 행동 성공: Speedster AF에게 공격 성공
+[INFO]     Tanker AF 공격(Heavy Cannon) AP 계산: 무기(3.0) / 효율(6.8) => 최종 0.5
+[INFO]     Tanker AF 이동 AP 계산: 무게(237) 페널티 2.37, 속도(10) 보너스 0.50 => 최종 2.4
+[INFO] [BATTLE_20250418_142101_9290-T12] Tanker AF: 공격 행동 결정 (대상: Speedster AF, AP 소모: 0.5).
+[INFO]     Tanker AF 공격(Heavy Cannon) AP 계산: 무기(3.0) / 효율(6.8) => 최종 0.5
+[INFO] Tanker AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Tanker AF(이)가 Speedster AF에게 Heavy Cannon(으)로 공격: 명중 (정확도 판정: 0.25)
+[INFO] 데미지 계산: Tanker AF → Speedster AF 원본 데미지: 50.0, 최종 데미지: 40.0 (Explosive 타입, 대상 부위: Body)
+[DANGER] Speedster AF(이)가 40.0 데미지를 받음 (부위: Body, 남은 내구도: 33 %)
+[SUCCESS] Tanker AF의 공격 행동 성공: Speedster AF에게 공격 성공
+[INFO]     Tanker AF 공격(Heavy Cannon) AP 계산: 무기(3.0) / 효율(6.8) => 최종 0.5
+[INFO]     Tanker AF 이동 AP 계산: 무게(237) 페널티 2.37, 속도(10) 보너스 0.50 => 최종 2.4
+[INFO] [BATTLE_20250418_142101_9290-T12] Tanker AF: 공격 행동 결정 (대상: Speedster AF, AP 소모: 0.5).
+[INFO]     Tanker AF 공격(Heavy Cannon) AP 계산: 무기(3.0) / 효율(6.8) => 최종 0.5
+[INFO] Tanker AF(이)가 공격 행동을 시작합니다.
+[WARNING] Tanker AF(이)가 Speedster AF에게 Heavy Cannon(으)로 공격: 빗나감 (정확도 판정: 0.78)
+[SUCCESS] Speedster AF(이)가 50.0 데미지를 회피함: Speedster AF이(가) 공격을 회피했습니다.
+[WARNING] Tanker AF의 공격 행동 실패: Speedster AF에게 공격 실패
+[WARNING] [BATTLE_20250418_142101_9290-T12] Tanker AF: 행동 실패 또는 비활성화로 턴 내 행동 중단.
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Speedster AF (Operational) at (40.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:11.0 / Def:11.0 / Spd:26.0 / Acc:8.8 / Eva:7.6
+[INFO]     Parts Status:
+[INFO]       - Head (Light Head): OK (40/40)
+[INFO]       - Body (Light Body): OK (40/120) [-80]
+[INFO]       - Arm_Left (Light Left Arm): OK (20/60)
+[INFO]       - Arm_Right (Light Right Arm): OK (60/60)
+[INFO]       - Leg_Left (Light Left Leg): OK (80/80)
+[INFO]       - Leg_Right (Light Right Leg): OK (80/80)
+[INFO]     Weapon Status:
+[INFO]       - Light Rifle: Operational
+[INFO]   Unit: Tanker AF (Operational) at (40.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:12.0 / Def:28.2 / Spd:10.0 / Acc:6.6 / Eva:6.3
+[INFO]     Parts Status:
+[INFO]       - Head (Heavy Head): OK (50/70)
+[INFO]       - Body (Heavy Body): OK (160/200)
+[INFO]       - Arm_Left (Heavy Left Arm): DESTROYED
+[INFO]       - Arm_Right (Heavy Right Arm): OK (80/110)
+[INFO]       - Leg_Left (Heavy Left Leg): OK (130/150)
+[INFO]       - Leg_Right (Heavy Right Leg): OK (70/150)
+[INFO]     Weapon Status:
+[INFO]       - Heavy Cannon: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 13 Processing --- 
+[INFO] 턴 12 종료 - 활성 유닛: Tanker AF
+[INFO] 턴 13 시작 - 활성 유닛: Speedster AF
+[INFO] [T13] Speedster AF: 상태 효과 처리 시작
+[INFO] [T13] Speedster AF: 상태 효과 처리 완료
+[INFO]     Speedster AF 공격(Light Rifle) AP 계산: 무기(1.5) / 효율(9.2) => 최종 0.5
+[INFO]     Speedster AF 이동 AP 계산: 무게(133) 페널티 1.33, 속도(26) 보너스 1.30 => 최종 0.5
+[INFO] [BATTLE_20250418_142101_9290-T13] Speedster AF: 공격 행동 결정 (대상: Tanker AF, AP 소모: 0.5).
+[INFO]     Speedster AF 공격(Light Rifle) AP 계산: 무기(1.5) / 효율(9.2) => 최종 0.5
+[INFO] Speedster AF(이)가 공격 행동을 시작합니다.
+[WARNING] Speedster AF(이)가 Tanker AF에게 Light Rifle(으)로 공격: 빗나감 (정확도 판정: 0.93)
+[SUCCESS] Tanker AF(이)가 25.0 데미지를 회피함: Tanker AF이(가) 공격을 회피했습니다.
+[WARNING] Speedster AF의 공격 행동 실패: Tanker AF에게 공격 실패
+[WARNING] [BATTLE_20250418_142101_9290-T13] Speedster AF: 행동 실패 또는 비활성화로 턴 내 행동 중단.
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Speedster AF (Operational) at (40.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:11.0 / Def:11.0 / Spd:26.0 / Acc:8.8 / Eva:7.6
+[INFO]     Parts Status:
+[INFO]       - Head (Light Head): OK (40/40)
+[INFO]       - Body (Light Body): OK (40/120)
+[INFO]       - Arm_Left (Light Left Arm): OK (20/60)
+[INFO]       - Arm_Right (Light Right Arm): OK (60/60)
+[INFO]       - Leg_Left (Light Left Leg): OK (80/80)
+[INFO]       - Leg_Right (Light Right Leg): OK (80/80)
+[INFO]     Weapon Status:
+[INFO]       - Light Rifle: Operational
+[INFO]   Unit: Tanker AF (Operational) at (40.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:12.0 / Def:28.2 / Spd:10.0 / Acc:6.6 / Eva:6.3
+[INFO]     Parts Status:
+[INFO]       - Head (Heavy Head): OK (50/70)
+[INFO]       - Body (Heavy Body): OK (160/200)
+[INFO]       - Arm_Left (Heavy Left Arm): DESTROYED
+[INFO]       - Arm_Right (Heavy Right Arm): OK (80/110)
+[INFO]       - Leg_Left (Heavy Left Leg): OK (130/150)
+[INFO]       - Leg_Right (Heavy Right Leg): OK (70/150)
+[INFO]     Weapon Status:
+[INFO]       - Heavy Cannon: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 14 Processing --- 
+[INFO] 턴 13 종료 - 활성 유닛: Speedster AF
+[INFO] 턴 14 시작 - 활성 유닛: Tanker AF
+[INFO] [T14] Tanker AF: 상태 효과 처리 시작
+[INFO] [T14] Tanker AF: 상태 효과 처리 완료
+[INFO]     Tanker AF 공격(Heavy Cannon) AP 계산: 무기(3.0) / 효율(6.8) => 최종 0.5
+[INFO]     Tanker AF 이동 AP 계산: 무게(237) 페널티 2.37, 속도(10) 보너스 0.50 => 최종 2.4
+[INFO] [BATTLE_20250418_142101_9290-T14] Tanker AF: 공격 행동 결정 (대상: Speedster AF, AP 소모: 0.5).
+[INFO]     Tanker AF 공격(Heavy Cannon) AP 계산: 무기(3.0) / 효율(6.8) => 최종 0.5
+[INFO] Tanker AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Tanker AF(이)가 Speedster AF에게 Heavy Cannon(으)로 공격: 명중 (정확도 판정: 0.23)
+[INFO] 데미지 계산: Tanker AF → Speedster AF 원본 데미지: 50.0, 최종 데미지: 40.0 (Explosive 타입, 대상 부위: Arm)
+[CRITICAL] Speedster AF의 Arm 파츠가 파괴됨!
+효과:
+- Arm_Left 파츠 파괴
+- Speedster AF의 성능 저하 예상
+
+[DANGER] Speedster AF(이)가 40.0 데미지를 받음 (부위: Arm, 남은 내구도: 0 %)
+[CRITICAL] Speedster AF의 Arm 파츠가 파괴됨!
+효과:
+- Arm_Left 파트가 파괴되었습니다.
+- Speedster AF의 성능이 감소했습니다.
+
+[SUCCESS] Tanker AF의 공격 행동 성공: Speedster AF에게 공격 성공
+[INFO]     Tanker AF 공격(Heavy Cannon) AP 계산: 무기(3.0) / 효율(6.8) => 최종 0.5
+[INFO]     Tanker AF 이동 AP 계산: 무게(237) 페널티 2.37, 속도(10) 보너스 0.50 => 최종 2.4
+[INFO] [BATTLE_20250418_142101_9290-T14] Tanker AF: 공격 행동 결정 (대상: Speedster AF, AP 소모: 0.5).
+[INFO]     Tanker AF 공격(Heavy Cannon) AP 계산: 무기(3.0) / 효율(6.8) => 최종 0.5
+[INFO] Tanker AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Tanker AF(이)가 Speedster AF에게 Heavy Cannon(으)로 공격: 명중 (정확도 판정: 0.46)
+[INFO] 데미지 계산: Tanker AF → Speedster AF 원본 데미지: 50.0, 최종 데미지: 40.0 (Explosive 타입, 대상 부위: Arm)
+[DANGER] Speedster AF(이)가 40.0 데미지를 받음 (부위: Arm, 남은 내구도: 33 %)
+[SUCCESS] Tanker AF의 공격 행동 성공: Speedster AF에게 공격 성공
+[INFO]     Tanker AF 공격(Heavy Cannon) AP 계산: 무기(3.0) / 효율(6.8) => 최종 0.5
+[INFO]     Tanker AF 이동 AP 계산: 무게(237) 페널티 2.37, 속도(10) 보너스 0.50 => 최종 2.4
+[INFO] [BATTLE_20250418_142101_9290-T14] Tanker AF: 공격 행동 결정 (대상: Speedster AF, AP 소모: 0.5).
+[INFO]     Tanker AF 공격(Heavy Cannon) AP 계산: 무기(3.0) / 효율(6.8) => 최종 0.5
+[INFO] Tanker AF(이)가 공격 행동을 시작합니다.
+[WARNING] Tanker AF(이)가 Speedster AF에게 Heavy Cannon(으)로 공격: 빗나감 (정확도 판정: 0.92)
+[SUCCESS] Speedster AF(이)가 50.0 데미지를 회피함: Speedster AF이(가) 공격을 회피했습니다.
+[WARNING] Tanker AF의 공격 행동 실패: Speedster AF에게 공격 실패
+[WARNING] [BATTLE_20250418_142101_9290-T14] Tanker AF: 행동 실패 또는 비활성화로 턴 내 행동 중단.
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Speedster AF (Operational) at (40.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:10.0 / Def:10.0 / Spd:25.0 / Acc:7.8 / Eva:6.6
+[INFO]     Parts Status:
+[INFO]       - Head (Light Head): OK (40/40)
+[INFO]       - Body (Light Body): OK (40/120)
+[INFO]       - Arm_Left (Light Left Arm): DESTROYED
+[INFO]       - Arm_Right (Light Right Arm): OK (20/60) [-40]
+[INFO]       - Leg_Left (Light Left Leg): OK (80/80)
+[INFO]       - Leg_Right (Light Right Leg): OK (80/80)
+[INFO]     Weapon Status:
+[INFO]       - Light Rifle: Operational
+[INFO]   Unit: Tanker AF (Operational) at (40.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:12.0 / Def:28.2 / Spd:10.0 / Acc:6.6 / Eva:6.3
+[INFO]     Parts Status:
+[INFO]       - Head (Heavy Head): OK (50/70)
+[INFO]       - Body (Heavy Body): OK (160/200)
+[INFO]       - Arm_Left (Heavy Left Arm): DESTROYED
+[INFO]       - Arm_Right (Heavy Right Arm): OK (80/110)
+[INFO]       - Leg_Left (Heavy Left Leg): OK (130/150)
+[INFO]       - Leg_Right (Heavy Right Leg): OK (70/150)
+[INFO]     Weapon Status:
+[INFO]       - Heavy Cannon: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 15 Processing --- 
+[INFO] 턴 14 종료 - 활성 유닛: Tanker AF
+[INFO] 턴 15 시작 - 활성 유닛: Speedster AF
+[INFO] [T15] Speedster AF: 상태 효과 처리 시작
+[INFO] [T15] Speedster AF: 상태 효과 처리 완료
+[INFO]     Speedster AF 공격(Light Rifle) AP 계산: 무기(1.5) / 효율(8.2) => 최종 0.5
+[INFO]     Speedster AF 이동 AP 계산: 무게(121) 페널티 1.21, 속도(25) 보너스 1.25 => 최종 0.5
+[INFO] [BATTLE_20250418_142101_9290-T15] Speedster AF: 공격 행동 결정 (대상: Tanker AF, AP 소모: 0.5).
+[INFO]     Speedster AF 공격(Light Rifle) AP 계산: 무기(1.5) / 효율(8.2) => 최종 0.5
+[INFO] Speedster AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Speedster AF(이)가 Tanker AF에게 Light Rifle(으)로 공격: 명중 (정확도 판정: 0.05)
+[INFO] 데미지 계산: Speedster AF → Tanker AF 원본 데미지: 25.0, 최종 데미지: 20.0 (Physical 타입, 대상 부위: Legs)
+[CRITICAL] Tanker AF(이)가 30.0 데미지를 받음 [치명타!] (부위: Legs, 남은 내구도: 27 %)
+[SUCCESS] Speedster AF의 공격 행동 성공: Tanker AF에게 공격 성공
+[INFO]     Speedster AF 공격(Light Rifle) AP 계산: 무기(1.5) / 효율(8.2) => 최종 0.5
+[INFO]     Speedster AF 이동 AP 계산: 무게(121) 페널티 1.21, 속도(25) 보너스 1.25 => 최종 0.5
+[INFO] [BATTLE_20250418_142101_9290-T15] Speedster AF: 공격 행동 결정 (대상: Tanker AF, AP 소모: 0.5).
+[INFO]     Speedster AF 공격(Light Rifle) AP 계산: 무기(1.5) / 효율(8.2) => 최종 0.5
+[INFO] Speedster AF(이)가 공격 행동을 시작합니다.
+[WARNING] Speedster AF(이)가 Tanker AF에게 Light Rifle(으)로 공격: 빗나감 (정확도 판정: 0.82)
+[SUCCESS] Tanker AF(이)가 25.0 데미지를 회피함: Tanker AF이(가) 공격을 회피했습니다.
+[WARNING] Speedster AF의 공격 행동 실패: Tanker AF에게 공격 실패
+[WARNING] [BATTLE_20250418_142101_9290-T15] Speedster AF: 행동 실패 또는 비활성화로 턴 내 행동 중단.
+[INFO] --- Current Units Status ---
+[INFO]   Unit: Speedster AF (Operational) at (40.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:10.0 / Def:10.0 / Spd:25.0 / Acc:7.8 / Eva:6.6
+[INFO]     Parts Status:
+[INFO]       - Head (Light Head): OK (40/40)
+[INFO]       - Body (Light Body): OK (40/120)
+[INFO]       - Arm_Left (Light Left Arm): DESTROYED
+[INFO]       - Arm_Right (Light Right Arm): OK (20/60)
+[INFO]       - Leg_Left (Light Left Leg): OK (80/80)
+[INFO]       - Leg_Right (Light Right Leg): OK (80/80)
+[INFO]     Weapon Status:
+[INFO]       - Light Rifle: Operational
+[INFO]   Unit: Tanker AF (Operational) at (40.00, 0.00, 0.00)
+[INFO]     Combined Stats: Atk:12.0 / Def:28.2 / Spd:10.0 / Acc:6.6 / Eva:6.3
+[INFO]     Parts Status:
+[INFO]       - Head (Heavy Head): OK (50/70)
+[INFO]       - Body (Heavy Body): OK (160/200)
+[INFO]       - Arm_Left (Heavy Left Arm): DESTROYED
+[INFO]       - Arm_Right (Heavy Right Arm): OK (80/110)
+[INFO]       - Leg_Left (Heavy Left Leg): OK (130/150)
+[INFO]       - Leg_Right (Heavy Right Leg): OK (40/150) [-30]
+[INFO]     Weapon Status:
+[INFO]       - Heavy Cannon: Operational
+[INFO] ----------------------------
+[SYSTEM] --- Turn 16 Processing --- 
+[INFO] 턴 15 종료 - 활성 유닛: Speedster AF
+[INFO] 턴 16 시작 - 활성 유닛: Tanker AF
+[INFO] [T16] Tanker AF: 상태 효과 처리 시작
+[INFO] [T16] Tanker AF: 상태 효과 처리 완료
+[INFO]     Tanker AF 공격(Heavy Cannon) AP 계산: 무기(3.0) / 효율(6.8) => 최종 0.5
+[INFO]     Tanker AF 이동 AP 계산: 무게(237) 페널티 2.37, 속도(10) 보너스 0.50 => 최종 2.4
+[INFO] [BATTLE_20250418_142101_9290-T16] Tanker AF: 공격 행동 결정 (대상: Speedster AF, AP 소모: 0.5).
+[INFO]     Tanker AF 공격(Heavy Cannon) AP 계산: 무기(3.0) / 효율(6.8) => 최종 0.5
+[INFO] Tanker AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Tanker AF(이)가 Speedster AF에게 Heavy Cannon(으)로 공격: 명중 (정확도 판정: 0.50)
+[INFO] 데미지 계산: Tanker AF → Speedster AF 원본 데미지: 50.0, 최종 데미지: 40.0 (Explosive 타입, 대상 부위: Legs)
+[CRITICAL] Speedster AF(이)가 60.0 데미지를 받음 [치명타!] (부위: Legs, 남은 내구도: 25 %)
+[SUCCESS] Tanker AF의 공격 행동 성공: Speedster AF에게 공격 성공
+[INFO]     Tanker AF 공격(Heavy Cannon) AP 계산: 무기(3.0) / 효율(6.8) => 최종 0.5
+[INFO]     Tanker AF 이동 AP 계산: 무게(237) 페널티 2.37, 속도(10) 보너스 0.50 => 최종 2.4
+[INFO] [BATTLE_20250418_142101_9290-T16] Tanker AF: 공격 행동 결정 (대상: Speedster AF, AP 소모: 0.5).
+[INFO]     Tanker AF 공격(Heavy Cannon) AP 계산: 무기(3.0) / 효율(6.8) => 최종 0.5
+[INFO] Tanker AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Tanker AF(이)가 Speedster AF에게 Heavy Cannon(으)로 공격: 명중 (정확도 판정: 0.17)
+[INFO] 데미지 계산: Tanker AF → Speedster AF 원본 데미지: 50.0, 최종 데미지: 40.0 (Explosive 타입, 대상 부위: Legs)
+[CRITICAL] Speedster AF의 Legs 파츠가 파괴됨!
+효과:
+- Leg_Right 파츠 파괴
+- Speedster AF의 성능 저하 예상
+
+[CRITICAL] Speedster AF(이)가 60.0 데미지를 받음 [치명타!] (부위: Legs, 남은 내구도: 0 %)
+[CRITICAL] Speedster AF의 Legs 파츠가 파괴됨!
+효과:
+- Leg_Right 파트가 파괴되었습니다.
+- Speedster AF의 성능이 감소했습니다.
+
+[SUCCESS] Tanker AF의 공격 행동 성공: Speedster AF에게 공격 성공
+[INFO]     Tanker AF 공격(Heavy Cannon) AP 계산: 무기(3.0) / 효율(6.8) => 최종 0.5
+[INFO]     Tanker AF 이동 AP 계산: 무게(237) 페널티 2.37, 속도(10) 보너스 0.50 => 최종 2.4
+[INFO] [BATTLE_20250418_142101_9290-T16] Tanker AF: 공격 행동 결정 (대상: Speedster AF, AP 소모: 0.5).
+[INFO]     Tanker AF 공격(Heavy Cannon) AP 계산: 무기(3.0) / 효율(6.8) => 최종 0.5
+[INFO] Tanker AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Tanker AF(이)가 Speedster AF에게 Heavy Cannon(으)로 공격: 명중 (정확도 판정: 0.63)
+[INFO] 데미지 계산: Tanker AF → Speedster AF 원본 데미지: 50.0, 최종 데미지: 40.0 (Explosive 타입, 대상 부위: Head)
+[CRITICAL] Speedster AF의 Head 파츠가 파괴됨!
+효과:
+- Head 파츠 파괴
+- Speedster AF의 성능 저하 예상
+
+[DANGER] Speedster AF(이)가 40.0 데미지를 받음 (부위: Head, 남은 내구도: 0 %)
+[CRITICAL] Speedster AF의 Head 파츠가 파괴됨!
+효과:
+- Head 파트가 파괴되었습니다.
+- Speedster AF의 성능이 감소했습니다.
+
+[SUCCESS] Tanker AF의 공격 행동 성공: Speedster AF에게 공격 성공
+[INFO]     Tanker AF 공격(Heavy Cannon) AP 계산: 무기(3.0) / 효율(6.8) => 최종 0.5
+[INFO]     Tanker AF 이동 AP 계산: 무게(237) 페널티 2.37, 속도(10) 보너스 0.50 => 최종 2.4
+[INFO] [BATTLE_20250418_142101_9290-T16] Tanker AF: 공격 행동 결정 (대상: Speedster AF, AP 소모: 0.5).
+[INFO]     Tanker AF 공격(Heavy Cannon) AP 계산: 무기(3.0) / 효율(6.8) => 최종 0.5
+[INFO] Tanker AF(이)가 공격 행동을 시작합니다.
+[SUCCESS] Tanker AF(이)가 Speedster AF에게 Heavy Cannon(으)로 공격: 명중 (정확도 판정: 0.47)
+[INFO] 데미지 계산: Tanker AF → Speedster AF 원본 데미지: 50.0, 최종 데미지: 40.0 (Explosive 타입, 대상 부위: Body)
+[CRITICAL] Speedster AF의 Body 파츠가 파괴됨!
+효과:
+- Body 파츠 파괴
+- Speedster AF의 성능 저하 예상
+
+[DANGER] Speedster AF(이)가 40.0 데미지를 받음 (부위: Body, 남은 내구도: 0 %)
+[CRITICAL] Speedster AF의 Body 파츠가 파괴됨!
+효과:
+- Body 파트가 파괴되었습니다.
+- Speedster AF의 성능이 감소했습니다.
+
+[SYSTEM] 전투 종료: Defeat
+지속 시간: 0.00초
+생존자:
+- Tanker AF
+
+[SUCCESS] Tanker AF의 공격 행동 성공: Speedster AF에게 공격 성공
+[SYSTEM] === Combat Test End ===
+
+==================================================
+로그 항목 수: 823

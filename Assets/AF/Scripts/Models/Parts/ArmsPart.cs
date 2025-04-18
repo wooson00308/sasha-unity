@@ -13,6 +13,11 @@ namespace AF.Models
         {
         }
 
+        public ArmsPart(string name, Stats stats, float durability, float weight)
+            : base(name, PartType.Arm, stats, durability, weight)
+        {
+        }
+
         public override void OnDestroyed(ArmoredFrame parentAF)
         {
             Debug.Log($"{parentAF.Name}의 팔 파츠({_name})가 파괴되었습니다! 무기 사용 등에 패널티 적용 가능.");

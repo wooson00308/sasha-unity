@@ -13,6 +13,11 @@ namespace AF.Models
         {
         }
 
+        public LegsPart(string name, Stats stats, float durability, float weight)
+            : base(name, PartType.Legs, stats, durability, weight)
+        {
+        }
+
         public override void OnDestroyed(ArmoredFrame parentAF)
         {
             Debug.Log($"{parentAF.Name}의 다리 파츠({_name})가 파괴되었습니다! 이동 및 회피 관련 패널티 적용 가능.");

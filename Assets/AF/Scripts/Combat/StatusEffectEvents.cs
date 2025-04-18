@@ -93,19 +93,12 @@ namespace AF.Combat
         public class StatusEffectTickEvent : ICombatEvent
         {
             public ArmoredFrame Target { get; private set; }
-            public StatusEffectType EffectType { get; private set; }
-            public string EffectId { get; private set; }
-            public int RemainingDuration { get; private set; }
-            public float Effect { get; private set; } // 틱당 효과 값 (회복량, 데미지량 등)
+            public StatusEffect Effect { get; private set; } // 효과 정보를 통째로 전달
             
-            public StatusEffectTickEvent(ArmoredFrame target, StatusEffectType effectType, 
-                                        string effectId, int remainingDuration, float effect)
+            public StatusEffectTickEvent(ArmoredFrame target, StatusEffect effect)
             {
                 Target = target;
-                EffectType = effectType;
-                EffectId = effectId;
-                RemainingDuration = remainingDuration;
-                Effect = effect;
+                Effect = effect; 
             }
         }
         

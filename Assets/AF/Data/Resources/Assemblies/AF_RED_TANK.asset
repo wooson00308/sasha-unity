@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6bcd9b4e12eae264cae0069bcfc78b67, type: 3}
+  m_Name: AF_RED_TANK
+  m_EditorClassIdentifier: 
+  AssemblyID: AF_RED_TANK
+  AFName: "\uB808\uB4DC \uD0F1\uCEE4"
+  TeamID: 1
+  FrameID: FRM_HEAVY_01
+  PilotID: PILOT_TANK_01
+  HeadPartID: HEAD_HEAVY_01
+  BodyPartID: BODY_HEAVY_01
+  LeftArmPartID: ARM_HEAVY_01
+  RightArmPartID: ARM_HEAVY_01
+  LegsPartID: LEGS_HEAVY_01
+  BackpackPartID: 
+  Weapon1ID: WPN_CANNON_HEAVY_01
+  Weapon2ID: WPN_MG_HEAVY_01
+  Notes: "\uC911\uC7A5\uAC11 \uD0F1\uCEE4"

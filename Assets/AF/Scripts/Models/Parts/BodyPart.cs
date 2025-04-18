@@ -13,6 +13,11 @@ namespace AF.Models
         {
         }
 
+        public BodyPart(string name, Stats stats, float durability, float weight)
+            : base(name, PartType.Body, stats, durability, weight)
+        {
+        }
+
         public override void OnDestroyed(ArmoredFrame parentAF)
         {
             Debug.LogError($"{parentAF.Name}의 바디 파츠({_name})가 파괴되었습니다! 기체가 작동 불능 상태가 됩니다.");

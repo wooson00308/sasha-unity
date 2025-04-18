@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6bcd9b4e12eae264cae0069bcfc78b67, type: 3}
+  m_Name: AF_RED_SNIPER
+  m_EditorClassIdentifier: 
+  AssemblyID: AF_RED_SNIPER
+  AFName: "\uB808\uB4DC \uC2A4\uB098\uC774\uD37C"
+  TeamID: 1
+  FrameID: FRM_LIGHT_01
+  PilotID: PILOT_ACC_01
+  HeadPartID: HD_SCOPE_01
+  BodyPartID: BODY_LIGHT_01
+  LeftArmPartID: ARM_LIGHT_01
+  RightArmPartID: ARM_LIGHT_01
+  LegsPartID: LEGS_LIGHT_01
+  BackpackPartID: 
+  Weapon1ID: WPN_SNIPE_01
+  Weapon2ID: 
+  Notes: "\uC800\uACA9 \uD5E4\uB4DC \uC7A5\uCC29\uD615"
