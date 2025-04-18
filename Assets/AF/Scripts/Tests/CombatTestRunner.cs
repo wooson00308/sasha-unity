@@ -54,7 +54,7 @@ namespace AF.Tests
 
             // 1. 더미 데이터 생성 (ArmoredFrame 두 대)
             ArmoredFrame playerAF = CreateTestArmoredFrame("Player AF", 0, new Vector3(0, 0, 0));
-            ArmoredFrame enemyAF = CreateTestArmoredFrame("Enemy AF", 1, new Vector3(10, 0, 0)); // 적당히 떨어진 위치
+            ArmoredFrame enemyAF = CreateTestArmoredFrame("Enemy AF", 1, new Vector3(40, 0, 0)); // 적당히 떨어진 위치 -> 40으로 수정
 
             if (playerAF == null || enemyAF == null)
             {

@@ -255,9 +255,38 @@ namespace AF.Combat
                     break;
                 
                 case CombatActionEvents.ActionType.Move:
-                    // TODO: 이동 로직 구현
-                    resultDescription = "이동 로직 미구현";
-                    success = false;
+                    if (parameters.Length >= 1 && parameters[0] is ArmoredFrame moveTarget)
+                    {
+                        float distanceToTarget = Vector3.Distance(actor.Position, moveTarget.Position);
+                        // 이동 속도 (임시로 Stats.Speed 사용, 턴당 이동 거리로 해석)
+                        float moveDistance = actor.CombinedStats.Speed; 
+                        
+                        // 목표보다 멀리 가지 않도록 실제 이동 거리 제한
+                        moveDistance = Mathf.Min(moveDistance, distanceToTarget); 
+                        
+                        if (moveDistance > 0.01f) // 아주 작은 거리는 무시
+                        {
+                            Vector3 direction = (moveTarget.Position - actor.Position).normalized;
+                            Vector3 newPosition = actor.Position + direction * moveDistance;
+                            actor.Position = newPosition; // 실제 위치 업데이트
+
+                            resultDescription = $"{moveTarget.Name} 방향으로 {moveDistance:F1} 유닛 이동";
+                            success = true;
+                            Debug.Log($"이동 성공: {actor.Name} -> {newPosition}");
+                        }
+                        else
+                        {
+                            resultDescription = "이동할 거리가 거의 없음";
+                            success = false; // 사실상 이동 안 함
+                             Debug.Log($"이동 실패: {actor.Name} - 이동 거리 부족 또는 이미 근접함");
+                        }
+                    }
+                    else
+                    {
+                        resultDescription = "이동 파라미터가 잘못되었습니다 (대상 누락).";
+                        success = false;
+                        Debug.LogError($"[{_currentBattleId}-T{_currentTurn}] {actor.Name}: 이동 파라미터 오류");
+                    }
                     break;
                 
                 case CombatActionEvents.ActionType.Defend:
@@ -543,9 +572,21 @@ namespace AF.Combat
                 return null; // TODO: 무기 없을 때 다른 행동 (이동 등) 고려
             }
 
-            // Debug.Log($"[{_currentBattleId}-T{_currentTurn}] {activeUnit.Name}: 가장 가까운 적 {closestEnemy.Name}(거리: {minDistance:F1})에게 {weaponToUse.Name}(으)로 공격 결정.");
-            Debug.Log($"[{_currentBattleId}-T{_currentTurn}] {activeUnit.Name}: 가장 가까운 적 {closestEnemy.Name}(거리: {minDistance:F1})에게 {weaponToUse.Name}(으)로 공격 결정.");
-            return Tuple.Create(CombatActionEvents.ActionType.Attack, closestEnemy, weaponToUse);
+            // 사거리 체크 추가
+            if (minDistance <= weaponToUse.Range)
+            {
+                // 사거리 내에 있으면 공격
+                Debug.Log($"{activeUnit.Name}의 행동 결정: 대상={closestEnemy.Name}, 무기={weaponToUse.Name}, 거리={minDistance}, 행동=Attack");
+                return new Tuple<CombatActionEvents.ActionType, ArmoredFrame, Weapon>(
+                    CombatActionEvents.ActionType.Attack, closestEnemy, weaponToUse);
+            }
+            else
+            {
+                // 사거리 밖에 있으면 이동 시도 (무기는 null)
+                Debug.Log($"{activeUnit.Name}의 행동 결정: 대상={closestEnemy.Name}은(는) 사거리 밖에 있음. 이동(Move) 시도.");
+                return new Tuple<CombatActionEvents.ActionType, ArmoredFrame, Weapon>(
+                    CombatActionEvents.ActionType.Move, closestEnemy, null); 
+            }
         }
         
         #region 유틸리티 메서드
@@ -691,7 +732,12 @@ namespace AF.Combat
         {
             if (unit == null) return;
 
-            _textLogger.TextLogger.Log($"  Unit: {unit.Name} {(unit.IsOperational ? "(Operational)" : "(DESTROYED)")}", LogLevel.Info);
+            // 위치 정보 추가
+            _textLogger.TextLogger.Log($"  Unit: {unit.Name} {(unit.IsOperational ? "(Operational)" : "(DESTROYED)")} at {unit.Position}", LogLevel.Info); 
+
+            // 통합 스탯 정보 추가 (간략하게 주요 스탯만)
+            var stats = unit.CombinedStats;
+            _textLogger.TextLogger.Log($"    Combined Stats: Atk:{stats.AttackPower:F1} / Def:{stats.Defense:F1} / Spd:{stats.Speed:F1} / Acc:{stats.Accuracy:F1} / Eva:{stats.Evasion:F1}", LogLevel.Info);
 
             // 파츠 상태 로깅
             _textLogger.TextLogger.Log("    Parts Status:", LogLevel.Info);
