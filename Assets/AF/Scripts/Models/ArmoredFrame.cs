@@ -572,7 +572,8 @@ namespace AF.Models
                         : $"[{Name}] 격파됨! ({targetSlotIdentifier} 파괴됨)";
                     // <<< 이벤트 메시지 동적 설정 끝 >>>
 
-                    // 파츠 파괴 이벤트 발행 (수정된 메시지 사용)
+                    // 파츠 파괴 이벤트 발행 (주석 처리 - CombatSimulatorService에서 발행)
+                    /* 
                     _eventBus?.Publish(new PartEvents.PartDestroyedEvent(
                         this, 
                         targetPart.Type, // PartType 전달
@@ -581,6 +582,7 @@ namespace AF.Models
                         $"[{Name}] {targetSlotIdentifier} 파괴됨", // 첫번째 메시지: 어떤 파츠가 파괴되었는지 명시
                         eventEffectDescription // 두번째 메시지: 최종 결과 (성능저하 or 격파)
                     ));
+                    */
                     
                     // AF가 작동 불능이 되었는지 로그만 남김 (이벤트와 별개)
                     if (!_isOperational)

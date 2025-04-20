@@ -40,6 +40,8 @@ namespace AF.Services
         /// </summary>
         private void RegisterServices()
         {
+            RegisterCoreServices();
+
             foreach (var serviceObject in _serviceObjects)
             {
                 if (serviceObject is IService service)
@@ -52,8 +54,6 @@ namespace AF.Services
                     Debug.LogError($"{serviceObject.name}은(는) IService를 구현하지 않았습니다.");
                 }
             }
-            
-            RegisterCoreServices();
         }
         
         /// <summary>
@@ -96,8 +96,6 @@ namespace AF.Services
 
             // 전투 시뮬레이터 서비스 등록 (인터페이스 타입으로 등록)
             ServiceLocator.Instance.RegisterService<ICombatSimulatorService>(new CombatSimulatorService());
-            
-            // 필요한 다른 서비스 등록...
         }
         
         private void OnDestroy()

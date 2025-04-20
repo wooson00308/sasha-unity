@@ -9,7 +9,7 @@ namespace ExcelToSO.Editor
     public class DataGeneratorMenu
     {
         private const string ExcelFileName = "AF_Data.xlsx"; // Your Excel file name
-        private const string ExcelDirectory = "Docs"; // Directory relative to Assets
+        private const string ExcelDirectory = "Assets\\AF\\Data"; // Directory relative to Assets
         private const string OutputDirectoryRoot = "Assets\\AF\\Data\\Resources"; // Base output directory
 
         [MenuItem("Tools/Generate AF Data from Excel")]

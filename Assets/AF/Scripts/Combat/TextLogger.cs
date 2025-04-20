@@ -16,6 +16,9 @@ namespace AF.Combat
     /// </summary>
     public class TextLogger : ITextLogger
     {
+        // 이벤트: 새 로그가 추가될 때 발생
+        public event Action<string, LogLevel> OnLogAdded;
+
         private EventBus.EventBus _eventBus;
         private List<LogEntry> _logs = new List<LogEntry>();
         private int _turnCounter = 0;
@@ -81,6 +84,8 @@ namespace AF.Combat
         public void Log(string message, LogLevel level = LogLevel.Info)
         {
             _logs.Add(new LogEntry(message, level, _turnCounter));
+            // 새 로그가 추가되었음을 알리는 이벤트 발생 로직 삭제
+            // OnLogAdded?.Invoke(FormatLogEntry(_logs.Last()), level); 
         }
 
         public void LogEvent(ICombatEvent combatEvent)
@@ -104,7 +109,8 @@ namespace AF.Combat
             }
             else if (combatEvent is CombatActionEvents.ActionStartEvent actionStartEvent)
             {
-                LogActionStart(actionStartEvent);
+                // ActionStart는 너무 상세할 수 있으므로 간략화 또는 제거 고려
+                // LogActionStart(actionStartEvent); 
             }
             else if (combatEvent is CombatActionEvents.ActionCompletedEvent actionCompletedEvent)
             {
@@ -112,11 +118,13 @@ namespace AF.Combat
             }
             else if (combatEvent is CombatActionEvents.WeaponFiredEvent weaponFiredEvent)
             {
-                LogWeaponFired(weaponFiredEvent);
+                // WeaponFired는 ActionCompleted에서 통합 처리 가능성 있음 (필요시 유지)
+                // LogWeaponFired(weaponFiredEvent);
             }
             else if (combatEvent is DamageEvents.DamageCalculatedEvent damageCalculatedEvent)
             {
-                LogDamageCalculated(damageCalculatedEvent);
+                // DamageCalculated는 너무 상세할 수 있으므로 제거 고려
+                // LogDamageCalculated(damageCalculatedEvent);
             }
             else if (combatEvent is DamageEvents.DamageAppliedEvent damageAppliedEvent)
             {
@@ -132,16 +140,31 @@ namespace AF.Combat
             }
             else if (combatEvent is PartEvents.PartStatusChangedEvent partStatusEvent)
             {
-                LogPartStatusChanged(partStatusEvent);
+                // PartStatusChanged는 너무 상세할 수 있으므로 간략화 또는 제거 고려
+                // LogPartStatusChanged(partStatusEvent);
             }
             else if (combatEvent is PartEvents.SystemCriticalFailureEvent systemFailureEvent)
             {
                 LogSystemCriticalFailure(systemFailureEvent);
             }
+            // <<< 상태 효과 로깅 추가 >>>
+            else if (combatEvent is StatusEffectEvents.StatusEffectAppliedEvent effectAppliedEvent)
+            {
+                LogStatusEffectApplied(effectAppliedEvent);
+            }
+            else if (combatEvent is StatusEffectEvents.StatusEffectExpiredEvent effectExpiredEvent)
+            {
+                LogStatusEffectExpired(effectExpiredEvent);
+            }
+            else if (combatEvent is StatusEffectEvents.StatusEffectTickEvent effectTickedEvent)
+            {
+                LogStatusEffectTicked(effectTickedEvent);
+            }
+            // <<< 상태 효과 로깅 끝 >>>
             else
             {
                 // 처리되지 않은 이벤트 타입에 대한 기본 로깅
-                Log($"알 수 없는 이벤트 발생: {combatEvent.GetType().Name}", LogLevel.Warning);
+                Log($"[T{_turnCounter}] 알 수 없는 이벤트 발생: {combatEvent.GetType().Name}", LogLevel.Warning);
             }
         }
 
@@ -207,8 +230,12 @@ namespace AF.Combat
                     writer.WriteLine();
                     writer.WriteLine(new string('=', 50));
                     writer.WriteLine($"로그 항목 수: {_logs.Count}");
+                    writer.WriteLine();
+                    writer.WriteLine(new string('=', 50));
+                    writer.WriteLine("=== 전투 로그 종료 ===");
                 }
 
+                Log($"전투 로그가 '{fullFilename}'(으)로 저장되었습니다.", LogLevel.System);
                 return true;
             }
             catch (Exception ex)
@@ -291,6 +318,11 @@ namespace AF.Combat
             _eventBus.Subscribe<PartEvents.PartDestroyedEvent>(OnCombatEvent);
             _eventBus.Subscribe<PartEvents.PartStatusChangedEvent>(OnCombatEvent);
             _eventBus.Subscribe<PartEvents.SystemCriticalFailureEvent>(OnCombatEvent);
+
+            // 상태 효과 이벤트
+            _eventBus.Subscribe<StatusEffectEvents.StatusEffectAppliedEvent>(OnCombatEvent);
+            _eventBus.Subscribe<StatusEffectEvents.StatusEffectExpiredEvent>(OnCombatEvent);
+            _eventBus.Subscribe<StatusEffectEvents.StatusEffectTickEvent>(OnCombatEvent);
         }
 
         private void UnsubscribeFromEvents()
@@ -317,6 +349,11 @@ namespace AF.Combat
             _eventBus.Unsubscribe<PartEvents.PartDestroyedEvent>(OnCombatEvent);
             _eventBus.Unsubscribe<PartEvents.PartStatusChangedEvent>(OnCombatEvent);
             _eventBus.Unsubscribe<PartEvents.SystemCriticalFailureEvent>(OnCombatEvent);
+
+            // 상태 효과 이벤트
+            _eventBus.Unsubscribe<StatusEffectEvents.StatusEffectAppliedEvent>(OnCombatEvent);
+            _eventBus.Unsubscribe<StatusEffectEvents.StatusEffectExpiredEvent>(OnCombatEvent);
+            _eventBus.Unsubscribe<StatusEffectEvents.StatusEffectTickEvent>(OnCombatEvent);
         }
 
         private void OnCombatEvent(ICombatEvent combatEvent)
@@ -330,6 +367,7 @@ namespace AF.Combat
 
         private void LogCombatStart(CombatSessionEvents.CombatStartEvent evt)
         {
+            Clear(); // 전투 시작 시 이전 로그 삭제
             _currentBattleId = evt.BattleId;
             _turnCounter = 0;
 
@@ -340,7 +378,7 @@ namespace AF.Combat
 
             foreach (var participant in evt.Participants)
             {
-                sb.AppendLine($"- {ColorizeText(participant.Name, "blue")} ({participant.FrameBase.Type})");
+                sb.AppendLine($"- {ColorizeText($"[{participant.Name}]", "blue")} ({participant.FrameBase.Type})");
             }
 
             Log(sb.ToString(), LogLevel.System);
@@ -370,248 +408,172 @@ namespace AF.Combat
 
             foreach (var survivor in evt.Survivors)
             {
-                sb.AppendLine($"- {ColorizeText(survivor.Name, "blue")}");
+                sb.AppendLine($"- {ColorizeText($"[{survivor.Name}]", "blue")}");
             }
 
             Log(sb.ToString(), LogLevel.System);
+            
+            // 전투 종료 시 상세 유닛 상태 로그 추가
+            LogUnitStatusSummary(evt.BattleId); 
         }
 
         private void LogTurnStart(CombatSessionEvents.TurnStartEvent evt)
         {
-            _turnCounter = evt.TurnNumber;
-            Log($"턴 {BoldText(evt.TurnNumber.ToString())} 시작 - 활성 유닛: {ColorizeText(evt.ActiveUnit.Name, "blue")}", 
-                LogLevel.Info);
+            _turnCounter = evt.TurnNumber; // 턴 카운터 업데이트
+            // 이전 로그보다 더 명확한 턴 시작 구분
+            Log(new string('-', 40), LogLevel.System);
+            string apInfo = $"AP: {evt.ActiveUnit.CurrentAP:F1} / {evt.ActiveUnit.CombinedStats.MaxAP:F1}";
+            // AP 회복량 정보는 CombatSimulatorService의 Debug.Log에 있으므로 여기선 생략하거나, 필요시 이벤트에 추가
+            Log($"===== Turn {evt.TurnNumber}: [{evt.ActiveUnit.Name}] 행동 시작 ({apInfo}) =====", LogLevel.Info);
+            
+            // 턴 시작 시 상태 효과 처리 로그 (필요하다면)
+            // Log($"  * 상태 효과 처리 중...", LogLevel.Debug); 
         }
 
         private void LogTurnEnd(CombatSessionEvents.TurnEndEvent evt)
         {
-            Log($"턴 {BoldText(evt.TurnNumber.ToString())} 종료 - 활성 유닛: {ColorizeText(evt.ActiveUnit.Name, "blue")}",
-                LogLevel.Info);
+            // 턴 종료 구분 로그
+            string apInfo = $"AP: {evt.ActiveUnit.CurrentAP:F1} / {evt.ActiveUnit.CombinedStats.MaxAP:F1}";
+            Log($"===== Turn {evt.TurnNumber}: [{evt.ActiveUnit.Name}] 행동 종료 ({apInfo}) =====", LogLevel.Info);
+            Log(new string('-', 40), LogLevel.System);
+            Log("", LogLevel.System); // 턴 사이에 빈 줄 추가
         }
 
-        private void LogActionStart(CombatActionEvents.ActionStartEvent evt)
-        {
-            string actionDescription = GetActionDescription(evt.Action);
-            
-            Log($"{ColorizeText(evt.Actor.Name, "blue")}(이)가 {actionDescription} 행동을 시작합니다.", 
-                LogLevel.Info);
-        }
+        // ActionStart는 간략화 또는 제거 고려 (현재 주석 처리)
+        // private void LogActionStart(CombatActionEvents.ActionStartEvent evt)
+        // {
+        //     Log($"[T{_turnCounter}] {evt.Actor.Name}: 행동 시작 - {GetActionDescription(evt.Action)}", LogLevel.Debug);
+        // }
 
         private void LogActionCompleted(CombatActionEvents.ActionCompletedEvent evt)
         {
-            string actionDescription = GetActionDescription(evt.Action);
-            LogLevel logLevel = evt.Success ? LogLevel.Success : LogLevel.Warning;
+            // Wrap actor name in brackets (but don't include in the final log message for this method)
+            // string actorName = $"[{evt.Actor.Name}]"; 
+            // Target info is not available in this event, so no wrapping needed here
+            string apInfo = $"| AP: {evt.Actor.CurrentAP:F1} / {evt.Actor.CombinedStats.MaxAP:F1}"; 
+            string resultDetails = string.IsNullOrEmpty(evt.ResultDescription) ? "" : $"- {evt.ResultDescription}";
             
-            Log($"{ColorizeText(evt.Actor.Name, "blue")}의 {actionDescription} 행동 {(evt.Success ? "성공" : "실패")}: {evt.ResultDescription}", 
-                logLevel);
+            // Remove actorName from the log message as it's implied by the current turn's active unit
+            Log($"  >> [{GetActionDescription(evt.Action)}] {resultDetails} {apInfo}", LogLevel.Info);
         }
+        
+        // WeaponFired는 ActionCompleted에서 통합 처리 가능 (현재 주석 처리)
+        // private void LogWeaponFired(CombatActionEvents.WeaponFiredEvent evt)
+        // {
+        //     Log($"  -> [무기 발사] {evt.Attacker.Name}의 {evt.Weapon.Name} (대상: {evt.Target.Name})", LogLevel.Debug);
+        // }
 
-        private void LogWeaponFired(CombatActionEvents.WeaponFiredEvent evt)
-        {
-            string hitText = evt.Hit ? 
-                ColorizeText("명중", "green") : 
-                ColorizeText("빗나감", "red");
-            
-            Log($"{ColorizeText(evt.Attacker.Name, "blue")}(이)가 {ColorizeText(evt.Target.Name, "purple")}에게 " +
-                $"{ColorizeText(evt.Weapon.Name, "orange")}(으)로 공격: {hitText} (정확도 판정: {evt.AccuracyRoll:F2})", 
-                evt.Hit ? LogLevel.Success : LogLevel.Warning);
-        }
-
-        private void LogDamageCalculated(DamageEvents.DamageCalculatedEvent evt)
-        {
-            Log($"데미지 계산: {ColorizeText(evt.Source.Name, "blue")} → {ColorizeText(evt.Target.Name, "purple")} " +
-                $"원본 데미지: {evt.RawDamage:F1}, 최종 데미지: {ColorizeText(evt.CalculatedDamage.ToString("F1"), "red")} " +
-                $"({evt.DamageType} 타입, 대상 부위: {evt.TargetPart})", 
-                LogLevel.Info);
-        }
+        // DamageCalculated는 너무 상세하여 제거 고려 (현재 주석 처리)
+        // private void LogDamageCalculated(DamageEvents.DamageCalculatedEvent evt)
+        // {
+        //     Log($"    * 데미지 계산: {evt.DamageSource} -> {evt.Target.Name} ({evt.TargetPartSlot}), 기본 {evt.BaseDamage:F1}, 최종 {evt.FinalDamage:F1}", LogLevel.Debug);
+        // }
 
         private void LogDamageApplied(DamageEvents.DamageAppliedEvent evt)
         {
-            string criticalText = evt.IsCritical ? "[치명타!] " : "";
-            LogLevel logLevel = evt.IsCritical ? LogLevel.Critical : LogLevel.Danger;
+            // Wrap source and target names in brackets
+            string attackerName = $"[{evt.Source.Name}]"; 
+            string targetName = $"[{evt.Target.Name}]";
+            string partName = evt.DamagedPart.ToString(); 
+            string durabilityInfo = $"({evt.PartCurrentDurability:F0}/{evt.PartMaxDurability:F0})";
 
-            // 내구도 퍼센트 계산 및 NaN 체크
-            string durabilityText;
-            if (evt.PartMaxDurability <= 0) // 최대 내구도가 0 이하면 계산 불가
-            {
-                durabilityText = "N/A";
-            }
-            else
-            {
-                float durabilityPercentage = evt.PartCurrentDurability / evt.PartMaxDurability;
-                if (float.IsNaN(durabilityPercentage))
-                {
-                    durabilityText = "N/A"; // 계산 결과가 NaN인 경우 (거의 없겠지만 안전 장치)
-                }
-                else
-                {
-                    // 정상적인 경우 퍼센트(P0) 형식으로 표시
-                    durabilityText = durabilityPercentage.ToString("P0");
-                }
-            }
-
-            // 로그 메시지 생성 (이벤트 속성 사용)
-            string message = $"{evt.Target.Name}(이)가 {evt.DamageDealt:F1} 데미지를 받음 {criticalText}(부위: {evt.DamagedPart}, 남은 내구도: {durabilityText})";
-            Log(message, logLevel);
+            Log($"    <color=red>-></color> {attackerName}의 공격! {targetName}의 {partName}{durabilityInfo}에 {evt.DamageDealt:F1} 데미지!", LogLevel.Info);
         }
 
         private void LogDamageAvoided(DamageEvents.DamageAvoidedEvent evt)
         {
-            string avoidanceTypeText = "";
-            switch (evt.Type)
-            {
-                case DamageEvents.DamageAvoidedEvent.AvoidanceType.Dodge:
-                    avoidanceTypeText = "회피";
-                    break;
-                case DamageEvents.DamageAvoidedEvent.AvoidanceType.Deflect:
-                    avoidanceTypeText = "방어";
-                    break;
-                case DamageEvents.DamageAvoidedEvent.AvoidanceType.Intercept:
-                    avoidanceTypeText = "가로챔";
-                    break;
-                case DamageEvents.DamageAvoidedEvent.AvoidanceType.Shield:
-                    avoidanceTypeText = "보호막";
-                    break;
-            }
-            
-            Log($"{ColorizeText(evt.Target.Name, "purple")}(이)가 {ColorizeText(evt.DamageAvoided.ToString("F1"), "cyan")} " +
-                $"데미지를 {avoidanceTypeText}함: {evt.Description}", 
-                LogLevel.Success);
+            // Wrap source and target names in brackets
+            string attackerName = $"[{evt.Source.Name}]";
+            string targetName = $"[{evt.Target.Name}]";
+            Log($"    <color=cyan><<</color> {targetName}이(가) {attackerName}의 공격을 회피! ({evt.Type})", LogLevel.Info);
         }
 
         private void LogPartDestroyed(PartEvents.PartDestroyedEvent evt)
         {
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine($"{ColorizeText(evt.Frame.Name, "purple")}의 {ColorizeText(evt.DestroyedPartType.ToString(), "red")} 파츠가 파괴됨!");
-            
-            if (evt.Effects != null && evt.Effects.Length > 0)
-            {
-                sb.AppendLine("효과:");
-                foreach (var effect in evt.Effects)
-                {
-                    sb.AppendLine($"- {effect}");
-                }
-            }
-            
-            Log(sb.ToString(), LogLevel.Critical);
+            // Wrap owner name in brackets
+            string ownerName = $"[{evt.Frame.Name}]";
+            string partName = evt.DestroyedPartType.ToString();
+            string effectsInfo = evt.Effects != null && evt.Effects.Length > 0 ? $" ({string.Join(", ", evt.Effects)})" : "";
+            Log($"  <color=orange>!!! {ownerName}의 {partName} 파괴됨!</color>{effectsInfo}", LogLevel.Warning);
         }
-
-        private void LogPartStatusChanged(PartEvents.PartStatusChangedEvent evt)
-        {
-            string statusText = "";
-            string colorCode = "white";
-            
-            switch (evt.ChangeType)
-            {
-                case PartEvents.PartStatusChangedEvent.StatusChangeType.Damaged:
-                    statusText = "손상됨";
-                    colorCode = "orange";
-                    break;
-                case PartEvents.PartStatusChangedEvent.StatusChangeType.Overheated:
-                    statusText = "과열됨";
-                    colorCode = "red";
-                    break;
-                case PartEvents.PartStatusChangedEvent.StatusChangeType.Malfunctioning:
-                    statusText = "오작동";
-                    colorCode = "yellow";
-                    break;
-                case PartEvents.PartStatusChangedEvent.StatusChangeType.Disabled:
-                    statusText = "작동 불능";
-                    colorCode = "gray";
-                    break;
-                case PartEvents.PartStatusChangedEvent.StatusChangeType.Repaired:
-                    statusText = "수리됨";
-                    colorCode = "green";
-                    break;
-            }
-            
-            Log($"{ColorizeText(evt.Frame.Name, "purple")}의 {evt.PartType} 파츠가 {ColorizeText(statusText, colorCode)} " +
-                $"(심각도: {(evt.Severity * 100):F0}%): {evt.Description}", 
-                evt.ChangeType == PartEvents.PartStatusChangedEvent.StatusChangeType.Repaired ? 
-                    LogLevel.Success : LogLevel.Warning);
-        }
+        
+        // PartStatusChanged는 너무 상세하여 제거 고려 (현재 주석 처리)
+        // private void LogPartStatusChanged(PartEvents.PartStatusChangedEvent evt)
+        // {
+        //     string partName = evt.ChangedPart?.Name ?? evt.SlotIdentifier;
+        //     Log($"[T{_turnCounter}] {evt.Owner.Name}의 {partName} 상태 변경: {evt.NewStatus}", LogLevel.Debug);
+        // }
 
         private void LogSystemCriticalFailure(PartEvents.SystemCriticalFailureEvent evt)
         {
-            string durationText = evt.IsPermanent ? "영구적" : $"{evt.TurnDuration}턴 동안";
-            
-            Log($"{ColorizeText(evt.Frame.Name, "purple")}의 {ColorizeText(evt.SystemName, "red")} 시스템 치명적 오류 발생! " +
-                $"{durationText}: {evt.FailureDescription}", 
-                LogLevel.Critical);
+            // Wrap owner name in brackets
+            string ownerName = $"[{evt.Frame.Name}]";
+            // evt.Reason 속성이 없으므로 기본 메시지 사용 또는 다른 속성 확인 필요
+            string reason = "치명적 시스템 오류"; // evt.Reason 대신 기본 메시지 사용
+            Log($"  <color=purple>*** {ownerName}: {reason} ***</color>", LogLevel.Critical);
+        }
+        
+        // <<< 상태 효과 로깅 추가 >>>
+        private void LogStatusEffectApplied(StatusEffectEvents.StatusEffectAppliedEvent evt)
+        {
+            // Wrap target name in brackets
+            string targetName = $"[{evt.Target.Name}]";
+            string sourceInfo = evt.Source != null ? $"({evt.Source.Name}에 의해) " : "";
+            Log($"  >> {targetName}: 상태 효과 '{evt.EffectType}' 적용됨 {sourceInfo}({evt.Duration}턴)", LogLevel.Info);
         }
 
+        private void LogStatusEffectExpired(StatusEffectEvents.StatusEffectExpiredEvent evt)
+        {
+            // Wrap target name in brackets
+            string targetName = $"[{evt.Target.Name}]";
+            string reason = evt.WasDispelled ? "(해제됨)" : "(만료됨)";
+            Log($"  << {targetName}: 상태 효과 '{evt.EffectType}' 종료 {reason}", LogLevel.Info);
+        }
+
+        private void LogStatusEffectTicked(StatusEffectEvents.StatusEffectTickEvent evt)
+        {
+            // Wrap target name in brackets
+            string targetName = $"[{evt.Target.Name}]";
+            string effectValueInfo = $"({evt.Effect.TickEffectType}: {evt.Effect.TickValue:F1})";
+            Log($"    * {targetName}: 상태 효과 '{evt.Effect.EffectName}' 틱 발생 {effectValueInfo}", LogLevel.Info);
+        }
+        // <<< 상태 효과 로깅 끝 >>>
+        
         #endregion
 
-        #region Utility Methods
+        #region Formatting Methods
 
         private string FormatLogEntry(LogEntry entry)
         {
-            string levelPrefix = GetLogLevelPrefix(entry.Level);
-            return $"{levelPrefix}{entry.Message}";
+            // TODO: 로그 레벨에 따른 색상/아이콘 등 추가 가능
+            return $"[{entry.Timestamp:HH:mm:ss}] {entry.Message}";
         }
 
         private string FormatLogEntryForFile(LogEntry entry)
         {
-            string levelText = entry.Level.ToString().ToUpper();
-            return $"[{levelText}] {RemoveRichTextTags(entry.Message)}";
-        }
-
-        private string GetLogLevelPrefix(LogLevel level)
-        {
-            switch (level)
-            {
-                case LogLevel.Info:
-                    return "ℹ️ ";
-                case LogLevel.Success:
-                    return "✅ ";
-                case LogLevel.Warning:
-                    return "⚠️ ";
-                case LogLevel.Danger:
-                    return "🔥 ";
-                case LogLevel.Critical:
-                    return "⚡ ";
-                case LogLevel.System:
-                    return "🔧 ";
-                default:
-                    return "";
-            }
+            // 파일 저장 시에는 Rich Text 태그 제거 및 상세 정보 포함
+            return $"[{entry.Timestamp:yyyy-MM-dd HH:mm:ss.fff}] [T{entry.TurnNumber}] [{entry.Level}] {RemoveRichTextTags(entry.Message)}";
         }
 
         private string GetActionDescription(CombatActionEvents.ActionType action)
         {
+            // 나중에 더 구체적인 설명으로 확장 가능
             switch (action)
             {
-                case CombatActionEvents.ActionType.Attack:
-                    return "공격";
-                case CombatActionEvents.ActionType.Move:
-                    return "이동";
-                case CombatActionEvents.ActionType.UseAbility:
-                    return "특수 능력 사용";
-                case CombatActionEvents.ActionType.Defend:
-                    return "방어";
-                case CombatActionEvents.ActionType.Retreat:
-                    return "후퇴";
-                case CombatActionEvents.ActionType.Overwatch:
-                    return "감시";
-                case CombatActionEvents.ActionType.Reload:
-                    return "재장전";
-                case CombatActionEvents.ActionType.RepairSelf:
-                    return "자가 수리";
-                case CombatActionEvents.ActionType.RepairAlly:
-                    return "아군 수리";
-                default:
-                    return action.ToString();
+                case CombatActionEvents.ActionType.Attack: return "공격";
+                case CombatActionEvents.ActionType.Defend: return "방어";
+                case CombatActionEvents.ActionType.Move: return "이동";
+                // case CombatActionEvents.ActionType.Skill: return "스킬 사용";
+                // case CombatActionEvents.ActionType.Wait: return "대기";
+                default: return action.ToString();
             }
         }
 
         private string GetDurabilityColor(float percentage)
         {
-            if (percentage > 0.66f)
-                return "green";
-            else if (percentage > 0.33f)
-                return "yellow";
-            else
-                return "red";
+            if (percentage > 0.7f) return "green";
+            if (percentage > 0.3f) return "yellow";
+            return "red";
         }
 
         private string ColorizeText(string text, string color)
@@ -631,13 +593,20 @@ namespace AF.Combat
 
         private string RemoveRichTextTags(string text)
         {
-            // Unity Rich Text 태그 제거 (색상, 굵게, 기울임꼴 등)
-            text = System.Text.RegularExpressions.Regex.Replace(text, "<color=.*?>|</color>", "");
-            text = System.Text.RegularExpressions.Regex.Replace(text, "<b>|</b>", "");
-            text = System.Text.RegularExpressions.Regex.Replace(text, "<i>|</i>", "");
-            return text;
+            if (string.IsNullOrEmpty(text)) return text;
+            // 간단한 태그 제거 (더 복잡한 정규식 필요할 수 있음)
+            return System.Text.RegularExpressions.Regex.Replace(text, "<.*?>", string.Empty);
         }
 
+        private void LogUnitStatusSummary(string battleId)
+        {
+            // TODO: 전투 종료 시 유닛 상태 요약 로그 구현
+        }
+
+        public void LogUnitDetails(ArmoredFrame unit) // private -> public
+        {
+            // TODO: CombatSimulatorService에서 분리된 로깅 메서드 구현 필요
+        }
         #endregion
     }
 } 

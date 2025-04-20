@@ -1,13 +1,13 @@
+using Sirenix.OdinInspector;
 using UnityEngine;
 using AF.Models;
 using AF.Combat;
 using AF.Services;
 using System.Collections.Generic;
 using System;
-using System.Text;
-using AF.Data; // Add this for SO classes
+using AF.Data;
 using System.Linq;
-using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 
 namespace AF.Tests
 {
@@ -16,47 +16,85 @@ namespace AF.Tests
     /// </summary>
     public class CombatTestRunner : MonoBehaviour
     {
-        [Header("Test Settings")]
-        [SerializeField] private bool _runTestOnStart = true;
-        [SerializeField] private bool _logCombatDetails = true;
-
-        private ICombatSimulatorService _combatSimulator;
-        private TextLoggerService _textLogger;
-
-        // Dictionaries to hold loaded ScriptableObjects
-        private Dictionary<string, FrameSO> _frameDatabase = new Dictionary<string, FrameSO>();
-        private Dictionary<string, PartSO> _partDatabase = new Dictionary<string, PartSO>();
-        private Dictionary<string, WeaponSO> _weaponDatabase = new Dictionary<string, WeaponSO>();
-        private Dictionary<string, PilotSO> _pilotDatabase = new Dictionary<string, PilotSO>();
-        private Dictionary<string, AssemblySO> _assemblyDatabase = new Dictionary<string, AssemblySO>();
-
-        // Helper struct to define participants for a test scenario
-        private struct ParticipantConfig
+        [TitleGroup("전투 테스트 설정")]
+        [InfoBox("전투 테스트에 참여할 기체와 팀 설정을 구성합니다.")]
+        [Serializable]
+        public class AFSetup
         {
-            public string AssemblyId; // ID of the AssemblySO
-            public int TeamId;        // Team identifier
-            public Vector3 Position;   // Starting position
+            [PreviewField(50, Alignment = ObjectFieldAlignment.Center), HorizontalGroup("AF", Width = 50), HideLabel]
+            public AssemblySO assembly;
 
-            public ParticipantConfig(string assemblyId, int teamId, Vector3 position)
+            [VerticalGroup("AF/Right"), LabelWidth(60)]
+            public int teamId;
+
+            [VerticalGroup("AF/Right"), LabelWidth(60)]
+            public Vector3 startPosition;
+        }
+
+        [FoldoutGroup("참가자 설정", expanded: true)]
+        [OnValueChanged("ValidateSetup", IncludeChildren = true)]
+        [ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = true, DraggableItems = true, NumberOfItemsPerPage = 5)]
+        [PropertySpace(10)]
+        [Searchable]
+        public List<AFSetup> battleParticipants = new List<AFSetup>();
+
+        [FoldoutGroup("참가자 설정", expanded: true)]
+        [PropertySpace(5), HideInPlayMode]
+        [Button(ButtonSizes.Large)]
+        public void AddParticipant()
+        {
+            battleParticipants.Add(new AFSetup { teamId = battleParticipants.Count > 0 ? battleParticipants.Max(p => p.teamId) + 1 : 0 });
+        }
+
+        private void ValidateSetup()
+        {
+            if (battleParticipants.Count < 2 || battleParticipants.Any(p => p.assembly == null))
             {
-                AssemblyId = assemblyId;
-                TeamId = teamId;
-                Position = position;
+                 Debug.LogWarning("전투 설정 검증...");
+            }
+            else if (battleParticipants.Select(p => p.teamId).Distinct().Count() < 2)
+            {
+                 Debug.LogWarning("전투 설정 검증...");
             }
         }
 
-        private void Awake() // Use Awake to load data before Start
+        [FoldoutGroup("전투 옵션", expanded: true)]
+        [LabelText("세부 로그 표시")]
+        public bool logCombatDetails = true;
+
+        private ICombatSimulatorService combatSimulator;
+        private TextLoggerService textLogger;
+
+        [TabGroup("데이터베이스", "프레임")]
+        private Dictionary<string, FrameSO> frameDatabase = new Dictionary<string, FrameSO>();
+        [TabGroup("데이터베이스", "파츠")]
+        private Dictionary<string, PartSO> partDatabase = new Dictionary<string, PartSO>();
+        [TabGroup("데이터베이스", "무기")]
+        private Dictionary<string, WeaponSO> weaponDatabase = new Dictionary<string, WeaponSO>();
+        [TabGroup("데이터베이스", "파일럿")]
+        private Dictionary<string, PilotSO> pilotDatabase = new Dictionary<string, PilotSO>();
+        [TabGroup("데이터베이스", "어셈블리")]
+        private Dictionary<string, AssemblySO> assemblyDatabase = new Dictionary<string, AssemblySO>();
+        
+        [FoldoutGroup("현재 전투 상태"), ReadOnly, LabelText("전투 ID")]
+        public string currentBattleId;
+        [FoldoutGroup("현재 전투 상태"), ReadOnly, LabelText("현재 턴")]
+        public int currentTurn;
+        [FoldoutGroup("현재 전투 상태"), ReadOnly, LabelText("전투 진행 중")]
+        public bool isInCombat;
+
+        private void Awake()
         {
             LoadAllScriptableObjects();
         }
 
         private void LoadAllScriptableObjects()
         {
-            LoadResource<FrameSO>(_frameDatabase, "Frames");
-            LoadResource<PartSO>(_partDatabase, "Parts");
-            LoadResource<WeaponSO>(_weaponDatabase, "Weapons");
-            LoadResource<PilotSO>(_pilotDatabase, "Pilots");
-            LoadResource<AssemblySO>(_assemblyDatabase, "Assemblies");
+            LoadResource<FrameSO>(frameDatabase, "Frames");
+            LoadResource<PartSO>(partDatabase, "Parts");
+            LoadResource<WeaponSO>(weaponDatabase, "Weapons");
+            LoadResource<PilotSO>(pilotDatabase, "Pilots");
+            LoadResource<AssemblySO>(assemblyDatabase, "Assemblies");
             Debug.Log("Loaded all ScriptableObject data.");
         }
 
@@ -69,12 +107,9 @@ namespace AF.Tests
                  Debug.LogWarning($"No resources of type {typeof(T).Name} found in Resources/{subfolder}");
                  return;
             }
-
             foreach (var resource in resources)
             {
-                // Use the asset's file name (without extension) as the ID key
-                string id = resource.name; // Example: "AF_TEST_LIGHT_01"
-
+                string id = resource.name;
                 if (!string.IsNullOrEmpty(id))
                 {
                     if (!database.ContainsKey(id))
@@ -94,291 +129,215 @@ namespace AF.Tests
             Debug.Log($"Loaded {database.Count} {typeof(T).Name} resources from Resources/{subfolder}");
         }
 
-        private void Start()
+        public void Log(string message, LogLevel level = LogLevel.Info)
         {
-            // 서비스 로케이터를 통해 필요한 서비스 가져오기
-            _combatSimulator = ServiceLocator.Instance.GetService<ICombatSimulatorService>();
-            _textLogger = ServiceLocator.Instance.GetService<TextLoggerService>();
+             if (textLogger?.TextLogger != null) { textLogger.TextLogger.Log(message, level); }
+             else { Debug.LogWarning($"TextLogger not available! Log message: [{level}] {message}"); }
+        }
 
-            if (_combatSimulator == null || _textLogger == null)
+        [BoxGroup("전투 제어", centerLabel: true)]
+        [HorizontalGroup("전투 제어/Buttons")]
+        [Button(ButtonSizes.Large), GUIColor(0.3f, 0.8f, 0.3f), EnableIf("CanStartCombat")]
+        public async UniTaskVoid StartCombatTestAsync()
+        {
+            if (isInCombat)
+            {
+                Debug.LogWarning("현재 전투가 진행 중입니다. 먼저 종료해주세요.");
+                return;
+            }
+
+            combatSimulator = ServiceLocator.Instance.GetService<ICombatSimulatorService>();
+            textLogger = ServiceLocator.Instance.GetService<TextLoggerService>();
+            if (combatSimulator == null || textLogger == null)
             {
                 Debug.LogError("CombatTestRunner: 필요한 서비스(CombatSimulator 또는 TextLogger)를 찾을 수 없습니다.");
                 return;
             }
-
-            if (_runTestOnStart)
+            if (assemblyDatabase.Count == 0) LoadAllScriptableObjects();
+            if (assemblyDatabase.Count == 0)
             {
-                 RunConfigurableCombatTest(); // Run the unified test method
+                 Debug.LogError("CombatTestRunner: 데이터가 로드되지 않았습니다.");
+                 return;
             }
-        }
 
-        public void Log(string message, LogLevel level = LogLevel.Info)
-        {
-            // Ensure textLogger is available
-             if (_textLogger?.TextLogger != null)
-        {
-            _textLogger.TextLogger.Log(message, level);
-             }
-             else
-             {
-                 // Fallback or error if logger isn't ready
-                 Debug.LogWarning($"TextLogger not available! Log message: [{level}] {message}");
-             }
-        }
+            Debug.Log("=== 전투 테스트 시작 (UniTask 비동기 처리) ===");
+            Log("=== 전투 테스트 시작 ===", LogLevel.System);
 
-        /// <summary>
-        /// Runs a combat test scenario defined by a list of participant configurations.
-        /// </summary>
-        private void RunConfigurableCombatTest()
-        {
-            // --- Define the Test Scenario Here --- 
-            List<ParticipantConfig> scenarioConfig = new List<ParticipantConfig>
+            List<ArmoredFrame> participants = new List<ArmoredFrame>();
+            foreach (var setup in battleParticipants)
             {
-                // Team 0 (Example: 3 units)
-                new ParticipantConfig("AF_BLUE_LEADER", 0, new Vector3(-15, 0, 0)),
-                new ParticipantConfig("AF_BLUE_ASSAULT", 0, new Vector3(-10, 0, 5)),
-                //new ParticipantConfig("AF_BLUE_SCOUT", 0, new Vector3(-5, 0, -5)),
-                // Team 1 (Example: 3 units)
-                new ParticipantConfig("AF_RED_TANK", 1, new Vector3(40, 0, 0)),
-                //new ParticipantConfig("AF_RED_SNIPER", 1, new Vector3(45, 0, -5)),
-                //new ParticipantConfig("AF_RED_SUPPORT", 1, new Vector3(45, 0, 5))
-            };
-            // --- End of Scenario Definition ---
-
-            // Ensure services and data are ready
-             if (_combatSimulator == null || _textLogger == null)
-            {
-                _combatSimulator = ServiceLocator.Instance.GetService<ICombatSimulatorService>();
-                _textLogger = ServiceLocator.Instance.GetService<TextLoggerService>();
-                if (_combatSimulator == null || _textLogger == null)
+                if (setup.assembly == null)
                 {
-                    Debug.LogError("CombatTestRunner: Services not ready for configurable test.");
-                    return;
+                    Debug.LogWarning("참가자 설정 오류: Assembly가 설정되지 않은 항목이 있습니다.");
+                    continue;
                 }
+                ArmoredFrame af = CreateTestArmoredFrame(setup.assembly.name, setup.teamId, setup.startPosition);
+                if (af != null) participants.Add(af);
             }
-             if (_assemblyDatabase.Count == 0) LoadAllScriptableObjects();
-             if (_assemblyDatabase.Count == 0)
-             { 
-                  Debug.LogError("CombatTestRunner: Data not loaded for configurable test."); 
-                  return; 
-             }
 
-            Debug.Log("=== Combat Test Start ==="); // Generic log
-            Log("=== Combat Test Start ===", LogLevel.System); // Generic log
-            _textLogger.TextLogger.Clear();
-
-            // 1. Create ArmoredFrames based on the scenario configuration
-            // Store both the AF instance and its original config for later use (like team ID)
-            List<Tuple<ArmoredFrame, ParticipantConfig>> participantData = new List<Tuple<ArmoredFrame, ParticipantConfig>>();
-            foreach (var config in scenarioConfig)
-            {
-                ArmoredFrame af = CreateTestArmoredFrame(config.AssemblyId, config.TeamId, config.Position);
-                if (af != null) 
-                { 
-                    participantData.Add(new Tuple<ArmoredFrame, ParticipantConfig>(af, config)); 
-                }
-                else
-                {
-                     Debug.LogWarning($"Failed to create AF for Assembly ID: {config.AssemblyId}. It will be excluded from the test.");
-                     Log($"테스트 AF 생성 실패: ID {config.AssemblyId}", LogLevel.Warning);
-                }
-            }
-            
-            // Extract just the ArmoredFrame instances for the simulator
-            List<ArmoredFrame> participantsList = participantData.Select(pd => pd.Item1).ToList();
-
-            // Check if enough participants were created for a meaningful combat
-            if (participantsList.Count < 2) 
+            if (participants.Count < 2)
             {
                 Debug.LogError("전투 테스트에 필요한 최소 AF 수(2)를 생성하지 못했습니다!");
                 Log("전투 테스트 AF 생성 실패! (참가자 부족)", LogLevel.Critical);
                 return;
             }
-            
-            // Optional: Check for weapons 
-            foreach(var af in participantsList)
+            if (participants.Select(p => p.TeamId).Distinct().Count() < 2)
             {
-                if (af.GetAllWeapons().Count == 0)
-                {
-                    // Find the original config to get the Assembly ID for the warning
-                    var originalConfig = participantData.FirstOrDefault(pd => pd.Item1 == af)?.Item2;
-                    string assemblyIdForWarning = originalConfig?.AssemblyId ?? "Unknown Assembly";
-                    Debug.LogWarning($"Test AF ({af.Name}, Assembly: {assemblyIdForWarning}) has no weapons!"); // Fixed: Use AssemblyId from config
-                }
+                 Debug.LogError("전투 테스트에는 최소 2개의 다른 팀이 필요합니다!");
+                 Log("전투 테스트 팀 설정 오류!", LogLevel.Critical);
+                 return;
             }
 
-            // 2. Start Combat
-            ArmoredFrame[] participants = participantsList.ToArray();
-            // Get team counts from the participantData list which stores the original config
-            int team0Count = participantData.Count(pd => pd.Item2.TeamId == 0);
-            int team1Count = participantData.Count(pd => pd.Item2.TeamId == 1); // Assuming only teams 0 and 1 for naming
-            string battleName = $"{team0Count} vs {team1Count} Battle SO"; // Fixed: Use config TeamId
-            string battleId = _combatSimulator.StartCombat(participants, battleName);
-            Debug.Log($"Combat ({battleName}) Started with ID: {battleId}"); // Generic log
-            Log($"Combat ({battleName}) Started with ID: {battleId}", LogLevel.System); // Generic log
+            string battleName = $"테스트 전투 {DateTime.Now:HH:mm:ss}";
+            currentBattleId = combatSimulator.StartCombat(participants.ToArray(), battleName, false);
+            isInCombat = true;
+            currentTurn = 1;
 
-            // 3. Combat Loop (remains the same)
-            int maxTurns = 500;
-            while (_combatSimulator.IsInCombat && _combatSimulator.CurrentTurn < maxTurns)
-            {
-                 Debug.Log($"--- Turn {_combatSimulator.CurrentTurn + 1} Processing --- ");
-                Log($"--- Turn {_combatSimulator.CurrentTurn + 1} Processing --- ", LogLevel.System);
-                bool turnProcessed = _combatSimulator.ProcessNextTurn();
-                 if (!turnProcessed) break;
-            }
-
-            // 4. Combat End Check (remains the same)
-            if (_combatSimulator.IsInCombat)
-            {
-                 Debug.LogWarning($"최대 턴({maxTurns}) 경과 후에도 전투 미종료. 강제 종료.");
-                 Log($"최대 턴({maxTurns}) 경과 후에도 전투 미종료. 강제 종료.", LogLevel.Warning);
-                _combatSimulator.EndCombat(CombatSessionEvents.CombatEndEvent.ResultType.Draw);
-            }
-
-            // 5. Final Log Output
-            Debug.Log("=== Combat Test End ==="); // Generic log
-            Log("=== Combat Test End ===", LogLevel.System); // Generic log
-            Debug.Log("--- Final Combat Log ---"); // Generic log
-            _textLogger.TextLogger.SaveToFile("CombatTest_SO"); // Generic log file name
-        }
-
-        /// <summary>
-        /// Creates an ArmoredFrame instance based on data loaded from ScriptableObjects.
-        /// </summary>
-        /// <param name="assemblyId">The ID of the AssemblySO to use.</param>
-        /// <param name="teamId">The team ID for the ArmoredFrame.</param>
-        /// <param name="position">The starting position.</param>
-        /// <returns>The created ArmoredFrame, or null if creation failed.</returns>
-        private ArmoredFrame CreateTestArmoredFrame(string assemblyId, int teamId, Vector3 position)
-        {
-            // 1. Find the AssemblySO
-            if (!_assemblyDatabase.TryGetValue(assemblyId, out AssemblySO assemblySO))
-            {
-                Debug.LogError($"AssemblySO with ID '{assemblyId}' not found in database.");
-                Log($"AssemblySO 로드 실패: ID '{assemblyId}'", LogLevel.Critical);
-                return null;
-            }
-
-            // <<< Start Log Changed >>>
-            Log($"--- Creating: {assemblySO.AFName} (Team {teamId}) from {assemblyId} at {position} ---", LogLevel.Info); 
-            
-            // 2. Load referenced SOs
-            if (!_frameDatabase.TryGetValue(assemblySO.FrameID, out FrameSO frameSO))
-            {
-                 Debug.LogError($"Required FrameSO '{assemblySO.FrameID}' not found for Assembly '{assemblyId}'.");
-                 Log($"  프레임 SO 로드 실패: ID '{assemblySO.FrameID}'", LogLevel.Critical);
-                 return null;
-            }
-
-            if (!_pilotDatabase.TryGetValue(assemblySO.PilotID, out PilotSO pilotSO))
-            {
-                Debug.LogError($"Required PilotSO '{assemblySO.PilotID}' not found for Assembly '{assemblyId}'.");
-                Log($"  파일럿 SO 로드 실패: ID '{assemblySO.PilotID}'", LogLevel.Critical);
-                return null;
-            }
-
-            // --- Create runtime objects from SO data ---\
-
-            // 3. Create Frame Stats and Frame Instance
-            Stats frameBaseStats = new Stats(
-                frameSO.Stat_AttackPower, frameSO.Stat_Defense, frameSO.Stat_Speed, frameSO.Stat_Accuracy,
-                frameSO.Stat_Evasion, frameSO.Stat_Durability, frameSO.Stat_EnergyEff, frameSO.Stat_MaxAP, frameSO.Stat_APRecovery
-            );
-
-            Frame runtimeFrame;
             try
             {
-                 runtimeFrame = new StandardFrame(frameSO.FrameName, frameBaseStats, frameSO.FrameWeight);
+                bool combatEnded = false;
+                int safetyBreak = 1000;
+                int turnCounter = 0;
+
+                while (!combatEnded && isInCombat && turnCounter < safetyBreak)
+                {
+                    combatEnded = !combatSimulator.ProcessNextTurn();
+                    currentTurn = combatSimulator.CurrentTurn;
+                    turnCounter++;
+
+                    await UniTask.Yield(PlayerLoopTiming.Update);
+                }
+
+                if (turnCounter >= safetyBreak)
+                {
+                    Debug.LogWarning($"안전 브레이크 발동! ({safetyBreak} 턴 초과)");
+                    Log($"안전 브레이크 발동!", LogLevel.Warning);
+                    if (isInCombat && combatSimulator != null) combatSimulator.EndCombat(CombatSessionEvents.CombatEndEvent.ResultType.Draw);
+                }
+
+                Log("=== 전투 테스트 완료 (비동기 처리) ===", LogLevel.System);
+                Debug.Log($"전투 완료! Battle ID: {currentBattleId}. 로그를 확인하세요.");
+
+                string logFileName = $"CombatLog_{currentBattleId}_{DateTime.Now:yyyyMMdd_HHmmss}";
+                textLogger.TextLogger.SaveToFile(logFileName);
+                Debug.Log($"전투 로그 저장됨: {logFileName}.txt");
+
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                 Debug.LogError($"Failed to instantiate Frame ({frameSO.FrameName}) using StandardFrame: {e.Message}\n{e.StackTrace}");
-                Log($"  런타임 프레임 생성 실패!", LogLevel.Critical);
+                Debug.LogError($"전투 시뮬레이션 중 오류 발생: {ex.Message}\n{ex.StackTrace}");
+                Log($"전투 시뮬레이션 오류: {ex.Message}", LogLevel.Critical);
+            }
+            finally
+            {
+                 if (combatSimulator != null && combatSimulator.IsInCombat) {
+                      combatSimulator.EndCombat();
+                 }
+                isInCombat = false;
+            }
+        }
+        
+        public void EndCombatTest()
+        {
+            if (combatSimulator != null && isInCombat)
+            {
+                combatSimulator.EndCombat();
+                isInCombat = false;
+                Log("=== 전투 테스트 중단됨 ===", LogLevel.System);
+                Debug.Log("전투가 수동으로 중단되었습니다.");
+            }
+        }
+
+        private bool CanStartCombat()
+        {
+            return !isInCombat &&
+                   battleParticipants.Count >= 2 &&
+                   battleParticipants.All(p => p.assembly != null) &&
+                   battleParticipants.Select(p => p.teamId).Distinct().Count() >= 2;
+        }
+
+        private ArmoredFrame CreateTestArmoredFrame(string assemblyId, int teamId, Vector3 position)
+        {
+            if (!assemblyDatabase.TryGetValue(assemblyId, out AssemblySO assemblyData))
+            {
+                Debug.LogError($"CreateTestArmoredFrame Error: AssemblySO with ID '{assemblyId}' not found in database.");
                 return null;
             }
 
-            // 4. Create Pilot Stats and Pilot Instance
-            Stats pilotBaseStats = new Stats(
-                 pilotSO.Stat_AttackPower, pilotSO.Stat_Defense, pilotSO.Stat_Speed, pilotSO.Stat_Accuracy,
-                 pilotSO.Stat_Evasion, pilotSO.Stat_Durability, pilotSO.Stat_EnergyEff, pilotSO.Stat_MaxAP, pilotSO.Stat_APRecovery
+            string instanceName = assemblyData.AFName;
+            if (string.IsNullOrEmpty(instanceName))
+            {
+                instanceName = assemblyId;
+                Debug.LogWarning($"AssemblySO '{assemblyId}' has no specified name. Using ID as instance name.");
+            }
+
+            if (!frameDatabase.TryGetValue(assemblyData.FrameID, out FrameSO frameData))
+            {
+                Debug.LogError($"CreateTestArmoredFrame Error: FrameSO with ID '{assemblyData.FrameID}' not found for Assembly '{assemblyId}'.");
+                return null;
+            }
+            Stats frameBaseStats = new Stats(
+                 frameData.Stat_AttackPower, frameData.Stat_Defense, frameData.Stat_Speed, frameData.Stat_Accuracy,
+                 frameData.Stat_Evasion, frameData.Stat_Durability, frameData.Stat_EnergyEff, frameData.Stat_MaxAP, frameData.Stat_APRecovery
             );
-
-            Pilot runtimePilot = new Pilot(pilotSO.PilotName, pilotBaseStats, pilotSO.Specialization);
-
-            // <<< Frame and Pilot Summary Log >>>
-            Log($"  > Frame: {runtimeFrame.Name}, Pilot: {runtimePilot.Name} ({runtimePilot.Specialization})", LogLevel.Info);
-
-            // 5. Create ArmoredFrame instance
-            ArmoredFrame af = new ArmoredFrame(assemblySO.AFName, runtimeFrame, position, teamId); 
-            af.AssignPilot(runtimePilot); 
-
-            // 6. Attach Parts using helper method
-            AttachPartFromSO(af, assemblySO.HeadPartID, frameSO.Slot_Head);
-            AttachPartFromSO(af, assemblySO.BodyPartID, frameSO.Slot_Body);
-            AttachPartFromSO(af, assemblySO.LeftArmPartID, frameSO.Slot_Arm_L);
-            AttachPartFromSO(af, assemblySO.RightArmPartID, frameSO.Slot_Arm_R);
-            AttachPartFromSO(af, assemblySO.LegsPartID, frameSO.Slot_Legs);
-            AttachPartFromSO(af, assemblySO.BackpackPartID, frameSO.Slot_Backpack);
-
-            // 7. Attach Weapons using helper method
-            AttachWeaponFromSO(af, assemblySO.Weapon1ID);
-            AttachWeaponFromSO(af, assemblySO.Weapon2ID);
-
-            // <<< Part Summary Log (Corrected) >>>
-            StringBuilder partSummary = new StringBuilder();
-            foreach (var kvp in af.Parts.OrderBy(p => p.Key)) 
+            Frame frame = null;
+            switch (frameData.FrameType)
             {
-                if (kvp.Value != null)
-                {
-                    partSummary.Append($"{kvp.Key}({kvp.Value.Name}), ");
-                }
+                case FrameType.Standard: frame = new StandardFrame(frameData.FrameName, frameBaseStats, frameData.FrameWeight); break;
+                case FrameType.Light: frame = new LightFrame(frameData.FrameName, frameBaseStats, frameData.FrameWeight); break;
+                case FrameType.Heavy: frame = new HeavyFrame(frameData.FrameName, frameBaseStats, frameData.FrameWeight); break;
+                default:
+                    Debug.LogError($"Unsupported FrameType '{frameData.FrameType}' found for FrameID '{frameData.FrameID}'. Cannot create Frame instance.");
+                    return null;
             }
-            if (partSummary.Length > 0) 
+            if (frame == null) { return null; }
+
+            ArmoredFrame af = new ArmoredFrame(instanceName, frame, position, teamId);
+
+            if (!pilotDatabase.TryGetValue(assemblyData.PilotID, out PilotSO pilotData))
             {
-                partSummary.Length -= 2; 
-                Log($"  > Parts: {partSummary}", LogLevel.Info);
-            } else {
-                Log("  > Parts: None", LogLevel.Info);
+                 Debug.LogWarning($"PilotSO with ID '{assemblyData.PilotID}' not found for Assembly '{assemblyId}'. Using default Pilot.");
+                 af.AssignPilot(new Pilot("Default Pilot", new Stats(), SpecializationType.StandardCombat));
+            }
+            else
+            {
+                Stats pilotBaseStats = new Stats(
+                    pilotData.Stat_AttackPower, pilotData.Stat_Defense, pilotData.Stat_Speed, pilotData.Stat_Accuracy,
+                    pilotData.Stat_Evasion, pilotData.Stat_Durability, pilotData.Stat_EnergyEff, pilotData.Stat_MaxAP, pilotData.Stat_APRecovery
+                );
+                Pilot pilot = new Pilot(pilotData.PilotName, pilotBaseStats, pilotData.Specialization);
+                af.AssignPilot(pilot);
             }
 
-            // <<< Weapon Summary Log (Corrected) >>>
-            StringBuilder weaponSummary = new StringBuilder();
-            foreach (var weapon in af.GetAllWeapons())
-            {
-                 if (weapon != null)
-                 {
-                     weaponSummary.Append($"{weapon.Name}, ");
-                 }
-            }
-             if (weaponSummary.Length > 0) 
-             {
-                 weaponSummary.Length -= 2; 
-                 Log($"  > Weapons: {weaponSummary}", LogLevel.Info);
-             } else {
-                 Log("  > Weapons: None", LogLevel.Info);
-             }
+            AttachPartFromSO(af, assemblyData.HeadPartID, frameData.Slot_Head);
+            AttachPartFromSO(af, assemblyData.BodyPartID, frameData.Slot_Body);
+            AttachPartFromSO(af, assemblyData.LeftArmPartID, frameData.Slot_Arm_L);
+            AttachPartFromSO(af, assemblyData.RightArmPartID, frameData.Slot_Arm_R);
+            AttachPartFromSO(af, assemblyData.LegsPartID, frameData.Slot_Legs);
+            AttachPartFromSO(af, assemblyData.BackpackPartID, frameData.Slot_Backpack);
 
-            // <<< End Log Changed >>>
-            Log($"--- Finished Creating: {af.Name} ---", LogLevel.Info);
+            if (string.IsNullOrEmpty(assemblyData.BodyPartID))
+            {
+                 Debug.LogError($"CreateTestArmoredFrame Error: Assembly '{assemblyId}' does not specify a Body part ID! ArmoredFrame might be non-operational.");
+            }
+
+            AttachWeaponFromSO(af, assemblyData.Weapon1ID);
+            AttachWeaponFromSO(af, assemblyData.Weapon2ID);
+
+            Log($"--- AF 생성 완료: [{af.Name}] ({assemblyId}) ---", LogLevel.System);
 
             return af;
         }
 
-        // Helper method to find, instantiate, and attach a Part from its SO
         private void AttachPartFromSO(ArmoredFrame af, string partId, string slotId)
         {
-            if (string.IsNullOrEmpty(partId) || string.IsNullOrEmpty(slotId))
-            {
-                 return;
-            }
-
-            if (_partDatabase.TryGetValue(partId, out PartSO partSO))
+            if (string.IsNullOrEmpty(partId) || string.IsNullOrEmpty(slotId)) { return; }
+            if (partDatabase.TryGetValue(partId, out PartSO partSO))
             {
                 Stats partStats = new Stats(
                     partSO.Stat_AttackPower, partSO.Stat_Defense, partSO.Stat_Speed, partSO.Stat_Accuracy,
                     partSO.Stat_Evasion, partSO.Stat_Durability, partSO.Stat_EnergyEff, partSO.Stat_MaxAP, partSO.Stat_APRecovery
                 );
-                
                 Part runtimePart = null;
                 try
                 {
@@ -388,58 +347,34 @@ namespace AF.Tests
                         case PartType.Body: runtimePart = new BodyPart(partSO.PartName, partStats, partSO.MaxDurability, partSO.PartWeight); break;
                         case PartType.Arm: runtimePart = new ArmsPart(partSO.PartName, partStats, partSO.MaxDurability, partSO.PartWeight); break;
                         case PartType.Legs: runtimePart = new LegsPart(partSO.PartName, partStats, partSO.MaxDurability, partSO.PartWeight); break;
-                        default: Debug.LogWarning($"Unhandled PartType '{partSO.PartType}'..."); Log($"미지원 파츠 타입: {partSO.PartType}", LogLevel.Warning); break;
+                        default: Debug.LogWarning($"Unhandled PartType '{partSO.PartType}' for ID '{partId}'."); break;
                     }
-
                      if (runtimePart != null)
                      {
-                         if (af.FrameBase.CanEquipPart(runtimePart, slotId))
-                         {
-                             af.AttachPart(runtimePart, slotId);
-                         }
-                         else
-                         {
-                             Debug.LogWarning($"Part compatibility issue..."); Log($"호환성 문제로 부착 실패...", LogLevel.Warning);
-                         }
+                         if (af.FrameBase.CanEquipPart(runtimePart, slotId)) { af.AttachPart(runtimePart, slotId); }
+                         else { Debug.LogWarning($"Part compatibility issue: Cannot equip {partId} ({partSO.PartType}) to slot {slotId} on frame {af.FrameBase.Name}."); }
                      }
                 }
-                catch (Exception e) { Debug.LogError($"Part instantiation/attach error: {e.Message}"); Log($"런타임 파츠 오류...", LogLevel.Critical); }
+                catch (Exception e) { Debug.LogError($"Part instantiation/attach error for {partId}: {e.Message}"); }
             }
-            else { Debug.LogWarning($"PartSO ID '{partId}' not found..."); Log($"파츠 SO 로드 실패: ID '{partId}'", LogLevel.Warning); }
+            else { Debug.LogWarning($"PartSO ID '{partId}' not found in database."); }
         }
 
-        // Helper method to find, instantiate, and attach a Weapon from its SO
         private void AttachWeaponFromSO(ArmoredFrame af, string weaponId)
         {
             if (string.IsNullOrEmpty(weaponId)) { return; }
-
-            if (_weaponDatabase.TryGetValue(weaponId, out WeaponSO weaponSO))
+            if (weaponDatabase.TryGetValue(weaponId, out WeaponSO weaponSO))
             {
-                // Corrected: Use the 8-argument constructor as defined in api.mdc
-                // Corrected: Use weaponSO.WeaponType instead of weaponSO.Type
-                Weapon runtimeWeapon = new Weapon(
-                     weaponSO.WeaponName,
-                     weaponSO.WeaponType, // Corrected from weaponSO.Type
-                     weaponSO.DamageType,
-                     weaponSO.BaseDamage,
-                     weaponSO.Accuracy,
-                     weaponSO.Range,
-                     weaponSO.AttackSpeed,
-                     weaponSO.OverheatPerShot
-                     // AmmoCapacity and BaseAPCost are likely properties or handled elsewhere, not in this constructor
-                );
-                
-                // TODO: Set AmmoCapacity and BaseAPCost as properties if they exist on Weapon class
-                // runtimeWeapon.AmmoCapacity = weaponSO.AmmoCapacity; 
-                // runtimeWeapon.BaseAPCost = weaponSO.BaseAPCost; 
-                
-                af.AttachWeapon(runtimeWeapon);
+                try {
+                     Weapon runtimeWeapon = new Weapon(
+                         weaponSO.WeaponName, weaponSO.WeaponType, weaponSO.DamageType,
+                         weaponSO.BaseDamage, weaponSO.Accuracy, weaponSO.Range,
+                         weaponSO.AttackSpeed, weaponSO.OverheatPerShot
+                     );
+                    af.AttachWeapon(runtimeWeapon);
+                } catch (Exception e) { Debug.LogError($"Weapon instantiation/attach error for {weaponId}: {e.Message}"); }
             }
-            else 
-            { 
-                Debug.LogWarning($"WeaponSO ID '{weaponId}' not found..."); 
-                Log($"무기 SO 로드 실패: ID '{weaponId}'", LogLevel.Warning); 
-            }
-        } // Corrected: Ensure only one closing brace for the method
+            else { Debug.LogWarning($"WeaponSO ID '{weaponId}' not found in database."); }
+        }
     }
 } 
