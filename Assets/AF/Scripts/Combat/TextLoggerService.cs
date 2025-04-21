@@ -219,20 +219,17 @@ namespace AF.Combat
                     LogUnitDetailsInternal(unit, true);
                 }
             }
-            _textLogger.Log("-----------------------------", LogLevel.Info);
         }
         
         private void LogAllUnitDetailsOnTurnEnd()
         {
             _textLogger.Log("--- End of Turn Units Status ---", LogLevel.Info);
-            //_textLogger.Log("---------------------------------", LogLevel.Info);
         }
 
         private void LogUnitDetailsOnTurnStart(ArmoredFrame unit)
         {
             _textLogger.Log($"--- Turn Start: {unit?.Name} Status ---", LogLevel.Info);
             LogUnitDetailsInternal(unit, false);
-            _textLogger.Log("------------------------------------", LogLevel.Info);
         }
 
         private void LogUnitDetailsInternal(ArmoredFrame unit, bool isInitialLog)
@@ -289,7 +286,7 @@ namespace AF.Combat
             {
                 foreach (var weapon in weapons)
                 {
-                    string weaponStatus = weapon.IsOperational ? "Op" : "Dmg";
+                    string weaponStatus = weapon.IsOperational ? "Operational" : "Destroyed";
                     // 무기 정보 각 줄 추가
                     sb.AppendLine($"      - {weapon.Name}: {weaponStatus}");
                 }

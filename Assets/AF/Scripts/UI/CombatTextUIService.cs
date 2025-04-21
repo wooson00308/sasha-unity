@@ -26,7 +26,8 @@ namespace AF.UI
         [SerializeField] private Transform _logContainer; // 프리팹이 생성될 부모 컨테이너 (VerticalLayoutGroup 등)
 
         [Header("Animation Settings")]
-        [SerializeField] private float _fadeInDuration = 0.3f; // 각 라인 페이드인 시간
+        // [SerializeField] private float _fadeInDuration = 0.3f; // 각 라인 페이드인 시간 (이제 사용 안 함)
+        [SerializeField] private float _textAnimationDuration = 0.5f; // 텍스트 타이핑 애니메이션 시간
         [SerializeField] private float _lineDelay = 0.1f; // 다음 라인 표시 전 딜레이
 
         private EventBus.EventBus _eventBus;
@@ -130,37 +131,30 @@ namespace AF.UI
 
             // 1. 프리팹 인스턴스화 및 컨테이너에 추가
             GameObject logInstance = Instantiate(_logLinePrefab, _logContainer);
-            
+
             // 2. 텍스트 설정 (프리팹 내 TMP_Text 컴포넌트 가정)
-            TMP_Text logText = logInstance.GetComponent<TMP_Text>(); // 자식에서 찾기 (더 안전)
+            TMP_Text logText = logInstance.GetComponentInChildren<TMP_Text>(); // 자식에서 찾기 (더 안전)
             if (logText != null)
             {
-                logText.text = message;
+                logText.text = ""; // 초기화
+                // DOTween 텍스트 애니메이션 실행 및 완료 대기
+                await logText.DOText(message, _textAnimationDuration).SetEase(Ease.Linear).AsyncWaitForCompletion();
             }
             else
             {
                  Debug.LogWarning("로그 라인 프리팹에 TMP_Text 컴포넌트를 찾을 수 없습니다.");
             }
 
-            // 3. CanvasGroup 가져오기 및 초기화 (페이드인 준비)
-            CanvasGroup canvasGroup = logInstance.GetComponent<CanvasGroup>();
-            if (canvasGroup == null) // 없다면 추가 (선택적)
-            {
-                canvasGroup = logInstance.AddComponent<CanvasGroup>();
-            }
-            canvasGroup.alpha = 0f; // 처음엔 투명하게
+            // 3. CanvasGroup 관련 로직 제거
 
-            // 4. DOTween 페이드인 애니메이션 실행 및 완료 대기 (AsyncWaitForCompletion 사용)
-            await canvasGroup.DOFade(1f, _fadeInDuration).AsyncWaitForCompletion();
-
-            // 5. 스크롤 맨 아래로 이동
+            // 4. 스크롤 맨 아래로 이동
             await UniTask.Yield(PlayerLoopTiming.LastUpdate);
             if (_scrollRect != null) // 스크롤 렉트 null 체크 추가
             {
                  _scrollRect.verticalNormalizedPosition = 0f;
             }
 
-            // 6. 다음 라인 전 딜레이 (TimeSpan 사용)
+            // 5. 다음 라인 전 딜레이 (TimeSpan 사용)
             if (_lineDelay > 0)
             {
                 await UniTask.Delay(TimeSpan.FromSeconds(_lineDelay));

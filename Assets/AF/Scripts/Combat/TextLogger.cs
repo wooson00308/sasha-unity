@@ -420,8 +420,6 @@ namespace AF.Combat
         private void LogTurnStart(CombatSessionEvents.TurnStartEvent evt)
         {
             _turnCounter = evt.TurnNumber; // 턴 카운터 업데이트
-            // 이전 로그보다 더 명확한 턴 시작 구분
-            Log(new string('-', 40), LogLevel.System);
             string apInfo = $"AP: {evt.ActiveUnit.CurrentAP:F1} / {evt.ActiveUnit.CombinedStats.MaxAP:F1}";
             // AP 회복량 정보는 CombatSimulatorService의 Debug.Log에 있으므로 여기선 생략하거나, 필요시 이벤트에 추가
             Log($"===== Turn {evt.TurnNumber}: [{evt.ActiveUnit.Name}] 행동 시작 ({apInfo}) =====", LogLevel.Info);
@@ -435,8 +433,6 @@ namespace AF.Combat
             // 턴 종료 구분 로그
             string apInfo = $"AP: {evt.ActiveUnit.CurrentAP:F1} / {evt.ActiveUnit.CombinedStats.MaxAP:F1}";
             Log($"===== Turn {evt.TurnNumber}: [{evt.ActiveUnit.Name}] 행동 종료 ({apInfo}) =====", LogLevel.Info);
-            Log(new string('-', 40), LogLevel.System);
-            Log("", LogLevel.System); // 턴 사이에 빈 줄 추가
         }
 
         // ActionStart는 간략화 또는 제거 고려 (현재 주석 처리)
@@ -545,14 +541,14 @@ namespace AF.Combat
 
         private string FormatLogEntry(LogEntry entry)
         {
-            // TODO: 로그 레벨에 따른 색상/아이콘 등 추가 가능
-            return $"[{entry.Timestamp:HH:mm:ss}] {entry.Message}";
+            // 예: [T5] INFO: 플레이어 공격!
+            return $"[T{entry.TurnNumber}] {entry.Level}: {entry.Message}";
         }
 
         private string FormatLogEntryForFile(LogEntry entry)
         {
-            // 파일 저장 시에는 Rich Text 태그 제거 및 상세 정보 포함
-            return $"[{entry.Timestamp:yyyy-MM-dd HH:mm:ss.fff}] [T{entry.TurnNumber}] [{entry.Level}] {RemoveRichTextTags(entry.Message)}";
+            // 예: [T5] INFO: 플레이어 공격!
+            return $"[T{entry.TurnNumber}] {entry.Level}: {entry.Message}";
         }
 
         private string GetActionDescription(CombatActionEvents.ActionType action)
