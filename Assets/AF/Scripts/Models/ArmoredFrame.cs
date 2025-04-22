@@ -484,6 +484,17 @@ namespace AF.Models
                  _combinedStats.APRecovery
             );
 
+            // 6. 활성 상태 효과 적용
+            foreach (var effect in _activeStatusEffects)
+            {
+                if (effect.StatToModify != StatType.None && effect.ModificationType != ModificationType.None)
+                {
+                    // Stats 클래스의 ApplyModifier 메소드를 사용하여 _combinedStats 직접 수정
+                    _combinedStats.ApplyModifier(effect.StatToModify, effect.ModificationType, effect.ModificationValue);
+                    Debug.Log($"Applying Status Effect ({effect.EffectName}): Modified {_combinedStats}"); // 상태 효과 적용 후 로그
+                }
+            }
+
             // 최종 스탯 재계산 후 AP 값 재설정 (최대치 초과 방지)
             _currentAP = Mathf.Clamp(_currentAP, 0, _combinedStats.MaxAP);
 
@@ -644,7 +655,13 @@ namespace AF.Models
         /// <returns>AP 충분 여부</returns>
         public bool HasEnoughAP(float requiredAmount)
         {
-            return _currentAP >= requiredAmount;
+            // 추가: AP 소모량이 0 또는 음수이면 항상 가능
+            if (requiredAmount <= 0) 
+            {
+                return true;
+            }
+            // 부동 소수점 오차 감안하여 비교
+            return _currentAP > requiredAmount - 0.001f; 
         }
 
         // TODO: 수리 메서드 (Repair)도 슬롯 기반으로 수정 필요

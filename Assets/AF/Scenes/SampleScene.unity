@@ -521,7 +521,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1190774258}
   m_HandleRect: {fileID: 1190774257}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -1150,13 +1150,36 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   battleParticipants:
-  - assembly: {fileID: 11400000, guid: ecaa3137880ca2046a1d2b017661ad4f, type: 2}
-    teamId: 0
-    startPosition: {x: 0, y: 0, z: 0}
-  - assembly: {fileID: 11400000, guid: 69171450ad83c1d4f9163f1aa70be07b, type: 2}
+  - useCustomAssembly: 1
+    assembly: {fileID: 11400000, guid: ecaa3137880ca2046a1d2b017661ad4f, type: 2}
+    customFrame: {fileID: 11400000, guid: 4953d225f51f1bf4a9dc8e0ee2bea8ee, type: 2}
+    customHead: {fileID: 11400000, guid: 84f18fb331da5db4a8e95e3f7040187c, type: 2}
+    customBody: {fileID: 11400000, guid: 26c1f6a7f2b7ad5459eb06bda6498e7c, type: 2}
+    customArms: {fileID: 11400000, guid: ca6e3261ee98e014c89c54376c308e71, type: 2}
+    customLegs: {fileID: 11400000, guid: 78d3cc7ae706ccb48a00fc1c2d8535ba, type: 2}
+    customWeaponR1: {fileID: 11400000, guid: 2c441138c51bce44ebeaa40cfe3bb82c, type: 2}
+    customWeaponL1: {fileID: 11400000, guid: 5ef8d5cea82b9224cb9f2b5ad48463da, type: 2}
+    customPilot: {fileID: 11400000, guid: 5a606a1b12582644bb00669016dec86a, type: 2}
     teamId: 1
     startPosition: {x: 0, y: 0, z: 0}
-  logCombatDetails: 1
+  - useCustomAssembly: 1
+    assembly: {fileID: 11400000, guid: d0eec328070f65d49b74e44744b73a8a, type: 2}
+    customFrame: {fileID: 11400000, guid: 845f8a86665567b459228dfbbdd31c14, type: 2}
+    customHead: {fileID: 11400000, guid: e3f09fa668e5caa46a1fcddfca46a27d, type: 2}
+    customBody: {fileID: 11400000, guid: 179fcae7bfe86e8438f3f86d044fd502, type: 2}
+    customArms: {fileID: 11400000, guid: 37bca43549854a9449ffcda387d27d05, type: 2}
+    customLegs: {fileID: 11400000, guid: f0b1f3d91a565d6449db9fd59c3c6ea0, type: 2}
+    customWeaponR1: {fileID: 11400000, guid: ef43926a272330b40aa15660935db9e1, type: 2}
+    customWeaponL1: {fileID: 11400000, guid: c08e3ceb85c8bb3469c6f4598a280083, type: 2}
+    customPilot: {fileID: 11400000, guid: 6fe1b293c2ad78b4eaa7daeb9276525d, type: 2}
+    teamId: 2
+    startPosition: {x: 40, y: 0, z: 0}
+  logCombatDetails: 0
+  showLogLevelPrefix: 0
+  showTurnPrefix: 0
+  useLogIndentation: 0
+  logActionSummaries: 0
+  logAIDecisions: 0
   currentBattleId: 
   currentTurn: 0
   isInCombat: 0

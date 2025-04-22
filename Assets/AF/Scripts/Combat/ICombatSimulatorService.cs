@@ -1,6 +1,7 @@
 using AF.Models;
 using AF.Services;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace AF.Combat
 {
@@ -52,13 +53,15 @@ namespace AF.Combat
         bool ProcessNextTurn();
         
         /// <summary>
-        /// 특정 행동 수행
+        /// 유닛의 특정 행동을 수행합니다.
         /// </summary>
-        /// <param name="actor">행동 주체</param>
-        /// <param name="actionType">행동 타입</param>
-        /// <param name="parameters">추가 매개변수</param>
+        /// <param name="actor">행동을 수행할 유닛</param>
+        /// <param name="actionType">수행할 행동 유형</param>
+        /// <param name="targetFrame">행동 대상 프레임 (nullable)</param>
+        /// <param name="targetPosition">행동 목표 위치 (nullable)</param>
+        /// <param name="weapon">사용할 무기 (nullable)</param>
         /// <returns>행동 성공 여부</returns>
-        bool PerformAction(ArmoredFrame actor, CombatActionEvents.ActionType actionType, params object[] parameters);
+        bool PerformAction(ArmoredFrame actor, CombatActionEvents.ActionType actionType, ArmoredFrame targetFrame, Vector3? targetPosition, Weapon weapon);
         
         /// <summary>
         /// 공격 수행
@@ -70,7 +73,7 @@ namespace AF.Combat
         bool PerformAttack(ArmoredFrame attacker, ArmoredFrame target, Weapon weapon);
         
         /// <summary>
-        /// 특정 대상이 전투 불능 상태인지 확인
+        /// 특정 유닛이 전투 불능 상태인지 확인합니다.
         /// </summary>
         /// <param name="unit">확인할 유닛</param>
         /// <returns>전투 불능 상태 여부</returns>

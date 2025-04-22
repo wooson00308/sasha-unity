@@ -13,6 +13,7 @@ namespace AF.Combat
         /// </summary>
         public enum ActionType
         {
+            None = 0,
             Attack,
             Move,
             UseAbility,
@@ -54,13 +55,22 @@ namespace AF.Combat
             public string ResultDescription { get; private set; }
             public int TurnNumber { get; private set; }
 
-            public ActionCompletedEvent(ArmoredFrame actor, ActionType action, bool success, string resultDescription, int turnNumber)
+            // 이동 액션 상세 정보 (Optional)
+            public readonly Vector3? NewPosition;
+            public readonly float? DistanceMoved;
+            public readonly ArmoredFrame MoveTarget; // 이동 목표 대상
+
+            public ActionCompletedEvent(ArmoredFrame actor, ActionType action, bool success, string resultDescription, int turnNumber,
+                                        Vector3? newPosition = null, float? distanceMoved = null, ArmoredFrame moveTarget = null)
             {
                 Actor = actor;
                 Action = action;
                 Success = success;
                 ResultDescription = resultDescription;
                 TurnNumber = turnNumber;
+                NewPosition = newPosition;
+                DistanceMoved = distanceMoved;
+                MoveTarget = moveTarget;
             }
         }
 

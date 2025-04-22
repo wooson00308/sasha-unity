@@ -33,10 +33,16 @@ namespace AF.Combat
         private Dictionary<(ArmoredFrame, string), float> _previousPartDurability;
         // <<< 이번 턴 방어 유닛 기록용 HashSet 추가 >>>
         private HashSet<ArmoredFrame> _defendedThisTurn = new HashSet<ArmoredFrame>();
+        private bool _logAIDecisions; // AI 결정 로그 토글 필드 추가
         
         // <<< AP 비용 상수 수정 시작 (이동/공격 제거) >>>
         private const float DEFEND_AP_COST = 1f;
         // <<< AP 비용 상수 수정 끝 >>>
+        
+        // <<< 원거리 AI 행동 결정용 상수 추가 >>>
+        private const float MIN_RANGED_SAFE_DISTANCE = 5.0f; // 이 거리보다 가까우면 후퇴 시도
+        private const float OPTIMAL_RANGE_FACTOR = 0.8f; // 최대 사거리의 이 비율만큼 떨어진 거리를 이상적으로 간주 (예시)
+        // <<< 원거리 AI 행동 결정용 상수 추가 끝 >>>
         
         // 프로퍼티 구현
         public string CurrentBattleId => _currentBattleId;
@@ -224,10 +230,18 @@ namespace AF.Combat
                 // 현재 AP로 가능한 행동 결정
                 var actionTuple = DetermineActionForUnit(_currentActiveUnit);
 
-                if (actionTuple != null)
+                // <<< 추가 로그: actionTuple.Item1 실제 값 확인 >>>
+                if (_logAIDecisions) // AI 디버그 로그 토글 확인
                 {
+                    _textLogger?.TextLogger.Log($"[ProcessNextTurn Check] After DetermineAction, actionTuple.Item1 = {actionTuple.Item1} (Is Default? {actionTuple.Item1 == default})", LogLevel.Debug);
+                }
+                // <<< 로그 추가 끝 >>>
+
+                if (actionTuple.Item1 != default)
+                {
+                    var determinedAction = actionTuple.Item1;
                     // 결정된 행동 수행 (PerformAction에서 AP 소모 처리)
-                    bool actionSuccess = PerformAction(_currentActiveUnit, actionTuple.Item1, actionTuple.Item2, actionTuple.Item3);
+                    bool actionSuccess = PerformAction(_currentActiveUnit, determinedAction, actionTuple.Item2, actionTuple.Item3, actionTuple.Item4);
                     
                     actionsThisTurn++;
 
@@ -269,38 +283,25 @@ namespace AF.Combat
         
         /// <summary>
         /// 유닛의 특정 행동을 수행합니다.
+        /// 파라미터 형식 변경: params object[] -> 명시적 파라미터
         /// </summary>
-        public bool PerformAction(ArmoredFrame actor, CombatActionEvents.ActionType actionType, params object[] parameters)
+        public bool PerformAction(ArmoredFrame actor, CombatActionEvents.ActionType actionType, ArmoredFrame targetFrame, Vector3? targetPosition, Weapon weapon)
         {
+            Debug.Log($"[!!!] PerformAction 함수 진입! 액션: {actionType}"); // <<< 진짜 첫 줄 로그
+
             if (!_isInCombat || actor == null || !actor.IsOperational || actor != _currentActiveUnit)
             {
-                // Debug.LogWarning("[CombatSimulatorService] 유효하지 않은 행동 요청입니다.");
                 Debug.LogWarning("[CombatSimulatorService] 유효하지 않은 행동 요청입니다.");
                 return false;
             }
             
-            // <<-- 이벤트 발행 추가 -->>
-            var actionStartEvent = new CombatActionEvents.ActionStartEvent(actor, actionType, _currentTurn, parameters);
-            _eventBus.Publish(actionStartEvent);
-            // <<-- 이벤트 발행 추가 끝 -->>
-
-            bool success = false;
-            string resultDescription = "";
-            ArmoredFrame target = null;
-            Weapon weapon = null;
-
-            // 파라미터 파싱 (안전하게)
-            if (parameters.Length > 0 && parameters[0] is ArmoredFrame) target = (ArmoredFrame)parameters[0];
-            if (parameters.Length > 1 && parameters[1] is Weapon) weapon = (Weapon)parameters[1];
-            // 필요한 경우 다른 파라미터 타입도 파싱
-
-            // AP 비용 계산 및 차감
+            // AP 비용 계산
             float apCost = 0f;
             switch (actionType)
             {
-                // ... (각 행동 타입별 AP 비용 계산) ...
                 case CombatActionEvents.ActionType.Attack:
                     if (weapon != null) apCost = CalculateAttackAPCost(actor, weapon);
+                    else apCost = float.MaxValue; // 무기 없으면 AP 무한대
                     break;
                 case CombatActionEvents.ActionType.Move:
                     apCost = CalculateMoveAPCost(actor);
@@ -308,20 +309,44 @@ namespace AF.Combat
                 case CombatActionEvents.ActionType.Defend:
                     apCost = DEFEND_AP_COST;
                     break;
-                // ... 다른 행동 타입들 ...
+                case CombatActionEvents.ActionType.RepairAlly:
+                    apCost = 2.5f; // 임시 값
+                    break;
+                case CombatActionEvents.ActionType.RepairSelf:
+                    apCost = 2.0f; // 임시 값
+                    break;
+                default:
+                    apCost = float.MaxValue; // 알 수 없는 행동은 AP 무한대
+                    break;
             }
 
-            if (!actor.ConsumeAP(apCost)) // AP 부족 확인
+            // AP 부족 확인
+            if (!actor.HasEnoughAP(apCost))
             {
-                resultDescription = "AP 부족";
-                success = false;
-                // Debug.Log($"[{actor.Name}] {actionType} 행동 실패 (AP 부족)"); // 기존 로그
-                // <<-- 이벤트 발행 추가 -->>
-                var actionCompletedEvent_ApFail = new CombatActionEvents.ActionCompletedEvent(actor, actionType, success, resultDescription, _currentTurn);
+                string apFailDescription = "AP 부족"; // 변수명 변경
+                // ActionCompletedEvent 생성자는 weapon 파라미터 없음
+                var actionCompletedEvent_ApFail = new CombatActionEvents.ActionCompletedEvent(actor, actionType, false, apFailDescription, _currentTurn, null, null, targetFrame); // weapon 제거
                 _eventBus.Publish(actionCompletedEvent_ApFail);
-                // <<-- 이벤트 발행 추가 끝 -->>
                 return false; // 행동 실패
             }
+
+            // 이벤트 발생: 액션 시작 (새 파라미터 사용)
+            var actionStartEvent = new CombatActionEvents.ActionStartEvent(actor, actionType, _currentTurn, targetFrame, targetPosition, weapon);
+            _eventBus.Publish(actionStartEvent);
+
+            bool success = false;
+            string resultDescription = "";
+            Vector3? finalPosition = null;
+            float? distanceMoved = null;
+
+            // <<< 로그 추가: 받은 파라미터 확인 >>>
+            string targetFrameName = targetFrame?.Name ?? "NULL TargetFrame";
+            string weaponName = weapon?.Name ?? "NULL Weapon";
+            if (_logAIDecisions) // AI 디버그 로그 토글 확인
+            {
+                _textLogger?.TextLogger.Log($"[PerformAction Check] Received: actionType={actionType}, targetFrame='{targetFrameName}', weapon='{weaponName}'", LogLevel.Debug);
+            }
+            // <<< 로그 추가 끝 >>>
 
             // 행동 유형에 따른 로직 수행
             try
@@ -329,27 +354,85 @@ namespace AF.Combat
             switch (actionType)
             {
                 case CombatActionEvents.ActionType.Attack:
-                        if (target != null && weapon != null)
+                        if (targetFrame != null && weapon != null)
                         {
-                            success = PerformAttack(actor, target, weapon);
-                            resultDescription = success ? $"{target.Name}에게 {weapon.Name}(으)로 공격 성공" : $"{target.Name}에게 {weapon.Name}(으)로 공격 실패";
+                            success = PerformAttack(actor, targetFrame, weapon);
+                            resultDescription = success ? $"{targetFrame.Name}에게 {weapon.Name}(으)로 공격 성공" : $"{targetFrame.Name}에게 {weapon.Name}(으)로 공격 실패";
                         }
-                        else { resultDescription = "공격 대상 또는 무기 정보 없음"; success = false; }
+                        else
+                        {
+                            resultDescription = "공격 대상 또는 무기 정보 없음";
+                            success = false;
+                            Debug.LogError("Attack action requires a target frame and weapon.");
+                        }
                         break;
                     case CombatActionEvents.ActionType.Move:
-                        // 이동 로직 구현 (예시)
-                        // Vector3 newPosition = CalculateNewPosition(actor, target); // target이 목표 지점일 경우
-                        // actor.MoveTo(newPosition);
-                        success = true; // 이동은 일단 성공으로 가정
-                        resultDescription = "지정 위치로 이동";
+                        if (targetPosition.HasValue)
+                        {
+                            var moveResult = PerformMoveToPosition(actor, targetPosition.Value);
+                            success = moveResult.success;
+                            resultDescription = moveResult.description;
+                            if (success)
+                            {
+                                finalPosition = moveResult.newPosition;
+                                distanceMoved = moveResult.distanceMoved;
+                                // 이동 성공 시 상세 이벤트는 여기서 발행 후 리턴하지 않고, 아래에서 공통으로 발행
+                            }
+                        }
+                        // targetPosition이 없고 targetFrame만 있는 경우 (호환성)
+                        else if (targetFrame != null)
+                        {
+                            Debug.LogWarning($"Move action called without targetPosition, moving towards targetFrame {targetFrame.Name} position instead."); // FrameName -> Name
+                            var moveResult = PerformMoveToPosition(actor, targetFrame.Position);
+                            success = moveResult.success;
+                            resultDescription = moveResult.description;
+                            if (success)
+                            {
+                                finalPosition = moveResult.newPosition;
+                                distanceMoved = moveResult.distanceMoved;
+                            }
+                        }
+                        else
+                        {
+                            resultDescription = "이동 목표 위치 또는 대상 프레임 없음";
+                            success = false;
+                             Debug.LogError("Move action requires either a target position or a target frame.");
+                        }
                     break;
                 case CombatActionEvents.ActionType.Defend:
-                        // 방어 로직 구현 (예시)
+                        // 방어 상태 효과 생성 (1턴 동안 방어력 1.5배)
+                        var defenseBoostEffect = new StatusEffect(
+                            "Defense Buff", // 효과 이름
+                            1, // 지속 턴
+                            StatType.Defense, // 대상 스탯
+                            ModificationType.Multiplicative, // 수정 방식 (곱셈)
+                            1.5f // 수정 값 (1.5배)
+                        );
+                        // 상태 효과 적용
+                        actor.AddStatusEffect(defenseBoostEffect);
+                        // 이번 턴에 방어했음을 기록
                     _defendedThisTurn.Add(actor);
                         success = true;
-                        resultDescription = "방어 태세 돌입";
+                        resultDescription = "방어 태세 돌입 (방어력 증가)";
                     break;
-                    // ... 다른 행동 타입 처리 ...
+                    case CombatActionEvents.ActionType.RepairAlly:
+                        if (targetFrame != null && targetFrame != actor) // 대상이 있고 자기 자신이 아니어야 함
+                        {
+                            // TODO: 실제 수리 로직 구현 (예: 대상의 Body 파츠 내구도 회복)
+                            success = true; // 임시 성공 처리
+                            resultDescription = $"{targetFrame.Name} 수리 시도";
+                        }
+                        else
+                        {
+                            resultDescription = "수리 대상 아군 지정 필요";
+                            success = false;
+                        }
+                        break;
+                    case CombatActionEvents.ActionType.RepairSelf:
+                        // TODO: 실제 자가 수리 로직 구현 (예: 자신의 Body 파츠 내구도 회복)
+                        success = true; // 임시 성공 처리
+                        resultDescription = "자가 수리 시도";
+                        break;
                     default:
                         resultDescription = "알 수 없는 행동 타입";
                         success = false;
@@ -363,13 +446,24 @@ namespace AF.Combat
                 success = false;
             }
 
-            // <<-- 기존 로그 호출 제거 -->>
-            // _textLogger?.LogAction(_currentBattleId, actor, actionType, success, resultDescription);
+            // 행동 성공 시 AP 소모
+            if (success)
+            {
+                actor.ConsumeAP(apCost); // ConsumeAP 메서드는 bool을 반환하지만 여기서는 성공했으므로 무시
+            }
 
-            // <<-- 이벤트 발행 추가 -->>
-            var actionCompletedEvent = new CombatActionEvents.ActionCompletedEvent(actor, actionType, success, resultDescription, _currentTurn);
+            // 이벤트 발생: 액션 완료 (새 파라미터 사용, weapon 제거)
+            var actionCompletedEvent = new CombatActionEvents.ActionCompletedEvent(
+                actor,
+                actionType,
+                success,
+                resultDescription,
+                _currentTurn,
+                finalPosition, // 이동 시 새 위치 전달
+                distanceMoved, // 이동 시 이동 거리 전달
+                targetFrame    // 이동 목표 대상 전달 (기존 targetFrame)
+            );
             _eventBus.Publish(actionCompletedEvent);
-            // <<-- 이벤트 발행 추가 끝 -->>
 
             return success;
         }
@@ -379,7 +473,20 @@ namespace AF.Combat
         /// </summary>
         public bool PerformAttack(ArmoredFrame attacker, ArmoredFrame target, Weapon weapon)
         {
+            Debug.Log("[!!!] PerformAttack 진입 확인!"); // <<< 간단 로그 추가
+
+            // <<< 추가 로그 시작 >>>
+            string attackerName = attacker?.Name ?? "NULL Attacker";
+            string targetName = target?.Name ?? "NULL Target";
+            string weaponName = weapon?.Name ?? "NULL Weapon";
+            if (_logAIDecisions) // AI 디버그 로그 토글 확인
+            {
+                _textLogger?.TextLogger.Log($"[PerformAttack Check] Attacker='{attackerName}', Target='{targetName}', Weapon='{weaponName}'", LogLevel.Debug);
+            }
+            // <<< 추가 로그 끝 >>>
+
             // 메서드 시작 지점 로그 (LogLevel 수정)
+            // Debug.Log($"시작: {attacker.Name}이(가) {target.Name}을(를) {weapon.Name}(으)로 공격 시도"); // 위 로그로 대체
             Debug.Log($"시작: {attacker.Name}이(가) {target.Name}을(를) {weapon.Name}(으)로 공격 시도");
             
             if (!_isInCombat || attacker != _currentActiveUnit)
@@ -541,7 +648,7 @@ namespace AF.Combat
                 var avoidanceType = DamageEvents.DamageAvoidedEvent.AvoidanceType.Dodge;
                 var damageAvoidedEvent = new DamageEvents.DamageAvoidedEvent(
                     attacker, target, weapon.Damage, avoidanceType, 
-                    $"{target.Name}이(가) 공격을 회피했습니다.");
+                    $"{target.Name}이(가) 공격을 회피했습니다."); // description 추가
                 _eventBus.Publish(damageAvoidedEvent);
                 
                 // 추가 로그: 회피 상세 정보 (LogLevel 수정)
@@ -550,7 +657,8 @@ namespace AF.Combat
             
             // 메서드 종료 로그 (LogLevel 수정)
             Debug.Log($"종료: {attacker.Name}의 공격 {(hit ? "명중" : "빗나감")}");
-            return hit;
+            // 공격 시도 자체가 유효했다면 성공으로 간주 (명중 여부와 별개)
+            return true; // <-- hit 대신 true 반환
         }
         
         /// <summary>
@@ -604,20 +712,24 @@ namespace AF.Combat
         
         /// <summary>
         /// 주어진 유닛의 행동을 결정합니다. (AP 계산 메서드 사용)
+        /// 반환 튜플 형식 변경: (ActionType, TargetFrame, TargetPosition?, Weapon)
         /// </summary>
-        private Tuple<CombatActionEvents.ActionType, ArmoredFrame, Weapon> DetermineActionForUnit(ArmoredFrame activeUnit)
+        private (CombatActionEvents.ActionType, ArmoredFrame, Vector3?, Weapon) DetermineActionForUnit(ArmoredFrame activeUnit)
         {
+            if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] --- DetermineActionForUnit START: Unit='{activeUnit?.Name}', AP={activeUnit?.CurrentAP:F1} ---", LogLevel.Debug);
+
             if (activeUnit == null || !activeUnit.IsOperational)
             {
-                return null;
+                if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Unit '{activeUnit?.Name}' is null or not operational. Returning default.", LogLevel.Debug);
+                return (default, null, null, null);
             }
 
             // 1. 가장 가까운 적 찾기
             List<ArmoredFrame> enemies = GetEnemies(activeUnit);
             if (enemies.Count == 0)
             {
-                // Log($"[T{_currentTurn}] {activeUnit.Name}: 공격할 적 없음.", LogLevel.Info);
-                return null; // 공격할 적 없음
+                if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] No enemies found for '{activeUnit.Name}'. Returning default.", LogLevel.Debug);
+                return (default, null, null, null);
             }
 
             ArmoredFrame closestEnemy = null;
@@ -631,181 +743,393 @@ namespace AF.Combat
                     closestEnemy = enemy;
                 }
             }
+            if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Closest enemy for '{activeUnit.Name}' is '{closestEnemy?.Name}' at distance {minDistance:F1}.", LogLevel.Debug);
 
             // 2. 파일럿 전문화에 따라 행동 결정 로직 분기
             Pilot pilot = activeUnit.Pilot;
             if (pilot == null)
             {
-                // 파일럿 없으면 표준 로직 사용
-                // Debug.Log($"{activeUnit.Name}: 파일럿 없음. 표준 행동 로직 사용."); // 주석처리: 너무 상세할 수 있음
+                if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Unit '{activeUnit.Name}' has no pilot. Using StandardCombat logic.", LogLevel.Debug);
                 return DetermineStandardCombatAction(activeUnit, closestEnemy, minDistance);
             }
 
-            // 전문화 기반 행동 결정 로그 (주석 처리)
-            // Debug.Log($"{activeUnit.Name}: {pilot.Specialization} 전문화 행동 결정 시작 (적 거리: {minDistance:F1}).");
+            if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Unit '{activeUnit.Name}' pilot specialization: {pilot.Specialization}. Branching...", LogLevel.Debug);
 
+            (CombatActionEvents.ActionType, ArmoredFrame, Vector3?, Weapon) resultAction; // 결과 저장 변수
             switch (pilot.Specialization)
             {
                 case SpecializationType.MeleeCombat:
-                    return DetermineMeleeCombatAction(activeUnit, closestEnemy, minDistance);
+                    resultAction = DetermineMeleeCombatAction(activeUnit, closestEnemy, minDistance);
+                    break;
                 case SpecializationType.RangedCombat:
-                    return DetermineRangedCombatAction(activeUnit, closestEnemy, minDistance);
+                    resultAction = DetermineRangedCombatAction(activeUnit, closestEnemy, minDistance);
+                    break;
                 case SpecializationType.Defense:
-                    return DetermineDefenseAction(activeUnit, closestEnemy, minDistance);
+                    resultAction = DetermineDefenseAction(activeUnit, closestEnemy, minDistance);
+                    break;
                 case SpecializationType.Support:
-                    return DetermineSupportAction(activeUnit, closestEnemy, minDistance); // Support 로직 추가 필요
-                // 다른 전문화 타입에 대한 로직 추가...
+                    resultAction = DetermineSupportAction(activeUnit, closestEnemy, minDistance);
+                    break;
                 case SpecializationType.StandardCombat:
                 default:
-                    // Debug.Log($"  -> {pilot.Specialization}: 표준 로직 사용."); // 주석처리: 너무 상세할 수 있음
-                    return DetermineStandardCombatAction(activeUnit, closestEnemy, minDistance);
+                    resultAction = DetermineStandardCombatAction(activeUnit, closestEnemy, minDistance);
+                    break;
             }
+
+            if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] --- DetermineActionForUnit END: Unit='{activeUnit.Name}'. Returning Action: {resultAction.Item1} ---", LogLevel.Debug);
+            return resultAction; // 최종 결과된 액션 반환
         }
 
-        private Tuple<CombatActionEvents.ActionType, ArmoredFrame, Weapon> DetermineMeleeCombatAction(ArmoredFrame activeUnit, ArmoredFrame closestEnemy, float minDistance)
+        /// <summary>
+        /// 근접 전투 전문화 행동 결정
+        /// 반환 튜플 형식 변경: (ActionType, TargetFrame, TargetPosition?, Weapon)
+        /// </summary>
+        private (CombatActionEvents.ActionType, ArmoredFrame, Vector3?, Weapon) DetermineMeleeCombatAction(ArmoredFrame activeUnit, ArmoredFrame closestEnemy, float minDistance)
         {
-            // 근접 무기 찾기
+             if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] >> DetermineMeleeCombatAction: Unit='{activeUnit.Name}', Enemy='{closestEnemy?.Name}', Dist={minDistance:F1}, AP={activeUnit.CurrentAP:F1}", LogLevel.Debug);
+
+            // 거리 0 또는 매우 가까울 때 처리
+            if (minDistance < 0.1f)
+            {
+                if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Melee: Distance very close ({minDistance:F1}). Checking attack/defend.", LogLevel.Debug);
+                // Debug.Log($"  -> MeleeCombat: 거리가 매우 가까움({minDistance:F1}). 접근 이동 시도 중단."); // 기존 로그 대체
+                Weapon meleeWeaponClose = activeUnit.EquippedWeapons.FirstOrDefault(w => w.Type == WeaponType.Melee && w.IsOperational);
+                float attackAPCostClose = meleeWeaponClose != null ? CalculateAttackAPCost(activeUnit, meleeWeaponClose) : float.MaxValue;
+                if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Melee (Close): Weapon='{meleeWeaponClose?.Name}', AttackAPCost={attackAPCostClose:F1}", LogLevel.Debug);
+                // 공격 가능하면 공격
+                if (meleeWeaponClose != null && activeUnit.HasEnoughAP(attackAPCostClose))
+                {
+                    if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Melee (Close): Attack possible. Returning Attack.", LogLevel.Debug);
+                    // Debug.Log("     -> 근접 공격 시도."); // 기존 로그 대체
+                    if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Pre-Return Check] Returning Weapon: '{meleeWeaponClose?.Name ?? "NULL Weapon Obj"}'", LogLevel.Debug); // <<< 로그 추가 -> 조건문 안으로 이동
+                    return (CombatActionEvents.ActionType.Attack, closestEnemy, null, meleeWeaponClose);
+                }
+                // 공격 불가하고 방어 가능하면 방어
+                float defendAPCost = DEFEND_AP_COST; // DEFEND_AP_COST 사용
+                bool canDefend = activeUnit.HasEnoughAP(defendAPCost) && !_defendedThisTurn.Contains(activeUnit);
+                if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Melee (Close): Can Defend? {canDefend} (Need {defendAPCost:F1} AP)", LogLevel.Debug);
+                if (canDefend)
+                {
+                    if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Melee (Close): Cannot attack, defending. Returning Defend.", LogLevel.Debug);
+                    // Debug.Log("     -> 방어 결정."); // 기존 로그 대체
+                    return (CombatActionEvents.ActionType.Defend, null, null, null);
+                }
+                else
+                {
+                     if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Melee (Close): Cannot attack or defend. Returning default.", LogLevel.Debug);
+                     // Debug.Log("     -> 공격/방어 불가. 행동 보류."); // 기존 로그 대체
+                     return (default, null, null, null); // 제자리 대기
+                }
+            }
+
+            // 일반 로직 (거리가 충분히 있을 때)
             Weapon meleeWeapon = activeUnit.EquippedWeapons.FirstOrDefault(w => w.Type == WeaponType.Melee && w.IsOperational);
             float attackAPCost = meleeWeapon != null ? CalculateAttackAPCost(activeUnit, meleeWeapon) : float.MaxValue;
             float moveAPCost = CalculateMoveAPCost(activeUnit);
+            if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Melee: Weapon='{meleeWeapon?.Name}', AttackAPCost={attackAPCost:F1}, MoveAPCost={moveAPCost:F1}", LogLevel.Debug);
 
             // 1. 근접 공격 사거리 내에 있고 AP가 충분하면 공격
-            if (meleeWeapon != null && minDistance <= meleeWeapon.Range && activeUnit.HasEnoughAP(attackAPCost))
+            bool canAttack = meleeWeapon != null && minDistance <= meleeWeapon.Range && activeUnit.HasEnoughAP(attackAPCost);
+            if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Melee: Can Attack? {canAttack} (Range: {meleeWeapon?.Range:F1} >= {minDistance:F1}, AP: {activeUnit.CurrentAP:F1} >= {attackAPCost:F1})", LogLevel.Debug);
+            if (canAttack)
             {
-                // Debug.Log($"  -> MeleeCombat: 근접 공격 결정 ({meleeWeapon.Name}, AP:{attackAPCost:F1})."); // 주석처리
-                return Tuple.Create(CombatActionEvents.ActionType.Attack, closestEnemy, meleeWeapon);
+                 if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Melee: Attack possible. Returning Attack.", LogLevel.Debug);
+                 // Debug.Log($"  -> MeleeCombat: 근접 공격 결정 ({meleeWeapon.Name}, AP:{attackAPCost:F1})."); // 기존 로그 대체
+                 if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Pre-Return Check] Returning Weapon: '{meleeWeapon?.Name ?? "NULL Weapon Obj"}'", LogLevel.Debug); // <<< 로그 추가 -> 조건문 안으로 이동
+                return (CombatActionEvents.ActionType.Attack, closestEnemy, null, meleeWeapon);
             }
             // 2. 이동 AP가 충분하면 적으로 접근
-                    else if (activeUnit.HasEnoughAP(moveAPCost)) 
-                    { 
-                 // Debug.Log($"  -> MeleeCombat: 적에게 접근 이동 결정 (AP:{moveAPCost:F1})."); // 주석처리
-                return Tuple.Create(CombatActionEvents.ActionType.Move, closestEnemy, (Weapon)null);
+            bool canMove = activeUnit.HasEnoughAP(moveAPCost);
+            if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Melee: Can Move? {canMove} (Need {moveAPCost:F1} AP)", LogLevel.Debug);
+            if (canMove)
+            {
+                 if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Melee: Cannot attack, moving towards enemy. Returning Move.", LogLevel.Debug);
+                 // Debug.Log($"  -> MeleeCombat: 적에게 접근 이동 결정 (AP:{moveAPCost:F1})."); // 기존 로그 대체
+                return (CombatActionEvents.ActionType.Move, closestEnemy, closestEnemy.Position, null);
             }
 
-            // 3. 근접 공격도, 이동도 불가하면 표준 로직 시도 (선택 사항)
-            // Debug.LogWarning($"  -> MeleeCombat: 근접 행동 불가, 표준 로직 시도."); // 주석처리
-            // return DetermineStandardCombatAction(activeUnit, closestEnemy, minDistance);
-
-            // 4. 아무것도 할 수 없음
-            // Debug.LogWarning($"  -> MeleeCombat: 수행 가능한 행동 없음."); // 주석처리
-            return null;
+            if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Melee: Cannot attack or move. Returning default.", LogLevel.Debug);
+            return (default, null, null, null);
         }
 
-        private Tuple<CombatActionEvents.ActionType, ArmoredFrame, Weapon> DetermineRangedCombatAction(ArmoredFrame activeUnit, ArmoredFrame closestEnemy, float minDistance)
+        /// <summary>
+        /// 원거리 전투 전문화 행동 결정
+        /// 반환 튜플 형식 변경: (ActionType, TargetFrame, TargetPosition?, Weapon)
+        /// </summary>
+        private (CombatActionEvents.ActionType, ArmoredFrame, Vector3?, Weapon) DetermineRangedCombatAction(ArmoredFrame activeUnit, ArmoredFrame closestEnemy, float minDistance)
         {
-            // 최적 원거리 무기 찾기
-            Weapon bestWeapon = FindBestRangedWeapon(activeUnit, minDistance);
-            float attackAPCost = bestWeapon != null ? CalculateAttackAPCost(activeUnit, bestWeapon) : float.MaxValue;
+            if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] >> DetermineRangedCombatAction: Unit='{activeUnit.Name}', Enemy='{closestEnemy?.Name}', Dist={minDistance:F1}, AP={activeUnit.CurrentAP:F1}", LogLevel.Debug);
+
+            // 1. 무기 찾기
+            Weapon preferredWeapon = activeUnit.GetAllWeapons().Where(w => w.Type != WeaponType.Melee && w.IsOperational).OrderByDescending(w => w.Damage).FirstOrDefault();
+            if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Ranged: Preferred Weapon='{preferredWeapon?.Name}' (Range={preferredWeapon?.Range:F1})", LogLevel.Debug);
+            if (preferredWeapon == null) {
+                 if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Ranged: No ranged weapon found. Falling back to Standard.", LogLevel.Warning);
+                 // Debug.LogWarning($"  -> RangedCombat: 사용 가능한 원거리 무기 없음. 표준 로직 시도."); // 기존 로그 대체
+                return DetermineStandardCombatAction(activeUnit, closestEnemy, minDistance); // 무기 없으면 표준 행동
+            }
+
+            float attackAPCost = CalculateAttackAPCost(activeUnit, preferredWeapon);
             float moveAPCost = CalculateMoveAPCost(activeUnit);
+            float optimalRange = preferredWeapon.Range * OPTIMAL_RANGE_FACTOR;
+            float defendAPCost = DEFEND_AP_COST; // DEFEND_AP_COST 사용
+             if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Ranged: AttackAPCost={attackAPCost:F1}, MoveAPCost={moveAPCost:F1}, DefendAPCost={defendAPCost:F1}, OptimalRange={optimalRange:F1}", LogLevel.Debug);
 
-            // 1. 최적 무기가 있고 사거리 내이며 AP 충분 시 공격
-            if (bestWeapon != null && activeUnit.HasEnoughAP(attackAPCost))
+            // 2. 공격 가능?
+            bool isInRange = minDistance < preferredWeapon.Range + 0.001f;
+            bool hasAttackAP = activeUnit.HasEnoughAP(attackAPCost);
+             if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Ranged: Can Attack? {isInRange && hasAttackAP} (Range: {isInRange}, AP: {hasAttackAP})", LogLevel.Debug);
+            if (isInRange && hasAttackAP)
             {
-                 // Debug.Log($"  -> RangedCombat: 원거리 공격 결정 ({bestWeapon.Name}, AP:{attackAPCost:F1})."); // 주석처리
-                return Tuple.Create(CombatActionEvents.ActionType.Attack, closestEnemy, bestWeapon);
-            }
-            // 2. 이동 AP가 충분하면 적정 사거리 유지하며 이동 (구현 필요)
-            // TODO: 적정 사거리 계산 및 해당 위치로 이동하는 로직 추가
-            // 현재는 그냥 표준 이동 로직 사용
-            else if (activeUnit.HasEnoughAP(moveAPCost))
-            {
-                 // Debug.Log($"  -> RangedCombat: 이동 결정 (AP:{moveAPCost:F1}) - 현재는 표준 이동."); // 주석처리
-                 return Tuple.Create(CombatActionEvents.ActionType.Move, closestEnemy, (Weapon)null);
+                 if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Ranged: Attack possible. Returning Attack.", LogLevel.Debug);
+                 // Debug.Log($"  -> RangedCombat: 원거리 공격 결정 ({preferredWeapon.Name}, AP:{attackAPCost:F1})."); // 기존 로그 대체
+                 if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Pre-Return Check] Returning Weapon: '{preferredWeapon?.Name ?? "NULL Weapon Obj"}'", LogLevel.Debug); // <<< 로그 추가 -> 조건문 안으로 이동
+                return (CombatActionEvents.ActionType.Attack, closestEnemy, null, preferredWeapon);
             }
 
-            // 3. 원거리 공격/이동 불가 시 표준 로직 시도 (선택 사항)
-            // Debug.LogWarning($"  -> RangedCombat: 원거리 행동 불가, 표준 로직 시도."); // 주석처리
-            // return DetermineStandardCombatAction(activeUnit, closestEnemy, minDistance);
-             
-            // 4. 아무것도 할 수 없음
-            // Debug.LogWarning($"  -> RangedCombat: 수행 가능한 행동 없음."); // 주석처리
-            return null;
+            // 3. 공격 불가 & 이동 가능?
+            bool hasMoveAP = activeUnit.HasEnoughAP(moveAPCost);
+            if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Ranged: Cannot attack. Can Move? {hasMoveAP}", LogLevel.Debug);
+            if (hasMoveAP)
+            {
+                // 3-1. 너무 가까움?
+                bool isTooClose = minDistance < MIN_RANGED_SAFE_DISTANCE;
+                 if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Ranged: Is too close? {isTooClose} (Dist={minDistance:F1} < Safe={MIN_RANGED_SAFE_DISTANCE})", LogLevel.Debug);
+                if (isTooClose)
+                {
+                     if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Ranged: Too close. Retreating. Returning Move.", LogLevel.Debug);
+                     // Debug.Log($"  -> RangedCombat: 너무 가까움({minDistance:F1} < {MIN_RANGED_SAFE_DISTANCE}). 후퇴 이동 결정 (AP:{moveAPCost:F1})."); // 기존 로그 대체
+                    Vector3 retreatDirection;
+                    if (minDistance < 0.01f) {
+                        retreatDirection = Vector3.back;
+                        // Debug.LogWarning("    -> 거리가 0에 가까워 기본 후퇴 방향(Vector3.back) 사용."); // 기존 로그 대체
+                         if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Ranged (Retreat): Distance near zero, using default retreat dir {retreatDirection}.", LogLevel.Warning);
+                    } else {
+                        retreatDirection = (activeUnit.Position - closestEnemy.Position).normalized;
+                         if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Ranged (Retreat): Calculated retreat dir {retreatDirection}.", LogLevel.Debug);
+                    }
+                    Vector3 retreatTargetPosition = activeUnit.Position + retreatDirection * activeUnit.CombinedStats.Speed;
+                     if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Ranged (Retreat): Target position {retreatTargetPosition}.", LogLevel.Debug);
+                    return (CombatActionEvents.ActionType.Move, closestEnemy, retreatTargetPosition, null);
+                }
+
+                // 3-2. 너무 멈?
+                bool isTooFar = minDistance > optimalRange;
+                 if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Ranged: Is too far? {isTooFar} (Dist={minDistance:F1} > Optimal={optimalRange:F1})", LogLevel.Debug);
+                if (isTooFar) // else if 에서 if로 변경 (중첩 구조 명확화)
+                {
+                    float distanceToOptimal = minDistance - optimalRange;
+                    // 3-2-1. 최적 거리에 거의 도달?
+                    bool nearOptimal = distanceToOptimal < 0.1f;
+                     if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Ranged (Too Far): Is near optimal? {nearOptimal} (DistToOptimal={distanceToOptimal:F1})", LogLevel.Debug);
+                    if (nearOptimal)
+                    {
+                        // Debug.Log($"  -> RangedCombat: 최적 거리에 거의 도달..."); // 기존 로그 대체
+                         if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Ranged (Near Optimal): Checking Attack/Defend.", LogLevel.Debug);
+                        // 공격 시도
+                        if (activeUnit.HasEnoughAP(attackAPCost)) {
+                            // Debug.Log($"     -> 공격 시도..."); // 기존 로그 대체
+                            if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Ranged (Near Optimal): Attack possible. Returning Attack.", LogLevel.Debug);
+                            if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Pre-Return Check] Returning Weapon: '{preferredWeapon?.Name ?? "NULL Weapon Obj"}'", LogLevel.Debug); // <<< 로그 추가 -> 조건문 안으로 이동
+                            return (CombatActionEvents.ActionType.Attack, closestEnemy, null, preferredWeapon);
+                        }
+                        // 방어 시도
+                        bool canDefend = activeUnit.HasEnoughAP(defendAPCost) && !_defendedThisTurn.Contains(activeUnit);
+                        if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Ranged (Near Optimal): Can Defend? {canDefend}", LogLevel.Debug);
+                        if (canDefend) {
+                             // Debug.Log($"     -> 방어 결정..."); // 기존 로그 대체
+                            if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Ranged (Near Optimal): Cannot attack, defending. Returning Defend.", LogLevel.Debug);
+                            return (CombatActionEvents.ActionType.Defend, null, null, null);
+                        }
+                        // 아무것도 못함
+                        else {
+                             // Debug.Log("     -> 공격/방어 불가. 행동 보류."); // 기존 로그 대체
+                            if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Ranged (Near Optimal): Cannot attack or defend. Returning default.", LogLevel.Debug);
+                            return (default, null, null, null);
+                        }
+                    }
+                    // 3-2-2. 아직 멀었으면 접근
+                    else {
+                         if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Ranged (Too Far): Approaching enemy. Returning Move.", LogLevel.Debug);
+                         // Debug.Log($"  -> RangedCombat: 너무 멈... 접근 이동 결정..."); // 기존 로그 대체
+                        Vector3 directionToEnemy = (closestEnemy.Position - activeUnit.Position).normalized;
+                        float distanceToMove = Mathf.Min(activeUnit.CombinedStats.Speed, distanceToOptimal);
+                        Vector3 approachTargetPosition = activeUnit.Position + directionToEnemy * distanceToMove;
+                         if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Ranged (Approach): Target position {approachTargetPosition}.", LogLevel.Debug);
+                        return (CombatActionEvents.ActionType.Move, closestEnemy, approachTargetPosition, null);
+                    }
+                }
+                // 3-3. 그 외 (5.0 <= minDistance <= 16 인데 공격 AP 부족)
+                 if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Ranged: In optimal range but cannot attack (AP?). Returning default.", LogLevel.Debug);
+                 // Debug.Log($"  -> RangedCombat: 사거리 내... 행동 보류."); // 기존 로그 대체
+                 return (default, null, null, null);
+            }
+
+            // 4. 공격도 이동도 불가
+             if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Ranged: Cannot attack or move. Returning default.", LogLevel.Warning);
+             // Debug.LogWarning($"  -> RangedCombat: 수행 가능한 행동 없음."); // 기존 로그 대체
+            return (default, null, null, null);
         }
 
-        private Tuple<CombatActionEvents.ActionType, ArmoredFrame, Weapon> DetermineDefenseAction(ArmoredFrame activeUnit, ArmoredFrame closestEnemy, float minDistance)
+        /// <summary>
+        /// 방어 전문화 행동 결정
+        /// 반환 튜플 형식 변경: (ActionType, TargetFrame, TargetPosition?, Weapon)
+        /// </summary>
+        private (CombatActionEvents.ActionType, ArmoredFrame, Vector3?, Weapon) DetermineDefenseAction(ArmoredFrame activeUnit, ArmoredFrame closestEnemy, float minDistance)
         {
+            if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] >> DetermineDefenseAction: Unit='{activeUnit.Name}', Enemy='{closestEnemy?.Name}', Dist={minDistance:F1}, AP={activeUnit.CurrentAP:F1}", LogLevel.Debug);
             float defendAPCost = DEFEND_AP_COST;
 
-            // 1. 방어 AP가 충분하면 방어 행동
-            if (activeUnit.HasEnoughAP(defendAPCost) && !_defendedThisTurn.Contains(activeUnit))
+            // 1. 방어 가능?
+            bool canDefend = activeUnit.HasEnoughAP(defendAPCost) && !_defendedThisTurn.Contains(activeUnit);
+            if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Defense: Can Defend? {canDefend} (Need {defendAPCost:F1} AP)", LogLevel.Debug);
+            if (canDefend)
             {
-                // Log($"  -> Defense: 방어 결정 (AP:{defendAPCost:F1}).", LogLevel.Info);
-                // Debug.Log($"  -> Defense: 방어 결정 (AP:{defendAPCost:F1})."); // 주석처리
-                return Tuple.Create(CombatActionEvents.ActionType.Defend, (ArmoredFrame)null, (Weapon)null);
+                 if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Defense: Defending. Returning Defend.", LogLevel.Debug);
+                 // Debug.Log($"  -> Defense: 방어 결정 (AP:{defendAPCost:F1})."); // 기존 로그 대체
+                return (CombatActionEvents.ActionType.Defend, null, null, null);
             }
-            // 2. 방어 불가 시 표준 로직 시도 (선택 사항)
-            // Debug.LogWarning($"  -> Defense: 방어 행동 불가, 표준 로직 시도."); // 주석처리
-            // return DetermineStandardCombatAction(activeUnit, closestEnemy, minDistance);
 
-            // 3. 아무것도 할 수 없음
-            // Debug.LogWarning($"  -> Defense: 수행 가능한 행동 없음."); // 주석처리
-                 return null;
+            // 2. 방어 불가 시 표준 로직 시도 (선택 사항, 현재는 안 함)
+            if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Defense: Cannot defend. Returning default.", LogLevel.Debug);
+            return (default, null, null, null);
             }
 
         // Standard Combat Action Logic (Ensure this method exists)
-        private Tuple<CombatActionEvents.ActionType, ArmoredFrame, Weapon> DetermineStandardCombatAction(ArmoredFrame activeUnit, ArmoredFrame closestEnemy, float minDistance)
+        /// <summary>
+        /// 표준 전투 전문화 행동 결정
+        /// 반환 튜플 형식 변경: (ActionType, TargetFrame, TargetPosition?, Weapon)
+        /// </summary>
+        private (CombatActionEvents.ActionType, ArmoredFrame, Vector3?, Weapon) DetermineStandardCombatAction(ArmoredFrame activeUnit, ArmoredFrame closestEnemy, float minDistance)
         {
-            // 1. 최적 무기 찾기 (사거리 내)
-            Weapon bestWeapon = FindBestRangedWeapon(activeUnit, minDistance);
+            if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] >> DetermineStandardCombatAction: Unit='{activeUnit.Name}', Enemy='{closestEnemy?.Name}', Dist={minDistance:F1}, AP={activeUnit.CurrentAP:F1}", LogLevel.Debug);
 
-            // 2. AP 비용 계산
+            // 거리 0 또는 매우 가까울 때 처리
+            if (minDistance < 0.1f)
+            {
+                if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Standard (Close): Distance very close ({minDistance:F1}). Checking attack/retreat/defend.", LogLevel.Debug);
+                // Debug.Log($"  -> StandardCombat: 거리가 매우 가까움... 후퇴/공격/방어 고려."); // 기존 로그 대체
+                // 1. 공격 확인
+                Weapon bestWeaponClose = FindBestRangedWeapon(activeUnit, minDistance);
+                float attackAPCostClose = bestWeaponClose != null ? CalculateAttackAPCost(activeUnit, bestWeaponClose) : float.MaxValue;
+                if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Standard (Close): Weapon='{bestWeaponClose?.Name}', AttackAPCost={attackAPCostClose:F1}", LogLevel.Debug);
+                if (bestWeaponClose != null && activeUnit.HasEnoughAP(attackAPCostClose))
+                {
+                    if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Standard (Close): Attack possible. Returning Attack.", LogLevel.Debug);
+                    // Debug.Log($"     -> 근접 상태에서 원거리 공격 시도 ..."); // 기존 로그 대체
+                    if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Pre-Return Check] Returning Weapon: '{bestWeaponClose?.Name ?? "NULL Weapon Obj"}'", LogLevel.Debug); // <<< 로그 추가 -> 조건문 안으로 이동
+                    return (CombatActionEvents.ActionType.Attack, closestEnemy, null, bestWeaponClose);
+                }
+                // 2. 후퇴 확인
+                float moveAPCostClose = CalculateMoveAPCost(activeUnit);
+                bool canRetreat = activeUnit.HasEnoughAP(moveAPCostClose);
+                if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Standard (Close): Can Retreat? {canRetreat} (Need {moveAPCostClose:F1} AP)", LogLevel.Debug);
+                if (canRetreat)
+                {
+                    if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Standard (Close): Cannot attack, retreating. Returning Move.", LogLevel.Debug);
+                    // Debug.Log($"     -> 후퇴 이동 결정 ..."); // 기존 로그 대체
+                    Vector3 retreatDirection = Vector3.back;
+                    Vector3 retreatTargetPosition = activeUnit.Position + retreatDirection * activeUnit.CombinedStats.Speed;
+                    if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Standard (Retreat): Target position {retreatTargetPosition}.", LogLevel.Debug);
+                    return (CombatActionEvents.ActionType.Move, closestEnemy, retreatTargetPosition, null);
+                }
+                // 3. 방어 확인
+                float defendAPCostClose = DEFEND_AP_COST; // 변수명 변경 (DEFEND_AP_COST 사용)
+                bool canDefendClose = activeUnit.HasEnoughAP(defendAPCostClose) && !_defendedThisTurn.Contains(activeUnit); // 변수명 변경
+                if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Standard (Close): Can Defend? {canDefendClose} (Need {defendAPCostClose:F1} AP)", LogLevel.Debug); // 변수명 변경
+                if (canDefendClose) // 변수명 변경
+                {
+                     if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Standard (Close): Cannot attack or retreat, defending. Returning Defend.", LogLevel.Debug);
+                     // Debug.Log($"     -> 방어 결정 ..."); // 기존 로그 대체
+                    return (CombatActionEvents.ActionType.Defend, null, null, null);
+                }
+                else
+                {
+                    if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Standard (Close): Cannot attack, retreat or defend. Returning default.", LogLevel.Debug);
+                    // Debug.Log("     -> 공격/후퇴/방어 불가. 행동 보류."); // 기존 로그 대체
+                    return (default, null, null, null);
+                }
+            }
+
+            // 일반 로직 (거리가 충분히 있을 때)
+            // 1. 최적 무기 찾기
+            Weapon bestWeapon = FindBestRangedWeapon(activeUnit, minDistance);
             float attackAPCost = bestWeapon != null ? CalculateAttackAPCost(activeUnit, bestWeapon) : float.MaxValue;
             float moveAPCost = CalculateMoveAPCost(activeUnit);
             float defendAPCost = DEFEND_AP_COST;
+            if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Standard: Weapon='{bestWeapon?.Name}', AttackAPCost={attackAPCost:F1}, MoveAPCost={moveAPCost:F1}, DefendAPCost={defendAPCost:F1}", LogLevel.Debug);
 
             // 3. 행동 결정 (우선순위: 공격 > 이동 > 방어)
-            if (bestWeapon != null && activeUnit.HasEnoughAP(attackAPCost))
+            bool canAttack = bestWeapon != null && activeUnit.HasEnoughAP(attackAPCost);
+            if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Standard: Can Attack? {canAttack}", LogLevel.Debug);
+            if (canAttack)
             {
-                 // Debug.Log($"  -> StandardCombat: 공격 결정 ({bestWeapon.Name}, AP:{attackAPCost:F1})."); // 주석처리
-                return Tuple.Create(CombatActionEvents.ActionType.Attack, closestEnemy, bestWeapon);
-            }
-            else if (activeUnit.HasEnoughAP(moveAPCost))
-            {
-                 // Debug.Log($"  -> StandardCombat: 이동 결정 (AP:{moveAPCost:F1})."); // 주석처리
-                return Tuple.Create(CombatActionEvents.ActionType.Move, closestEnemy, (Weapon)null); // 이동 대상은 적
-            }
-            else if (activeUnit.HasEnoughAP(defendAPCost))
-            {
-                // Log($"  -> StandardCombat: 방어 결정 (AP:{defendAPCost:F1}).", LogLevel.Debug);
-                // Debug.Log($"  -> StandardCombat: 방어 결정 (AP:{defendAPCost:F1})."); // 주석처리
-                return Tuple.Create(CombatActionEvents.ActionType.Defend, (ArmoredFrame)null, (Weapon)null); // 방어는 대상 없음
+                 if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Standard: Attack possible. Returning Attack.", LogLevel.Debug);
+                 // Debug.Log($"  -> StandardCombat: 공격 결정 ..."); // 기존 로그 대체
+                 if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Pre-Return Check] Returning Weapon: '{bestWeapon?.Name ?? "NULL Weapon Obj"}'", LogLevel.Debug); // <<< 로그 추가 -> 조건문 안으로 이동
+                return (CombatActionEvents.ActionType.Attack, closestEnemy, null, bestWeapon);
             }
 
-            // Debug.LogWarning($"  -> StandardCombat: 수행 가능한 행동 없음."); // 주석처리
-            return null; // 수행 가능한 행동 없음
+            bool canMove = activeUnit.HasEnoughAP(moveAPCost);
+            if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Standard: Can Move? {canMove}", LogLevel.Debug);
+            if (canMove)
+            {
+                 if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Standard: Cannot attack, moving towards enemy. Returning Move.", LogLevel.Debug);
+                 // Debug.Log($"  -> StandardCombat: 이동 결정 ..."); // 기존 로그 대체
+                return (CombatActionEvents.ActionType.Move, closestEnemy, closestEnemy.Position, null);
+            }
+
+            bool canDefend = activeUnit.HasEnoughAP(defendAPCost) && !_defendedThisTurn.Contains(activeUnit);
+            if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Standard: Can Defend? {canDefend}", LogLevel.Debug);
+            if (canDefend)
+            {
+                if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Standard: Cannot attack or move, defending. Returning Defend.", LogLevel.Debug);
+                return (CombatActionEvents.ActionType.Defend, null, null, null);
+            }
+
+            if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Standard: Cannot attack, move or defend. Returning default.", LogLevel.Warning);
+            return (default, null, null, null); // 수행 가능한 행동 없음
         }
 
-        // <<< 서포트 행동 로직 추가 시작 >>>
-        private Tuple<CombatActionEvents.ActionType, ArmoredFrame, Weapon> DetermineSupportAction(ArmoredFrame activeUnit, ArmoredFrame closestEnemy, float minDistance)
+        /// <summary>
+        /// 지원 전문화 행동 결정
+        /// 반환 튜플 형식 변경: (ActionType, TargetFrame, TargetPosition?, Weapon)
+        /// </summary>
+        private (CombatActionEvents.ActionType, ArmoredFrame, Vector3?, Weapon) DetermineSupportAction(ArmoredFrame activeUnit, ArmoredFrame closestEnemy, float minDistance)
         {
-            // 1. 가장 체력이 낮은 아군 찾기 (자기 자신 제외)
-            ArmoredFrame lowestAlly = FindLowestHPDamagedAlly(activeUnit);
+             if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] >> DetermineSupportAction: Unit='{activeUnit.Name}', Enemy='{closestEnemy?.Name}', Dist={minDistance:F1}, AP={activeUnit.CurrentAP:F1}", LogLevel.Debug);
 
-            // 2. 자가 수리 또는 아군 수리 능력/AP 확인 (RepairSelf/RepairAlly 액션 타입과 비용 정의 필요)
+            // 1. 가장 체력이 낮은 아군 찾기
+            ArmoredFrame lowestAlly = FindLowestHPDamagedAlly(activeUnit);
+             if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Support: Lowest HP Ally='{lowestAlly?.Name}'", LogLevel.Debug);
+
+            // 2. 자가 수리 또는 아군 수리 능력/AP 확인
             float repairSelfAPCost = 2.0f; // 임시 값
             float repairAllyAPCost = 2.5f; // 임시 값
 
-            // Check Body part durability for self-repair condition
             Part selfBodyPart = activeUnit.GetPart("Body");
-            bool canRepairSelf = selfBodyPart != null && selfBodyPart.IsOperational && selfBodyPart.CurrentDurability < selfBodyPart.MaxDurability;
-            bool canRepairAlly = lowestAlly != null;
+            bool canRepairSelf = selfBodyPart != null && selfBodyPart.IsOperational && selfBodyPart.CurrentDurability < selfBodyPart.MaxDurability && activeUnit.HasEnoughAP(repairSelfAPCost);
+            bool canRepairAlly = lowestAlly != null && activeUnit.HasEnoughAP(repairAllyAPCost);
+             if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Support: Can Repair Self? {canRepairSelf} (Need {repairSelfAPCost:F1} AP)", LogLevel.Debug);
+             if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Support: Can Repair Ally? {canRepairAlly} (Need {repairAllyAPCost:F1} AP)", LogLevel.Debug);
 
             // 3. 행동 결정 (우선순위: 아군 수리 > 자가 수리 > 표준 행동)
-            if (canRepairAlly && activeUnit.HasEnoughAP(repairAllyAPCost))
+            if (canRepairAlly)
             {
-                // Debug.Log($"  -> Support: 아군 수리 결정 ({lowestAlly.Name}, AP:{repairAllyAPCost:F1})."); // 주석처리
-                return Tuple.Create(CombatActionEvents.ActionType.RepairAlly, lowestAlly, (Weapon)null);
+                 if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Support: Repairing ally '{lowestAlly.Name}'. Returning RepairAlly.", LogLevel.Debug);
+                 // Debug.Log($"  -> Support: 아군 수리 결정 ..."); // 기존 로그 대체
+                return (CombatActionEvents.ActionType.RepairAlly, lowestAlly, null, null);
             }
-            else if (canRepairSelf && activeUnit.HasEnoughAP(repairSelfAPCost))
+            else if (canRepairSelf)
             {
-                // Debug.Log($"  -> Support: 자가 수리 결정 (AP:{repairSelfAPCost:F1})."); // 주석처리
-                return Tuple.Create(CombatActionEvents.ActionType.RepairSelf, activeUnit, (Weapon)null); // 대상은 자기 자신
+                 if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Support: Repairing self. Returning RepairSelf.", LogLevel.Debug);
+                 // Debug.Log($"  -> Support: 자가 수리 결정 ..."); // 기존 로그 대체
+                return (CombatActionEvents.ActionType.RepairSelf, activeUnit, null, null);
             }
             else
             {
-                // 수리 불가 시 표준 행동 로직 사용
-                 // Debug.Log($"  -> Support: 수리 행동 불가, 표준 로직 사용."); // 주석처리
-                // Corrected method call
+                 if (_logAIDecisions) _textLogger?.TextLogger.Log($"[AI Decision] Support: Cannot repair. Falling back to Standard.", LogLevel.Debug);
+                 // Debug.Log($"  -> Support: 수리 행동 불가, 표준 로직 사용."); // 기존 로그 대체
                 return DetermineStandardCombatAction(activeUnit, closestEnemy, minDistance);
             }
         }
@@ -834,7 +1158,6 @@ namespace AF.Combat
             }
             return lowestAlly;
         }
-        // <<< 서포트 행동 로직 추가 끝 >>>
         
         /// <summary>
         /// 사용 가능한 최적의 원거리 무기를 찾습니다.
@@ -846,7 +1169,8 @@ namespace AF.Combat
             {
                 if (weapon.Type != WeaponType.Melee && weapon.IsOperational)
                 {
-                    if (targetDistance <= weapon.Range)
+                    // 부동 소수점 오차 감안하여 사거리 비교
+                    if (targetDistance < weapon.Range + 0.001f)
                     {
                         float apCost = CalculateAttackAPCost(activeUnit, weapon);
                         if (activeUnit.HasEnoughAP(apCost))
@@ -1153,6 +1477,41 @@ namespace AF.Combat
         }
         // <<< 파츠 AP 스탯 로깅 헬퍼 메서드 수정 끝 >>>
 
+        /// <summary>
+        /// 지정된 위치로 이동 수행 (PerformAction에서 분리됨)
+        /// </summary>
+        /// <param name="actor">행위자</param>
+        /// <param name="targetPosition">목표 위치</param>
+        /// <returns>(성공 여부, 결과 설명, 새 위치, 이동 거리)</returns>
+        private (bool success, string description, Vector3? newPosition, float? distanceMoved) PerformMoveToPosition(ArmoredFrame actor, Vector3 targetPosition)
+        {
+            Vector3 currentPosition = actor.Position;
+            Vector3 direction = (targetPosition - currentPosition).normalized;
+            float distanceToTarget = Vector3.Distance(currentPosition, targetPosition);
+            
+            // 이동 가능 거리 (Speed 스탯 사용)
+            float distanceCanMove = actor.CombinedStats.Speed; 
+
+            // 실제 이동 거리 계산 (목표 지점 또는 최대 이동 가능 거리 중 작은 값)
+            float distanceToMove = Mathf.Min(distanceCanMove, distanceToTarget);
+
+            // 이동 거리가 매우 작으면 이동하지 않음 (제자리 걸음 방지)
+            if (distanceToMove < 0.1f) 
+            {
+                return (false, "이동할 필요 없음", currentPosition, 0f);
+            }
+
+            // 새 위치 계산 및 적용
+            Vector3 newPosition = currentPosition + direction * distanceToMove;
+            actor.Position = newPosition; // ArmoredFrame의 Position 속성 업데이트
+
+            string description = $"목표 지점 방향으로 {distanceToMove:F1} 만큼 이동. 새 위치: {newPosition}";
+            Debug.Log($"[{actor.Name}] 이동 완료. 새 위치: {newPosition}");
+
+            // 상세 정보 포함하여 반환
+            return (true, description, newPosition, distanceToMove);
+        }
+
         #endregion // 내부 유틸리티 메서드 끝
-    }
-} 
+    } // CombatSimulatorService 클래스 닫는 중괄호
+} // AF.Combat 네임스페이스 닫는 중괄호

@@ -26,6 +26,44 @@ namespace AF.Combat
         /// TextLogger 구체 인스턴스에 대한 퍼블릭 접근자 (외부 사용 시 주의)
         /// </summary>
         public TextLogger ConcreteLogger => _textLogger;
+
+        private bool _logActionSummaries = true; // 행동 요약 로그 표시 여부 필드 추가
+
+        #region Logger Formatting Control
+
+        /// <summary>
+        /// 로그 레벨 접두사 표시 여부를 설정합니다.
+        /// </summary>
+        public void SetShowLogLevel(bool show)
+        {
+            _textLogger?.SetShowLogLevel(show);
+        }
+
+        /// <summary>
+        /// 턴 넘버 접두사 표시 여부를 설정합니다.
+        /// </summary>
+        public void SetShowTurnPrefix(bool show)
+        {
+            _textLogger?.SetShowTurnPrefix(show);
+        }
+
+        /// <summary>
+        /// 로그 들여쓰기 사용 여부를 설정합니다.
+        /// </summary>
+        public void SetUseIndentation(bool use)
+        {
+            _textLogger?.SetUseIndentation(use);
+        }
+
+        /// <summary>
+        /// 행동 요약 로그 표시 여부를 설정합니다.
+        /// </summary>
+        public void SetLogActionSummaries(bool log)
+        {
+            _logActionSummaries = log;
+        }
+
+        #endregion
         
         /// <summary>
         /// 서비스 초기화
@@ -130,83 +168,168 @@ namespace AF.Combat
 
         private void HandleCombatStart(CombatSessionEvents.CombatStartEvent ev)
         {
-            _textLogger.Log($"=== 전투 시작 === ID: {ev.BattleId}, 이름: {ev.BattleName}", LogLevel.Info);
+            // TextLogger의 LogEvent 사용하던 것 복구
+            _textLogger?.Log($"=== 전투 시작 === ID: {ev.BattleId}, 이름: {ev.BattleName}", LogLevel.Info);
             LogAllUnitDetailsOnInit(ev.Participants);
         }
 
         private void HandleCombatEnd(CombatSessionEvents.CombatEndEvent ev)
         {
-            _textLogger.Log($"=== 전투 종료 === ID: {ev.BattleId}, 결과: {ev.Result}, 지속시간: {ev.Duration:F1}초", LogLevel.Info);
+            // TextLogger의 LogEvent 사용하던 것 복구
+            _textLogger?.Log($"=== 전투 종료 === ID: {ev.BattleId}, 결과: {ev.Result}, 지속시간: {ev.Duration:F1}초", LogLevel.Info);
         }
 
         private void HandleTurnStart(CombatSessionEvents.TurnStartEvent ev)
         {
-            _textLogger.Log($"--- Turn {ev.TurnNumber} 시작: [{ev.ActiveUnit.Name}] --- (ID: {ev.BattleId})", LogLevel.Info);
+            // TextLogger의 LogEvent 사용하던 것 복구
+            _textLogger?.Log($"--- Turn {ev.TurnNumber} 시작: [{ev.ActiveUnit.Name}] --- (ID: {ev.BattleId})", LogLevel.Info);
             LogUnitDetailsOnTurnStart(ev.ActiveUnit);
         }
 
         private void HandleTurnEnd(CombatSessionEvents.TurnEndEvent ev)
         {
-            _textLogger.Log($"--- Turn {ev.TurnNumber} 종료: [{ev.ActiveUnit.Name}] --- (ID: {ev.BattleId})", LogLevel.Info);
+            // TextLogger의 LogEvent 사용하던 것 복구
+            _textLogger?.Log($"--- Turn {ev.TurnNumber} 종료: [{ev.ActiveUnit.Name}] --- (ID: {ev.BattleId})", LogLevel.Info);
             LogAllUnitDetailsOnTurnEnd();
         }
 
         private void HandleActionStart(CombatActionEvents.ActionStartEvent ev)
         {
-            //_textLogger.Log($"{ev.Actor.Name} 행동 시작.", LogLevel.Info);
+            // 원래 주석 처리 되어 있었으므로 유지
+            //_textLogger?.Log($"{ev.Actor.Name} 행동 시작.", LogLevel.Info);
         }
 
         private void HandleActionCompleted(CombatActionEvents.ActionCompletedEvent ev)
         {
-            string successText = ev.Success ? "성공" : "실패";
-            //_textLogger.Log($"{ev.Actor.Name} 행동 완료: {successText}", LogLevel.Info);
+            // 상세 이동 로그 처리
+            if (ev.Action == CombatActionEvents.ActionType.Move && ev.Success)
+            {
+                string prefix = _textLogger.UseIndentation ? "  " : "";
+                string targetName = ev.MoveTarget != null ? ev.MoveTarget.Name : "지정되지 않은 목표";
+                string distanceText = ev.DistanceMoved.HasValue ? $"{ev.DistanceMoved.Value:F1} 만큼" : "일정 거리만큼";
+                // Vector3 포맷팅 개선 (소수점 한 자리)
+                string positionText = ev.NewPosition.HasValue ? $"({ev.NewPosition.Value.x:F1}, {ev.NewPosition.Value.y:F1}, {ev.NewPosition.Value.z:F1})" : "알 수 없는 위치";
+
+                string logMsg = $"{prefix}{ev.Actor.Name}(이)가 {targetName} 방향으로 {distanceText} 이동. 새 위치: {positionText}";
+                _textLogger?.Log(logMsg, LogLevel.Info);
+            }
+            // 이동 성공 외의 경우 + 행동 요약 로그 토글이 켜진 경우에만 일반 요약 로그 출력
+            else if (_logActionSummaries) 
+            {
+                string actionName = ev.Action.ToString();
+                string successText = ev.Success ? "성공" : "실패";
+                string prefix = _textLogger.UseIndentation ? "  " : "";
+                // 실패 이유(ResultDescription)는 포함하지 않음 (필요시 추가)
+                string logMsg = $"{prefix}{ev.Actor.Name}: {actionName} {successText}.";
+                LogLevel logLevel = ev.Success ? LogLevel.Info : LogLevel.Warning;
+                _textLogger?.Log(logMsg, logLevel);
+            }
         }
 
         private void HandleWeaponFired(CombatActionEvents.WeaponFiredEvent ev)
         {
-            string hitStatus = ev.Hit ? "명중" : "빗나감";
-            string logMsg = $"{ev.Attacker.Name} -> {ev.Target.Name} ({ev.Weapon.Name}): {hitStatus} (Roll: {ev.AccuracyRoll:P1})";
-            _textLogger.Log(logMsg, LogLevel.Info);
+            float distance = Vector3.Distance(ev.Attacker.Position, ev.Target.Position);
+            string logMsg;
+            if (ev.Hit)
+            {
+                logMsg = $"{ev.Attacker.Name}의 {ev.Weapon.Name}(이)가 {distance:F1}m 거리에서 {ev.Target.Name}에게 명중!";
+            }
+            else
+            {
+                logMsg = $"{ev.Attacker.Name}의 {ev.Weapon.Name} 발사! 하지만 {distance:F1}m 거리의 {ev.Target.Name}(은)는 빗나갔다!"; // 또는 '...피했다!' 등
+            }
+            _textLogger?.Log(logMsg, LogLevel.Info);
         }
 
         private void HandleDamageApplied(DamageEvents.DamageAppliedEvent ev)
         {
-            string criticalText = ev.IsCritical ? " (치명타!)" : "";
-            string logMsg = $"{ev.Target.Name} < 데미지 받음{criticalText}";
-            _textLogger.Log(logMsg, LogLevel.Warning);
+            string criticalText = ev.IsCritical ? "💥!!" : "";
+            string partName = ev.DamagedPart.ToString();
+            // UseIndentation 플래그 확인하여 들여쓰기 적용 및 아이콘 제거
+            string prefix = _textLogger.UseIndentation ? "  " : ""; 
+            string logMsg = $"{prefix}{ev.Target.Name}의 [{partName}]에 충격! [{ev.DamageDealt:F0}] 피해!{criticalText} (내구도: {ev.PartCurrentDurability:F0}/{ev.PartMaxDurability:F0})";
+            _textLogger?.Log(logMsg, LogLevel.Warning);
         }
 
         private void HandleDamageAvoided(DamageEvents.DamageAvoidedEvent ev)
         {
-            string logMsg = $"{ev.Target.Name} < 공격 회피 ({ev.Type})";
-            _textLogger.Log(logMsg, LogLevel.Info);
+            string avoidanceText;
+            switch (ev.Type)
+            {
+                case DamageEvents.DamageAvoidedEvent.AvoidanceType.Dodge:
+                    avoidanceText = "날렵하게 회피!";
+                    break;
+                // 다른 회피 타입에 대한 메시지 추가 가능 (Deflect, Shield 등)
+                default:
+                    avoidanceText = "공격을 피했다!"; // 기본 메시지 변경
+                    break;
+            }
+            // UseIndentation 플래그 확인 및 아이콘 제거, 공격자 정보 추가 (Source가 있다고 가정)
+            string prefix = _textLogger.UseIndentation ? "  " : "";
+            string attackerName = ev.Source != null ? ev.Source.Name : "알 수 없는 공격자"; // Null 체크 추가
+            string logMsg = $"{prefix}{ev.Target.Name}(이)가 {attackerName}의 공격을 {avoidanceText} ({ev.Type})";
+            _textLogger?.Log(logMsg, LogLevel.Info);
         }
 
         private void HandlePartDestroyed(PartEvents.PartDestroyedEvent ev)
         {
-            string logMsg = $"파츠 파괴됨!";
-            _textLogger.Log(logMsg, LogLevel.Warning);
+            // 잘못 수정된 내용 복구: 원래 파츠 파괴 로직으로 되돌림
+            StringBuilder sb = new StringBuilder();
+            string prefix = _textLogger.UseIndentation ? "  " : ""; 
+            sb.Append($"{prefix}*** 💥 파츠 파괴됨! *** ");
+            sb.Append($"[{ev.Frame.Name}]의 [{ev.DestroyedPartType}]");
+
+            if (ev.Destroyer != null)
+            {
+                sb.Append($" (파괴자: [{ev.Destroyer.Name}])");
+            }
+            if (ev.Effects != null && ev.Effects.Length > 0)
+            {
+                sb.Append($" -> 결과: {string.Join(", ", ev.Effects)} ");
+            }
+            _textLogger?.Log(sb.ToString(), LogLevel.Error);
         }
 
         private void HandleStatusEffectApplied(StatusEffectEvents.StatusEffectAppliedEvent ev)
         {
-            string logMsg = $"{ev.Target.Name} < 상태 효과 적용됨";
-            _textLogger.Log(logMsg, LogLevel.Info);
+            // TextLogger의 LogEvent 사용하던 것 복구
+            string durationText = ev.Duration == -1 ? "영구 지속" : $"{ev.Duration}턴 지속";
+            string effectName = ev.EffectType.ToString().Replace("Buff_", "").Replace("Debuff_", "").Replace("Environmental_", "");
+            effectName = System.Text.RegularExpressions.Regex.Replace(effectName, "([A-Z])", " $1").Trim();
+            string sourceText = ev.Source != null ? $"[{ev.Source.Name}]의 효과로 " : "";
+            string magnitudeText = ev.Magnitude != 0f ? $" (강도: {ev.Magnitude:F1})" : "";
+            // UseIndentation 플래그 확인하여 들여쓰기 적용 (✨ 앞)
+            string prefix = _textLogger.UseIndentation ? "  " : ""; 
+            string logMsg = $"{prefix}✨ {sourceText}[{ev.Target.Name}]에게 [{effectName}] 효과 적용! ({durationText}){magnitudeText}";
+            _textLogger?.Log(logMsg, LogLevel.Info);
         }
 
         private void HandleStatusEffectExpired(StatusEffectEvents.StatusEffectExpiredEvent ev)
         {
-            string logMsg = $"{ev.Target.Name} < 상태 효과 만료됨";
-            _textLogger.Log(logMsg, LogLevel.Info);
+            // TextLogger의 LogEvent 사용하던 것 복구
+            string effectName = ev.EffectType.ToString().Replace("Buff_", "").Replace("Debuff_", "").Replace("Environmental_", "");
+            effectName = System.Text.RegularExpressions.Regex.Replace(effectName, "([A-Z])", " $1").Trim();
+            string reason = ev.WasDispelled ? " (해제됨)" : "";
+            // UseIndentation 플래그 확인하여 들여쓰기 적용 (💨 앞)
+            string prefix = _textLogger.UseIndentation ? "  " : ""; 
+            string logMsg = $"{prefix}💨 [{ev.Target.Name}]의 [{effectName}] 효과 만료{reason}.";
+            _textLogger?.Log(logMsg, LogLevel.Info);
         }
 
         private void HandleStatusEffectTick(StatusEffectEvents.StatusEffectTickEvent ev)
         {
-            string logMsg = $"{ev.Target.Name} < 상태 효과 [{ev.Effect.EffectName}] 틱 발동 (값: {ev.Effect.TickValue})";
-            _textLogger.Log(logMsg, LogLevel.Info);
+            // TextLogger의 LogEvent 사용하던 것 복구
+            string effectName = ev.Effect.EffectName;
+            string tickAction = ev.Effect.TickEffectType == TickEffectType.DamageOverTime ? "피해" : "회복";
+            string tickEmoji = ev.Effect.TickEffectType == TickEffectType.DamageOverTime ? "🔥" : "💚";
+            // UseIndentation 플래그 확인하여 들여쓰기 적용
+            string prefix = _textLogger.UseIndentation ? "  ㄴ" : "";
+            string logMsg = $"{prefix}{tickEmoji} [{ev.Target.Name}] < [{effectName}] 틱! ([{ev.Effect.TickValue:F0}] {tickAction})";
+            _textLogger?.Log(logMsg, LogLevel.Info);
         }
         
         private Dictionary<(ArmoredFrame, string), float> _previousPartDurability = new Dictionary<(ArmoredFrame, string), float>();
+        private Dictionary<ArmoredFrame, float> _previousUnitAP = new Dictionary<ArmoredFrame, float>();
 
         private void LogAllUnitDetailsOnInit(ArmoredFrame[] participants)
         {
@@ -224,6 +347,49 @@ namespace AF.Combat
         private void LogAllUnitDetailsOnTurnEnd()
         {
             _textLogger.Log("--- End of Turn Units Status ---", LogLevel.Info);
+
+            // 참가자 목록 가져오기 (CombatSimulatorService에서 가져오는 것이 더 안정적일 수 있음)
+            var simulator = ServiceLocator.Instance.GetService<ICombatSimulatorService>();
+            if (simulator == null) return;
+            var currentParticipants = simulator.GetParticipants(); 
+
+            bool anyChangeLogged = false;
+            foreach (var unit in currentParticipants)
+            {
+                if (unit == null) continue;
+
+                // 이전 상태와 비교하여 변경 여부 확인
+                bool apChanged = _previousUnitAP.TryGetValue(unit, out float previousAP) && Mathf.Abs(unit.CurrentAP - previousAP) > 0.01f;
+                bool durabilityChanged = false;
+                foreach (var kvp in unit.Parts)
+                {
+                    var key = (unit, kvp.Key);
+                    if (_previousPartDurability.TryGetValue(key, out float previousDurability) && 
+                        Mathf.Abs(kvp.Value.CurrentDurability - previousDurability) > 0.01f)
+                    {
+                        durabilityChanged = true;
+                        break; // 하나라도 변경되었으면 더 볼 필요 없음
+                    }
+                    // 파츠가 새로 생기거나 파괴된 경우도 변경으로 간주 (선택적)
+                    if (!_previousPartDurability.ContainsKey(key) && kvp.Value.IsOperational) durabilityChanged = true; 
+                    // if (_previousPartDurability.ContainsKey(key) && !kvp.Value.IsOperational) durabilityChanged = true;
+                }
+
+                // AP 또는 내구도에 변화가 있었던 유닛만 로그 기록
+                if (apChanged || durabilityChanged)
+                {
+                    LogUnitDetailsInternal(unit, false); // 변경된 유닛 상세 정보 로깅
+                    anyChangeLogged = true;
+                }
+            }
+            
+            // 아무 변경 사항도 없었으면 메시지 출력 (선택적)
+            if (!anyChangeLogged)
+            {
+                 _textLogger.Log("  (No significant status changes this turn)", LogLevel.Info);
+            }
+            
+            // 턴 종료 시 다음 턴 비교를 위해 현재 상태 기록 (LogUnitDetailsInternal에서 이미 처리됨)
         }
 
         private void LogUnitDetailsOnTurnStart(ArmoredFrame unit)
@@ -239,8 +405,23 @@ namespace AF.Combat
             // StringBuilder를 사용하여 여러 줄 로그를 하나의 문자열로 만들기
             StringBuilder sb = new StringBuilder();
 
-            // 1. 기본 유닛 정보 추가 (첫 줄)
-            sb.AppendLine($"  Unit: {unit.Name} {(unit.IsOperational ? "(Operational)" : "(DESTROYED)")} | AP: {unit.CurrentAP:F1}/{unit.CombinedStats.MaxAP:F1}"); // AppendLine 사용
+            // 이전 AP 기록용 (메소드 내 임시 변수 또는 클래스 멤버로 관리 필요)
+            float previousAP = -1f; // 초기값 -1 또는 다른 방식으로 관리
+            if (!isInitialLog && _previousUnitAP.TryGetValue(unit, out float prevAP)) // _previousUnitAP 딕셔너리 필요
+            {
+                previousAP = prevAP;
+            }
+
+            // 1. 기본 유닛 정보 추가 (AP 변화량 포함)
+            string apChangeIndicator = "";
+            if (previousAP >= 0 && Mathf.Abs(unit.CurrentAP - previousAP) > 0.01f)
+            {
+                apChangeIndicator = $" [{(unit.CurrentAP - previousAP):+0.0;-0.0}]"; // 부호 표시 (+/-)
+            }
+            sb.AppendLine($"  Unit: {unit.Name} {(unit.IsOperational ? "(✅)" : "(💀)")} | AP: {unit.CurrentAP:F1}/{unit.CombinedStats.MaxAP:F1}{apChangeIndicator}"); // 이모지 변경 및 AP 변화량 추가
+            
+            // 현재 AP 기록 업데이트
+            _previousUnitAP[unit] = unit.CurrentAP; // _previousUnitAP 딕셔너리 필요
 
             // 2. 스탯 정보 추가
             var stats = unit.CombinedStats;
@@ -264,7 +445,10 @@ namespace AF.Combat
                         float durabilityChange = currentDurability - previousDurability;
                         if (Mathf.Abs(durabilityChange) > 0.01f)
                         {
-                            changeIndicator = $" [{(durabilityChange > 0 ? "+" : "")}{durabilityChange:F0}]";
+                            // 내구도 변화량 강조 (예: +10🟢, -25🔴)
+                            string sign = durabilityChange > 0 ? "+" : "";
+                            string colorEmoji = durabilityChange > 0 ? "🟢" : "🔴";
+                            changeIndicator = $" [{sign}{durabilityChange:F0}{colorEmoji}]"; 
                         }
                     }
                     status = $"OK ({currentDurability:F0}/{part.MaxDurability:F0}){changeIndicator}";
@@ -272,7 +456,7 @@ namespace AF.Combat
                 }
                 else
                 {
-                    status = "DESTROYED";
+                    status = "DESTROYED 💀"; // 파괴 시 이모지 추가
                     _previousPartDurability.Remove(key);
                 }
                 // 파츠 정보 각 줄 추가
@@ -286,7 +470,7 @@ namespace AF.Combat
             {
                 foreach (var weapon in weapons)
                 {
-                    string weaponStatus = weapon.IsOperational ? "Operational" : "Destroyed";
+                    string weaponStatus = weapon.IsOperational ? "(✅)" : "(❌)"; // 무기 상태 이모지 변경
                     // 무기 정보 각 줄 추가
                     sb.AppendLine($"      - {weapon.Name}: {weaponStatus}");
                 }

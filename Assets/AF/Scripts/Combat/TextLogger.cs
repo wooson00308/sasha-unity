@@ -25,6 +25,11 @@ namespace AF.Combat
         private string _currentBattleId;
         private bool _isInitialized = false;
 
+        // 포맷팅 제어 플래그
+        public bool ShowLogLevel { get; set; } = true;
+        public bool ShowTurnPrefix { get; set; } = true;
+        public bool UseIndentation { get; set; } = true; // TextLoggerService 핸들러에서 사용할 플래그
+
         // 내부 로그 엔트리 클래스
         private class LogEntry
         {
@@ -58,8 +63,8 @@ namespace AF.Combat
                 return;
             }
 
-            // 전투 이벤트 구독
-            SubscribeToEvents();
+            // 전투 이벤트 구독 제거
+            // SubscribeToEvents(); 
             
             _isInitialized = true;
             Log("TextLogger 서비스가 초기화되었습니다.", LogLevel.System);
@@ -70,8 +75,8 @@ namespace AF.Combat
             if (!_isInitialized)
                 return;
 
-            // 이벤트 구독 해제
-            UnsubscribeFromEvents();
+            // 전투 이벤트 구독 제거
+            // SubscribeToEvents(); 
             
             _isInitialized = false;
             Log("TextLogger 서비스가 종료되었습니다.", LogLevel.System);
@@ -292,77 +297,6 @@ namespace AF.Combat
         
         #endregion
 
-        #region Event Subscription
-
-        private void SubscribeToEvents()
-        {
-            if (_eventBus == null) return;
-
-            // 전투 세션 이벤트
-            _eventBus.Subscribe<CombatSessionEvents.CombatStartEvent>(OnCombatEvent);
-            _eventBus.Subscribe<CombatSessionEvents.CombatEndEvent>(OnCombatEvent);
-            _eventBus.Subscribe<CombatSessionEvents.TurnStartEvent>(OnCombatEvent);
-            _eventBus.Subscribe<CombatSessionEvents.TurnEndEvent>(OnCombatEvent);
-
-            // 전투 행동 이벤트
-            _eventBus.Subscribe<CombatActionEvents.ActionStartEvent>(OnCombatEvent);
-            _eventBus.Subscribe<CombatActionEvents.ActionCompletedEvent>(OnCombatEvent);
-            _eventBus.Subscribe<CombatActionEvents.WeaponFiredEvent>(OnCombatEvent);
-
-            // 데미지 이벤트
-            _eventBus.Subscribe<DamageEvents.DamageCalculatedEvent>(OnCombatEvent);
-            _eventBus.Subscribe<DamageEvents.DamageAppliedEvent>(OnCombatEvent);
-            _eventBus.Subscribe<DamageEvents.DamageAvoidedEvent>(OnCombatEvent);
-
-            // 파츠 이벤트
-            _eventBus.Subscribe<PartEvents.PartDestroyedEvent>(OnCombatEvent);
-            _eventBus.Subscribe<PartEvents.PartStatusChangedEvent>(OnCombatEvent);
-            _eventBus.Subscribe<PartEvents.SystemCriticalFailureEvent>(OnCombatEvent);
-
-            // 상태 효과 이벤트
-            _eventBus.Subscribe<StatusEffectEvents.StatusEffectAppliedEvent>(OnCombatEvent);
-            _eventBus.Subscribe<StatusEffectEvents.StatusEffectExpiredEvent>(OnCombatEvent);
-            _eventBus.Subscribe<StatusEffectEvents.StatusEffectTickEvent>(OnCombatEvent);
-        }
-
-        private void UnsubscribeFromEvents()
-        {
-            if (_eventBus == null) return;
-
-            // 전투 세션 이벤트
-            _eventBus.Unsubscribe<CombatSessionEvents.CombatStartEvent>(OnCombatEvent);
-            _eventBus.Unsubscribe<CombatSessionEvents.CombatEndEvent>(OnCombatEvent);
-            _eventBus.Unsubscribe<CombatSessionEvents.TurnStartEvent>(OnCombatEvent);
-            _eventBus.Unsubscribe<CombatSessionEvents.TurnEndEvent>(OnCombatEvent);
-
-            // 전투 행동 이벤트
-            _eventBus.Unsubscribe<CombatActionEvents.ActionStartEvent>(OnCombatEvent);
-            _eventBus.Unsubscribe<CombatActionEvents.ActionCompletedEvent>(OnCombatEvent);
-            _eventBus.Unsubscribe<CombatActionEvents.WeaponFiredEvent>(OnCombatEvent);
-
-            // 데미지 이벤트
-            _eventBus.Unsubscribe<DamageEvents.DamageCalculatedEvent>(OnCombatEvent);
-            _eventBus.Unsubscribe<DamageEvents.DamageAppliedEvent>(OnCombatEvent);
-            _eventBus.Unsubscribe<DamageEvents.DamageAvoidedEvent>(OnCombatEvent);
-
-            // 파츠 이벤트
-            _eventBus.Unsubscribe<PartEvents.PartDestroyedEvent>(OnCombatEvent);
-            _eventBus.Unsubscribe<PartEvents.PartStatusChangedEvent>(OnCombatEvent);
-            _eventBus.Unsubscribe<PartEvents.SystemCriticalFailureEvent>(OnCombatEvent);
-
-            // 상태 효과 이벤트
-            _eventBus.Unsubscribe<StatusEffectEvents.StatusEffectAppliedEvent>(OnCombatEvent);
-            _eventBus.Unsubscribe<StatusEffectEvents.StatusEffectExpiredEvent>(OnCombatEvent);
-            _eventBus.Unsubscribe<StatusEffectEvents.StatusEffectTickEvent>(OnCombatEvent);
-        }
-
-        private void OnCombatEvent(ICombatEvent combatEvent)
-        {
-            LogEvent(combatEvent);
-        }
-
-        #endregion
-
         #region Event Logging Methods
 
         private void LogCombatStart(CombatSessionEvents.CombatStartEvent evt)
@@ -443,14 +377,12 @@ namespace AF.Combat
 
         private void LogActionCompleted(CombatActionEvents.ActionCompletedEvent evt)
         {
-            // Wrap actor name in brackets (but don't include in the final log message for this method)
-            // string actorName = $"[{evt.Actor.Name}]"; 
-            // Target info is not available in this event, so no wrapping needed here
             string apInfo = $"| AP: {evt.Actor.CurrentAP:F1} / {evt.Actor.CombinedStats.MaxAP:F1}"; 
             string resultDetails = string.IsNullOrEmpty(evt.ResultDescription) ? "" : $"- {evt.ResultDescription}";
             
-            // Remove actorName from the log message as it's implied by the current turn's active unit
-            Log($"  >> [{GetActionDescription(evt.Action)}] {resultDetails} {apInfo}", LogLevel.Info);
+            // UseIndentation 플래그 확인하여 들여쓰기 적용
+            string prefix = UseIndentation ? "  >> " : ">> "; 
+            Log($"{prefix}[{GetActionDescription(evt.Action)}] {resultDetails} {apInfo}", LogLevel.Info);
         }
         
         // WeaponFired는 ActionCompleted에서 통합 처리 가능 (현재 주석 처리)
@@ -473,7 +405,9 @@ namespace AF.Combat
             string partName = evt.DamagedPart.ToString(); 
             string durabilityInfo = $"({evt.PartCurrentDurability:F0}/{evt.PartMaxDurability:F0})";
 
-            Log($"    <color=red>-></color> {attackerName}의 공격! {targetName}의 {partName}{durabilityInfo}에 {evt.DamageDealt:F1} 데미지!", LogLevel.Info);
+            // UseIndentation 플래그 확인하여 들여쓰기 적용
+            string prefix = UseIndentation ? "    " : "";
+            Log($"{prefix}<color=red>-></color> {attackerName}의 공격! {targetName}의 {partName}{durabilityInfo}에 {evt.DamageDealt:F1} 데미지!", LogLevel.Info);
         }
 
         private void LogDamageAvoided(DamageEvents.DamageAvoidedEvent evt)
@@ -481,7 +415,10 @@ namespace AF.Combat
             // Wrap source and target names in brackets
             string attackerName = $"[{evt.Source.Name}]";
             string targetName = $"[{evt.Target.Name}]";
-            Log($"    <color=cyan><<</color> {targetName}이(가) {attackerName}의 공격을 회피! ({evt.Type})", LogLevel.Info);
+            
+            // UseIndentation 플래그 확인하여 들여쓰기 적용
+            string prefix = UseIndentation ? "    " : "";
+            Log($"{prefix}<color=cyan><<</color> {targetName}이(가) {attackerName}의 공격을 회피! ({evt.Type})", LogLevel.Info);
         }
 
         private void LogPartDestroyed(PartEvents.PartDestroyedEvent evt)
@@ -490,7 +427,10 @@ namespace AF.Combat
             string ownerName = $"[{evt.Frame.Name}]";
             string partName = evt.DestroyedPartType.ToString();
             string effectsInfo = evt.Effects != null && evt.Effects.Length > 0 ? $" ({string.Join(", ", evt.Effects)})" : "";
-            Log($"  <color=orange>!!! {ownerName}의 {partName} 파괴됨!</color>{effectsInfo}", LogLevel.Warning);
+            
+            // UseIndentation 플래그 확인하여 들여쓰기 적용
+            string prefix = UseIndentation ? "  " : "";
+            Log($"{prefix}<color=orange>!!! {ownerName}의 {partName} 파괴됨!</color>{effectsInfo}", LogLevel.Warning);
         }
         
         // PartStatusChanged는 너무 상세하여 제거 고려 (현재 주석 처리)
@@ -506,7 +446,10 @@ namespace AF.Combat
             string ownerName = $"[{evt.Frame.Name}]";
             // evt.Reason 속성이 없으므로 기본 메시지 사용 또는 다른 속성 확인 필요
             string reason = "치명적 시스템 오류"; // evt.Reason 대신 기본 메시지 사용
-            Log($"  <color=purple>*** {ownerName}: {reason} ***</color>", LogLevel.Critical);
+            
+            // UseIndentation 플래그 확인하여 들여쓰기 적용
+            string prefix = UseIndentation ? "  " : "";
+            Log($"{prefix}<color=purple>*** {ownerName}: {reason} ***</color>", LogLevel.Critical);
         }
         
         // <<< 상태 효과 로깅 추가 >>>
@@ -515,7 +458,10 @@ namespace AF.Combat
             // Wrap target name in brackets
             string targetName = $"[{evt.Target.Name}]";
             string sourceInfo = evt.Source != null ? $"({evt.Source.Name}에 의해) " : "";
-            Log($"  >> {targetName}: 상태 효과 '{evt.EffectType}' 적용됨 {sourceInfo}({evt.Duration}턴)", LogLevel.Info);
+            
+            // UseIndentation 플래그 확인하여 들여쓰기 적용
+            string prefix = UseIndentation ? "  >> " : ">> "; 
+            Log($"{prefix}{targetName}: 상태 효과 '{evt.EffectType}' 적용됨 {sourceInfo}({evt.Duration}턴)", LogLevel.Info);
         }
 
         private void LogStatusEffectExpired(StatusEffectEvents.StatusEffectExpiredEvent evt)
@@ -523,15 +469,22 @@ namespace AF.Combat
             // Wrap target name in brackets
             string targetName = $"[{evt.Target.Name}]";
             string reason = evt.WasDispelled ? "(해제됨)" : "(만료됨)";
-            Log($"  << {targetName}: 상태 효과 '{evt.EffectType}' 종료 {reason}", LogLevel.Info);
+            
+            // UseIndentation 플래그 확인하여 들여쓰기 적용
+            string prefix = UseIndentation ? "  << " : "<< "; 
+            Log($"{prefix}{targetName}: 상태 효과 '{evt.EffectType}' 종료 {reason}", LogLevel.Info);
         }
 
         private void LogStatusEffectTicked(StatusEffectEvents.StatusEffectTickEvent evt)
         {
-            // Wrap target name in brackets
-            string targetName = $"[{evt.Target.Name}]";
-            string effectValueInfo = $"({evt.Effect.TickEffectType}: {evt.Effect.TickValue:F1})";
-            Log($"    * {targetName}: 상태 효과 '{evt.Effect.EffectName}' 틱 발생 {effectValueInfo}", LogLevel.Info);
+            string effectName = evt.Effect.EffectName;
+            string tickAction = evt.Effect.TickEffectType == TickEffectType.DamageOverTime ? "피해" : "회복";
+            string tickEmoji = evt.Effect.TickEffectType == TickEffectType.DamageOverTime ? "🔥" : "💚";
+            
+            // 들여쓰기 로직 제거 (이제 LogStatusEffectTicked는 들여쓰기 안 함)
+            string logMsg = $"{tickEmoji} [{evt.Target.Name}] < [{effectName}] 틱! ([{evt.Effect.TickValue:F0}] {tickAction})";
+
+            Log(logMsg, LogLevel.Info);
         }
         // <<< 상태 효과 로깅 끝 >>>
         
@@ -541,14 +494,56 @@ namespace AF.Combat
 
         private string FormatLogEntry(LogEntry entry)
         {
-            // 예: [T5] INFO: 플레이어 공격!
-            return $"[T{entry.TurnNumber}] {entry.Level}: {entry.Message}";
+            StringBuilder formattedMessage = new StringBuilder();
+
+            // 턴 넘버 접두사 (플래그 확인)
+            if (ShowTurnPrefix && entry.TurnNumber > 0) // 0턴(초기화)은 제외
+            {
+                formattedMessage.Append($"[T{entry.TurnNumber}] ");
+            }
+
+            // 로그 레벨 접두사 (플래그 확인)
+            if (ShowLogLevel)
+            {
+                switch (entry.Level)
+                {
+                    case LogLevel.Debug: formattedMessage.Append("[DBG] "); break;
+                    case LogLevel.Warning: formattedMessage.Append("[WRN] "); break;
+                    case LogLevel.Error: formattedMessage.Append("[ERR] "); break;
+                    case LogLevel.System: formattedMessage.Append("[SYS] "); break;
+                    // Info는 기본이라 생략하거나 [INF] 추가 가능
+                    // case LogLevel.Info: formattedMessage.Append("[INF] "); break; 
+                }
+            }
+            
+            // 실제 로그 메시지 추가
+            formattedMessage.Append(entry.Message);
+
+            return formattedMessage.ToString();
         }
 
         private string FormatLogEntryForFile(LogEntry entry)
         {
-            // 예: [T5] INFO: 플레이어 공격!
-            return $"[T{entry.TurnNumber}] {entry.Level}: {entry.Message}";
+            // FormatLogEntry와 동일하게 토글 플래그 적용
+            StringBuilder formattedMessage = new StringBuilder();
+
+            // 턴 넘버 접두사 (플래그 확인)
+            if (ShowTurnPrefix && entry.TurnNumber > 0)
+            {
+                formattedMessage.Append($"[T{entry.TurnNumber}] ");
+            }
+
+            // 로그 레벨 접두사 (플래그 확인)
+            if (ShowLogLevel)
+            {
+                // 파일에는 레벨 약어 대신 전체 이름 사용 (선택적)
+                formattedMessage.Append($"[{entry.Level.ToString().ToUpper()}] "); 
+            }
+            
+            // 실제 로그 메시지 추가 (리치 텍스트 제거)
+            formattedMessage.Append(RemoveRichTextTags(entry.Message));
+
+            return formattedMessage.ToString();
         }
 
         private string GetActionDescription(CombatActionEvents.ActionType action)
@@ -603,6 +598,26 @@ namespace AF.Combat
         {
             // TODO: CombatSimulatorService에서 분리된 로깅 메서드 구현 필요
         }
+
+        #region Formatting Flag Control
+
+        public void SetShowLogLevel(bool show)
+        {
+            ShowLogLevel = show;
+        }
+
+        public void SetShowTurnPrefix(bool show)
+        {
+            ShowTurnPrefix = show;
+        }
+
+        public void SetUseIndentation(bool use)
+        {
+            UseIndentation = use;
+        }
+
+        #endregion
+
         #endregion
     }
 } 
