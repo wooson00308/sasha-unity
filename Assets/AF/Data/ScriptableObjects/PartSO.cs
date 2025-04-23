@@ -4,12 +4,25 @@ using System;
 using System.Linq;
 using AF.Models;
 using System.Collections.Generic; // For List
+using Sirenix.OdinInspector; // Added
+
+#if UNITY_EDITOR
+using UnityEditor; // Added
+// using AF.EditorUtils; // Removed using statement
+#endif
 
 namespace AF.Data
 {
     [CreateAssetMenu(fileName = "NewPartSO", menuName = "AF/Data/Part SO")]
     public class PartSO : ScriptableObject
     {
+        #if UNITY_EDITOR
+        [BoxGroup("Preview")]
+        [ShowInInspector, PreviewField(150), ReadOnly] // Preview size 150
+        private Sprite partPreview;
+        #endif
+
+        [OnValueChanged("UpdatePreview")] // Added
         public string PartID;
         public string PartName;
         public PartType PartType; // Enum
@@ -25,7 +38,43 @@ namespace AF.Data
         public float MaxDurability;
         public float PartWeight;
         public List<string> Abilities; // Store as list
+        [TextArea] // Added for consistency
         public string Notes;
+
+        #if UNITY_EDITOR
+        [Button("Update Preview"), BoxGroup("Preview")]
+        private void UpdatePreview()
+        {
+            // Reverted to use local method
+            partPreview = LoadSpritePreview(PartID);
+        }
+
+        // Re-added the LoadSpritePreview method
+        private Sprite LoadSpritePreview(string partID)
+        {
+            if (string.IsNullOrEmpty(partID))
+            {
+                return null;
+            }
+            // Assuming sprites are named exactly like PartIDs and are in the specified folder
+            string path = $"Assets/AF/Sprites/Parts/{partID}.png";
+             Sprite loadedSprite = AssetDatabase.LoadAssetAtPath<Sprite>(path);
+             // Optional: Log if sprite not found
+             // if (loadedSprite == null) Debug.LogWarning($"Preview sprite not found for part ID: {partID} at path: {path}");
+             return loadedSprite;
+        }
+
+        // Call UpdatePreview when the SO is enabled in the editor or selection changes
+        private void OnEnable()
+        {
+             EditorApplication.delayCall += UpdatePreview; // Delay call to ensure AssetDatabase is ready
+        }
+
+         private void OnDisable()
+         {
+             EditorApplication.delayCall -= UpdatePreview;
+         }
+        #endif
 
         public void Apply(PartData data)
         {
@@ -59,6 +108,11 @@ namespace AF.Data
                                      .Select(s => s.Trim())
                                      .ToList() ?? new List<string>();
             Notes = data.Notes;
+
+            #if UNITY_EDITOR
+            // Update preview after applying data from Excel
+            UpdatePreview();
+            #endif
         }
     }
 } 

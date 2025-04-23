@@ -9,6 +9,10 @@ using AF.Data;
 using System.Linq;
 using Cysharp.Threading.Tasks;
 
+#if UNITY_EDITOR
+using UnityEditor; // Needed for AssetDatabase
+#endif
+
 namespace AF.Tests
 {
     /// <summary>
@@ -21,55 +25,229 @@ namespace AF.Tests
         [Serializable]
         public class AFSetup
         {
-            [HorizontalGroup("Layout", LabelWidth = 100)]
-            [VerticalGroup("Layout/Left")]
-
+            // --- Mode Selection & Core Fields ---
+            [HorizontalGroup("TopConfig", LabelWidth = 100)]
+            [VerticalGroup("TopConfig/Left")]
             [LabelText("커스텀 조립")]
+            [OnValueChanged("UpdatePreviews")]
             public bool useCustomAssembly;
 
-            [HideIf("useCustomAssembly")]
-            [PreviewField(50, Alignment = ObjectFieldAlignment.Center), HideLabel]
+            [VerticalGroup("TopConfig/Left")]
+            [EnableIf("@!useCustomAssembly")]
+            [OnValueChanged("UpdatePreviews")]
+            [PreviewField(50, ObjectFieldAlignment.Left), HideLabel]
             public AssemblySO assembly;
 
-            [ShowIf("useCustomAssembly")]
-            [ValueDropdown("@AF.Tests.CombatTestRunner.GetFrameValues()")]
-            public FrameSO customFrame;
-
-            [ShowIf("useCustomAssembly")]
-            [ValueDropdown("@AF.Tests.CombatTestRunner.GetHeadPartValues()")]
-            public PartSO customHead;
-
-            [ShowIf("useCustomAssembly")]
-            [ValueDropdown("@AF.Tests.CombatTestRunner.GetBodyPartValues()")]
-            public PartSO customBody;
-
-            [ShowIf("useCustomAssembly")]
-            [ValueDropdown("@AF.Tests.CombatTestRunner.GetArmsPartValues()")]
-            public PartSO customArms;
-
-            [ShowIf("useCustomAssembly")]
-            [ValueDropdown("@AF.Tests.CombatTestRunner.GetLegsPartValues()")]
-            public PartSO customLegs;
-
-            [ShowIf("useCustomAssembly")]
-            [ValueDropdown("@AF.Tests.CombatTestRunner.GetWeaponValues()")]
-            public WeaponSO customWeaponR1;
-
-            [ShowIf("useCustomAssembly")]
-            [ValueDropdown("@AF.Tests.CombatTestRunner.GetWeaponValues()")]
-            public WeaponSO customWeaponL1;
-
-            [ShowIf("useCustomAssembly")]
-            [ValueDropdown("@AF.Tests.CombatTestRunner.GetPilotValues()")]
-            public PilotSO customPilot;
-
-            [VerticalGroup("Layout/Right")]
+            [VerticalGroup("TopConfig/Right")]
             [LabelWidth(60)]
             public int teamId;
 
-            [VerticalGroup("Layout/Right")]
+            [VerticalGroup("TopConfig/Right")]
             [LabelWidth(60)]
             public Vector3 startPosition;
+
+            // --- Unified Parts Configuration & Preview --- 
+            [BoxGroup("파트 구성")]
+            [HorizontalGroup("파트 구성/Frame", LabelWidth = 100)]
+            [VerticalGroup("파트 구성/Frame/SO")]
+            [EnableIf("useCustomAssembly")] // SO Field enabled only in custom mode
+            [ValueDropdown("@AF.Tests.CombatTestRunner.GetFrameValues()")]
+            [OnValueChanged("UpdatePreviews")]
+            public FrameSO customFrame;
+            [VerticalGroup("파트 구성/Frame/Preview")]
+            [ShowInInspector, PreviewField(80), ReadOnly, HideLabel] // Preview always visible
+            private Sprite customFramePreview;
+
+            [BoxGroup("파트 구성")]
+            [HorizontalGroup("파트 구성/Head", LabelWidth = 100)]
+            [VerticalGroup("파트 구성/Head/SO")]
+            [EnableIf("useCustomAssembly")]
+            [ValueDropdown("@AF.Tests.CombatTestRunner.GetHeadPartValues()")]
+            [OnValueChanged("UpdatePreviews")]
+            public PartSO customHead;
+            [VerticalGroup("파트 구성/Head/Preview")]
+            [ShowInInspector, PreviewField(80), ReadOnly, HideLabel]
+            private Sprite customHeadPreview;
+
+            [BoxGroup("파트 구성")]
+            [HorizontalGroup("파트 구성/Body", LabelWidth = 100)]
+            [VerticalGroup("파트 구성/Body/SO")]
+            [EnableIf("useCustomAssembly")]
+            [ValueDropdown("@AF.Tests.CombatTestRunner.GetBodyPartValues()")]
+            [OnValueChanged("UpdatePreviews")]
+            public PartSO customBody;
+            [VerticalGroup("파트 구성/Body/Preview")]
+            [ShowInInspector, PreviewField(80), ReadOnly, HideLabel]
+            private Sprite customBodyPreview;
+
+            [BoxGroup("파트 구성")]
+            [HorizontalGroup("파트 구성/Arms", LabelWidth = 100)]
+            [VerticalGroup("파트 구성/Arms/SO")]
+            [EnableIf("useCustomAssembly")]
+            [ValueDropdown("@AF.Tests.CombatTestRunner.GetArmsPartValues()")]
+            [OnValueChanged("UpdatePreviews")]
+            public PartSO customArms; // Assuming single Arms SO field
+            [VerticalGroup("파트 구성/Arms/Preview")]
+            [ShowInInspector, PreviewField(80), ReadOnly, HideLabel]
+            private Sprite customArmsPreview;
+
+            [BoxGroup("파트 구성")]
+            [HorizontalGroup("파트 구성/Legs", LabelWidth = 100)]
+            [VerticalGroup("파트 구성/Legs/SO")]
+            [EnableIf("useCustomAssembly")]
+            [ValueDropdown("@AF.Tests.CombatTestRunner.GetLegsPartValues()")]
+            [OnValueChanged("UpdatePreviews")]
+            public PartSO customLegs;
+            [VerticalGroup("파트 구성/Legs/Preview")]
+            [ShowInInspector, PreviewField(80), ReadOnly, HideLabel]
+            private Sprite customLegsPreview;
+
+            [BoxGroup("파트 구성")]
+            [HorizontalGroup("파트 구성/WeaponR1", LabelWidth = 100)]
+            [VerticalGroup("파트 구성/WeaponR1/SO")]
+            [EnableIf("useCustomAssembly")]
+            [ValueDropdown("@AF.Tests.CombatTestRunner.GetWeaponValues()")]
+            [OnValueChanged("UpdatePreviews")]
+            public WeaponSO customWeaponR1;
+            [VerticalGroup("파트 구성/WeaponR1/Preview")]
+            [ShowInInspector, PreviewField(80), ReadOnly, HideLabel]
+            private Sprite customWeaponR1Preview;
+
+            [BoxGroup("파트 구성")]
+            [HorizontalGroup("파트 구성/WeaponL1", LabelWidth = 100)]
+            [VerticalGroup("파트 구성/WeaponL1/SO")]
+            [EnableIf("useCustomAssembly")]
+            [ValueDropdown("@AF.Tests.CombatTestRunner.GetWeaponValues()")]
+            [OnValueChanged("UpdatePreviews")]
+            public WeaponSO customWeaponL1;
+            [VerticalGroup("파트 구성/WeaponL1/Preview")]
+            [ShowInInspector, PreviewField(80), ReadOnly, HideLabel]
+            private Sprite customWeaponL1Preview;
+
+            [BoxGroup("파트 구성")]
+            [HorizontalGroup("파트 구성/Pilot", LabelWidth = 100)]
+            [VerticalGroup("파트 구성/Pilot/SO")]
+            [EnableIf("useCustomAssembly")]
+            [ValueDropdown("@AF.Tests.CombatTestRunner.GetPilotValues()")]
+            [OnValueChanged("UpdatePreviews")]
+            public PilotSO customPilot;
+            [VerticalGroup("파트 구성/Pilot/Preview")]
+            [ShowInInspector, PreviewField(80), ReadOnly, HideLabel]
+            private Sprite customPilotPreview;
+
+            #if UNITY_EDITOR
+            [Button("Update Previews (Manual)")]
+            private void UpdatePreviews()
+            {
+                // Always clear previews first
+                customFramePreview = null;
+                customPilotPreview = null;
+                customHeadPreview = null;
+                customBodyPreview = null;
+                customArmsPreview = null;
+                customLegsPreview = null;
+                customWeaponR1Preview = null;
+                customWeaponL1Preview = null;
+
+                if (useCustomAssembly)
+                {
+                    // Update previews based on custom SO fields
+                    customFramePreview = LoadSpritePreview(customFrame?.FrameID, "Frames");
+                    customPilotPreview = LoadSpritePreview(customPilot?.PilotID, "Pilots");
+                    customHeadPreview = LoadSpritePreview(customHead?.PartID, "Parts");
+                    customBodyPreview = LoadSpritePreview(customBody?.PartID, "Parts");
+                    customArmsPreview = LoadSpritePreview(customArms?.PartID, "Parts");
+                    customLegsPreview = LoadSpritePreview(customLegs?.PartID, "Parts");
+                    customWeaponR1Preview = LoadSpritePreview(customWeaponR1?.WeaponID, "Weapons");
+                    customWeaponL1Preview = LoadSpritePreview(customWeaponL1?.WeaponID, "Weapons");
+                    
+                    // Clear assembly SO when switching to custom mode
+                    // assembly = null; // Optional: Decide if you want to clear this
+                }
+                else // Assembly Mode
+                {
+                    if (assembly != null)
+                    {
+                        // Load SOs from Resources based on the selected AssemblySO
+                        FrameSO frameSO = FindResource<FrameSO>("Frames", assembly.FrameID);
+                        PartSO headSO = FindResource<PartSO>("Parts", assembly.HeadPartID);
+                        PartSO bodySO = FindResource<PartSO>("Parts", assembly.BodyPartID);
+                        PartSO armsSO = FindResource<PartSO>("Parts", assembly.LeftArmPartID); 
+                        PartSO legsSO = FindResource<PartSO>("Parts", assembly.LegsPartID);
+                        WeaponSO weapon1SO = FindResource<WeaponSO>("Weapons", assembly.Weapon1ID);
+                        WeaponSO weapon2SO = FindResource<WeaponSO>("Weapons", assembly.Weapon2ID);
+                        PilotSO pilotSO = FindResource<PilotSO>("Pilots", assembly.PilotID);
+
+                        // Populate the disabled custom fields
+                        customFrame = frameSO;
+                        customHead = headSO;
+                        customBody = bodySO;
+                        customArms = armsSO;
+                        customLegs = legsSO;
+                        customWeaponR1 = weapon1SO;
+                        customWeaponL1 = weapon2SO;
+                        customPilot = pilotSO;
+
+                        // Update previews based on the loaded SOs
+                        customFramePreview = LoadSpritePreview(frameSO?.FrameID, "Frames");
+                        customPilotPreview = LoadSpritePreview(pilotSO?.PilotID, "Pilots");
+                        customHeadPreview = LoadSpritePreview(headSO?.PartID, "Parts");
+                        customBodyPreview = LoadSpritePreview(bodySO?.PartID, "Parts");
+                        customArmsPreview = LoadSpritePreview(armsSO?.PartID, "Parts");
+                        customLegsPreview = LoadSpritePreview(legsSO?.PartID, "Parts");
+                        customWeaponR1Preview = LoadSpritePreview(weapon1SO?.WeaponID, "Weapons");
+                        customWeaponL1Preview = LoadSpritePreview(weapon2SO?.WeaponID, "Weapons");
+                    }
+                    else // Assembly is null in Assembly Mode
+                    {
+                        // Clear the custom fields
+                        customFrame = null;
+                        customHead = null;
+                        customBody = null;
+                        customArms = null;
+                        customLegs = null;
+                        customWeaponR1 = null;
+                        customWeaponL1 = null;
+                        customPilot = null;
+                        // Previews were already cleared at the beginning
+                    }
+                }
+            }
+
+            // Helper method to find a single resource by ID (name) in Resources folder
+            private T FindResource<T>(string subfolder, string resourceId) where T : ScriptableObject
+            {
+                if (string.IsNullOrEmpty(resourceId))
+                {
+                    return null;
+                }
+                string path = $"{subfolder}/{resourceId}"; 
+                T resource = Resources.Load<T>(path);
+                return resource;
+            }
+            
+            // Restored: Local preview loading method within AFSetup (Uses AssetDatabase - Editor only)
+            private Sprite LoadSpritePreview(string id, string folderName)
+            {
+                if (string.IsNullOrEmpty(id))
+                {
+                    return null;
+                }
+                // Assuming Sprites are directly under Assets/AF/Sprites/
+                string path = $"Assets/AF/Sprites/{folderName}/{id}.png";
+                return AssetDatabase.LoadAssetAtPath<Sprite>(path);
+            }
+
+            private void OnEnable()
+            {
+                EditorApplication.delayCall += UpdatePreviews; // Initial update attempt
+            }
+
+            private void OnDisable()
+            {
+                EditorApplication.delayCall -= UpdatePreviews;
+            }
+            #endif
         }
 
         [FoldoutGroup("참가자 설정", expanded: true)]
@@ -86,6 +264,7 @@ namespace AF.Tests
         {
             battleParticipants.Add(new AFSetup { teamId = battleParticipants.Count > 0 ? battleParticipants.Max(p => p.teamId) + 1 : 0 });
         }
+
 
         private void ValidateSetup()
         {
@@ -567,7 +746,7 @@ namespace AF.Tests
                 switch (partSO.PartType)
                 {
                     case PartType.Head: runtimePart = new HeadPart(partSO.PartName ?? partSO.name, partStats, partSO.MaxDurability, partSO.PartWeight); break;
-                    case PartType.Body: runtimePart = new BodyPart(partSO.PartName ?? partSO.name, partStats, partSO.MaxDurability, partSO.PartWeight); break;
+                    case PartType.Body: runtimePart = new AF.Models.BodyPart(partSO.PartName ?? partSO.name, partStats, partSO.MaxDurability, partSO.PartWeight); break; // Fully qualified
                     case PartType.Arm: runtimePart = new ArmsPart(partSO.PartName ?? partSO.name, partStats, partSO.MaxDurability, partSO.PartWeight); break;
                     case PartType.Legs: runtimePart = new LegsPart(partSO.PartName ?? partSO.name, partStats, partSO.MaxDurability, partSO.PartWeight); break;
                     // Backpack 등 다른 파츠 타입 추가 가능
@@ -628,7 +807,7 @@ namespace AF.Tests
                     switch (partSO.PartType)
                     {
                         case PartType.Head: runtimePart = new HeadPart(partSO.PartName, partStats, partSO.MaxDurability, partSO.PartWeight); break;
-                        case PartType.Body: runtimePart = new BodyPart(partSO.PartName, partStats, partSO.MaxDurability, partSO.PartWeight); break;
+                        case PartType.Body: runtimePart = new AF.Models.BodyPart(partSO.PartName, partStats, partSO.MaxDurability, partSO.PartWeight); break; // Fully qualified
                         case PartType.Arm: runtimePart = new ArmsPart(partSO.PartName, partStats, partSO.MaxDurability, partSO.PartWeight); break;
                         case PartType.Legs: runtimePart = new LegsPart(partSO.PartName, partStats, partSO.MaxDurability, partSO.PartWeight); break;
                         default: Debug.LogWarning($"Unhandled PartType '{partSO.PartType}' for ID '{partId}'."); break;

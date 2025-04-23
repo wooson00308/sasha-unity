@@ -4,12 +4,24 @@ using System;
 using System.Linq;
 using AF.Models;
 using System.Collections.Generic; 
+using Sirenix.OdinInspector;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace AF.Data
 {
     [CreateAssetMenu(fileName = "NewWeaponSO", menuName = "AF/Data/Weapon SO")]
     public class WeaponSO : ScriptableObject
     {
+        #if UNITY_EDITOR
+        [BoxGroup("Preview")]
+        [ShowInInspector, PreviewField(150), ReadOnly]
+        private Sprite weaponPreview;
+        #endif
+
+        [OnValueChanged("UpdatePreview")]
         public string WeaponID;
         public string WeaponName;
         public WeaponType WeaponType; // Enum
@@ -22,7 +34,37 @@ namespace AF.Data
         public int AmmoCapacity;
         public float BaseAPCost;
         public List<string> SpecialEffects; // List
+        [TextArea]
         public string Notes;
+
+        #if UNITY_EDITOR
+        [Button("Update Preview"), BoxGroup("Preview")]
+        private void UpdatePreview()
+        {
+            weaponPreview = LoadSpritePreview(WeaponID);
+        }
+
+        private Sprite LoadSpritePreview(string weaponID)
+        {
+            if (string.IsNullOrEmpty(weaponID))
+            {
+                return null;
+            }
+            string path = $"Assets/AF/Sprites/Weapons/{weaponID}.png";
+             Sprite loadedSprite = AssetDatabase.LoadAssetAtPath<Sprite>(path);
+             return loadedSprite;
+        }
+
+        private void OnEnable()
+        {
+             EditorApplication.delayCall += UpdatePreview;
+        }
+
+         private void OnDisable()
+         {
+             EditorApplication.delayCall -= UpdatePreview;
+         }
+        #endif
 
         public void Apply(WeaponData data)
         {
@@ -60,6 +102,10 @@ namespace AF.Data
                                              .Select(s => s.Trim())
                                              .ToList() ?? new List<string>();
             Notes = data.Notes;
+
+            #if UNITY_EDITOR
+            UpdatePreview();
+            #endif
         }
     }
 } 

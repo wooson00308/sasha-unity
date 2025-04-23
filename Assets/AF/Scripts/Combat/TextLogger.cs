@@ -306,6 +306,7 @@ namespace AF.Combat
             _turnCounter = 0;
 
             StringBuilder sb = new StringBuilder();
+            sb.Append("<sprite index=11> "); // BATTLE START 아이콘
             sb.AppendLine($"전투 시작: {ColorizeText(evt.BattleName, "yellow")}");
             sb.AppendLine($"위치: {evt.BattleLocation}");
             sb.AppendLine($"참가자:");
@@ -321,6 +322,7 @@ namespace AF.Combat
         private void LogCombatEnd(CombatSessionEvents.CombatEndEvent evt)
         {
             StringBuilder sb = new StringBuilder();
+            sb.Append("<sprite index=12> "); // BATTLE END 아이콘
             
             string resultColor = "white";
             switch (evt.Result)
@@ -356,7 +358,7 @@ namespace AF.Combat
             _turnCounter = evt.TurnNumber; // 턴 카운터 업데이트
             string apInfo = $"AP: {evt.ActiveUnit.CurrentAP:F1} / {evt.ActiveUnit.CombinedStats.MaxAP:F1}";
             // AP 회복량 정보는 CombatSimulatorService의 Debug.Log에 있으므로 여기선 생략하거나, 필요시 이벤트에 추가
-            Log($"===== Turn {evt.TurnNumber}: [{evt.ActiveUnit.Name}] 행동 시작 ({apInfo}) =====", LogLevel.Info);
+            Log($"<sprite index=13> ===== Turn {evt.TurnNumber}: [{evt.ActiveUnit.Name}] 행동 시작 ({apInfo}) =====", LogLevel.Info); // TURN START 아이콘
             
             // 턴 시작 시 상태 효과 처리 로그 (필요하다면)
             // Log($"  * 상태 효과 처리 중...", LogLevel.Debug); 
@@ -366,7 +368,7 @@ namespace AF.Combat
         {
             // 턴 종료 구분 로그
             string apInfo = $"AP: {evt.ActiveUnit.CurrentAP:F1} / {evt.ActiveUnit.CombinedStats.MaxAP:F1}";
-            Log($"===== Turn {evt.TurnNumber}: [{evt.ActiveUnit.Name}] 행동 종료 ({apInfo}) =====", LogLevel.Info);
+            Log($"<sprite index=14> ===== Turn {evt.TurnNumber}: [{evt.ActiveUnit.Name}] 행동 종료 ({apInfo}) =====", LogLevel.Info); // TURN END 아이콘
         }
 
         // ActionStart는 간략화 또는 제거 고려 (현재 주석 처리)
@@ -380,9 +382,26 @@ namespace AF.Combat
             string apInfo = $"| AP: {evt.Actor.CurrentAP:F1} / {evt.Actor.CombinedStats.MaxAP:F1}"; 
             string resultDetails = string.IsNullOrEmpty(evt.ResultDescription) ? "" : $"- {evt.ResultDescription}";
             
+            // <<< ActionType에 따른 인덱스 태그 선택 >>>
+            string actionSpriteTag = "";
+            switch (evt.Action)
+            {
+                case CombatActionEvents.ActionType.Attack:
+                    actionSpriteTag = "<sprite index=8>"; // ATK 아이콘
+                    break;
+                case CombatActionEvents.ActionType.Defend:
+                    actionSpriteTag = "<sprite index=9>"; // DEF 아이콘
+                    break;
+                case CombatActionEvents.ActionType.Move:
+                    actionSpriteTag = "<sprite index=10>"; // MOVE 아이콘
+                    break;
+                // 다른 ActionType에 대한 태그 추가 가능
+            }
+
             // UseIndentation 플래그 확인하여 들여쓰기 적용
             string prefix = UseIndentation ? "  >> " : ">> "; 
-            Log($"{prefix}[{GetActionDescription(evt.Action)}] {resultDetails} {apInfo}", LogLevel.Info);
+            // <<< 인덱스 태그 추가 >>>
+            Log($"{prefix}<sprite index=0> <color=red>-></color> {actionSpriteTag} [{GetActionDescription(evt.Action)}] {resultDetails} {apInfo}", LogLevel.Info);
         }
         
         // WeaponFired는 ActionCompleted에서 통합 처리 가능 (현재 주석 처리)
@@ -407,7 +426,8 @@ namespace AF.Combat
 
             // UseIndentation 플래그 확인하여 들여쓰기 적용
             string prefix = UseIndentation ? "    " : "";
-            Log($"{prefix}<color=red>-></color> {attackerName}의 공격! {targetName}의 {partName}{durabilityInfo}에 {evt.DamageDealt:F1} 데미지!", LogLevel.Info);
+            // <<< 인덱스 태그 추가 >>>
+            Log($"{prefix}<sprite index=0> <color=red>-></color> {attackerName}의 공격! {targetName}의 {partName}{durabilityInfo}에 {evt.DamageDealt:F1} 데미지!", LogLevel.Info); // HIT 아이콘
         }
 
         private void LogDamageAvoided(DamageEvents.DamageAvoidedEvent evt)
@@ -418,7 +438,8 @@ namespace AF.Combat
             
             // UseIndentation 플래그 확인하여 들여쓰기 적용
             string prefix = UseIndentation ? "    " : "";
-            Log($"{prefix}<color=cyan><<</color> {targetName}이(가) {attackerName}의 공격을 회피! ({evt.Type})", LogLevel.Info);
+            // <<< 인덱스 태그 추가 >>>
+            Log($"{prefix}<sprite index=1> <color=cyan><<</color> {targetName}이(가) {attackerName}의 공격을 회피! ({evt.Type})", LogLevel.Info); // MISS 아이콘
         }
 
         private void LogPartDestroyed(PartEvents.PartDestroyedEvent evt)
@@ -430,7 +451,8 @@ namespace AF.Combat
             
             // UseIndentation 플래그 확인하여 들여쓰기 적용
             string prefix = UseIndentation ? "  " : "";
-            Log($"{prefix}<color=orange>!!! {ownerName}의 {partName} 파괴됨!</color>{effectsInfo}", LogLevel.Warning);
+            // <<< 인덱스 태그 추가 >>>
+            Log($"{prefix}<sprite index=2> <color=orange>!!! {ownerName}의 {partName} 파괴됨!</color>{effectsInfo}", LogLevel.Warning); // DESTROYED 아이콘
         }
         
         // PartStatusChanged는 너무 상세하여 제거 고려 (현재 주석 처리)
@@ -449,7 +471,8 @@ namespace AF.Combat
             
             // UseIndentation 플래그 확인하여 들여쓰기 적용
             string prefix = UseIndentation ? "  " : "";
-            Log($"{prefix}<color=purple>*** {ownerName}: {reason} ***</color>", LogLevel.Critical);
+            // <<< 인덱스 태그 추가 >>>
+            Log($"{prefix}<sprite index=3> <color=purple>*** {ownerName}: {reason} ***</color>", LogLevel.Critical); // SYS FAIL 아이콘
         }
         
         // <<< 상태 효과 로깅 추가 >>>
@@ -461,7 +484,8 @@ namespace AF.Combat
             
             // UseIndentation 플래그 확인하여 들여쓰기 적용
             string prefix = UseIndentation ? "  >> " : ">> "; 
-            Log($"{prefix}{targetName}: 상태 효과 '{evt.EffectType}' 적용됨 {sourceInfo}({evt.Duration}턴)", LogLevel.Info);
+            // <<< 인덱스 태그 추가 >>>
+            Log($"{prefix}<sprite index=4> {targetName}: 상태 효과 '{evt.EffectType}' 적용됨 {sourceInfo}({evt.Duration}턴)", LogLevel.Info); // EFFECT+ 아이콘
         }
 
         private void LogStatusEffectExpired(StatusEffectEvents.StatusEffectExpiredEvent evt)
@@ -471,18 +495,20 @@ namespace AF.Combat
             string reason = evt.WasDispelled ? "(해제됨)" : "(만료됨)";
             
             // UseIndentation 플래그 확인하여 들여쓰기 적용
-            string prefix = UseIndentation ? "  << " : "<< "; 
-            Log($"{prefix}{targetName}: 상태 효과 '{evt.EffectType}' 종료 {reason}", LogLevel.Info);
+            string prefix = UseIndentation ? "  << " : "<< ";
+            // <<< 인덱스 태그 추가 >>>
+            Log($"{prefix}<sprite index=5> {targetName}: 상태 효과 '{evt.EffectType}' 종료 {reason}", LogLevel.Info); // EFFECT- 아이콘
         }
 
         private void LogStatusEffectTicked(StatusEffectEvents.StatusEffectTickEvent evt)
         {
             string effectName = evt.Effect.EffectName;
             string tickAction = evt.Effect.TickEffectType == TickEffectType.DamageOverTime ? "피해" : "회복";
-            string tickEmoji = evt.Effect.TickEffectType == TickEffectType.DamageOverTime ? "🔥" : "💚";
-            
+            // <<< 인덱스 태그 사용 >>>
+            string tickIconTag = evt.Effect.TickEffectType == TickEffectType.DamageOverTime ? "<sprite index=6>" : "<sprite index=7>"; // TICK / HEAL TICK 아이콘
             // 들여쓰기 로직 제거 (이제 LogStatusEffectTicked는 들여쓰기 안 함)
-            string logMsg = $"{tickEmoji} [{evt.Target.Name}] < [{effectName}] 틱! ([{evt.Effect.TickValue:F0}] {tickAction})";
+            // <<< 유니코드 스프라이트 태그 추가 및 기존 이모지 제거 >>>
+            string logMsg = $"<sprite index=0> [{evt.Target.Name}] < [{effectName}] 틱! ([{evt.Effect.TickValue:F0}] {tickAction})";
 
             Log(logMsg, LogLevel.Info);
         }
@@ -526,6 +552,10 @@ namespace AF.Combat
         {
             // FormatLogEntry와 동일하게 토글 플래그 적용
             StringBuilder formattedMessage = new StringBuilder();
+            string messageContent = entry.Message;
+
+            // <<< 스프라이트 태그를 텍스트 마커로 변환 >>>
+            messageContent = ConvertSpriteTagToTextMarker(messageContent);
 
             // 턴 넘버 접두사 (플래그 확인)
             if (ShowTurnPrefix && entry.TurnNumber > 0)
@@ -541,9 +571,56 @@ namespace AF.Combat
             }
             
             // 실제 로그 메시지 추가 (리치 텍스트 제거)
-            formattedMessage.Append(RemoveRichTextTags(entry.Message));
+            formattedMessage.Append(RemoveRichTextTags(messageContent)); // 변환된 메시지 사용
 
             return formattedMessage.ToString();
+        }
+
+        // <<< 스프라이트 태그를 텍스트 마커로 변환하는 메서드 (인덱스 기반으로 수정) >>>
+        private string ConvertSpriteTagToTextMarker(string message)
+        {
+            if (string.IsNullOrEmpty(message)) return message;
+
+            // <<< 인덱스-마커 매핑 테이블 >>>
+            var markerMapping = new Dictionary<string, string>
+            {
+                // 인덱스 태그 형식: "<sprite index=N>"
+                { "<sprite index=0>", "[HIT]" },          // 데미지 적용 / 내구도 감소
+                { "<sprite index=1>", "[MISS]" },
+                { "<sprite index=2>", "[DESTROYED]" },   // 파츠 파괴 / 유닛 파괴
+                { "<sprite index=3>", "[SYS FAIL]" },      // 시스템 오류 / 무기 고장
+                { "<sprite index=4>", "[EFFECT+]" },     // 상태 효과 적용 / 내구도 증가
+                { "<sprite index=5>", "[EFFECT-]" },
+                { "<sprite index=6>", "[TICK]" },          // 상태 효과 데미지 틱
+                { "<sprite index=7>", "[HEAL TICK]" },     // 상태 효과 회복 틱
+                { "<sprite index=8>", "[ATK]" },
+                { "<sprite index=9>", "[DEF]" },
+                { "<sprite index=10>", "[MOVE]" },
+                { "<sprite index=11>", "[BATTLE START]" },
+                { "<sprite index=12>", "[BATTLE END]" },
+                { "<sprite index=13>", "[TURN START]" },
+                { "<sprite index=14>", "[TURN END]" },
+                { "<sprite index=15>", "[CRIT!]" },        // 크리티컬 히트
+                { "<sprite index=16>", "[UNIT]" },          // 유닛 상세 정보 헤더
+                { "<sprite index=17>", "[PART OK]" },       // 파츠/유닛/무기 정상
+                { "<sprite index=18>", "[PART DMG]" },      // 파츠 손상
+                { "<sprite index=19>", "[PART CRIT]" },     // 파츠 위험
+                { "<sprite index=20>", "[PART EMPTY]" },    // 파츠 없음
+                // 필요시 추가...
+            };
+
+            // 메시지 시작 부분에서 매핑되는 태그를 찾아 마커로 교체
+            foreach (var kvp in markerMapping)
+            {
+                if (message.StartsWith(kvp.Key))
+                {
+                    // 태그를 마커로 바꾸고 뒤에 공백 추가, 나머지 메시지 부분 연결
+                    return kvp.Value + " " + message.Substring(kvp.Key.Length).TrimStart(); 
+                }
+            }
+
+            // 매핑되는 태그가 없으면 원본 메시지 반환
+            return message;
         }
 
         private string GetActionDescription(CombatActionEvents.ActionType action)
@@ -586,17 +663,86 @@ namespace AF.Combat
         {
             if (string.IsNullOrEmpty(text)) return text;
             // 간단한 태그 제거 (더 복잡한 정규식 필요할 수 있음)
+            // <sprite=...> 태그도 제거되도록 함
             return System.Text.RegularExpressions.Regex.Replace(text, "<.*?>", string.Empty);
         }
 
+        // <<< LogUnitStatusSummary 메서드 구현 (전투 종료 시 호출되도록 CombatEnd 로그 메서드 수정 필요) >>>
         private void LogUnitStatusSummary(string battleId)
         {
-            // TODO: 전투 종료 시 유닛 상태 요약 로그 구현
+            // 전투 종료 시 모든 참가자의 최종 상태를 기록하기 위해 수정
+            // 현재는 CombatSimulatorService에서 participants 리스트 접근 불가
+            // TODO: 전투 종료 이벤트에 최종 참가자 상태 정보를 포함하거나, 서비스에서 이 메서드를 직접 호출하는 방식으로 변경 필요
+            Log("전투 종료 후 유닛 상태 요약 로그 (구현 필요)", LogLevel.System);
         }
 
+        // <<< LogUnitDetails 메서드 구현 (인덱스 기반 태그 사용) >>>
         public void LogUnitDetails(ArmoredFrame unit) // private -> public
         {
-            // TODO: CombatSimulatorService에서 분리된 로깅 메서드 구현 필요
+            if (unit == null) return;
+
+            StringBuilder sb = new StringBuilder();
+            sb.Append($"<sprite index=16> [{unit.Name}] 상태 | AP: {unit.CurrentAP:F1}/{unit.CombinedStats.MaxAP:F1}"); // UNIT 아이콘
+
+            // <<< FrameBase에서 슬롯 정보 가져오기 >>>
+            // ArmoredFrame의 FrameBase가 null이 아니어야 함
+            IReadOnlyDictionary<string, PartSlotDefinition> slots = unit.FrameBase?.GetPartSlots(); 
+
+            // FrameBase 또는 슬롯 정보가 없으면 기본 정보만 로그 남기고 종료
+            if (slots == null)
+            {
+                sb.Append("\n  (슬롯 정보를 가져올 수 없음)");
+                Log(sb.ToString(), LogLevel.Warning);
+                return;
+            }
+
+            // <<< GetPartSlots() 에서 반환된 키(슬롯 식별자) 목록 사용 >>>
+            foreach (var slotId in slots.Keys)
+            {
+                // _parts 딕셔너리에서 파츠 가져오기
+                if (unit.Parts.TryGetValue(slotId, out Part part))
+                {
+                    // 파츠가 있는 경우
+                    float currentDurability = part.CurrentDurability; // Part 클래스에 CurrentDurability 프로퍼티 가정
+                    float maxDurability = part.MaxDurability;       // Part 클래스에 MaxDurability 프로퍼티 가정
+                    float durabilityPercent = maxDurability > 0 ? currentDurability / maxDurability : 0;
+                    string statusIconTag;
+
+                    if (currentDurability <= 0)
+                    {
+                        statusIconTag = "<sprite index=2>"; // DESTROYED 아이콘
+                    }
+                    else if (durabilityPercent <= 0.3f)
+                    {
+                        statusIconTag = "<sprite index=19>"; // PART CRIT 아이콘
+                    }
+                    else if (durabilityPercent <= 0.7f)
+                    {
+                        statusIconTag = "<sprite index=18>"; // PART DMG 아이콘
+                    }
+                    else
+                    {
+                        statusIconTag = "<sprite index=17>"; // PART OK 아이콘
+                    }
+                    
+                    // 상태 문자열 (추후 Part 클래스에 Status 프로퍼티가 있다면 그것도 표시)
+                    string statusText = currentDurability <= 0 ? "(파괴됨)" : ""; 
+                    
+                    // 들여쓰기 적용하여 로그 라인 추가
+                    string prefix = UseIndentation ? "  - " : "- ";
+                    sb.Append($"\n{prefix}{statusIconTag} {slotId}: {currentDurability:F0}/{maxDurability:F0} {statusText}");
+                }
+                else
+                {
+                    // 파츠가 없는 경우
+                    string prefix = UseIndentation ? "  - " : "- ";
+                    string missingIconTag = "<sprite index=20>"; // PART EMPTY 아이콘
+                    sb.Append($"\n{prefix}{missingIconTag} {slotId}: 없음"); 
+                }
+            }
+
+            // 최종 로그 기록 (LogLevel은 Debug나 Info 중 선택)
+            Log(sb.ToString(), LogLevel.Debug); 
         }
 
         #region Formatting Flag Control

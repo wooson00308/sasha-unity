@@ -216,8 +216,8 @@ MonoBehaviour:
   _scrollRect: {fileID: 1203827027}
   _logLinePrefab: {fileID: 2108587367042493686, guid: 5f13c62b6b0d9ff41b9d06e53abb5736, type: 3}
   _logContainer: {fileID: 1252633640}
-  _textAnimationDuration: 0.5
-  _lineDelay: 0.1
+  _textAnimationDuration: 0.1
+  _lineDelay: 0.05
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -521,7 +521,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1190774258}
   m_HandleRect: {fileID: 1190774257}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -600,9 +600,9 @@ RectTransform:
   m_Father: {fileID: 1203827026}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: -17, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1115104969
 MonoBehaviour:
@@ -794,7 +794,7 @@ MonoBehaviour:
   m_HorizontalScrollbar: {fileID: 0}
   m_VerticalScrollbar: {fileID: 620076053}
   m_HorizontalScrollbarVisibility: 2
-  m_VerticalScrollbarVisibility: 2
+  m_VerticalScrollbarVisibility: 1
   m_HorizontalScrollbarSpacing: -3
   m_VerticalScrollbarSpacing: -3
   m_OnValueChanged:
@@ -849,7 +849,6 @@ GameObject:
   - component: {fileID: 1252633640}
   - component: {fileID: 1252633642}
   - component: {fileID: 1252633643}
-  - component: {fileID: 1252633644}
   m_Layer: 5
   m_Name: Content
   m_TagString: Untagged
@@ -871,11 +870,11 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1115104968}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 960}
-  m_SizeDelta: {x: 1064, y: 0}
-  m_Pivot: {x: 0.5, y: 1}
+  m_AnchorMin: {x: 0, y: 0.5}
+  m_AnchorMax: {x: 1, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 500}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1252633642
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -902,7 +901,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 0
-  m_Spacing: 0
+  m_Spacing: 10
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 1
@@ -910,20 +909,6 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
---- !u!114 &1252633644
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1252633639}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_HorizontalFit: 0
-  m_VerticalFit: 1
 --- !u!1 &1339947198
 GameObject:
   m_ObjectHideFlags: 0
@@ -1151,34 +1136,34 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   battleParticipants:
   - useCustomAssembly: 1
-    assembly: {fileID: 11400000, guid: ecaa3137880ca2046a1d2b017661ad4f, type: 2}
-    customFrame: {fileID: 11400000, guid: 4953d225f51f1bf4a9dc8e0ee2bea8ee, type: 2}
-    customHead: {fileID: 11400000, guid: 84f18fb331da5db4a8e95e3f7040187c, type: 2}
-    customBody: {fileID: 11400000, guid: 26c1f6a7f2b7ad5459eb06bda6498e7c, type: 2}
-    customArms: {fileID: 11400000, guid: ca6e3261ee98e014c89c54376c308e71, type: 2}
-    customLegs: {fileID: 11400000, guid: 78d3cc7ae706ccb48a00fc1c2d8535ba, type: 2}
-    customWeaponR1: {fileID: 11400000, guid: 2c441138c51bce44ebeaa40cfe3bb82c, type: 2}
-    customWeaponL1: {fileID: 11400000, guid: 5ef8d5cea82b9224cb9f2b5ad48463da, type: 2}
-    customPilot: {fileID: 11400000, guid: 5a606a1b12582644bb00669016dec86a, type: 2}
+    assembly: {fileID: 11400000, guid: 903cf094c4dc7034483f90c9ce86aae5, type: 2}
     teamId: 1
     startPosition: {x: 0, y: 0, z: 0}
+    customFrame: {fileID: 11400000, guid: ae0e1f83a60977a4daeaba4d00a0247c, type: 2}
+    customHead: {fileID: 11400000, guid: 80688ab2f1942764db0d5e34cab92041, type: 2}
+    customBody: {fileID: 11400000, guid: 94c1560f515ef8c4c9ae57820ff8a608, type: 2}
+    customArms: {fileID: 11400000, guid: 2d7f95d4f61b04f48a6cada280e6736c, type: 2}
+    customLegs: {fileID: 11400000, guid: 0034c50c2583c91419dda8b22b5958d9, type: 2}
+    customWeaponR1: {fileID: 11400000, guid: 74b7090b268c6f741bba6c28f863d3f6, type: 2}
+    customWeaponL1: {fileID: 11400000, guid: f86a1e490c9ba454a9748a98815021b1, type: 2}
+    customPilot: {fileID: 11400000, guid: dacca43c482f4e347b0bae22f11d8be8, type: 2}
   - useCustomAssembly: 1
-    assembly: {fileID: 11400000, guid: d0eec328070f65d49b74e44744b73a8a, type: 2}
-    customFrame: {fileID: 11400000, guid: 845f8a86665567b459228dfbbdd31c14, type: 2}
-    customHead: {fileID: 11400000, guid: e3f09fa668e5caa46a1fcddfca46a27d, type: 2}
-    customBody: {fileID: 11400000, guid: 179fcae7bfe86e8438f3f86d044fd502, type: 2}
-    customArms: {fileID: 11400000, guid: 37bca43549854a9449ffcda387d27d05, type: 2}
-    customLegs: {fileID: 11400000, guid: f0b1f3d91a565d6449db9fd59c3c6ea0, type: 2}
-    customWeaponR1: {fileID: 11400000, guid: ef43926a272330b40aa15660935db9e1, type: 2}
-    customWeaponL1: {fileID: 11400000, guid: c08e3ceb85c8bb3469c6f4598a280083, type: 2}
-    customPilot: {fileID: 11400000, guid: 6fe1b293c2ad78b4eaa7daeb9276525d, type: 2}
+    assembly: {fileID: 0}
     teamId: 2
     startPosition: {x: 40, y: 0, z: 0}
-  logCombatDetails: 0
+    customFrame: {fileID: 11400000, guid: ae0e1f83a60977a4daeaba4d00a0247c, type: 2}
+    customHead: {fileID: 11400000, guid: 80688ab2f1942764db0d5e34cab92041, type: 2}
+    customBody: {fileID: 11400000, guid: 94c1560f515ef8c4c9ae57820ff8a608, type: 2}
+    customArms: {fileID: 11400000, guid: 2d7f95d4f61b04f48a6cada280e6736c, type: 2}
+    customLegs: {fileID: 11400000, guid: 0034c50c2583c91419dda8b22b5958d9, type: 2}
+    customWeaponR1: {fileID: 11400000, guid: 74b7090b268c6f741bba6c28f863d3f6, type: 2}
+    customWeaponL1: {fileID: 11400000, guid: 74b7090b268c6f741bba6c28f863d3f6, type: 2}
+    customPilot: {fileID: 11400000, guid: 10cb1ac32b0d52447ba0313757c7956e, type: 2}
+  logCombatDetails: 1
   showLogLevelPrefix: 0
   showTurnPrefix: 0
   useLogIndentation: 0
-  logActionSummaries: 0
+  logActionSummaries: 1
   logAIDecisions: 0
   currentBattleId: 
   currentTurn: 0

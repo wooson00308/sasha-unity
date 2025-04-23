@@ -3,13 +3,24 @@ using ExcelToSO.DataModels;
 using System;
 using System.Linq; // For splitting strings
 using AF.Models; // For Enums like FrameType
+using Sirenix.OdinInspector; // Added
+
+#if UNITY_EDITOR
+using UnityEditor; // Added
+#endif
 
 namespace AF.Data
 {
     [CreateAssetMenu(fileName = "NewFrameSO", menuName = "AF/Data/Frame SO")]
     public class FrameSO : ScriptableObject
     {
-        // Corresponding fields for FrameData properties
+        #if UNITY_EDITOR
+        [BoxGroup("Preview")]
+        [ShowInInspector, PreviewField(150), ReadOnly] // Preview size 150
+        private Sprite framePreview;
+        #endif
+
+        [OnValueChanged("UpdatePreview")] // Added
         public string FrameID;
         public string FrameName;
         public FrameType FrameType; // Use the actual Enum
@@ -31,7 +42,40 @@ namespace AF.Data
         public string Slot_Backpack;
         public string Slot_Weapon_1;
         public string Slot_Weapon_2;
+        [TextArea] // Added
         public string Notes;
+
+
+        #if UNITY_EDITOR
+        [Button("Update Preview"), BoxGroup("Preview")]
+        private void UpdatePreview()
+        {
+            framePreview = LoadSpritePreview(FrameID);
+        }
+
+        private Sprite LoadSpritePreview(string frameID)
+        {
+            if (string.IsNullOrEmpty(frameID))
+            {
+                return null;
+            }
+            string path = $"Assets/AF/Sprites/Frames/{frameID}.png"; // Use Frames folder
+             Sprite loadedSprite = AssetDatabase.LoadAssetAtPath<Sprite>(path);
+             // Optional: Log if sprite not found
+             // if (loadedSprite == null) Debug.LogWarning($"Preview sprite not found for frame ID: {frameID} at path: {path}");
+             return loadedSprite;
+        }
+
+        private void OnEnable()
+        {
+             EditorApplication.delayCall += UpdatePreview; // Delay call to ensure AssetDatabase is ready
+        }
+
+         private void OnDisable()
+         {
+             EditorApplication.delayCall -= UpdatePreview;
+         }
+        #endif
 
         // Apply method to populate fields from FrameData
         public void Apply(FrameData data)
@@ -69,6 +113,11 @@ namespace AF.Data
             Slot_Weapon_1 = data.Slot_Weapon_1;
             Slot_Weapon_2 = data.Slot_Weapon_2;
             Notes = data.Notes;
+
+            #if UNITY_EDITOR
+            // Update preview after applying data from Excel
+            UpdatePreview();
+            #endif
         }
     }
 } 

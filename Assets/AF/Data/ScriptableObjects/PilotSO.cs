@@ -4,12 +4,24 @@ using System;
 using System.Linq;
 using AF.Models;
 using System.Collections.Generic;
+using Sirenix.OdinInspector;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace AF.Data
 {
     [CreateAssetMenu(fileName = "NewPilotSO", menuName = "AF/Data/Pilot SO")]
     public class PilotSO : ScriptableObject
     {
+        #if UNITY_EDITOR
+        [BoxGroup("Preview")]
+        [ShowInInspector, PreviewField(150), ReadOnly]
+        private Sprite pilotPreview;
+        #endif
+
+        [OnValueChanged("UpdatePreview")]
         public string PilotID;
         public string PilotName;
         public float Stat_AttackPower;
@@ -24,7 +36,37 @@ namespace AF.Data
         public SpecializationType Specialization; // Enum
         public int InitialLevel;
         public List<string> InitialSkills; // List
+        [TextArea]
         public string Notes;
+
+        #if UNITY_EDITOR
+        [Button("Update Preview"), BoxGroup("Preview")]
+        private void UpdatePreview()
+        {
+            pilotPreview = LoadSpritePreview(PilotID);
+        }
+
+        private Sprite LoadSpritePreview(string pilotID)
+        {
+            if (string.IsNullOrEmpty(pilotID))
+            {
+                return null;
+            }
+            string path = $"Assets/AF/Sprites/Pilots/{pilotID}.png";
+            Sprite loadedSprite = AssetDatabase.LoadAssetAtPath<Sprite>(path);
+            return loadedSprite;
+        }
+
+        private void OnEnable()
+        {
+            EditorApplication.delayCall += UpdatePreview;
+        }
+
+        private void OnDisable()
+        {
+            EditorApplication.delayCall -= UpdatePreview;
+        }
+        #endif
 
         public void Apply(PilotData data)
         {
@@ -47,7 +89,7 @@ namespace AF.Data
             else
             {
                 Debug.LogWarning($"Failed to parse Specialization: {data.Specialization} for PilotID: {data.PilotID}. Defaulting to StandardCombat.");
-                Specialization = SpecializationType.StandardCombat; // Default value changed to StandardCombat
+                Specialization = SpecializationType.StandardCombat;
             }
 
             InitialLevel = data.InitialLevel;
@@ -55,6 +97,10 @@ namespace AF.Data
                                            .Select(s => s.Trim())
                                            .ToList() ?? new List<string>();
             Notes = data.Notes;
+
+            #if UNITY_EDITOR
+            UpdatePreview();
+            #endif
         }
     }
 } 

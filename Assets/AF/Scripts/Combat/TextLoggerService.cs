@@ -169,27 +169,27 @@ namespace AF.Combat
         private void HandleCombatStart(CombatSessionEvents.CombatStartEvent ev)
         {
             // TextLogger의 LogEvent 사용하던 것 복구
-            _textLogger?.Log($"=== 전투 시작 === ID: {ev.BattleId}, 이름: {ev.BattleName}", LogLevel.Info);
+            _textLogger?.Log($"<sprite index=11> === 전투 시작 === ID: {ev.BattleId}, 이름: {ev.BattleName}", LogLevel.Info); // BATTLE START 아이콘
             LogAllUnitDetailsOnInit(ev.Participants);
         }
 
         private void HandleCombatEnd(CombatSessionEvents.CombatEndEvent ev)
         {
             // TextLogger의 LogEvent 사용하던 것 복구
-            _textLogger?.Log($"=== 전투 종료 === ID: {ev.BattleId}, 결과: {ev.Result}, 지속시간: {ev.Duration:F1}초", LogLevel.Info);
+            _textLogger?.Log($"<sprite index=12> === 전투 종료 === ID: {ev.BattleId}, 결과: {ev.Result}, 지속시간: {ev.Duration:F1}초", LogLevel.Info); // BATTLE END 아이콘
         }
 
         private void HandleTurnStart(CombatSessionEvents.TurnStartEvent ev)
         {
             // TextLogger의 LogEvent 사용하던 것 복구
-            _textLogger?.Log($"--- Turn {ev.TurnNumber} 시작: [{ev.ActiveUnit.Name}] --- (ID: {ev.BattleId})", LogLevel.Info);
+            _textLogger?.Log($"<sprite index=13> --- Turn {ev.TurnNumber} 시작: [{ev.ActiveUnit.Name}] ---", LogLevel.Info); // TURN START 아이콘
             LogUnitDetailsOnTurnStart(ev.ActiveUnit);
         }
 
         private void HandleTurnEnd(CombatSessionEvents.TurnEndEvent ev)
         {
             // TextLogger의 LogEvent 사용하던 것 복구
-            _textLogger?.Log($"--- Turn {ev.TurnNumber} 종료: [{ev.ActiveUnit.Name}] --- (ID: {ev.BattleId})", LogLevel.Info);
+            _textLogger?.Log($"<sprite index=14> --- Turn {ev.TurnNumber} 종료: [{ev.ActiveUnit.Name}] ---", LogLevel.Info); // TURN END 아이콘
             LogAllUnitDetailsOnTurnEnd();
         }
 
@@ -210,7 +210,8 @@ namespace AF.Combat
                 // Vector3 포맷팅 개선 (소수점 한 자리)
                 string positionText = ev.NewPosition.HasValue ? $"({ev.NewPosition.Value.x:F1}, {ev.NewPosition.Value.y:F1}, {ev.NewPosition.Value.z:F1})" : "알 수 없는 위치";
 
-                string logMsg = $"{prefix}{ev.Actor.Name}(이)가 {targetName} 방향으로 {distanceText} 이동. 새 위치: {positionText}";
+                // <<< 이동 아이콘 추가 >>>
+                string logMsg = $"{prefix}<sprite index=10> {ev.Actor.Name}(이)가 {targetName} 방향으로 {distanceText} 이동. 새 위치: {positionText}"; // MOVE 아이콘
                 _textLogger?.Log(logMsg, LogLevel.Info);
             }
             // 이동 성공 외의 경우 + 행동 요약 로그 토글이 켜진 경우에만 일반 요약 로그 출력
@@ -220,7 +221,21 @@ namespace AF.Combat
                 string successText = ev.Success ? "성공" : "실패";
                 string prefix = _textLogger.UseIndentation ? "  " : "";
                 // 실패 이유(ResultDescription)는 포함하지 않음 (필요시 추가)
-                string logMsg = $"{prefix}{ev.Actor.Name}: {actionName} {successText}.";
+                
+                // <<< 행동 타입별 아이콘 추가 >>>
+                string actionIconTag = "";
+                switch (ev.Action)
+                {
+                    case CombatActionEvents.ActionType.Attack:
+                        actionIconTag = "<sprite index=8>"; // ATK 아이콘
+                        break;
+                    case CombatActionEvents.ActionType.Defend:
+                        actionIconTag = "<sprite index=9>"; // DEF 아이콘
+                        break;
+                    // 다른 ActionType에 대한 아이콘 추가 가능
+                }
+
+                string logMsg = $"{prefix}{actionIconTag} {ev.Actor.Name}: {actionName} {successText}.";
                 LogLevel logLevel = ev.Success ? LogLevel.Info : LogLevel.Warning;
                 _textLogger?.Log(logMsg, logLevel);
             }
@@ -232,22 +247,27 @@ namespace AF.Combat
             string logMsg;
             if (ev.Hit)
             {
-                logMsg = $"{ev.Attacker.Name}의 {ev.Weapon.Name}(이)가 {distance:F1}m 거리에서 {ev.Target.Name}에게 명중!";
+                // <<< 공격 성공 아이콘 추가 >>>
+                logMsg = $"<sprite index=8> {ev.Attacker.Name}의 {ev.Weapon.Name}(이)가 {distance:F1}m 거리에서 {ev.Target.Name}에게 명중!"; // ATK 아이콘 (명중)
             }
             else
             {
-                logMsg = $"{ev.Attacker.Name}의 {ev.Weapon.Name} 발사! 하지만 {distance:F1}m 거리의 {ev.Target.Name}(은)는 빗나갔다!"; // 또는 '...피했다!' 등
+                // <<< 공격 실패 아이콘 추가 (Miss와 구분 위해 ATK 사용) >>>
+                logMsg = $"<sprite index=8> {ev.Attacker.Name}의 {ev.Weapon.Name} 발사! 하지만 {distance:F1}m 거리의 {ev.Target.Name}(은)는 빗나갔다!"; // ATK 아이콘 (빗나감)
             }
             _textLogger?.Log(logMsg, LogLevel.Info);
         }
 
         private void HandleDamageApplied(DamageEvents.DamageAppliedEvent ev)
         {
-            string criticalText = ev.IsCritical ? "💥!!" : "";
+            // <<< 크리티컬 태그 수정: 인덱스 15 사용 >>>
+            string criticalTag = ev.IsCritical ? " <sprite index=15>!!" : ""; // CRIT! 아이콘
             string partName = ev.DamagedPart.ToString();
             // UseIndentation 플래그 확인하여 들여쓰기 적용 및 아이콘 제거
             string prefix = _textLogger.UseIndentation ? "  " : ""; 
-            string logMsg = $"{prefix}{ev.Target.Name}의 [{partName}]에 충격! [{ev.DamageDealt:F0}] 피해!{criticalText} (내구도: {ev.PartCurrentDurability:F0}/{ev.PartMaxDurability:F0})";
+            // <<< 메시지 생성 시 criticalTag 사용 >>>
+            // <<< 데미지 아이콘 추가 >>>
+            string logMsg = $"{prefix}<sprite index=0> {ev.Target.Name}의 [{partName}]에 충격! [{ev.DamageDealt:F0}] 피해!{criticalTag} (내구도: {ev.PartCurrentDurability:F0}/{ev.PartMaxDurability:F0})"; // HIT 아이콘
             _textLogger?.Log(logMsg, LogLevel.Warning);
         }
 
@@ -267,7 +287,8 @@ namespace AF.Combat
             // UseIndentation 플래그 확인 및 아이콘 제거, 공격자 정보 추가 (Source가 있다고 가정)
             string prefix = _textLogger.UseIndentation ? "  " : "";
             string attackerName = ev.Source != null ? ev.Source.Name : "알 수 없는 공격자"; // Null 체크 추가
-            string logMsg = $"{prefix}{ev.Target.Name}(이)가 {attackerName}의 공격을 {avoidanceText} ({ev.Type})";
+            // <<< 회피 아이콘 추가 >>>
+            string logMsg = $"{prefix}<sprite index=1> {ev.Target.Name}(이)가 {attackerName}의 공격을 {avoidanceText} ({ev.Type})"; // MISS 아이콘
             _textLogger?.Log(logMsg, LogLevel.Info);
         }
 
@@ -276,7 +297,8 @@ namespace AF.Combat
             // 잘못 수정된 내용 복구: 원래 파츠 파괴 로직으로 되돌림
             StringBuilder sb = new StringBuilder();
             string prefix = _textLogger.UseIndentation ? "  " : ""; 
-            sb.Append($"{prefix}*** 💥 파츠 파괴됨! *** ");
+            // <<< 파츠 파괴 태그 수정: 인덱스 2 사용 >>>
+            sb.Append($"{prefix}*** <sprite index=2> 파츠 파괴됨! *** "); // DESTROYED 아이콘
             sb.Append($"[{ev.Frame.Name}]의 [{ev.DestroyedPartType}]");
 
             if (ev.Destroyer != null)
@@ -300,7 +322,8 @@ namespace AF.Combat
             string magnitudeText = ev.Magnitude != 0f ? $" (강도: {ev.Magnitude:F1})" : "";
             // UseIndentation 플래그 확인하여 들여쓰기 적용 (✨ 앞)
             string prefix = _textLogger.UseIndentation ? "  " : ""; 
-            string logMsg = $"{prefix}✨ {sourceText}[{ev.Target.Name}]에게 [{effectName}] 효과 적용! ({durationText}){magnitudeText}";
+            // <<< 효과 적용 태그 수정: 인덱스 4 사용 >>>
+            string logMsg = $"{prefix}<sprite index=4> {sourceText}[{ev.Target.Name}]에게 [{effectName}] 효과 적용! ({durationText}){magnitudeText}"; // EFFECT+ 아이콘
             _textLogger?.Log(logMsg, LogLevel.Info);
         }
 
@@ -312,7 +335,8 @@ namespace AF.Combat
             string reason = ev.WasDispelled ? " (해제됨)" : "";
             // UseIndentation 플래그 확인하여 들여쓰기 적용 (💨 앞)
             string prefix = _textLogger.UseIndentation ? "  " : ""; 
-            string logMsg = $"{prefix}💨 [{ev.Target.Name}]의 [{effectName}] 효과 만료{reason}.";
+            // <<< 효과 만료 태그 수정: 인덱스 5 사용 >>>
+            string logMsg = $"{prefix}<sprite index=5> [{ev.Target.Name}]의 [{effectName}] 효과 만료{reason}."; // EFFECT- 아이콘
             _textLogger?.Log(logMsg, LogLevel.Info);
         }
 
@@ -321,10 +345,11 @@ namespace AF.Combat
             // TextLogger의 LogEvent 사용하던 것 복구
             string effectName = ev.Effect.EffectName;
             string tickAction = ev.Effect.TickEffectType == TickEffectType.DamageOverTime ? "피해" : "회복";
-            string tickEmoji = ev.Effect.TickEffectType == TickEffectType.DamageOverTime ? "🔥" : "💚";
+            // <<< DoT/HoT 태그 수정: 인덱스 6(DoT), 7(HoT) 사용 >>>
+            string tickIconTag = ev.Effect.TickEffectType == TickEffectType.DamageOverTime ? "<sprite index=6>" : "<sprite index=7>"; // TICK / HEAL TICK 아이콘
             // UseIndentation 플래그 확인하여 들여쓰기 적용
             string prefix = _textLogger.UseIndentation ? "  ㄴ" : "";
-            string logMsg = $"{prefix}{tickEmoji} [{ev.Target.Name}] < [{effectName}] 틱! ([{ev.Effect.TickValue:F0}] {tickAction})";
+            string logMsg = $"{prefix}{tickIconTag} [{ev.Target.Name}] < [{effectName}] 틱! ([{ev.Effect.TickValue:F0}] {tickAction})";
             _textLogger?.Log(logMsg, LogLevel.Info);
         }
         
@@ -333,7 +358,8 @@ namespace AF.Combat
 
         private void LogAllUnitDetailsOnInit(ArmoredFrame[] participants)
         {
-            _textLogger.Log("--- Initial Units Status ---", LogLevel.Info);
+            // <<< 유닛 상태 아이콘 추가 >>>
+            _textLogger.Log("<sprite index=16> --- Initial Units Status ---", LogLevel.Info); // UNIT 아이콘
             _previousPartDurability.Clear();
             if (participants != null)
             {
@@ -346,7 +372,8 @@ namespace AF.Combat
         
         private void LogAllUnitDetailsOnTurnEnd()
         {
-            _textLogger.Log("--- End of Turn Units Status ---", LogLevel.Info);
+            // <<< 유닛 상태 아이콘 추가 >>>
+            _textLogger.Log("<sprite index=16> --- End of Turn Units Status ---", LogLevel.Info); // UNIT 아이콘
 
             // 참가자 목록 가져오기 (CombatSimulatorService에서 가져오는 것이 더 안정적일 수 있음)
             var simulator = ServiceLocator.Instance.GetService<ICombatSimulatorService>();
@@ -394,7 +421,8 @@ namespace AF.Combat
 
         private void LogUnitDetailsOnTurnStart(ArmoredFrame unit)
         {
-            _textLogger.Log($"--- Turn Start: {unit?.Name} Status ---", LogLevel.Info);
+            // <<< 유닛 상태 아이콘 추가 >>>
+            _textLogger.Log($"<sprite index=16> --- Turn Start: {unit?.Name} Status ---", LogLevel.Info); // UNIT 아이콘
             LogUnitDetailsInternal(unit, false);
         }
 
@@ -418,7 +446,9 @@ namespace AF.Combat
             {
                 apChangeIndicator = $" [{(unit.CurrentAP - previousAP):+0.0;-0.0}]"; // 부호 표시 (+/-)
             }
-            sb.AppendLine($"  Unit: {unit.Name} {(unit.IsOperational ? "(✅)" : "(💀)")} | AP: {unit.CurrentAP:F1}/{unit.CombinedStats.MaxAP:F1}{apChangeIndicator}"); // 이모지 변경 및 AP 변화량 추가
+            // <<< 유닛 상태 태그 수정: 인덱스 17(정상), 2(파괴) 사용 >>>
+            string statusTag = unit.IsOperational ? "<sprite index=17>" : "<sprite index=2>"; // PART OK / DESTROYED 아이콘
+            sb.AppendLine($"  Unit: {unit.Name} {statusTag} | AP: {unit.CurrentAP:F1}/{unit.CombinedStats.MaxAP:F1}{apChangeIndicator}"); // 이모지 변경 및 AP 변화량 추가
             
             // 현재 AP 기록 업데이트
             _previousUnitAP[unit] = unit.CurrentAP; // _previousUnitAP 딕셔너리 필요
@@ -445,10 +475,10 @@ namespace AF.Combat
                         float durabilityChange = currentDurability - previousDurability;
                         if (Mathf.Abs(durabilityChange) > 0.01f)
                         {
-                            // 내구도 변화량 강조 (예: +10🟢, -25🔴)
+                            // <<< 내구도 변화량 태그 수정: 인덱스 4(증가), 0(감소) 사용 >>>
                             string sign = durabilityChange > 0 ? "+" : "";
-                            string colorEmoji = durabilityChange > 0 ? "🟢" : "🔴";
-                            changeIndicator = $" [{sign}{durabilityChange:F0}{colorEmoji}]"; 
+                            string changeIconTag = durabilityChange > 0 ? "<sprite index=4>" : "<sprite index=0>"; // EFFECT+ / HIT 아이콘
+                            changeIndicator = $" [{sign}{durabilityChange:F0}{changeIconTag}]"; 
                         }
                     }
                     status = $"OK ({currentDurability:F0}/{part.MaxDurability:F0}){changeIndicator}";
@@ -456,7 +486,8 @@ namespace AF.Combat
                 }
                 else
                 {
-                    status = "DESTROYED 💀"; // 파괴 시 이모지 추가
+                    // <<< 파츠 파괴 태그 수정: 인덱스 2 사용 >>>
+                    status = "DESTROYED <sprite index=2>"; // DESTROYED 아이콘
                     _previousPartDurability.Remove(key);
                 }
                 // 파츠 정보 각 줄 추가
@@ -470,9 +501,10 @@ namespace AF.Combat
             {
                 foreach (var weapon in weapons)
                 {
-                    string weaponStatus = weapon.IsOperational ? "(✅)" : "(❌)"; // 무기 상태 이모지 변경
+                    // <<< 무기 상태 태그 수정: 인덱스 17(정상), 3(고장) 사용 >>>
+                    string weaponStatusTag = weapon.IsOperational ? "<sprite index=17>" : "<sprite index=3>"; // PART OK / SYS FAIL 아이콘
                     // 무기 정보 각 줄 추가
-                    sb.AppendLine($"      - {weapon.Name}: {weaponStatus}");
+                    sb.AppendLine($"      - {weapon.Name}: {weaponStatusTag}");
                 }
             } else {
                 sb.AppendLine("      - None"); // 무기 없을 때
