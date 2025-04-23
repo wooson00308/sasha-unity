@@ -173,7 +173,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      PILOT_SASHA_AI_0: -6409124515071486057
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

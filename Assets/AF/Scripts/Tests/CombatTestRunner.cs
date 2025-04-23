@@ -20,6 +20,25 @@ namespace AF.Tests
     /// </summary>
     public class CombatTestRunner : MonoBehaviour
     {
+        // --- Re-add Color Palette for Team IDs ---
+        private static readonly List<Color> teamColorPalette = new List<Color>
+        {
+            new Color(0.9f, 0.2f, 0.2f), // Red
+            new Color(0.2f, 0.4f, 0.9f), // Blue
+            new Color(0.2f, 0.8f, 0.3f), // Green
+            new Color(0.9f, 0.8f, 0.2f), // Yellow
+            new Color(0.8f, 0.3f, 0.9f), // Magenta
+            new Color(0.3f, 0.8f, 0.9f), // Cyan
+            new Color(0.9f, 0.5f, 0.2f), // Orange
+            new Color(0.6f, 0.3f, 0.9f), // Purple
+            new Color(0.5f, 0.9f, 0.2f), // Lime
+            new Color(0.2f, 0.7f, 0.7f), // Teal
+            Color.grey // Default/fallback
+        };
+        private Dictionary<int, Color> _currentTeamColors = new Dictionary<int, Color>();
+        // --- End Re-add Color Palette ---
+        public static CombatTestRunner Instance { get; private set; }
+
         [TitleGroup("전투 테스트 설정")]
         [InfoBox("전투 테스트에 참여할 기체와 팀 설정을 구성합니다.")]
         [Serializable]
@@ -33,105 +52,125 @@ namespace AF.Tests
             public bool useCustomAssembly;
 
             [VerticalGroup("TopConfig/Left")]
+            [EnableIf("useCustomAssembly")]
+            [LabelText("기체 이름")]
+            public string customAFName;
+
+            [VerticalGroup("TopConfig/Left")]
             [EnableIf("@!useCustomAssembly")]
             [OnValueChanged("UpdatePreviews")]
             [PreviewField(50, ObjectFieldAlignment.Left), HideLabel]
             public AssemblySO assembly;
 
+            // --- Right Side Grouping ---
             [VerticalGroup("TopConfig/Right")]
-            [LabelWidth(60)]
+            [HorizontalGroup("TopConfig/Right/TeamInfo", LabelWidth = 60)] // Team ID + Color Row
+            [OnValueChanged("@AF.Tests.CombatTestRunner.Instance?.ValidateSetup()")] // Update color on change
             public int teamId;
 
-            [VerticalGroup("TopConfig/Right")]
+            [HorizontalGroup("TopConfig/Right/TeamInfo", Width = 30)] // Color Box
+            [HideLabel, ReadOnly]
+            public Color teamColorPreview; // Re-add color preview field
+
+            [PropertySpace(5)] // Space below Team info
             [LabelWidth(60)]
             public Vector3 startPosition;
+            // --- End Right Side Grouping ---
 
             // --- Unified Parts Configuration & Preview --- 
-            [BoxGroup("파트 구성")]
-            [HorizontalGroup("파트 구성/Frame", LabelWidth = 100)]
-            [VerticalGroup("파트 구성/Frame/SO")]
+            [FoldoutGroup("파츠 구성")]
+            [HorizontalGroup("파츠 구성/Frame", LabelWidth = 100)]
+            [VerticalGroup("파츠 구성/Frame/SO")]
             [EnableIf("useCustomAssembly")] // SO Field enabled only in custom mode
             [ValueDropdown("@AF.Tests.CombatTestRunner.GetFrameValues()")]
             [OnValueChanged("UpdatePreviews")]
             public FrameSO customFrame;
-            [VerticalGroup("파트 구성/Frame/Preview")]
+            [FoldoutGroup("파츠 구성")]
+            [HorizontalGroup("파츠 구성/Frame/Preview")]
             [ShowInInspector, PreviewField(80), ReadOnly, HideLabel] // Preview always visible
             private Sprite customFramePreview;
 
-            [BoxGroup("파트 구성")]
-            [HorizontalGroup("파트 구성/Head", LabelWidth = 100)]
-            [VerticalGroup("파트 구성/Head/SO")]
+            [FoldoutGroup("파츠 구성")]
+            [HorizontalGroup("파츠 구성/Head", LabelWidth = 100)]
+            [VerticalGroup("파츠 구성/Head/SO")]
             [EnableIf("useCustomAssembly")]
             [ValueDropdown("@AF.Tests.CombatTestRunner.GetHeadPartValues()")]
             [OnValueChanged("UpdatePreviews")]
             public PartSO customHead;
-            [VerticalGroup("파트 구성/Head/Preview")]
+            [FoldoutGroup("파츠 구성")]
+            [HorizontalGroup("파츠 구성/Head/Preview")]
             [ShowInInspector, PreviewField(80), ReadOnly, HideLabel]
             private Sprite customHeadPreview;
 
-            [BoxGroup("파트 구성")]
-            [HorizontalGroup("파트 구성/Body", LabelWidth = 100)]
-            [VerticalGroup("파트 구성/Body/SO")]
+            [FoldoutGroup("파츠 구성")]
+            [HorizontalGroup("파츠 구성/Body", LabelWidth = 100)]
+            [VerticalGroup("파츠 구성/Body/SO")]
             [EnableIf("useCustomAssembly")]
             [ValueDropdown("@AF.Tests.CombatTestRunner.GetBodyPartValues()")]
             [OnValueChanged("UpdatePreviews")]
             public PartSO customBody;
-            [VerticalGroup("파트 구성/Body/Preview")]
+            [FoldoutGroup("파츠 구성")]
+            [HorizontalGroup("파츠 구성/Body/Preview")]
             [ShowInInspector, PreviewField(80), ReadOnly, HideLabel]
             private Sprite customBodyPreview;
 
-            [BoxGroup("파트 구성")]
-            [HorizontalGroup("파트 구성/Arms", LabelWidth = 100)]
-            [VerticalGroup("파트 구성/Arms/SO")]
+            [FoldoutGroup("파츠 구성")]
+            [HorizontalGroup("파츠 구성/Arms", LabelWidth = 100)]
+            [VerticalGroup("파츠 구성/Arms/SO")]
             [EnableIf("useCustomAssembly")]
             [ValueDropdown("@AF.Tests.CombatTestRunner.GetArmsPartValues()")]
             [OnValueChanged("UpdatePreviews")]
             public PartSO customArms; // Assuming single Arms SO field
-            [VerticalGroup("파트 구성/Arms/Preview")]
+            [FoldoutGroup("파츠 구성")]
+            [HorizontalGroup("파츠 구성/Arms/Preview")]
             [ShowInInspector, PreviewField(80), ReadOnly, HideLabel]
             private Sprite customArmsPreview;
 
-            [BoxGroup("파트 구성")]
-            [HorizontalGroup("파트 구성/Legs", LabelWidth = 100)]
-            [VerticalGroup("파트 구성/Legs/SO")]
+            [FoldoutGroup("파츠 구성")]
+            [HorizontalGroup("파츠 구성/Legs", LabelWidth = 100)]
+            [VerticalGroup("파츠 구성/Legs/SO")]
             [EnableIf("useCustomAssembly")]
             [ValueDropdown("@AF.Tests.CombatTestRunner.GetLegsPartValues()")]
             [OnValueChanged("UpdatePreviews")]
             public PartSO customLegs;
-            [VerticalGroup("파트 구성/Legs/Preview")]
+            [FoldoutGroup("파츠 구성")]
+            [HorizontalGroup("파츠 구성/Legs/Preview")]
             [ShowInInspector, PreviewField(80), ReadOnly, HideLabel]
             private Sprite customLegsPreview;
 
-            [BoxGroup("파트 구성")]
-            [HorizontalGroup("파트 구성/WeaponR1", LabelWidth = 100)]
-            [VerticalGroup("파트 구성/WeaponR1/SO")]
+            [FoldoutGroup("파츠 구성")]
+            [HorizontalGroup("파츠 구성/WeaponR1", LabelWidth = 100)]
+            [VerticalGroup("파츠 구성/WeaponR1/SO")]
             [EnableIf("useCustomAssembly")]
             [ValueDropdown("@AF.Tests.CombatTestRunner.GetWeaponValues()")]
             [OnValueChanged("UpdatePreviews")]
             public WeaponSO customWeaponR1;
-            [VerticalGroup("파트 구성/WeaponR1/Preview")]
+            [FoldoutGroup("파츠 구성")]
+            [HorizontalGroup("파츠 구성/WeaponR1/Preview")]
             [ShowInInspector, PreviewField(80), ReadOnly, HideLabel]
             private Sprite customWeaponR1Preview;
 
-            [BoxGroup("파트 구성")]
-            [HorizontalGroup("파트 구성/WeaponL1", LabelWidth = 100)]
-            [VerticalGroup("파트 구성/WeaponL1/SO")]
+            [FoldoutGroup("파츠 구성")]
+            [HorizontalGroup("파츠 구성/WeaponL1", LabelWidth = 100)]
+            [VerticalGroup("파츠 구성/WeaponL1/SO")]
             [EnableIf("useCustomAssembly")]
             [ValueDropdown("@AF.Tests.CombatTestRunner.GetWeaponValues()")]
             [OnValueChanged("UpdatePreviews")]
             public WeaponSO customWeaponL1;
-            [VerticalGroup("파트 구성/WeaponL1/Preview")]
+            [FoldoutGroup("파츠 구성")]
+            [HorizontalGroup("파츠 구성/WeaponL1/Preview")]
             [ShowInInspector, PreviewField(80), ReadOnly, HideLabel]
             private Sprite customWeaponL1Preview;
 
-            [BoxGroup("파트 구성")]
-            [HorizontalGroup("파트 구성/Pilot", LabelWidth = 100)]
-            [VerticalGroup("파트 구성/Pilot/SO")]
+            [FoldoutGroup("파츠 구성")]
+            [HorizontalGroup("파츠 구성/Pilot", LabelWidth = 100)]
+            [VerticalGroup("파츠 구성/Pilot/SO")]
             [EnableIf("useCustomAssembly")]
             [ValueDropdown("@AF.Tests.CombatTestRunner.GetPilotValues()")]
             [OnValueChanged("UpdatePreviews")]
             public PilotSO customPilot;
-            [VerticalGroup("파트 구성/Pilot/Preview")]
+            [FoldoutGroup("파츠 구성")]
+            [HorizontalGroup("파츠 구성/Pilot/Preview")]
             [ShowInInspector, PreviewField(80), ReadOnly, HideLabel]
             private Sprite customPilotPreview;
 
@@ -160,9 +199,6 @@ namespace AF.Tests
                     customLegsPreview = LoadSpritePreview(customLegs?.PartID, "Parts");
                     customWeaponR1Preview = LoadSpritePreview(customWeaponR1?.WeaponID, "Weapons");
                     customWeaponL1Preview = LoadSpritePreview(customWeaponL1?.WeaponID, "Weapons");
-                    
-                    // Clear assembly SO when switching to custom mode
-                    // assembly = null; // Optional: Decide if you want to clear this
                 }
                 else // Assembly Mode
                 {
@@ -178,7 +214,7 @@ namespace AF.Tests
                         WeaponSO weapon2SO = FindResource<WeaponSO>("Weapons", assembly.Weapon2ID);
                         PilotSO pilotSO = FindResource<PilotSO>("Pilots", assembly.PilotID);
 
-                        // Populate the disabled custom fields
+                        // Populate the disabled custom fields (including name)
                         customFrame = frameSO;
                         customHead = headSO;
                         customBody = bodySO;
@@ -187,6 +223,7 @@ namespace AF.Tests
                         customWeaponR1 = weapon1SO;
                         customWeaponL1 = weapon2SO;
                         customPilot = pilotSO;
+                        customAFName = assembly.AFName ?? assembly.name; // Populate name from AssemblySO
 
                         // Update previews based on the loaded SOs
                         customFramePreview = LoadSpritePreview(frameSO?.FrameID, "Frames");
@@ -209,7 +246,7 @@ namespace AF.Tests
                         customWeaponR1 = null;
                         customWeaponL1 = null;
                         customPilot = null;
-                        // Previews were already cleared at the beginning
+                        customAFName = null; // Clear name field
                     }
                 }
             }
@@ -263,8 +300,8 @@ namespace AF.Tests
         public void AddParticipant()
         {
             battleParticipants.Add(new AFSetup { teamId = battleParticipants.Count > 0 ? battleParticipants.Max(p => p.teamId) + 1 : 0 });
+            ValidateSetup(); // Re-add call to update colors
         }
-
 
         private void ValidateSetup()
         {
@@ -300,7 +337,39 @@ namespace AF.Tests
                     }
                 }
             }
+
+            // Re-add call to UpdateTeamColors
+            UpdateTeamColors(); 
         }
+
+        // --- Re-add Team Color Logic ---
+        private void UpdateTeamColors()
+        {
+            _currentTeamColors.Clear();
+            if (battleParticipants == null) return; 
+
+            var uniqueTeamIds = battleParticipants.Select(p => p.teamId).Distinct().OrderBy(id => id).ToList();
+
+            for (int i = 0; i < uniqueTeamIds.Count; i++)
+            {
+                int teamId = uniqueTeamIds[i];
+                Color color = teamColorPalette[i % teamColorPalette.Count];
+                _currentTeamColors[teamId] = color;
+            }
+
+            foreach (var setup in battleParticipants)
+            {
+                if (_currentTeamColors.TryGetValue(setup.teamId, out Color color))
+                {
+                    setup.teamColorPreview = color;
+                }
+                else
+                {
+                    setup.teamColorPreview = Color.white; 
+                }
+            }
+        }
+        // --- End Re-add Team Color Logic ---
 
         [FoldoutGroup("전투 옵션", expanded: true)]
         [LabelText("세부 로그 표시")]
@@ -349,7 +418,13 @@ namespace AF.Tests
 
         private void Awake()
         {
+            Instance = this;
             LoadAllScriptableObjects();
+        }
+
+        private void OnDestroy()
+        {
+            if (Instance == this) Instance = null;
         }
 
         private void LoadAllScriptableObjects()
@@ -690,8 +765,10 @@ namespace AF.Tests
             }
             if (frame == null) { return null; } // 프레임 생성 실패
 
-            // 2. ArmoredFrame 기본 인스턴스 생성
-            string instanceName = $"Custom AF {participantIndex}";
+            // 2. ArmoredFrame 기본 인스턴스 생성 (Use custom name if provided)
+            string instanceName = string.IsNullOrEmpty(setup.customAFName) 
+                                ? $"Custom AF {participantIndex}" 
+                                : setup.customAFName; // Use custom name here
             ArmoredFrame af = new ArmoredFrame(instanceName, frame, setup.startPosition, setup.teamId);
 
             // 3. 파일럿 할당

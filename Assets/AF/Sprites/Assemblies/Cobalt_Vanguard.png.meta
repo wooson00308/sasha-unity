@@ -173,7 +173,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Cobalt_Vanguard_0: 5968081329803648931
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
