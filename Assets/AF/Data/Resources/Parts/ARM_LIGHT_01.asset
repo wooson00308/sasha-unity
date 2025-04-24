@@ -15,7 +15,7 @@ MonoBehaviour:
   PartID: ARM_LIGHT_01
   PartName: "\uACBD\uB7C9 \uD314 \uC720\uB2DB"
   PartType: 3
-  Stat_AttackPower: 1.1
+  Stat_AttackPower: 1
   Stat_Defense: 0
   Stat_Speed: 0
   Stat_Accuracy: 0

@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 81ce1fb27f51bd147be5441db5347c5c, type: 3}
+  m_Name: FRM_GUARDIAN_01
+  m_EditorClassIdentifier: 
+  FrameID: FRM_GUARDIAN_01
+  FrameName: "\uAC00\uB514\uC5B8 \uD5E4\uBE44\uC2E4\uB4DC"
+  FrameType: 2
+  Stat_AttackPower: 0
+  Stat_Defense: 18
+  Stat_Speed: 2
+  Stat_Accuracy: 0
+  Stat_Evasion: 0
+  Stat_Durability: 800
+  Stat_EnergyEff: 0.35
+  Stat_MaxAP: 9
+  Stat_APRecovery: 4
+  FrameWeight: 90
+  Slot_Head: HeadSlot
+  Slot_Body: BodySlot
+  Slot_Arm_L: ArmSlot_L
+  Slot_Arm_R: ArmSlot_R
+  Slot_Legs: LegsSlot
+  Slot_Backpack: BackpackSlot
+  Slot_Weapon_1: WeaponSlot_R
+  Slot_Weapon_2: 
+  Notes: "\uCD5C\uC804\uC120 \uBC29\uC5B4 \uBC0F \uD654\uB825 \uC9C0\uC6D0 \uCEE8\uC149"

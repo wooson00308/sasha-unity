@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 81ce1fb27f51bd147be5441db5347c5c, type: 3}
+  m_Name: FRM_PHANTOM_01
+  m_EditorClassIdentifier: 
+  FrameID: FRM_PHANTOM_01
+  FrameName: "\uD32C\uD140 \uC2A4\uD2B8\uB77C\uC774\uB354"
+  FrameType: 0
+  Stat_AttackPower: 0
+  Stat_Defense: 2
+  Stat_Speed: 9
+  Stat_Accuracy: 0
+  Stat_Evasion: 0.35
+  Stat_Durability: 450
+  Stat_EnergyEff: 0.65
+  Stat_MaxAP: 6
+  Stat_APRecovery: 2.8
+  FrameWeight: 45
+  Slot_Head: HeadSlot
+  Slot_Body: BodySlot
+  Slot_Arm_L: ArmSlot_L
+  Slot_Arm_R: ArmSlot_R
+  Slot_Legs: LegsSlot
+  Slot_Backpack: 
+  Slot_Weapon_1: WeaponSlot_R
+  Slot_Weapon_2: WeaponSlot_L
+  Notes: "\uACE0\uAE30\uB3D9\uC131 \uC815\uCC30 \uBC0F \uAD50\uB780 \uCEE8\uC149"

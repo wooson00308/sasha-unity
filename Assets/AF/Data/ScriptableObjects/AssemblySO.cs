@@ -64,62 +64,75 @@ namespace AF.Data
 
         // --- Preview Section Start ---
         #if UNITY_EDITOR
-        [BoxGroup("Part Previews", ShowLabel = false)]
-        [ShowInInspector, PreviewField(100), ReadOnly]
+
+        // Frame Preview
+        [BoxGroup("Frame Preview", ShowLabel = false)]
+        [ShowInInspector, PreviewField(150), ReadOnly]
+        private Sprite framePreview;
+
+        // Pilot Preview
+        [BoxGroup("Pilot Preview", ShowLabel = false)]
+        [ShowInInspector, PreviewField(150), ReadOnly]
+        private Sprite pilotPreview;
+
+        // Part Previews (Existing, slightly reorganized)
+        [BoxGroup("Part Previews", ShowLabel = true)] // Show label for this group
+        [HorizontalGroup("Part Previews/Row1"), ShowInInspector, PreviewField(100), ReadOnly]
         private Sprite headPreview;
 
-        [BoxGroup("Part Previews")]
-        [ShowInInspector, PreviewField(100), ReadOnly]
+        [HorizontalGroup("Part Previews/Row1"), ShowInInspector, PreviewField(100), ReadOnly]
         private Sprite bodyPreview;
 
-        [BoxGroup("Part Previews")]
-        [ShowInInspector, PreviewField(100), ReadOnly]
+        [HorizontalGroup("Part Previews/Row2"), ShowInInspector, PreviewField(100), ReadOnly]
         private Sprite leftArmPreview;
 
-        [BoxGroup("Part Previews")]
-        [ShowInInspector, PreviewField(100), ReadOnly]
+        [HorizontalGroup("Part Previews/Row2"), ShowInInspector, PreviewField(100), ReadOnly]
         private Sprite rightArmPreview;
 
-        [BoxGroup("Part Previews")]
-        [ShowInInspector, PreviewField(100), ReadOnly]
+        [HorizontalGroup("Part Previews/Row3"), ShowInInspector, PreviewField(100), ReadOnly]
         private Sprite legsPreview;
 
-        [BoxGroup("Part Previews")]
-        [ShowInInspector, PreviewField(100), ReadOnly]
+        [HorizontalGroup("Part Previews/Row3"), ShowInInspector, PreviewField(100), ReadOnly]
         private Sprite backpackPreview;
-        
-        [Button("Update Previews"), BoxGroup("Part Previews")]
+
+        // Weapon Previews
+        [BoxGroup("Weapon Previews", ShowLabel = true)] // Show label for this group
+        [HorizontalGroup("Weapon Previews/Row1"), ShowInInspector, PreviewField(100), ReadOnly]
+        private Sprite weapon1Preview;
+
+        [HorizontalGroup("Weapon Previews/Row1"), ShowInInspector, PreviewField(100), ReadOnly]
+        private Sprite weapon2Preview;
+
+        [Button("Update All Previews"), PropertyOrder(100)] // Move button below all previews
         private void UpdatePreviews()
         {
-            // Add assembly preview loading
-            assemblyPreview = LoadAssemblySpritePreview(AssemblyID);
+            // Load assembly preview
+            assemblyPreview = LoadSpritePreview(AssemblyID, "Assemblies");
 
-            // Existing part previews (using renamed method)
-            headPreview = LoadPartSpritePreview(HeadPartID);
-            bodyPreview = LoadPartSpritePreview(BodyPartID);
-            leftArmPreview = LoadPartSpritePreview(LeftArmPartID);
-            rightArmPreview = LoadPartSpritePreview(RightArmPartID);
-            legsPreview = LoadPartSpritePreview(LegsPartID);
-            backpackPreview = LoadPartSpritePreview(BackpackPartID);
+            // Load component previews
+            framePreview = LoadSpritePreview(FrameID, "Frames");
+            pilotPreview = LoadSpritePreview(PilotID, "Pilots");
+            headPreview = LoadSpritePreview(HeadPartID, "Parts");
+            bodyPreview = LoadSpritePreview(BodyPartID, "Parts");
+            leftArmPreview = LoadSpritePreview(LeftArmPartID, "Parts");
+            rightArmPreview = LoadSpritePreview(RightArmPartID, "Parts");
+            legsPreview = LoadSpritePreview(LegsPartID, "Parts");
+            backpackPreview = LoadSpritePreview(BackpackPartID, "Parts");
+            weapon1Preview = LoadSpritePreview(Weapon1ID, "Weapons");
+            weapon2Preview = LoadSpritePreview(Weapon2ID, "Weapons");
         }
 
-        // Renamed for clarity
-        private Sprite LoadPartSpritePreview(string partID)
+        // Unified method to load previews based on ID and type (folder)
+        private Sprite LoadSpritePreview(string id, string typeFolder)
         {
-            if (string.IsNullOrEmpty(partID)) return null;
-            string path = $"Assets/AF/Sprites/Parts/{partID}.png";
+            if (string.IsNullOrEmpty(id)) return null;
+            // Construct path assuming base folder Assets/AF/Sprites/
+            string path = $"Assets/AF/Sprites/{typeFolder}/{id}.png";
             return AssetDatabase.LoadAssetAtPath<Sprite>(path);
-        }
-
-        // New method for assembly preview
-        private Sprite LoadAssemblySpritePreview(string assemblyID)
-        {
-             if (string.IsNullOrEmpty(assemblyID)) return null;
-             string path = $"Assets/AF/Sprites/Assemblies/{assemblyID}.png"; // Use Assemblies folder
-             Sprite loadedSprite = AssetDatabase.LoadAssetAtPath<Sprite>(path);
-             // Optional: Log if assembly sprite not found
-             // if (loadedSprite == null) Debug.LogWarning($"Preview sprite not found for assembly ID: {assemblyID} at path: {path}");
-             return loadedSprite;
+            // Optional: Log if sprite not found
+            // Sprite loadedSprite = AssetDatabase.LoadAssetAtPath<Sprite>(path);
+            // if (loadedSprite == null) Debug.LogWarning($"Preview sprite not found for ID: {id} in folder: {typeFolder} at path: {path}");
+            // return loadedSprite;
         }
 
         // Call UpdatePreviews when the SO is enabled in the editor or selection changes

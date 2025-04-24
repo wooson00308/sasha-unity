@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5fd8c816985b1e4ba3eee2c446bc307, type: 3}
+  m_Name: LEGS_PHANTOM_STRIDER_01
+  m_EditorClassIdentifier: 
+  PartID: LEGS_PHANTOM_STRIDER_01
+  PartName: "\uD32C\uD140 \uB2D8\uBC84\uC2A4 \uC2A4\uD2B8\uB77C\uC774\uB354"
+  PartType: 4
+  Stat_AttackPower: 0
+  Stat_Defense: 0
+  Stat_Speed: 4
+  Stat_Accuracy: 0
+  Stat_Evasion: 1.4
+  Stat_Durability: 0
+  Stat_EnergyEff: 0.5
+  Stat_MaxAP: 0
+  Stat_APRecovery: 0
+  MaxDurability: 90
+  PartWeight: 20
+  Abilities:
+  - Hover
+  Notes: "\uACE0\uC18D \uD638\uBC84 \uC774\uB3D9 \uBC0F \uD68C\uD53C \uAE30\uB3D9
+    \uAC15\uD654"

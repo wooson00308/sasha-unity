@@ -1,0 +1,725 @@
+=== 전투 로그: BattleLog_BATTLE_20250423_190841_2374 ===
+생성 시간: 2025-04-23 오후 7:08:42
+==================================================
+
+전투 시뮬레이션 시작 준비... (ID: bc0994e3)
+--- AF 생성 완료: [신속의 세이버] (AF_SWIFT_SABER) ---
+참가자 [신속의 세이버] 생성 완료 (팀: 1, 위치: (0.00, 0.00, 0.00))
+--- 커스텀 AF 생성 완료: [Custom AF 2] (팀: 2) ---
+참가자 [Custom AF 2] 생성 완료 (팀: 2, 위치: (40.00, 0.00, 0.00))
+모든 참가자 생성 완료. 전투 시뮬레이션 시작.
+[BATTLE START] === 전투 시작 === ID: BATTLE_20250423_190841_2374, 이름: Test Battle 19:08:41
+[UNIT] --- Initial Units Status ---
+  Unit: 신속의 세이버  | AP: 7.0/7.0
+    Stats: Atk:5.9/Def:8.7/Spd:15.0/Acc:3.4/Eva:2.2
+    Parts:
+      - Arm_Left (표준 팔 유닛): OK (85/85)
+      - Arm_Right (정밀 조준 팔): OK (75/75)
+      - Body (표준 바디 유닛): OK (160/160)
+      - Head (경량 헤드 유닛): OK (40/40)
+      - Legs (경량 다리 유닛): OK (80/80)
+    Weapons:
+      - 경량 에너지 세이버: 
+      - 경량 기관단총: 
+  Unit: Custom AF 2  | AP: 7.0/7.0
+    Stats: Atk:7.2/Def:11.9/Spd:13.0/Acc:1.9/Eva:1.3
+    Parts:
+      - Arm_Left (표준 팔 유닛): OK (85/85)
+      - Arm_Right (표준 팔 유닛): OK (85/85)
+      - Body (표준 바디 유닛): OK (160/160)
+      - Head (표준 헤드 유닛): OK (55/55)
+      - Legs (표준 다리 유닛): OK (115/115)
+    Weapons:
+      - 표준 라이플: 
+      - 경량 에너지 세이버: 
+[TURN START] --- Turn 1 시작: [신속의 세이버] ---
+[UNIT] --- Turn Start: 신속의 세이버 Status ---
+  Unit: 신속의 세이버  | AP: 7.0/7.0
+    Stats: Atk:5.9/Def:8.7/Spd:15.0/Acc:3.4/Eva:2.2
+    Parts:
+      - Arm_Left (표준 팔 유닛): OK (85/85)
+      - Arm_Right (정밀 조준 팔): OK (75/75)
+      - Body (표준 바디 유닛): OK (160/160)
+      - Head (경량 헤드 유닛): OK (40/40)
+      - Legs (경량 다리 유닛): OK (80/80)
+    Weapons:
+      - 경량 에너지 세이버: 
+      - 경량 기관단총: 
+[MOVE] 신속의 세이버(이)가 Custom AF 2 방향으로 15.0 만큼 이동. 새 위치: (15.0, 0.0, 0.0)
+[MOVE] 신속의 세이버(이)가 Custom AF 2 방향으로 15.0 만큼 이동. 새 위치: (30.0, 0.0, 0.0)
+[MOVE] 신속의 세이버(이)가 Custom AF 2 방향으로 10.0 만큼 이동. 새 위치: (40.0, 0.0, 0.0)
+[ATK] 신속의 세이버의 경량 기관단총(이)가 0.0m 거리에서 Custom AF 2에게 명중!
+[HIT] Custom AF 2의 [Head]에 충격! [17] 피해! !! (내구도: 38/55)
+[ATK] 신속의 세이버: Attack 성공.
+[ATK] 신속의 세이버의 경량 기관단총(이)가 0.0m 거리에서 Custom AF 2에게 명중!
+[HIT] Custom AF 2의 [Arm]에 충격! [11] 피해! (내구도: 74/85)
+[ATK] 신속의 세이버: Attack 성공.
+[ATK] 신속의 세이버의 경량 기관단총(이)가 0.0m 거리에서 Custom AF 2에게 명중!
+[HIT] Custom AF 2의 [Head]에 충격! [11] 피해! (내구도: 27/55)
+[ATK] 신속의 세이버: Attack 성공.
+더 이상 수행할 행동 없음.
+[TURN END] --- Turn 1 종료: [신속의 세이버] ---
+[UNIT] --- End of Turn Units Status ---
+  Unit: 신속의 세이버  | AP: 0.2/7.0 [-6.8]
+    Stats: Atk:5.9/Def:8.7/Spd:15.0/Acc:3.4/Eva:2.2
+    Parts:
+      - Arm_Left (표준 팔 유닛): OK (85/85)
+      - Arm_Right (정밀 조준 팔): OK (75/75)
+      - Body (표준 바디 유닛): OK (160/160)
+      - Head (경량 헤드 유닛): OK (40/40)
+      - Legs (경량 다리 유닛): OK (80/80)
+    Weapons:
+      - 경량 에너지 세이버: 
+      - 경량 기관단총: 
+  Unit: Custom AF 2  | AP: 7.0/7.0
+    Stats: Atk:7.2/Def:11.9/Spd:13.0/Acc:1.9/Eva:1.3
+    Parts:
+      - Arm_Left (표준 팔 유닛): OK (74/85) [-11]
+      - Arm_Right (표준 팔 유닛): OK (85/85)
+      - Body (표준 바디 유닛): OK (160/160)
+      - Head (표준 헤드 유닛): OK (27/55) [-28]
+      - Legs (표준 다리 유닛): OK (115/115)
+    Weapons:
+      - 표준 라이플: 
+      - 경량 에너지 세이버: 
+[TURN START] --- Turn 2 시작: [Custom AF 2] ---
+[UNIT] --- Turn Start: Custom AF 2 Status ---
+  Unit: Custom AF 2  | AP: 7.0/7.0
+    Stats: Atk:7.2/Def:11.9/Spd:13.0/Acc:1.9/Eva:1.3
+    Parts:
+      - Arm_Left (표준 팔 유닛): OK (74/85)
+      - Arm_Right (표준 팔 유닛): OK (85/85)
+      - Body (표준 바디 유닛): OK (160/160)
+      - Head (표준 헤드 유닛): OK (27/55)
+      - Legs (표준 다리 유닛): OK (115/115)
+    Weapons:
+      - 표준 라이플: 
+      - 경량 에너지 세이버: 
+[ATK] Custom AF 2의 표준 라이플 발사! 하지만 0.0m 거리의 신속의 세이버(은)는 빗나갔다!
+[MISS] 신속의 세이버(이)가 Custom AF 2의 공격을 날렵하게 회피! (Dodge)
+[ATK] Custom AF 2: Attack 성공.
+[ATK] Custom AF 2의 표준 라이플 발사! 하지만 0.0m 거리의 신속의 세이버(은)는 빗나갔다!
+[MISS] 신속의 세이버(이)가 Custom AF 2의 공격을 날렵하게 회피! (Dodge)
+[ATK] Custom AF 2: Attack 성공.
+[ATK] Custom AF 2의 표준 라이플 발사! 하지만 0.0m 거리의 신속의 세이버(은)는 빗나갔다!
+[MISS] 신속의 세이버(이)가 Custom AF 2의 공격을 날렵하게 회피! (Dodge)
+[ATK] Custom AF 2: Attack 성공.
+[ATK] Custom AF 2의 표준 라이플 발사! 하지만 0.0m 거리의 신속의 세이버(은)는 빗나갔다!
+[MISS] 신속의 세이버(이)가 Custom AF 2의 공격을 날렵하게 회피! (Dodge)
+[ATK] Custom AF 2: Attack 성공.
+[ATK] Custom AF 2의 표준 라이플 발사! 하지만 0.0m 거리의 신속의 세이버(은)는 빗나갔다!
+[MISS] 신속의 세이버(이)가 Custom AF 2의 공격을 날렵하게 회피! (Dodge)
+[ATK] Custom AF 2: Attack 성공.
+[ATK] Custom AF 2의 표준 라이플 발사! 하지만 0.0m 거리의 신속의 세이버(은)는 빗나갔다!
+[MISS] 신속의 세이버(이)가 Custom AF 2의 공격을 날렵하게 회피! (Dodge)
+[ATK] Custom AF 2: Attack 성공.
+더 이상 수행할 행동 없음.
+[TURN END] --- Turn 2 종료: [Custom AF 2] ---
+[UNIT] --- End of Turn Units Status ---
+  Unit: Custom AF 2  | AP: 0.5/7.0 [-6.5]
+    Stats: Atk:7.2/Def:11.9/Spd:13.0/Acc:1.9/Eva:1.3
+    Parts:
+      - Arm_Left (표준 팔 유닛): OK (74/85)
+      - Arm_Right (표준 팔 유닛): OK (85/85)
+      - Body (표준 바디 유닛): OK (160/160)
+      - Head (표준 헤드 유닛): OK (27/55)
+      - Legs (표준 다리 유닛): OK (115/115)
+    Weapons:
+      - 표준 라이플: 
+      - 경량 에너지 세이버: 
+[TURN START] --- Turn 3 시작: [신속의 세이버] ---
+[UNIT] --- Turn Start: 신속의 세이버 Status ---
+  Unit: 신속의 세이버  | AP: 0.2/7.0
+    Stats: Atk:5.9/Def:8.7/Spd:15.0/Acc:3.4/Eva:2.2
+    Parts:
+      - Arm_Left (표준 팔 유닛): OK (85/85)
+      - Arm_Right (정밀 조준 팔): OK (75/75)
+      - Body (표준 바디 유닛): OK (160/160)
+      - Head (경량 헤드 유닛): OK (40/40)
+      - Legs (경량 다리 유닛): OK (80/80)
+    Weapons:
+      - 경량 에너지 세이버: 
+      - 경량 기관단총: 
+[ATK] 신속의 세이버의 경량 기관단총(이)가 0.0m 거리에서 Custom AF 2에게 명중!
+[HIT] Custom AF 2의 [Arm]에 충격! [11] 피해! (내구도: 74/85)
+[ATK] 신속의 세이버: Attack 성공.
+[ATK] 신속의 세이버의 경량 기관단총(이)가 0.0m 거리에서 Custom AF 2에게 명중!
+[HIT] Custom AF 2의 [Arm]에 충격! [11] 피해! (내구도: 63/85)
+[ATK] 신속의 세이버: Attack 성공.
+[ATK] 신속의 세이버의 경량 기관단총(이)가 0.0m 거리에서 Custom AF 2에게 명중!
+[HIT] Custom AF 2의 [Head]에 충격! [11] 피해! (내구도: 16/55)
+[ATK] 신속의 세이버: Attack 성공.
+[ATK] 신속의 세이버의 경량 기관단총(이)가 0.0m 거리에서 Custom AF 2에게 명중!
+[HIT] Custom AF 2의 [Head]에 충격! [11] 피해! (내구도: 5/55)
+[ATK] 신속의 세이버: Attack 성공.
+[ATK] 신속의 세이버의 경량 기관단총(이)가 0.0m 거리에서 Custom AF 2에게 명중!
+[HIT] Custom AF 2의 [Arm]에 충격! [11] 피해! (내구도: 51/85)
+[ATK] 신속의 세이버: Attack 성공.
+[ATK] 신속의 세이버의 경량 기관단총(이)가 0.0m 거리에서 Custom AF 2에게 명중!
+[HIT] Custom AF 2의 [Arm]에 충격! [11] 피해! (내구도: 63/85)
+[ATK] 신속의 세이버: Attack 성공.
+더 이상 수행할 행동 없음.
+[TURN END] --- Turn 3 종료: [신속의 세이버] ---
+[UNIT] --- End of Turn Units Status ---
+  Unit: 신속의 세이버  | AP: 0.4/7.0 [+0.2]
+    Stats: Atk:5.9/Def:8.7/Spd:15.0/Acc:3.4/Eva:2.2
+    Parts:
+      - Arm_Left (표준 팔 유닛): OK (85/85)
+      - Arm_Right (정밀 조준 팔): OK (75/75)
+      - Body (표준 바디 유닛): OK (160/160)
+      - Head (경량 헤드 유닛): OK (40/40)
+      - Legs (경량 다리 유닛): OK (80/80)
+    Weapons:
+      - 경량 에너지 세이버: 
+      - 경량 기관단총: 
+  Unit: Custom AF 2  | AP: 0.5/7.0
+    Stats: Atk:7.2/Def:11.9/Spd:13.0/Acc:1.9/Eva:1.3
+    Parts:
+      - Arm_Left (표준 팔 유닛): OK (63/85) [-11]
+      - Arm_Right (표준 팔 유닛): OK (51/85) [-34]
+      - Body (표준 바디 유닛): OK (160/160)
+      - Head (표준 헤드 유닛): OK (5/55) [-22]
+      - Legs (표준 다리 유닛): OK (115/115)
+    Weapons:
+      - 표준 라이플: 
+      - 경량 에너지 세이버: 
+[TURN START] --- Turn 4 시작: [Custom AF 2] ---
+[UNIT] --- Turn Start: Custom AF 2 Status ---
+  Unit: Custom AF 2  | AP: 0.5/7.0
+    Stats: Atk:7.2/Def:11.9/Spd:13.0/Acc:1.9/Eva:1.3
+    Parts:
+      - Arm_Left (표준 팔 유닛): OK (63/85)
+      - Arm_Right (표준 팔 유닛): OK (51/85)
+      - Body (표준 바디 유닛): OK (160/160)
+      - Head (표준 헤드 유닛): OK (5/55)
+      - Legs (표준 다리 유닛): OK (115/115)
+    Weapons:
+      - 표준 라이플: 
+      - 경량 에너지 세이버: 
+[ATK] Custom AF 2의 표준 라이플 발사! 하지만 0.0m 거리의 신속의 세이버(은)는 빗나갔다!
+[MISS] 신속의 세이버(이)가 Custom AF 2의 공격을 날렵하게 회피! (Dodge)
+[ATK] Custom AF 2: Attack 성공.
+[ATK] Custom AF 2의 표준 라이플 발사! 하지만 0.0m 거리의 신속의 세이버(은)는 빗나갔다!
+[MISS] 신속의 세이버(이)가 Custom AF 2의 공격을 날렵하게 회피! (Dodge)
+[ATK] Custom AF 2: Attack 성공.
+[ATK] Custom AF 2의 표준 라이플 발사! 하지만 0.0m 거리의 신속의 세이버(은)는 빗나갔다!
+[MISS] 신속의 세이버(이)가 Custom AF 2의 공격을 날렵하게 회피! (Dodge)
+[ATK] Custom AF 2: Attack 성공.
+더 이상 수행할 행동 없음.
+[TURN END] --- Turn 4 종료: [Custom AF 2] ---
+[UNIT] --- End of Turn Units Status ---
+  Unit: Custom AF 2  | AP: 0.5/7.0 [+0.0]
+    Stats: Atk:7.2/Def:11.9/Spd:13.0/Acc:1.9/Eva:1.3
+    Parts:
+      - Arm_Left (표준 팔 유닛): OK (63/85)
+      - Arm_Right (표준 팔 유닛): OK (51/85)
+      - Body (표준 바디 유닛): OK (160/160)
+      - Head (표준 헤드 유닛): OK (5/55)
+      - Legs (표준 다리 유닛): OK (115/115)
+    Weapons:
+      - 표준 라이플: 
+      - 경량 에너지 세이버: 
+[TURN START] --- Turn 5 시작: [신속의 세이버] ---
+[UNIT] --- Turn Start: 신속의 세이버 Status ---
+  Unit: 신속의 세이버  | AP: 0.4/7.0
+    Stats: Atk:5.9/Def:8.7/Spd:15.0/Acc:3.4/Eva:2.2
+    Parts:
+      - Arm_Left (표준 팔 유닛): OK (85/85)
+      - Arm_Right (정밀 조준 팔): OK (75/75)
+      - Body (표준 바디 유닛): OK (160/160)
+      - Head (경량 헤드 유닛): OK (40/40)
+      - Legs (경량 다리 유닛): OK (80/80)
+    Weapons:
+      - 경량 에너지 세이버: 
+      - 경량 기관단총: 
+[ATK] 신속의 세이버의 경량 기관단총(이)가 0.0m 거리에서 Custom AF 2에게 명중!
+[HIT] Custom AF 2의 [Body]에 충격! [11] 피해! (내구도: 149/160)
+[ATK] 신속의 세이버: Attack 성공.
+[ATK] 신속의 세이버의 경량 기관단총(이)가 0.0m 거리에서 Custom AF 2에게 명중!
+[HIT] Custom AF 2의 [Head]에 충격! [11] 피해! (내구도: 0/55)
+***  파츠 파괴됨! *** [Custom AF 2]의 [Head] (파괴자: [신속의 세이버]) -> 결과: Head 파트가 파괴되었습니다., Custom AF 2의 성능이 감소했습니다. 
+[ATK] 신속의 세이버: Attack 성공.
+[ATK] 신속의 세이버의 경량 기관단총(이)가 0.0m 거리에서 Custom AF 2에게 명중!
+[HIT] Custom AF 2의 [Legs]에 충격! [11] 피해! (내구도: 104/115)
+[ATK] 신속의 세이버: Attack 성공.
+[ATK] 신속의 세이버의 경량 기관단총(이)가 0.0m 거리에서 Custom AF 2에게 명중!
+[HIT] Custom AF 2의 [Body]에 충격! [11] 피해! (내구도: 138/160)
+[ATK] 신속의 세이버: Attack 성공.
+[ATK] 신속의 세이버의 경량 기관단총(이)가 0.0m 거리에서 Custom AF 2에게 명중!
+[HIT] Custom AF 2의 [Legs]에 충격! [11] 피해! (내구도: 93/115)
+[ATK] 신속의 세이버: Attack 성공.
+[ATK] 신속의 세이버의 경량 기관단총(이)가 0.0m 거리에서 Custom AF 2에게 명중!
+[HIT] Custom AF 2의 [Arm]에 충격! [11] 피해! (내구도: 40/85)
+[ATK] 신속의 세이버: Attack 성공.
+[ATK] 신속의 세이버의 경량 기관단총(이)가 0.0m 거리에서 Custom AF 2에게 명중!
+[HIT] Custom AF 2의 [Body]에 충격! [11] 피해! (내구도: 126/160)
+[ATK] 신속의 세이버: Attack 성공.
+더 이상 수행할 행동 없음.
+[TURN END] --- Turn 5 종료: [신속의 세이버] ---
+[UNIT] --- End of Turn Units Status ---
+  Unit: 신속의 세이버  | AP: 0.1/7.0 [-0.3]
+    Stats: Atk:5.9/Def:8.7/Spd:15.0/Acc:3.4/Eva:2.2
+    Parts:
+      - Arm_Left (표준 팔 유닛): OK (85/85)
+      - Arm_Right (정밀 조준 팔): OK (75/75)
+      - Body (표준 바디 유닛): OK (160/160)
+      - Head (경량 헤드 유닛): OK (40/40)
+      - Legs (경량 다리 유닛): OK (80/80)
+    Weapons:
+      - 경량 에너지 세이버: 
+      - 경량 기관단총: 
+  Unit: Custom AF 2  | AP: 0.5/7.0
+    Stats: Atk:7.2/Def:11.9/Spd:13.0/Acc:1.9/Eva:1.3
+    Parts:
+      - Arm_Left (표준 팔 유닛): OK (63/85)
+      - Arm_Right (표준 팔 유닛): OK (40/85) [-11]
+      - Body (표준 바디 유닛): OK (126/160) [-34]
+      - Head (표준 헤드 유닛): DESTROYED 
+      - Legs (표준 다리 유닛): OK (93/115) [-22]
+    Weapons:
+      - 표준 라이플: 
+      - 경량 에너지 세이버: 
+[TURN START] --- Turn 6 시작: [Custom AF 2] ---
+[UNIT] --- Turn Start: Custom AF 2 Status ---
+  Unit: Custom AF 2  | AP: 0.5/7.0
+    Stats: Atk:7.2/Def:11.9/Spd:13.0/Acc:1.9/Eva:1.3
+    Parts:
+      - Arm_Left (표준 팔 유닛): OK (63/85)
+      - Arm_Right (표준 팔 유닛): OK (40/85)
+      - Body (표준 바디 유닛): OK (126/160)
+      - Head (표준 헤드 유닛): DESTROYED 
+      - Legs (표준 다리 유닛): OK (93/115)
+    Weapons:
+      - 표준 라이플: 
+      - 경량 에너지 세이버: 
+[ATK] Custom AF 2의 표준 라이플 발사! 하지만 0.0m 거리의 신속의 세이버(은)는 빗나갔다!
+[MISS] 신속의 세이버(이)가 Custom AF 2의 공격을 날렵하게 회피! (Dodge)
+[ATK] Custom AF 2: Attack 성공.
+[ATK] Custom AF 2의 표준 라이플 발사! 하지만 0.0m 거리의 신속의 세이버(은)는 빗나갔다!
+[MISS] 신속의 세이버(이)가 Custom AF 2의 공격을 날렵하게 회피! (Dodge)
+[ATK] Custom AF 2: Attack 성공.
+[ATK] Custom AF 2의 표준 라이플 발사! 하지만 0.0m 거리의 신속의 세이버(은)는 빗나갔다!
+[MISS] 신속의 세이버(이)가 Custom AF 2의 공격을 날렵하게 회피! (Dodge)
+[ATK] Custom AF 2: Attack 성공.
+더 이상 수행할 행동 없음.
+[TURN END] --- Turn 6 종료: [Custom AF 2] ---
+[UNIT] --- End of Turn Units Status ---
+  Unit: Custom AF 2  | AP: 0.4/7.0 [+0.0]
+    Stats: Atk:7.2/Def:11.9/Spd:13.0/Acc:1.9/Eva:1.3
+    Parts:
+      - Arm_Left (표준 팔 유닛): OK (63/85)
+      - Arm_Right (표준 팔 유닛): OK (40/85)
+      - Body (표준 바디 유닛): OK (126/160)
+      - Head (표준 헤드 유닛): DESTROYED 
+      - Legs (표준 다리 유닛): OK (93/115)
+    Weapons:
+      - 표준 라이플: 
+      - 경량 에너지 세이버: 
+[TURN START] --- Turn 7 시작: [신속의 세이버] ---
+[UNIT] --- Turn Start: 신속의 세이버 Status ---
+  Unit: 신속의 세이버  | AP: 0.1/7.0
+    Stats: Atk:5.9/Def:8.7/Spd:15.0/Acc:3.4/Eva:2.2
+    Parts:
+      - Arm_Left (표준 팔 유닛): OK (85/85)
+      - Arm_Right (정밀 조준 팔): OK (75/75)
+      - Body (표준 바디 유닛): OK (160/160)
+      - Head (경량 헤드 유닛): OK (40/40)
+      - Legs (경량 다리 유닛): OK (80/80)
+    Weapons:
+      - 경량 에너지 세이버: 
+      - 경량 기관단총: 
+[ATK] 신속의 세이버의 경량 기관단총(이)가 0.0m 거리에서 Custom AF 2에게 명중!
+[HIT] Custom AF 2의 [Legs]에 충격! [11] 피해! (내구도: 81/115)
+[ATK] 신속의 세이버: Attack 성공.
+[ATK] 신속의 세이버의 경량 기관단총(이)가 0.0m 거리에서 Custom AF 2에게 명중!
+[HIT] Custom AF 2의 [Legs]에 충격! [11] 피해! (내구도: 70/115)
+[ATK] 신속의 세이버: Attack 성공.
+[ATK] 신속의 세이버의 경량 기관단총(이)가 0.0m 거리에서 Custom AF 2에게 명중!
+[HIT] Custom AF 2의 [Arm]에 충격! [11] 피해! (내구도: 51/85)
+[ATK] 신속의 세이버: Attack 성공.
+[ATK] 신속의 세이버의 경량 기관단총(이)가 0.0m 거리에서 Custom AF 2에게 명중!
+[HIT] Custom AF 2의 [Legs]에 충격! [11] 피해! (내구도: 59/115)
+[ATK] 신속의 세이버: Attack 성공.
+[ATK] 신속의 세이버의 경량 기관단총(이)가 0.0m 거리에서 Custom AF 2에게 명중!
+[HIT] Custom AF 2의 [Body]에 충격! [11] 피해! (내구도: 115/160)
+[ATK] 신속의 세이버: Attack 성공.
+[ATK] 신속의 세이버의 경량 기관단총(이)가 0.0m 거리에서 Custom AF 2에게 명중!
+[HIT] Custom AF 2의 [Arm]에 충격! [11] 피해! (내구도: 29/85)
+[ATK] 신속의 세이버: Attack 성공.
+더 이상 수행할 행동 없음.
+[TURN END] --- Turn 7 종료: [신속의 세이버] ---
+[UNIT] --- End of Turn Units Status ---
+  Unit: 신속의 세이버  | AP: 0.3/7.0 [+0.2]
+    Stats: Atk:5.9/Def:8.7/Spd:15.0/Acc:3.4/Eva:2.2
+    Parts:
+      - Arm_Left (표준 팔 유닛): OK (85/85)
+      - Arm_Right (정밀 조준 팔): OK (75/75)
+      - Body (표준 바디 유닛): OK (160/160)
+      - Head (경량 헤드 유닛): OK (40/40)
+      - Legs (경량 다리 유닛): OK (80/80)
+    Weapons:
+      - 경량 에너지 세이버: 
+      - 경량 기관단총: 
+  Unit: Custom AF 2  | AP: 0.4/7.0
+    Stats: Atk:7.2/Def:11.9/Spd:13.0/Acc:1.9/Eva:1.3
+    Parts:
+      - Arm_Left (표준 팔 유닛): OK (51/85) [-11]
+      - Arm_Right (표준 팔 유닛): OK (29/85) [-11]
+      - Body (표준 바디 유닛): OK (115/160) [-11]
+      - Head (표준 헤드 유닛): DESTROYED 
+      - Legs (표준 다리 유닛): OK (59/115) [-34]
+    Weapons:
+      - 표준 라이플: 
+      - 경량 에너지 세이버: 
+[TURN START] --- Turn 8 시작: [Custom AF 2] ---
+[UNIT] --- Turn Start: Custom AF 2 Status ---
+  Unit: Custom AF 2  | AP: 0.4/7.0
+    Stats: Atk:7.2/Def:11.9/Spd:13.0/Acc:1.9/Eva:1.3
+    Parts:
+      - Arm_Left (표준 팔 유닛): OK (51/85)
+      - Arm_Right (표준 팔 유닛): OK (29/85)
+      - Body (표준 바디 유닛): OK (115/160)
+      - Head (표준 헤드 유닛): DESTROYED 
+      - Legs (표준 다리 유닛): OK (59/115)
+    Weapons:
+      - 표준 라이플: 
+      - 경량 에너지 세이버: 
+[ATK] Custom AF 2의 표준 라이플 발사! 하지만 0.0m 거리의 신속의 세이버(은)는 빗나갔다!
+[MISS] 신속의 세이버(이)가 Custom AF 2의 공격을 날렵하게 회피! (Dodge)
+[ATK] Custom AF 2: Attack 성공.
+[ATK] Custom AF 2의 표준 라이플 발사! 하지만 0.0m 거리의 신속의 세이버(은)는 빗나갔다!
+[MISS] 신속의 세이버(이)가 Custom AF 2의 공격을 날렵하게 회피! (Dodge)
+[ATK] Custom AF 2: Attack 성공.
+[ATK] Custom AF 2의 표준 라이플 발사! 하지만 0.0m 거리의 신속의 세이버(은)는 빗나갔다!
+[MISS] 신속의 세이버(이)가 Custom AF 2의 공격을 날렵하게 회피! (Dodge)
+[ATK] Custom AF 2: Attack 성공.
+더 이상 수행할 행동 없음.
+[TURN END] --- Turn 8 종료: [Custom AF 2] ---
+[UNIT] --- End of Turn Units Status ---
+  Unit: Custom AF 2  | AP: 0.4/7.0 [+0.0]
+    Stats: Atk:7.2/Def:11.9/Spd:13.0/Acc:1.9/Eva:1.3
+    Parts:
+      - Arm_Left (표준 팔 유닛): OK (51/85)
+      - Arm_Right (표준 팔 유닛): OK (29/85)
+      - Body (표준 바디 유닛): OK (115/160)
+      - Head (표준 헤드 유닛): DESTROYED 
+      - Legs (표준 다리 유닛): OK (59/115)
+    Weapons:
+      - 표준 라이플: 
+      - 경량 에너지 세이버: 
+[TURN START] --- Turn 9 시작: [신속의 세이버] ---
+[UNIT] --- Turn Start: 신속의 세이버 Status ---
+  Unit: 신속의 세이버  | AP: 0.3/7.0
+    Stats: Atk:5.9/Def:8.7/Spd:15.0/Acc:3.4/Eva:2.2
+    Parts:
+      - Arm_Left (표준 팔 유닛): OK (85/85)
+      - Arm_Right (정밀 조준 팔): OK (75/75)
+      - Body (표준 바디 유닛): OK (160/160)
+      - Head (경량 헤드 유닛): OK (40/40)
+      - Legs (경량 다리 유닛): OK (80/80)
+    Weapons:
+      - 경량 에너지 세이버: 
+      - 경량 기관단총: 
+[ATK] 신속의 세이버의 경량 기관단총(이)가 0.0m 거리에서 Custom AF 2에게 명중!
+[HIT] Custom AF 2의 [Arm]에 충격! [11] 피해! (내구도: 18/85)
+[ATK] 신속의 세이버: Attack 성공.
+[ATK] 신속의 세이버의 경량 기관단총(이)가 0.0m 거리에서 Custom AF 2에게 명중!
+[HIT] Custom AF 2의 [Arm]에 충격! [11] 피해! (내구도: 7/85)
+[ATK] 신속의 세이버: Attack 성공.
+[ATK] 신속의 세이버의 경량 기관단총(이)가 0.0m 거리에서 Custom AF 2에게 명중!
+[HIT] Custom AF 2의 [Arm]에 충격! [11] 피해! (내구도: 0/85)
+***  파츠 파괴됨! *** [Custom AF 2]의 [Arm] (파괴자: [신속의 세이버]) -> 결과: Arm_Right 파트가 파괴되었습니다., Custom AF 2의 성능이 감소했습니다. 
+[ATK] 신속의 세이버: Attack 성공.
+[ATK] 신속의 세이버의 경량 기관단총(이)가 0.0m 거리에서 Custom AF 2에게 명중!
+[HIT] Custom AF 2의 [Arm]에 충격! [11] 피해! (내구도: 40/85)
+[ATK] 신속의 세이버: Attack 성공.
+[ATK] 신속의 세이버의 경량 기관단총(이)가 0.0m 거리에서 Custom AF 2에게 명중!
+[HIT] Custom AF 2의 [Legs]에 충격! [11] 피해! (내구도: 48/115)
+[ATK] 신속의 세이버: Attack 성공.
+[ATK] 신속의 세이버의 경량 기관단총(이)가 0.0m 거리에서 Custom AF 2에게 명중!
+[HIT] Custom AF 2의 [Arm]에 충격! [17] 피해! !! (내구도: 23/85)
+[ATK] 신속의 세이버: Attack 성공.
+더 이상 수행할 행동 없음.
+[TURN END] --- Turn 9 종료: [신속의 세이버] ---
+[UNIT] --- End of Turn Units Status ---
+  Unit: 신속의 세이버  | AP: 0.5/7.0 [+0.2]
+    Stats: Atk:5.9/Def:8.7/Spd:15.0/Acc:3.4/Eva:2.2
+    Parts:
+      - Arm_Left (표준 팔 유닛): OK (85/85)
+      - Arm_Right (정밀 조준 팔): OK (75/75)
+      - Body (표준 바디 유닛): OK (160/160)
+      - Head (경량 헤드 유닛): OK (40/40)
+      - Legs (경량 다리 유닛): OK (80/80)
+    Weapons:
+      - 경량 에너지 세이버: 
+      - 경량 기관단총: 
+  Unit: Custom AF 2  | AP: 0.4/7.0
+    Stats: Atk:7.2/Def:11.9/Spd:13.0/Acc:1.9/Eva:1.3
+    Parts:
+      - Arm_Left (표준 팔 유닛): OK (23/85) [-28]
+      - Arm_Right (표준 팔 유닛): DESTROYED 
+      - Body (표준 바디 유닛): OK (115/160)
+      - Head (표준 헤드 유닛): DESTROYED 
+      - Legs (표준 다리 유닛): OK (48/115) [-11]
+    Weapons:
+      - 표준 라이플: 
+      - 경량 에너지 세이버: 
+[TURN START] --- Turn 10 시작: [Custom AF 2] ---
+[UNIT] --- Turn Start: Custom AF 2 Status ---
+  Unit: Custom AF 2  | AP: 0.4/7.0
+    Stats: Atk:7.2/Def:11.9/Spd:13.0/Acc:1.9/Eva:1.3
+    Parts:
+      - Arm_Left (표준 팔 유닛): OK (23/85)
+      - Arm_Right (표준 팔 유닛): DESTROYED 
+      - Body (표준 바디 유닛): OK (115/160)
+      - Head (표준 헤드 유닛): DESTROYED 
+      - Legs (표준 다리 유닛): OK (48/115)
+    Weapons:
+      - 표준 라이플: 
+      - 경량 에너지 세이버: 
+[ATK] Custom AF 2의 표준 라이플 발사! 하지만 0.0m 거리의 신속의 세이버(은)는 빗나갔다!
+[MISS] 신속의 세이버(이)가 Custom AF 2의 공격을 날렵하게 회피! (Dodge)
+[ATK] Custom AF 2: Attack 성공.
+[ATK] Custom AF 2의 표준 라이플 발사! 하지만 0.0m 거리의 신속의 세이버(은)는 빗나갔다!
+[MISS] 신속의 세이버(이)가 Custom AF 2의 공격을 날렵하게 회피! (Dodge)
+[ATK] Custom AF 2: Attack 성공.
+[ATK] Custom AF 2의 표준 라이플 발사! 하지만 0.0m 거리의 신속의 세이버(은)는 빗나갔다!
+[MISS] 신속의 세이버(이)가 Custom AF 2의 공격을 날렵하게 회피! (Dodge)
+[ATK] Custom AF 2: Attack 성공.
+더 이상 수행할 행동 없음.
+[TURN END] --- Turn 10 종료: [Custom AF 2] ---
+[UNIT] --- End of Turn Units Status ---
+  Unit: Custom AF 2  | AP: 0.3/7.0 [+0.0]
+    Stats: Atk:7.2/Def:11.9/Spd:13.0/Acc:1.9/Eva:1.3
+    Parts:
+      - Arm_Left (표준 팔 유닛): OK (23/85)
+      - Arm_Right (표준 팔 유닛): DESTROYED 
+      - Body (표준 바디 유닛): OK (115/160)
+      - Head (표준 헤드 유닛): DESTROYED 
+      - Legs (표준 다리 유닛): OK (48/115)
+    Weapons:
+      - 표준 라이플: 
+      - 경량 에너지 세이버: 
+[TURN START] --- Turn 11 시작: [신속의 세이버] ---
+[UNIT] --- Turn Start: 신속의 세이버 Status ---
+  Unit: 신속의 세이버  | AP: 0.5/7.0
+    Stats: Atk:5.9/Def:8.7/Spd:15.0/Acc:3.4/Eva:2.2
+    Parts:
+      - Arm_Left (표준 팔 유닛): OK (85/85)
+      - Arm_Right (정밀 조준 팔): OK (75/75)
+      - Body (표준 바디 유닛): OK (160/160)
+      - Head (경량 헤드 유닛): OK (40/40)
+      - Legs (경량 다리 유닛): OK (80/80)
+    Weapons:
+      - 경량 에너지 세이버: 
+      - 경량 기관단총: 
+[ATK] 신속의 세이버의 경량 기관단총(이)가 0.0m 거리에서 Custom AF 2에게 명중!
+[HIT] Custom AF 2의 [Legs]에 충격! [11] 피해! (내구도: 37/115)
+[ATK] 신속의 세이버: Attack 성공.
+[ATK] 신속의 세이버의 경량 기관단총(이)가 0.0m 거리에서 Custom AF 2에게 명중!
+[HIT] Custom AF 2의 [Legs]에 충격! [11] 피해! (내구도: 25/115)
+[ATK] 신속의 세이버: Attack 성공.
+[ATK] 신속의 세이버의 경량 기관단총(이)가 0.0m 거리에서 Custom AF 2에게 명중!
+[HIT] Custom AF 2의 [Body]에 충격! [11] 피해! (내구도: 104/160)
+[ATK] 신속의 세이버: Attack 성공.
+[ATK] 신속의 세이버의 경량 기관단총(이)가 0.0m 거리에서 Custom AF 2에게 명중!
+[HIT] Custom AF 2의 [Arm]에 충격! [11] 피해! (내구도: 12/85)
+[ATK] 신속의 세이버: Attack 성공.
+[ATK] 신속의 세이버의 경량 기관단총(이)가 0.0m 거리에서 Custom AF 2에게 명중!
+[HIT] Custom AF 2의 [Legs]에 충격! [11] 피해! (내구도: 14/115)
+[ATK] 신속의 세이버: Attack 성공.
+[ATK] 신속의 세이버의 경량 기관단총(이)가 0.0m 거리에서 Custom AF 2에게 명중!
+[HIT] Custom AF 2의 [Legs]에 충격! [11] 피해! (내구도: 3/115)
+[ATK] 신속의 세이버: Attack 성공.
+[ATK] 신속의 세이버의 경량 기관단총(이)가 0.0m 거리에서 Custom AF 2에게 명중!
+[HIT] Custom AF 2의 [Arm]에 충격! [11] 피해! (내구도: 1/85)
+[ATK] 신속의 세이버: Attack 성공.
+더 이상 수행할 행동 없음.
+[TURN END] --- Turn 11 종료: [신속의 세이버] ---
+[UNIT] --- End of Turn Units Status ---
+  Unit: 신속의 세이버  | AP: 0.2/7.0 [-0.3]
+    Stats: Atk:5.9/Def:8.7/Spd:15.0/Acc:3.4/Eva:2.2
+    Parts:
+      - Arm_Left (표준 팔 유닛): OK (85/85)
+      - Arm_Right (정밀 조준 팔): OK (75/75)
+      - Body (표준 바디 유닛): OK (160/160)
+      - Head (경량 헤드 유닛): OK (40/40)
+      - Legs (경량 다리 유닛): OK (80/80)
+    Weapons:
+      - 경량 에너지 세이버: 
+      - 경량 기관단총: 
+  Unit: Custom AF 2  | AP: 0.3/7.0
+    Stats: Atk:7.2/Def:11.9/Spd:13.0/Acc:1.9/Eva:1.3
+    Parts:
+      - Arm_Left (표준 팔 유닛): OK (1/85) [-22]
+      - Arm_Right (표준 팔 유닛): DESTROYED 
+      - Body (표준 바디 유닛): OK (104/160) [-11]
+      - Head (표준 헤드 유닛): DESTROYED 
+      - Legs (표준 다리 유닛): OK (3/115) [-45]
+    Weapons:
+      - 표준 라이플: 
+      - 경량 에너지 세이버: 
+[TURN START] --- Turn 12 시작: [Custom AF 2] ---
+[UNIT] --- Turn Start: Custom AF 2 Status ---
+  Unit: Custom AF 2  | AP: 0.3/7.0
+    Stats: Atk:7.2/Def:11.9/Spd:13.0/Acc:1.9/Eva:1.3
+    Parts:
+      - Arm_Left (표준 팔 유닛): OK (1/85)
+      - Arm_Right (표준 팔 유닛): DESTROYED 
+      - Body (표준 바디 유닛): OK (104/160)
+      - Head (표준 헤드 유닛): DESTROYED 
+      - Legs (표준 다리 유닛): OK (3/115)
+    Weapons:
+      - 표준 라이플: 
+      - 경량 에너지 세이버: 
+[ATK] Custom AF 2의 표준 라이플 발사! 하지만 0.0m 거리의 신속의 세이버(은)는 빗나갔다!
+[MISS] 신속의 세이버(이)가 Custom AF 2의 공격을 날렵하게 회피! (Dodge)
+[ATK] Custom AF 2: Attack 성공.
+[ATK] Custom AF 2의 표준 라이플 발사! 하지만 0.0m 거리의 신속의 세이버(은)는 빗나갔다!
+[MISS] 신속의 세이버(이)가 Custom AF 2의 공격을 날렵하게 회피! (Dodge)
+[ATK] Custom AF 2: Attack 성공.
+[ATK] Custom AF 2의 표준 라이플 발사! 하지만 0.0m 거리의 신속의 세이버(은)는 빗나갔다!
+[MISS] 신속의 세이버(이)가 Custom AF 2의 공격을 날렵하게 회피! (Dodge)
+[ATK] Custom AF 2: Attack 성공.
+더 이상 수행할 행동 없음.
+[TURN END] --- Turn 12 종료: [Custom AF 2] ---
+[UNIT] --- End of Turn Units Status ---
+  Unit: Custom AF 2  | AP: 0.3/7.0 [+0.0]
+    Stats: Atk:7.2/Def:11.9/Spd:13.0/Acc:1.9/Eva:1.3
+    Parts:
+      - Arm_Left (표준 팔 유닛): OK (1/85)
+      - Arm_Right (표준 팔 유닛): DESTROYED 
+      - Body (표준 바디 유닛): OK (104/160)
+      - Head (표준 헤드 유닛): DESTROYED 
+      - Legs (표준 다리 유닛): OK (3/115)
+    Weapons:
+      - 표준 라이플: 
+      - 경량 에너지 세이버: 
+[TURN START] --- Turn 13 시작: [신속의 세이버] ---
+[UNIT] --- Turn Start: 신속의 세이버 Status ---
+  Unit: 신속의 세이버  | AP: 0.2/7.0
+    Stats: Atk:5.9/Def:8.7/Spd:15.0/Acc:3.4/Eva:2.2
+    Parts:
+      - Arm_Left (표준 팔 유닛): OK (85/85)
+      - Arm_Right (정밀 조준 팔): OK (75/75)
+      - Body (표준 바디 유닛): OK (160/160)
+      - Head (경량 헤드 유닛): OK (40/40)
+      - Legs (경량 다리 유닛): OK (80/80)
+    Weapons:
+      - 경량 에너지 세이버: 
+      - 경량 기관단총: 
+[ATK] 신속의 세이버의 경량 기관단총(이)가 0.0m 거리에서 Custom AF 2에게 명중!
+[HIT] Custom AF 2의 [Arm]에 충격! [11] 피해! (내구도: 0/85)
+***  파츠 파괴됨! *** [Custom AF 2]의 [Arm] (파괴자: [신속의 세이버]) -> 결과: Arm_Left 파트가 파괴되었습니다., Custom AF 2의 성능이 감소했습니다. 
+[ATK] 신속의 세이버: Attack 성공.
+[ATK] 신속의 세이버의 경량 기관단총(이)가 0.0m 거리에서 Custom AF 2에게 명중!
+[HIT] Custom AF 2의 [Body]에 충격! [11] 피해! (내구도: 93/160)
+[ATK] 신속의 세이버: Attack 성공.
+[ATK] 신속의 세이버의 경량 기관단총(이)가 0.0m 거리에서 Custom AF 2에게 명중!
+[HIT] Custom AF 2의 [Body]에 충격! [11] 피해! (내구도: 82/160)
+[ATK] 신속의 세이버: Attack 성공.
+[ATK] 신속의 세이버의 경량 기관단총(이)가 0.0m 거리에서 Custom AF 2에게 명중!
+[HIT] Custom AF 2의 [Body]에 충격! [17] 피해! !! (내구도: 65/160)
+[ATK] 신속의 세이버: Attack 성공.
+[ATK] 신속의 세이버의 경량 기관단총(이)가 0.0m 거리에서 Custom AF 2에게 명중!
+[HIT] Custom AF 2의 [Body]에 충격! [11] 피해! (내구도: 54/160)
+[ATK] 신속의 세이버: Attack 성공.
+[ATK] 신속의 세이버의 경량 기관단총(이)가 0.0m 거리에서 Custom AF 2에게 명중!
+[HIT] Custom AF 2의 [Body]에 충격! [11] 피해! (내구도: 42/160)
+[ATK] 신속의 세이버: Attack 성공.
+더 이상 수행할 행동 없음.
+[TURN END] --- Turn 13 종료: [신속의 세이버] ---
+[UNIT] --- End of Turn Units Status ---
+  Unit: 신속의 세이버  | AP: 0.4/7.0 [+0.2]
+    Stats: Atk:5.9/Def:8.7/Spd:15.0/Acc:3.4/Eva:2.2
+    Parts:
+      - Arm_Left (표준 팔 유닛): OK (85/85)
+      - Arm_Right (정밀 조준 팔): OK (75/75)
+      - Body (표준 바디 유닛): OK (160/160)
+      - Head (경량 헤드 유닛): OK (40/40)
+      - Legs (경량 다리 유닛): OK (80/80)
+    Weapons:
+      - 경량 에너지 세이버: 
+      - 경량 기관단총: 
+  Unit: Custom AF 2  | AP: 0.3/7.0
+    Stats: Atk:7.2/Def:11.9/Spd:13.0/Acc:1.9/Eva:1.3
+    Parts:
+      - Arm_Left (표준 팔 유닛): DESTROYED 
+      - Arm_Right (표준 팔 유닛): DESTROYED 
+      - Body (표준 바디 유닛): OK (42/160) [-62]
+      - Head (표준 헤드 유닛): DESTROYED 
+      - Legs (표준 다리 유닛): OK (3/115)
+    Weapons:
+      - 표준 라이플: 
+      - 경량 에너지 세이버: 
+[TURN START] --- Turn 14 시작: [Custom AF 2] ---
+[UNIT] --- Turn Start: Custom AF 2 Status ---
+  Unit: Custom AF 2  | AP: 0.3/7.0
+    Stats: Atk:7.2/Def:11.9/Spd:13.0/Acc:1.9/Eva:1.3
+    Parts:
+      - Arm_Left (표준 팔 유닛): DESTROYED 
+      - Arm_Right (표준 팔 유닛): DESTROYED 
+      - Body (표준 바디 유닛): OK (42/160)
+      - Head (표준 헤드 유닛): DESTROYED 
+      - Legs (표준 다리 유닛): OK (3/115)
+    Weapons:
+      - 표준 라이플: 
+      - 경량 에너지 세이버: 
+[ATK] Custom AF 2의 표준 라이플 발사! 하지만 0.0m 거리의 신속의 세이버(은)는 빗나갔다!
+[MISS] 신속의 세이버(이)가 Custom AF 2의 공격을 날렵하게 회피! (Dodge)
+[ATK] Custom AF 2: Attack 성공.
+[ATK] Custom AF 2의 표준 라이플 발사! 하지만 0.0m 거리의 신속의 세이버(은)는 빗나갔다!
+[MISS] 신속의 세이버(이)가 Custom AF 2의 공격을 날렵하게 회피! (Dodge)
+[ATK] Custom AF 2: Attack 성공.
+[ATK] Custom AF 2의 표준 라이플 발사! 하지만 0.0m 거리의 신속의 세이버(은)는 빗나갔다!
+[MISS] 신속의 세이버(이)가 Custom AF 2의 공격을 날렵하게 회피! (Dodge)
+[ATK] Custom AF 2: Attack 성공.
+더 이상 수행할 행동 없음.
+[TURN END] --- Turn 14 종료: [Custom AF 2] ---
+[UNIT] --- End of Turn Units Status ---
+  Unit: Custom AF 2  | AP: 0.3/7.0 [+0.0]
+    Stats: Atk:7.2/Def:11.9/Spd:13.0/Acc:1.9/Eva:1.3
+    Parts:
+      - Arm_Left (표준 팔 유닛): DESTROYED 
+      - Arm_Right (표준 팔 유닛): DESTROYED 
+      - Body (표준 바디 유닛): OK (42/160)
+      - Head (표준 헤드 유닛): DESTROYED 
+      - Legs (표준 다리 유닛): OK (3/115)
+    Weapons:
+      - 표준 라이플: 
+      - 경량 에너지 세이버: 
+[TURN START] --- Turn 15 시작: [신속의 세이버] ---
+[UNIT] --- Turn Start: 신속의 세이버 Status ---
+  Unit: 신속의 세이버  | AP: 0.4/7.0
+    Stats: Atk:5.9/Def:8.7/Spd:15.0/Acc:3.4/Eva:2.2
+    Parts:
+      - Arm_Left (표준 팔 유닛): OK (85/85)
+      - Arm_Right (정밀 조준 팔): OK (75/75)
+      - Body (표준 바디 유닛): OK (160/160)
+      - Head (경량 헤드 유닛): OK (40/40)
+      - Legs (경량 다리 유닛): OK (80/80)
+    Weapons:
+      - 경량 에너지 세이버: 
+      - 경량 기관단총: 
+[ATK] 신속의 세이버의 경량 기관단총(이)가 0.0m 거리에서 Custom AF 2에게 명중!
+[HIT] Custom AF 2의 [Legs]에 충격! [11] 피해! (내구도: 0/115)
+***  파츠 파괴됨! *** [Custom AF 2]의 [Legs] (파괴자: [신속의 세이버]) -> 결과: Legs 파트가 파괴되었습니다., Custom AF 2의 성능이 감소했습니다. 
+[ATK] 신속의 세이버: Attack 성공.
+[ATK] 신속의 세이버의 경량 기관단총(이)가 0.0m 거리에서 Custom AF 2에게 명중!
+[HIT] Custom AF 2의 [Body]에 충격! [11] 피해! (내구도: 31/160)
+[ATK] 신속의 세이버: Attack 성공.
+[ATK] 신속의 세이버의 경량 기관단총(이)가 0.0m 거리에서 Custom AF 2에게 명중!
+[HIT] Custom AF 2의 [Body]에 충격! [17] 피해! !! (내구도: 14/160)
+[ATK] 신속의 세이버: Attack 성공.
+[ATK] 신속의 세이버의 경량 기관단총(이)가 0.0m 거리에서 Custom AF 2에게 명중!
+[HIT] Custom AF 2의 [Body]에 충격! [17] 피해! !! (내구도: 0/160)
+***  파츠 파괴됨! *** [Custom AF 2]의 [Body] (파괴자: [신속의 세이버]) -> 결과: Body 파트가 파괴되었습니다., Custom AF 2의 성능이 감소했습니다. 
+[BATTLE END] === 전투 종료 === ID: BATTLE_20250423_190841_2374, 결과: Defeat, 지속시간: 0.7초
+[ATK] 신속의 세이버: Attack 성공.
+전투 프로세스 정리 완료.
+
+==================================================
+로그 항목 수: 335
+
+==================================================
+=== 전투 로그 종료 ===

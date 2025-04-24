@@ -18,6 +18,7 @@ Assets/
 │       │   ├── Frames/
 │       │   └── Parts/
 │       ├── Services/
+│       ├── UI/     # 사용자 인터페이스 관련 스크립트
 │       └── Tests/
 ├── ExcelToSO/    # Excel 데이터 -> ScriptableObject 변환 도구
 │   └── ... (관련 스크립트 및 에디터 파일)
@@ -31,6 +32,7 @@ Assets/AF/Scripts/
 ├── Combat/   # 전투 시스템 관련 스크립트
 │   ├── CombatSimulatorService.cs # 전투 시뮬레이션 핵심 로직
 │   ├── TextLogger.cs             # 전투 텍스트 로그 기록
+│   ├── TextLoggerService.cs      # TextLogger 관리 및 이벤트 구독 서비스
 │   ├── ... (이벤트 파일 다수)      # CombatActionEvents, DamageEvents 등
 │   ├── ICombatSimulatorService.cs # 전투 서비스 인터페이스
 │   └── ITextLogger.cs            # 로거 인터페이스
@@ -59,6 +61,8 @@ Assets/AF/Scripts/
 │   ├── ShutdownOrderItem.cs      # 서비스 종료 순서 정의
 │   ├── IService.cs               # 서비스 기본 인터페이스
 │   └── ... (예제 서비스 파일)    # ExampleService, IExampleService 등
+├── UI/       # 사용자 인터페이스 관련 스크립트
+│   └── CombatTextUIService.cs    # 전투 텍스트 로그 UI 표시 서비스
 └── Tests/    # 유니티 테스트 관련 스크립트
     └── CombatTestRunner.cs       # 전투 테스트 실행
 ```

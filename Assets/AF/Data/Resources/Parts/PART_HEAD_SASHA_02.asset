@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5fd8c816985b1e4ba3eee2c446bc307, type: 3}
+  m_Name: PART_HEAD_SASHA_02
+  m_EditorClassIdentifier: 
+  PartID: PART_HEAD_SASHA_02
+  PartName: "\uC0AC\uC0E4 \uCD08\uC815\uBC00 \uC5F0\uC0B0 \uD5E4\uB4DC Mk.II"
+  PartType: 2
+  Stat_AttackPower: 0
+  Stat_Defense: 0.1
+  Stat_Speed: 0
+  Stat_Accuracy: 1
+  Stat_Evasion: 0
+  Stat_Durability: 0
+  Stat_EnergyEff: 0.65
+  Stat_MaxAP: 0
+  Stat_APRecovery: 0
+  MaxDurability: 70
+  PartWeight: 12
+  Abilities:
+  - AnalysisBoost
+  - EnhancedSensors
+  Notes: "SASHA \uAC1C\uB7C9\uD615 \uD5E4\uB4DC, \uC5F0\uC0B0 \uB2A5\uB825 \uADF9\uB300\uD654"

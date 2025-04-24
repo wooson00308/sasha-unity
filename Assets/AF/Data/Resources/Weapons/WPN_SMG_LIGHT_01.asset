@@ -20,7 +20,7 @@ MonoBehaviour:
   Accuracy: 0.75
   Range: 6
   AttackSpeed: 3
-  OverheatPerShot: 0.03
+  OverheatPerShot: 0
   AmmoCapacity: 0
   BaseAPCost: 2
   SpecialEffects: []

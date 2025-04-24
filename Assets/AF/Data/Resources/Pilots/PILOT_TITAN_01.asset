@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59ba4f4a449962942b26a35564da0fac, type: 3}
+  m_Name: PILOT_TITAN_01
+  m_EditorClassIdentifier: 
+  PilotID: PILOT_TITAN_01
+  PilotName: Boris Volkov
+  Stat_AttackPower: 7
+  Stat_Defense: 9
+  Stat_Speed: 1
+  Stat_Accuracy: 0.65
+  Stat_Evasion: 0.05
+  Stat_Durability: 0
+  Stat_EnergyEff: 0.5
+  Stat_MaxAP: 0
+  Stat_APRecovery: 0
+  Specialization: 3
+  InitialLevel: 1
+  InitialSkills:
+  - HeavyWeaponMastery
+  Notes: "\uC911\uD654\uAE30 \uC6B4\uC6A9 \uBC0F \uBC29\uC5B4 \uD2B9\uD654"

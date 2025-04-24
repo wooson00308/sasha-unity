@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ecd9d45bb68cd6e4899907f3144afa8d, type: 3}
+  m_Name: WPN_PLASMA_LANCER_01
+  m_EditorClassIdentifier: 
+  WeaponID: WPN_PLASMA_LANCER_01
+  WeaponName: "\uD50C\uB77C\uC988\uB9C8 \uB79C\uC11C"
+  WeaponType: 1
+  DamageType: 1
+  BaseDamage: 48
+  Accuracy: 0.88
+  Range: 13
+  AttackSpeed: 1
+  OverheatPerShot: 0
+  AmmoCapacity: 0
+  BaseAPCost: 7
+  SpecialEffects:
+  - ChargeShot
+  Notes: "\uCC28\uC9C0\uD558\uC5EC \uAC15\uB825\uD55C \uAD00\uD1B5 \uC0F7 \uBC1C\uC0AC"

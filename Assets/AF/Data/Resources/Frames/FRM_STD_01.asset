@@ -25,11 +25,11 @@ MonoBehaviour:
   Stat_MaxAP: 6
   Stat_APRecovery: 3
   FrameWeight: 60
-  Slot_Head: Head
-  Slot_Body: Body
-  Slot_Arm_L: Arm_Left
-  Slot_Arm_R: Arm_Right
-  Slot_Legs: Legs
+  Slot_Head: HeadSlot
+  Slot_Body: BodySlot
+  Slot_Arm_L: ArmSlot_L
+  Slot_Arm_R: ArmSlot_R
+  Slot_Legs: LegsSlot
   Slot_Backpack: BackpackSlot
   Slot_Weapon_1: WeaponSlot_R
   Slot_Weapon_2: WeaponSlot_L

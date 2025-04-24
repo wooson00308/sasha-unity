@@ -18,7 +18,7 @@ MonoBehaviour:
   Stat_AttackPower: 0
   Stat_Defense: 0.1
   Stat_Speed: 0
-  Stat_Accuracy: 0.8
+  Stat_Accuracy: 1
   Stat_Evasion: 0
   Stat_Durability: 0
   Stat_EnergyEff: 0.5
