@@ -130,10 +130,9 @@ classDiagram
     ArmoredFrame o-- "0..*" Part
     ArmoredFrame o-- "0..*" Weapon
     Frame ..> PartSlotDefinition : defines
-    Frame --|> Stats
-    Part --|> Stats
-    Weapon --|> Stats
-    Pilot --|> Stats
+    Frame *-- "1" Stats : baseStats
+    Part *-- "1" Stats : stats
+    Pilot *-- "1" Stats : baseStats
 
     Frame <|-- LightFrame
     Frame <|-- StandardFrame
