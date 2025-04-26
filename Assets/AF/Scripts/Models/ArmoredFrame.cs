@@ -667,5 +667,110 @@ namespace AF.Models
         // TODO: 수리 메서드 (Repair)도 슬롯 기반으로 수정 필요
         // public void RepairPart(string slotIdentifier, float amount) { ... }
         // public void RepairAllParts(float amount) { ... }
+
+        /// <summary>
+        /// 모든 장착된 파츠의 최대 내구도 합계를 반환합니다.
+        /// </summary>
+        public float GetMaxDurability()
+        {
+            float totalMaxDurability = 0f;
+            foreach (var part in _parts.Values)
+            {
+                if (part != null)
+                {
+                    totalMaxDurability += part.MaxDurability;
+                }
+            }
+            // 프레임 자체의 내구도도 포함해야 한다면 추가 로직 필요 (현재 Frame 클래스에는 내구도 없음)
+            return totalMaxDurability;
+        }
+
+        /// <summary>
+        /// 모든 장착된 파츠의 현재 내구도 합계를 반환합니다.
+        /// </summary>
+        public float GetCurrentDurability()
+        {
+            float totalCurrentDurability = 0f;
+            foreach (var part in _parts.Values)
+            {
+                if (part != null)
+                {
+                    totalCurrentDurability += part.CurrentDurability;
+                }
+            }
+            // 프레임 자체의 현재 내구도 포함 로직 필요시 추가
+            return totalCurrentDurability;
+        }
+
+        /// <summary>
+        /// 현재 AP 및 상태를 고려하여 사용 가능한 액션 목록을 반환합니다.
+        /// </summary>
+        /// <returns>사용 가능한 CombatAction 목록</returns>
+        public List<CombatAction> GetAvailableActions() // <<< 반환 타입 List<CombatAction>으로 변경
+        {
+            // 유닛이 작동 불가능하면 빈 리스트 반환
+            if (!_isOperational) return new List<CombatAction>();
+
+            var availableActions = new List<CombatAction>();
+
+            // 1. 장착된 무기 액션 추가
+            foreach (var weapon in _equippedWeapons)
+            {
+                // Weapon.IsOperational과 BaseAPCost 사용
+                if (weapon.IsOperational && HasEnoughAP(weapon.BaseAPCost))
+                {
+                    // 무기 아이콘은 Weapon 데이터 또는 별도 관리 시스템에서 가져와야 함 (현재 null)
+                    availableActions.Add(new CombatAction(weapon.Name, weapon.BaseAPCost, CombatActionEvents.ActionType.Attack, weapon, null));
+                }
+            }
+
+            // 2. 파일럿 스킬 액션 추가
+            if (_pilot != null && _pilot.Skills != null)
+            {
+                // Pilot.Skills는 이제 List<Skill>
+                foreach (var skill in _pilot.Skills)
+                {
+                    // Skill.IsReady()와 ApCost 사용
+                    if (skill.IsReady() && HasEnoughAP(skill.ApCost))
+                    {
+                        // 스킬 아이콘은 Skill 객체에서 가져옴
+                        availableActions.Add(new CombatAction(skill.Name, skill.ApCost, CombatActionEvents.ActionType.UseAbility, skill, skill.Icon));
+                    }
+                }
+            }
+
+            // 3. 파츠 어빌리티 액션 추가
+            foreach (var part in _parts.Values)
+            {
+                // Part.IsOperational 확인 및 Abilities (List<AbilityData>) 사용
+                if (part.IsOperational && part.Abilities != null)
+                {
+                    foreach(var ability in part.Abilities)
+                    {
+                         // AbilityData.IsReady()와 ApCost 사용
+                        if (ability.IsReady() && HasEnoughAP(ability.ApCost))
+                        {
+                             // 어빌리티 아이콘은 AbilityData 객체에서 가져옴
+                            availableActions.Add(new CombatAction(ability.Name, ability.ApCost, CombatActionEvents.ActionType.UseAbility, ability, ability.Icon));
+                        }
+                    }
+                }
+            }
+
+            // 4. 기본 행동 추가 (예시: 방어)
+            float defendCost = 1.0f; // 방어 AP 비용 예시 (설정값으로 관리 필요)
+            if (HasEnoughAP(defendCost))
+            {
+                // 기본 행동 아이콘은 별도 리소스에서 가져와야 함 (현재 null)
+                availableActions.Add(new CombatAction("Defend", defendCost, CombatActionEvents.ActionType.Defend, null, null));
+            }
+
+            // 이동 액션은 더 복잡하므로 여기서는 생략 (AI 또는 플레이어 입력 처리 시 별도 계산)
+
+            // 디버그 로그 제거 또는 레벨 조정
+            // Debug.LogWarning("GetAvailableActions() implementation is incomplete...");
+
+            return availableActions;
+        }
     }
 } 

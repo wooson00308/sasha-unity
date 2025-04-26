@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 namespace AF.Models
 {
@@ -43,7 +44,7 @@ namespace AF.Models
         /// <summary>
         /// 파일럿의 스킬 목록
         /// </summary>
-        private List<string> _skills;
+        private List<Skill> _skills;
 
         /// <summary>
         /// 파일럿의 스탯 보정치 (전문화에 따라 달라짐)
@@ -57,7 +58,7 @@ namespace AF.Models
         public int Experience => _experience;
         public int ExperienceToNextLevel => _experienceToNextLevel;
         public SpecializationType Specialization => _specialization;
-        public IReadOnlyList<string> Skills => _skills;
+        public IReadOnlyList<Skill> Skills => _skills;
         public Stats SpecializationBonus => _specializationBonus;
 
         /// <summary>
@@ -71,7 +72,7 @@ namespace AF.Models
             _experience = 0;
             _experienceToNextLevel = 100;
             _specialization = SpecializationType.StandardCombat;
-            _skills = new List<string>();
+            _skills = new List<Skill>();
             _specializationBonus = CalculateSpecializationBonus();
         }
 
@@ -86,7 +87,7 @@ namespace AF.Models
             _experience = 0;
             _experienceToNextLevel = 100;
             _specialization = specialization;
-            _skills = new List<string>();
+            _skills = new List<Skill>();
             _specializationBonus = CalculateSpecializationBonus();
         }
 
@@ -176,36 +177,65 @@ namespace AF.Models
         }
 
         /// <summary>
-        /// 스킬을 추가합니다.
+        /// 스킬을 추가합니다. 동일한 이름의 스킬이 이미 있다면 추가하지 않습니다.
         /// </summary>
-        public void AddSkill(string skill)
+        public void AddSkill(Skill skill)
         {
-            if (!_skills.Contains(skill))
+            if (skill != null && !_skills.Any(s => s.Name == skill.Name))
             {
                 _skills.Add(skill);
+                Debug.Log($"Pilot ({Name}): 스킬 '{skill.Name}' 추가됨.");
+            }
+            else if (skill != null)
+            {
+                Debug.LogWarning($"Pilot ({Name}): 스킬 '{skill.Name}'은(는) 이미 보유하고 있습니다.");
             }
         }
 
         /// <summary>
-        /// 랜덤 스킬을 추가합니다. (현재는 간단히 구현)
+        /// 랜덤 스킬을 추가합니다. (현재는 간단히 구현 - Skill 객체 생성 필요)
         /// </summary>
         private void AddRandomSkill()
         {
-            // 전문화에 따른 기본 스킬 추가
+            // TODO: 실제 스킬 데이터를 로드하거나 정의하여 Skill 객체를 생성해야 함
+            // 아래는 임시 예시입니다. 실제 구현에서는 SkillDatabase 등에서 가져와야 합니다.
+            Skill newSkill = null;
+            string skillNameBase = "";
+
             switch (_specialization)
             {
                 case SpecializationType.StandardCombat:
-                    AddSkill($"Combat Skill Lv{_level / 3}");
-                    break;
+                    skillNameBase = "Combat"; break;
                 case SpecializationType.Defense:
-                    AddSkill($"Defense Skill Lv{_level / 3}");
-                    break;
+                    skillNameBase = "Defense"; break;
                 case SpecializationType.Support:
-                    AddSkill($"Support Skill Lv{_level / 3}");
-                    break;
+                    skillNameBase = "Support"; break;
                 case SpecializationType.Engineering:
-                    AddSkill($"Engineering Skill Lv{_level / 3}");
-                    break;
+                    skillNameBase = "Engineering"; break;
+                default: return; // 해당 전문화 타입에 맞는 스킬 없으면 추가 안함
+            }
+
+            // 임시 Skill 객체 생성 (실제로는 데이터 기반으로 생성해야 함)
+            newSkill = new Skill(
+                name: $"{skillNameBase} Skill Lv{_level / 3}",
+                description: $"Level {_level / 3} {skillNameBase} specialization skill.",
+                apCost: 2.0f + (_level / 3), // 레벨 따라 AP 증가 (예시)
+                cooldownTurns: 3 + (_level / 3), // 레벨 따라 쿨다운 증가 (예시)
+                icon: null // 아이콘은 별도 로드 필요
+            );
+
+            AddSkill(newSkill);
+        }
+
+        /// <summary>
+        /// 턴 시작 시 모든 스킬의 쿨다운을 감소시킵니다.
+        /// </summary>
+        public void TickSkillCooldowns()
+        {
+            if (_skills == null) return;
+            foreach(var skill in _skills)
+            {
+                skill.TickCooldown();
             }
         }
 
