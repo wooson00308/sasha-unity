@@ -34,9 +34,9 @@ graph TD
 
 ```mermaid
 graph LR
-    Publisher -->|1. Publish(IEvent)| EventBus
-    EventBus -->|2. Notify| Subscriber1[Listener 1 (Action<T>)]
-    EventBus -->|2. Notify| SubscriberN[... Listener N]
+    Publisher -- "1. Publish(IEvent)" --> EventBus
+    EventBus -- "2. Notify" --> Subscriber1["Listener 1 (Action&lt;T&gt;)"]
+    EventBus -- "2. Notify" --> SubscriberN["... Listener N"]
 
     subgraph "Event Flow"
         direction LR
@@ -82,7 +82,7 @@ classDiagram
         +FrameType type
         +Stats baseStats
         +float weight
-        +{abstract} GetPartSlots() IReadOnlyDictionary~string, PartSlotDefinition~
+        +GetPartSlots() IReadOnlyDictionary~string, PartSlotDefinition~
         +CanEquipPart(Part part, string slot) bool
     }
     class Part {
@@ -95,7 +95,7 @@ classDiagram
         +bool isOperational
         +ApplyDamage(float amount) bool
         +Repair(float amount)
-        +{abstract} OnDestroyed(ArmoredFrame af)
+        +OnDestroyed(ArmoredFrame af)
     }
     class Weapon {
         +WeaponType type
