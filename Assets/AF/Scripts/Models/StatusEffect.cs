@@ -10,7 +10,6 @@ namespace AF.Models
     public class StatusEffect
     {
         public string EffectName { get; private set; }
-        public string Description { get; private set; }
         public int DurationTurns { get; set; } // 남은 턴 수, -1은 영구 지속
 
         // 스탯 변경 정보
@@ -25,10 +24,9 @@ namespace AF.Models
         /// <summary>
         /// 기본 생성자 (효과 없음)
         /// </summary>
-        private StatusEffect(string effectName, string description, int durationTurns)
+        private StatusEffect(string effectName, int durationTurns)
         {
             EffectName = effectName;
-            Description = description;
             DurationTurns = durationTurns;
             StatToModify = StatType.None;
             ModificationType = ModificationType.None;
@@ -40,8 +38,8 @@ namespace AF.Models
         /// <summary>
         /// 스탯 변경 효과 생성자
         /// </summary>
-        public StatusEffect(string effectName, string description, int durationTurns, StatType statToModify, ModificationType modType, float modValue)
-            : this(effectName, description, durationTurns)
+        public StatusEffect(string effectName, int durationTurns, StatType statToModify, ModificationType modType, float modValue)
+            : this(effectName, durationTurns) // 기본 생성자 호출
         {
             StatToModify = statToModify;
             ModificationType = modType;
@@ -51,8 +49,8 @@ namespace AF.Models
         /// <summary>
         /// 틱 효과 생성자
         /// </summary>
-        public StatusEffect(string effectName, string description, int durationTurns, TickEffectType tickType, float tickValue)
-            : this(effectName, description, durationTurns)
+        public StatusEffect(string effectName, int durationTurns, TickEffectType tickType, float tickValue)
+            : this(effectName, durationTurns) // 기본 생성자 호출
         {
             TickEffectType = tickType;
             TickValue = tickValue;
@@ -61,8 +59,8 @@ namespace AF.Models
         /// <summary>
         /// 스탯 변경 + 틱 효과 동시 적용 생성자 (필요시)
         /// </summary>
-        public StatusEffect(string effectName, string description, int durationTurns, StatType statToModify, ModificationType modType, float modValue, TickEffectType tickType, float tickValue)
-            : this(effectName, description, durationTurns, statToModify, modType, modValue)
+        public StatusEffect(string effectName, int durationTurns, StatType statToModify, ModificationType modType, float modValue, TickEffectType tickType, float tickValue)
+            : this(effectName, durationTurns, statToModify, modType, modValue) // 스탯 변경 생성자 호출
         {
             TickEffectType = tickType;
             TickValue = tickValue;

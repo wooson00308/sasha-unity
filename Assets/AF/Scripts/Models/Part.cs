@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace AF.Models
@@ -49,7 +48,7 @@ namespace AF.Models
         /// <summary>
         /// 특수 능력 목록
         /// </summary>
-        protected List<AbilityData> _abilities;
+        protected List<string> _abilities;
 
         // 공개 프로퍼티
         public string Name => _name;
@@ -59,7 +58,7 @@ namespace AF.Models
         public float CurrentDurability => _currentDurability;
         public float MaxDurability => _maxDurability;
         public bool IsOperational => _isOperational;
-        public IReadOnlyList<AbilityData> Abilities => _abilities;
+        public IReadOnlyList<string> Abilities => _abilities;
 
         /// <summary>
         /// 생성자
@@ -72,7 +71,7 @@ namespace AF.Models
             _maxDurability = durability;
             _currentDurability = durability;
             _isOperational = true;
-            _abilities = new List<AbilityData>();
+            _abilities = new List<string>();
         }
 
         /// <summary>
@@ -108,30 +107,13 @@ namespace AF.Models
         }
 
         /// <summary>
-        /// 특수 능력을 추가합니다. 동일한 이름의 능력이 이미 있다면 추가하지 않습니다.
+        /// 특수 능력을 추가합니다.
         /// </summary>
-        public void AddAbility(AbilityData ability)
+        public void AddAbility(string ability)
         {
-            if (ability != null && !_abilities.Any(a => a.Name == ability.Name))
+            if (!_abilities.Contains(ability))
             {
                 _abilities.Add(ability);
-                Debug.Log($"Part ({Name}): 어빌리티 '{ability.Name}' 추가됨.");
-            }
-            else if (ability != null)
-            {
-                Debug.LogWarning($"Part ({Name}): 어빌리티 '{ability.Name}'은(는) 이미 보유하고 있습니다.");
-            }
-        }
-
-        /// <summary>
-        /// 턴 시작 시 모든 어빌리티의 쿨다운을 감소시킵니다.
-        /// </summary>
-        public void TickAbilityCooldowns()
-        {
-            if (_abilities == null) return;
-            foreach(var ability in _abilities)
-            {
-                ability.TickCooldown();
             }
         }
 
@@ -151,8 +133,8 @@ namespace AF.Models
             _maxDurability = durability;
             _currentDurability = durability;
             _isOperational = true;
-            _abilities = new List<AbilityData>();
-            _weight = weight;
+            _abilities = new List<string>();
+            _weight = weight; // 전달받은 무게 설정
         }
     }
 } 
