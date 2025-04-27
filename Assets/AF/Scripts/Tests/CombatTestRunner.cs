@@ -39,6 +39,10 @@ namespace AF.Tests
         // --- End Re-add Color Palette ---
         public static CombatTestRunner Instance { get; private set; }
 
+        // +++ Player Squad State Storage +++
+        private Dictionary<string, ArmoredFrame> _persistentPlayerFrames = new Dictionary<string, ArmoredFrame>();
+        // +++ End Player Squad State Storage +++
+
         [TitleGroup("전투 테스트 설정")]
         [InfoBox("전투 테스트에 참여할 기체와 팀 설정을 구성합니다.")]
         [Serializable]
@@ -174,6 +178,13 @@ namespace AF.Tests
             [ShowInInspector, PreviewField(80), ReadOnly, HideLabel]
             private Sprite customPilotPreview;
 
+            // +++ Add Unique ID for Persistence Tracking +++
+            [FoldoutGroup("식별자 (상태 유지용)")]
+            [Tooltip("플레이어 스쿼드 유닛의 상태를 추적하기 위한 고유 ID입니다. 커스텀 조립 시 직접 입력하고, 어셈블리 사용 시 어셈블리 이름으로 자동 설정됩니다.")]
+            [ShowIf("IsPlayerSquadMember")] // AFSetup 인스턴스가 playerSquadSetups 리스트에 속할 때만 표시 (구현 필요)
+            public string persistentId;
+            // +++ End Add Unique ID +++
+
             #if UNITY_EDITOR
             [Button("Update Previews (Manual)")]
             private void UpdatePreviews()
@@ -188,6 +199,7 @@ namespace AF.Tests
                 customWeaponR1Preview = null;
                 customWeaponL1Preview = null;
 
+                // +++ Update Persistent ID based on mode +++
                 if (useCustomAssembly)
                 {
                     // Update previews based on custom SO fields
@@ -199,6 +211,13 @@ namespace AF.Tests
                     customLegsPreview = LoadSpritePreview(customLegs?.PartID, "Parts");
                     customWeaponR1Preview = LoadSpritePreview(customWeaponR1?.WeaponID, "Weapons");
                     customWeaponL1Preview = LoadSpritePreview(customWeaponL1?.WeaponID, "Weapons");
+
+                    // persistentId는 커스텀 이름과 연동하거나 수동 입력 유지
+                    // 여기서는 예시로 customAFName을 사용 (필요시 수정)
+                    if (!string.IsNullOrEmpty(customAFName))
+                    {
+                        persistentId = customAFName;
+                    }
                 }
                 else // Assembly Mode
                 {
@@ -208,7 +227,7 @@ namespace AF.Tests
                         FrameSO frameSO = FindResource<FrameSO>("Frames", assembly.FrameID);
                         PartSO headSO = FindResource<PartSO>("Parts", assembly.HeadPartID);
                         PartSO bodySO = FindResource<PartSO>("Parts", assembly.BodyPartID);
-                        PartSO armsSO = FindResource<PartSO>("Parts", assembly.LeftArmPartID); 
+                        PartSO armsSO = FindResource<PartSO>("Parts", assembly.LeftArmPartID);
                         PartSO legsSO = FindResource<PartSO>("Parts", assembly.LegsPartID);
                         WeaponSO weapon1SO = FindResource<WeaponSO>("Weapons", assembly.Weapon1ID);
                         WeaponSO weapon2SO = FindResource<WeaponSO>("Weapons", assembly.Weapon2ID);
@@ -234,10 +253,13 @@ namespace AF.Tests
                         customLegsPreview = LoadSpritePreview(legsSO?.PartID, "Parts");
                         customWeaponR1Preview = LoadSpritePreview(weapon1SO?.WeaponID, "Weapons");
                         customWeaponL1Preview = LoadSpritePreview(weapon2SO?.WeaponID, "Weapons");
+
+                        // Set persistentId from assembly name
+                        persistentId = assembly.name;
                     }
                     else // Assembly is null in Assembly Mode
                     {
-                        // Clear the custom fields
+                        // Clear the custom fields and persistent ID
                         customFrame = null;
                         customHead = null;
                         customBody = null;
@@ -247,129 +269,148 @@ namespace AF.Tests
                         customWeaponL1 = null;
                         customPilot = null;
                         customAFName = null; // Clear name field
+                        persistentId = null; // Clear persistent ID
                     }
                 }
+                // Instance?.ValidateSetup() 호출하여 팀 색상 등 업데이트
+                Instance?.ValidateSetup();
             }
 
-            // Helper method to find a single resource by ID (name) in Resources folder
             private T FindResource<T>(string subfolder, string resourceId) where T : ScriptableObject
             {
-                if (string.IsNullOrEmpty(resourceId))
-                {
-                    return null;
-                }
-                string path = $"{subfolder}/{resourceId}"; 
-                T resource = Resources.Load<T>(path);
-                return resource;
+                if (string.IsNullOrEmpty(resourceId)) return null;
+                string path = $"{subfolder}/{resourceId}";
+                return Resources.Load<T>(path);
             }
-            
-            // Restored: Local preview loading method within AFSetup (Uses AssetDatabase - Editor only)
+
             private Sprite LoadSpritePreview(string id, string folderName)
             {
-                if (string.IsNullOrEmpty(id))
+                if (string.IsNullOrEmpty(id)) return null;
+#if UNITY_EDITOR
+                string[] guids = AssetDatabase.FindAssets($"{id} t:sprite", new[] { $"Assets/AF/Sprites/{folderName}" });
+                if (guids.Length > 0)
                 {
-                    return null;
+                    string path = AssetDatabase.GUIDToAssetPath(guids[0]);
+                    return AssetDatabase.LoadAssetAtPath<Sprite>(path);
                 }
-                // Assuming Sprites are directly under Assets/AF/Sprites/
-                string path = $"Assets/AF/Sprites/{folderName}/{id}.png";
-                return AssetDatabase.LoadAssetAtPath<Sprite>(path);
+                Debug.LogWarning($"Preview sprite not found for ID: {id} in folder: {folderName}");
+#endif
+                return null; // Return null if not in editor or not found
+            }
+
+            // +++ Helper to check if this setup is in the player squad list +++
+            // Note: This requires the AFSetup instance to know which list it belongs to,
+            // which is tricky. A simpler approach might be needed in StartCombatTestAsync.
+            // For now, this ShowIf condition won't work as intended without more complex setup.
+            // Consider making persistentId always visible or finding another way.
+            private bool IsPlayerSquadMember()
+            {
+                // Placeholder - this logic needs refinement or removal
+                 return Instance != null && Instance.playerSquadSetups.Contains(this);
+                 //return true; // Temporarily make it always visible for testing
             }
 
             private void OnEnable()
             {
-                EditorApplication.delayCall += UpdatePreviews; // Initial update attempt
+                // Update previews when the object is enabled (e.g., added to list)
+                 UpdatePreviews();
             }
 
             private void OnDisable()
             {
-                EditorApplication.delayCall -= UpdatePreviews;
+                // Optional: Cleanup if needed when removed from list
             }
             #endif
         }
 
-        [FoldoutGroup("참가자 설정", expanded: true)]
-        [OnValueChanged("ValidateSetup", IncludeChildren = true)]
-        [ListDrawerSettings(ShowFoldout = true, DefaultExpandedState = true, DraggableItems = true, NumberOfItemsPerPage = 5)]
-        [PropertySpace(10)]
-        [Searchable]
-        public List<AFSetup> battleParticipants = new List<AFSetup>();
+        // +++ Player Squad Setup +++
+        [TitleGroup("플레이어 스쿼드 (상태 유지)")]
+        [ListDrawerSettings(NumberOfItemsPerPage = 3, Expanded = true)]
+        [InfoBox("이 리스트의 유닛들은 전투 후 상태(파츠 내구도 등)가 유지됩니다. 각 항목에 고유한 'Persistent ID'를 설정해야 합니다.")]
+        public List<AFSetup> playerSquadSetups = new List<AFSetup>();
+        // +++ End Player Squad Setup +++
+
+        [TitleGroup("시나리오 참가자 (일회성)")] // Renamed TitleGroup for clarity
+        [ListDrawerSettings(NumberOfItemsPerPage = 5, Expanded = true)]
+        [InfoBox("이 리스트의 유닛들은 매 전투마다 새로 생성됩니다 (상태 유지 안됨). 적군 또는 임시 아군 설정에 사용하세요.")]
+        public List<AFSetup> afSetups = new List<AFSetup>(); // Kept original name 'afSetups'
 
         [FoldoutGroup("참가자 설정", expanded: true)]
         [PropertySpace(5), HideInPlayMode]
-        [Button(ButtonSizes.Large)]
-        public void AddParticipant()
+        [ButtonGroup("참가자 설정/ManageButtons")] // Group buttons together
+        [Button("플레이어 추가", ButtonSizes.Medium)]
+        public void AddPlayerParticipant()
         {
-            battleParticipants.Add(new AFSetup { teamId = battleParticipants.Count > 0 ? battleParticipants.Max(p => p.teamId) + 1 : 0 });
-            ValidateSetup(); // Re-add call to update colors
+            playerSquadSetups.Add(new AFSetup());
+            ValidateSetup(); // Validate after adding
+        }
+
+        [PropertySpace(5), HideInPlayMode]
+        [ButtonGroup("참가자 설정/ManageButtons")]
+        [Button("시나리오 유닛 추가", ButtonSizes.Medium)]
+        public void AddScenarioParticipant()
+        {
+            afSetups.Add(new AFSetup());
+            ValidateSetup(); // Validate after adding
         }
 
         private void ValidateSetup()
         {
-            // 공통 검증: 참가자 수, 팀 수
-            if (battleParticipants.Count < 2)
-            {
-                Debug.LogWarning("전투 설정 검증: 최소 2명의 참가자가 필요합니다.");
-            }
-            else if (battleParticipants.Select(p => p.teamId).Distinct().Count() < 2)
-            {
-                Debug.LogWarning("전투 설정 검증: 최소 2개의 다른 팀이 필요합니다.");
-            }
+            // Validation logic might need updates if player/enemy setups have different rules
+            // For now, just update team colors for all lists
+            UpdateTeamColors();
 
-            // 참가자별 검증
-            for (int i = 0; i < battleParticipants.Count; i++)
+            // Check for duplicate persistent IDs in player squad (Important!)
+            var persistentIds = new HashSet<string>();
+            var duplicatesFound = false;
+            foreach (var setup in playerSquadSetups)
             {
-                var setup = battleParticipants[i];
-                if (setup.useCustomAssembly)
+                if (string.IsNullOrEmpty(setup.persistentId))
                 {
-                    // 커스텀 모드 검증: 필수 파츠 (Frame, Body) 확인
-                    if (setup.customFrame == null || setup.customBody == null) // Head, Arms, Legs, Pilot은 필수는 아님
-                    {
-                         Debug.LogWarning($"전투 설정 검증 (참가자 {i+1}): 커스텀 모드에서 필수 파츠(Frame, Body)가 선택되지 않았습니다.");
-                    }
-                    // 추가 검증 가능 (예: 무기 장착 여부 등)
+                     Debug.LogError("플레이어 스쿼드 유닛에 Persistent ID가 설정되지 않았습니다!");
+                     duplicatesFound = true; // Treat empty ID as an issue
                 }
-                else
+                else if (!persistentIds.Add(setup.persistentId))
                 {
-                    // 기존 모드 검증: Assembly 확인
-                    if (setup.assembly == null)
-                    {
-                        Debug.LogWarning($"전투 설정 검증 (참가자 {i+1}): 일반 모드에서 Assembly가 설정되지 않았습니다.");
-                    }
+                    Debug.LogError($"중복된 Persistent ID '{setup.persistentId}'가 플레이어 스쿼드에 존재합니다!");
+                    duplicatesFound = true;
                 }
             }
-
-            // Re-add call to UpdateTeamColors
-            UpdateTeamColors(); 
+             if (duplicatesFound)
+             {
+                 // Optionally show an error message in the inspector
+                 // Sirenix.OdinInspector.Editor.InspectorUtilities.MarkSceneDirty(); // Mark dirty to show error icon
+             }
         }
 
-        // --- Re-add Team Color Logic ---
         private void UpdateTeamColors()
         {
-            _currentTeamColors.Clear();
-            if (battleParticipants == null) return; 
+            // Reset colors used in this validation cycle
+             _currentTeamColors.Clear();
+             int colorIndex = 0;
 
-            var uniqueTeamIds = battleParticipants.Select(p => p.teamId).Distinct().OrderBy(id => id).ToList();
+            // Assign colors to Player Squad
+             foreach (var setup in playerSquadSetups)
+             {
+                 if (!_currentTeamColors.ContainsKey(setup.teamId))
+                 {
+                     _currentTeamColors.Add(setup.teamId, teamColorPalette[colorIndex % teamColorPalette.Count]);
+                     colorIndex++;
+                 }
+                 setup.teamColorPreview = _currentTeamColors[setup.teamId];
+             }
 
-            for (int i = 0; i < uniqueTeamIds.Count; i++)
-            {
-                int teamId = uniqueTeamIds[i];
-                Color color = teamColorPalette[i % teamColorPalette.Count];
-                _currentTeamColors[teamId] = color;
-            }
-
-            foreach (var setup in battleParticipants)
-            {
-                if (_currentTeamColors.TryGetValue(setup.teamId, out Color color))
-                {
-                    setup.teamColorPreview = color;
-                }
-                else
-                {
-                    setup.teamColorPreview = Color.white; 
-                }
-            }
+            // Assign colors to Scenario Participants
+             foreach (var setup in afSetups)
+             {
+                 if (!_currentTeamColors.ContainsKey(setup.teamId))
+                 {
+                     _currentTeamColors.Add(setup.teamId, teamColorPalette[colorIndex % teamColorPalette.Count]);
+                     colorIndex++;
+                 }
+                 setup.teamColorPreview = _currentTeamColors[setup.teamId];
+             }
         }
-        // --- End Re-add Team Color Logic ---
 
         [FoldoutGroup("전투 옵션", expanded: true)]
         [LabelText("세부 로그 표시")]
@@ -485,15 +526,9 @@ namespace AF.Tests
                 return;
             }
 
-            ValidateSetup(); // 시작 전 검증
+            ValidateSetup(); // 시작 전 검증 (Persistent ID 중복 등 확인 포함)
 
-            if (battleParticipants.Count < 2 || battleParticipants.Select(p => p.teamId).Distinct().Count() < 2)
-            {
-                Log("전투 시작 조건 미충족: 참가자 수 또는 팀 수를 확인하세요.", LogLevel.Error);
-                return;
-            }
-
-            // 서비스 로케이터에서 CombatSimulatorService 가져오기
+            // --- 서비스 가져오기 ---
             combatSimulator = ServiceLocator.Instance.GetService<ICombatSimulatorService>();
             textLogger = ServiceLocator.Instance.GetService<TextLoggerService>();
 
@@ -510,64 +545,139 @@ namespace AF.Tests
             textLogger.SetLogActionSummaries(logActionSummaries);
             // ---------------------
 
-            // 기존 로그 및 상태 초기화
+            // --- 상태 초기화 ---
             textLogger.ConcreteLogger?.Clear(); // TextLogger 직접 초기화
-            isInCombat = true;
+            isInCombat = true; // 전투 시작 플래그 설정
             currentTurn = 0;
             currentBattleId = Guid.NewGuid().ToString().Substring(0, 8); // 고유한 전투 ID 생성
 
             Log($"전투 시뮬레이션 시작 준비... (ID: {currentBattleId})", LogLevel.System);
 
-            List<ArmoredFrame> participants = new List<ArmoredFrame>();
-            for (int i = 0; i < battleParticipants.Count; i++)
+            // --- 참가자 구성 ---
+            List<ArmoredFrame> allParticipants = new List<ArmoredFrame>();
+
+            // 1. 플레이어 스쿼드 처리 (상태 유지 로직)
+            Log("--- 플레이어 스쿼드 처리 시작 ---", LogLevel.Debug);
+            for (int i = 0; i < playerSquadSetups.Count; i++)
             {
-                var setup = battleParticipants[i];
-                ArmoredFrame af = null;
+                var playerSetup = playerSquadSetups[i];
+                ArmoredFrame playerAf = null;
+
+                if (string.IsNullOrEmpty(playerSetup.persistentId))
+                {
+                    Log($"플레이어 스쿼드 {i+1}: Persistent ID가 비어있습니다! 이 유닛은 전투에 참여할 수 없습니다.", LogLevel.Error);
+                    continue; // ID 없으면 건너뜀
+                }
+
                 try
                 {
-                    if (setup.useCustomAssembly)
+                    // 저장된 상태가 있는지 확인
+                    if (_persistentPlayerFrames.TryGetValue(playerSetup.persistentId, out ArmoredFrame existingAf))
                     {
-                        // 커스텀 AF 생성 로직 복구
-                        af = CreateCustomArmoredFrame(setup, i + 1);
-                        // Log($"참가자 {i+1}: 커스텀 AF 생성은 현재 지원되지 않습니다.", LogLevel.Warning);
-                        // continue; // 커스텀 설정 건너뛰기 제거
+                        Log($"기존 플레이어 유닛 '{playerSetup.persistentId}' 재사용.", LogLevel.Info);
+                        playerAf = existingAf;
+                        // 위치 업데이트 (새 전투 배치 위치 적용)
+                        playerAf.Position = playerSetup.startPosition; 
+                        // TODO: 필요하다면 다른 상태(예: AP)도 초기화/업데이트
                     }
-                    else
+                    else // 저장된 상태가 없으면 새로 생성
                     {
-                        // AssemblySO 기반 AF 생성
-                        if (setup.assembly == null)
+                        Log($"신규 플레이어 유닛 '{playerSetup.persistentId}' 생성 시도.", LogLevel.Info);
+                        if (playerSetup.useCustomAssembly)
                         {
-                            Log($"참가자 {i+1}: AssemblySO가 없습니다. 기본 설정으로 대체합니다.", LogLevel.Warning);
-                            continue;
+                            playerAf = CreateCustomArmoredFrame(playerSetup, i + 1);
                         }
-                        af = CreateTestArmoredFrame(setup.assembly.name, setup.teamId, setup.startPosition);
+                        else
+                        {
+                            if (playerSetup.assembly == null)
+                            {
+                                Log($"플레이어 스쿼드 {i+1} ({playerSetup.persistentId}): AssemblySO가 없습니다. 생성 불가.", LogLevel.Warning);
+                                continue;
+                            }
+                            playerAf = CreateTestArmoredFrame(playerSetup.assembly.name, playerSetup.teamId, playerSetup.startPosition);
+                        }
+
+                        // 성공적으로 생성되었으면 저장소에 추가
+                        if (playerAf != null)
+                        {
+                            _persistentPlayerFrames.Add(playerSetup.persistentId, playerAf);
+                            Log($"신규 플레이어 유닛 '{playerSetup.persistentId}' 생성 및 저장 완료.", LogLevel.Info);
+                        }
                     }
 
-                    if (af != null)
+                    // 최종 참가자 리스트에 추가
+                    if (playerAf != null)
                     {
-                        participants.Add(af);
-                        Log($"참가자 [{af.Name}] 생성 완료 (팀: {af.TeamId}, 위치: {af.Position})");
+                        allParticipants.Add(playerAf);
+                        Log($"플레이어 유닛 [{playerAf.Name}] ({playerSetup.persistentId}) 전투 준비 완료 (팀: {playerAf.TeamId}, 위치: {playerAf.Position})");
                     }
                 }
                 catch (Exception ex)
                 {
-                    Log($"참가자 {i+1} 생성 중 오류 발생: {ex.Message}", LogLevel.Error);
+                    Log($"플레이어 스쿼드 유닛 {i+1} ({playerSetup.persistentId}) 처리 중 오류 발생: {ex.Message}", LogLevel.Error);
                 }
             }
+            Log("--- 플레이어 스쿼드 처리 완료 ---", LogLevel.Debug);
 
-            if (participants.Count < 2)
+            // 2. 시나리오 참가자 처리 (일회성 유닛)
+            Log("--- 시나리오 참가자 처리 시작 ---", LogLevel.Debug);
+            for (int i = 0; i < afSetups.Count; i++)
             {
-                Log("전투에 참여할 유효한 기체가 부족합니다.", LogLevel.Error);
-                isInCombat = false;
+                var scenarioSetup = afSetups[i];
+                ArmoredFrame scenarioAf = null;
+                 try
+                 {
+                     Log($"시나리오 유닛 {i+1} 생성 시도.", LogLevel.Info);
+                     if (scenarioSetup.useCustomAssembly)
+                     {
+                         scenarioAf = CreateCustomArmoredFrame(scenarioSetup, playerSquadSetups.Count + i + 1); // 인덱스 조정
+                     }
+                     else
+                     {
+                         if (scenarioSetup.assembly == null)
+                         {
+                             Log($"시나리오 유닛 {i+1}: AssemblySO가 없습니다. 생성 불가.", LogLevel.Warning);
+                             continue;
+                         }
+                         scenarioAf = CreateTestArmoredFrame(scenarioSetup.assembly.name, scenarioSetup.teamId, scenarioSetup.startPosition);
+                     }
+
+                     // 최종 참가자 리스트에 추가
+                     if (scenarioAf != null)
+                     {
+                         allParticipants.Add(scenarioAf);
+                         Log($"시나리오 유닛 [{scenarioAf.Name}] 생성 완료 (팀: {scenarioAf.TeamId}, 위치: {scenarioAf.Position})");
+                     }
+                 }
+                 catch (Exception ex)
+                 {
+                     Log($"시나리오 유닛 {i+1} 생성 중 오류 발생: {ex.Message}", LogLevel.Error);
+                 }
+            }
+            Log("--- 시나리오 참가자 처리 완료 ---", LogLevel.Debug);
+
+            // --- 최종 참가자 검증 ---
+            if (allParticipants.Count < 2)
+            {
+                Log("전투에 참여할 유효한 기체가 2기 미만입니다. (플레이어 스쿼드 ID 확인 필요)", LogLevel.Error);
+                isInCombat = false; // 전투 상태 초기화
                 return;
             }
+            // 팀 수 검증 (최소 2팀 필요)
+            if (allParticipants.Select(p => p.TeamId).Distinct().Count() < 2)
+            {
+                 Log("전투 시작 조건 미충족: 최소 2개의 다른 팀이 필요합니다.", LogLevel.Error);
+                 isInCombat = false; // 전투 상태 초기화
+                 return;
+            }
 
-            Log("모든 참가자 생성 완료. 전투 시뮬레이션 시작.", LogLevel.System);
+            Log($"총 {allParticipants.Count}기 참가 확정. 전투 시뮬레이션 시작.", LogLevel.System);
 
-            // 전투 진행 로직 복구 (while 루프 사용)
+            // --- 전투 시작 및 진행 ---
             string battleName = $"Test Battle {DateTime.Now:HH:mm:ss}";
-            currentBattleId = combatSimulator.StartCombat(participants.ToArray(), battleName, false);
-            isInCombat = true;
+            // participants.ToArray() 대신 allParticipants.ToArray() 사용
+            currentBattleId = combatSimulator.StartCombat(allParticipants.ToArray(), battleName, false); 
+            // isInCombat = true; // 이미 위에서 설정됨
             currentTurn = 1; // 턴 시작은 1부터
 
             try
@@ -593,9 +703,6 @@ namespace AF.Tests
                     // 전투 강제 종료 (무승부 처리 등)
                     if (isInCombat) combatSimulator.EndCombat(CombatSessionEvents.CombatEndEvent.ResultType.Draw);
                 }
-
-                // 전투 결과 로그 (CombatSimulator 내부 또는 EndCombat에서 처리될 수 있음)
-                // Log($"전투 종료. 결과: {combatSimulator.GetResult()}", LogLevel.System);
             }
             catch (Exception ex)
             {
@@ -604,7 +711,8 @@ namespace AF.Tests
             finally
             {
                 // CombatSimulator 내부에서 EndCombat 호출 시 isInCombat=false 처리될 수 있음
-                if (combatSimulator != null && combatSimulator.IsInCombat)
+                // Ensure EndCombat is called if the simulator is still active
+                if (combatSimulator != null && combatSimulator.IsInCombat) 
                 {
                     combatSimulator.EndCombat(); // 확실하게 종료 호출
                 }
@@ -630,34 +738,64 @@ namespace AF.Tests
 
         private bool CanStartCombat()
         {
-            // 공통 검증: 참가자 수, 팀 수
+            // 전투 중이면 비활성화
             if (isInCombat) return false;
-            if (battleParticipants.Count < 2) return false;
-            if (battleParticipants.Select(p => p.teamId).Distinct().Count() < 2) return false;
 
-            // 참가자별 설정 유효성 검증
-            foreach (var setup in battleParticipants)
+            // 1. 모든 잠재적 참가자 목록 생성
+            List<AFSetup> allPotentialSetups = new List<AFSetup>(playerSquadSetups);
+            allPotentialSetups.AddRange(afSetups);
+
+            // 2. 총 참가자 수 확인 (최소 2명)
+            if (allPotentialSetups.Count < 2)
+            {
+                // Log("CanStartCombat: 총 참가자 수가 2명 미만입니다.", LogLevel.Debug); // 디버그용 로그 (선택적)
+                return false;
+            }
+
+            // 3. 고유 팀 ID 수 확인 (최소 2팀)
+            if (allPotentialSetups.Select(p => p.teamId).Distinct().Count() < 2)
+            {
+                // Log("CanStartCombat: 고유 팀 ID 수가 2개 미만입니다.", LogLevel.Debug);
+                return false;
+            }
+
+            // 4. 각 참가자 설정 유효성 검증 (플레이어/시나리오 모두 확인)
+            foreach (var setup in allPotentialSetups)
             {
                 if (setup.useCustomAssembly)
                 {
                     // 커스텀 모드: 필수 파츠(Frame, Body) 확인
                     if (setup.customFrame == null || setup.customBody == null)
                     {
-                        // Debug.LogWarning($"CanStartCombat: 커스텀 설정 오류 (팀 ID: {setup.teamId}) - 필수 파츠(Frame, Body) 누락."); // 버튼 비활성화 조건이므로 로그는 선택사항
+                        // Log($"CanStartCombat: 커스텀 설정 오류 (Team ID: {setup.teamId}) - 필수 파츠(Frame, Body) 누락.", LogLevel.Debug);
                         return false; 
                     }
-                     // 추가적인 유효성 검사 가능 (무게 제한, 에너지 등)
+                     // 플레이어 스쿼드인 경우 Persistent ID 확인
+                     if (playerSquadSetups.Contains(setup) && string.IsNullOrEmpty(setup.persistentId))
+                     {
+                         // Log($"CanStartCombat: 플레이어 스쿼드 유닛에 Persistent ID가 없습니다 (Team ID: {setup.teamId}).", LogLevel.Debug);
+                         return false;
+                     }
                 }
                 else
                 {
-                    // 기존 모드: Assembly 확인
+                    // 어셈블리 모드: Assembly 확인
                     if (setup.assembly == null) 
                     {
-                         // Debug.LogWarning($"CanStartCombat: 일반 설정 오류 (팀 ID: {setup.teamId}) - Assembly 미설정."); // 버튼 비활성화 조건이므로 로그는 선택사항
+                         // Log($"CanStartCombat: 어셈블리 모드 설정 오류 (Team ID: {setup.teamId}) - Assembly 미설정.", LogLevel.Debug);
                          return false;
                     }
+                     // 플레이어 스쿼드인 경우 Persistent ID 확인 (어셈블리 이름 기반)
+                     if (playerSquadSetups.Contains(setup) && string.IsNullOrEmpty(setup.persistentId))
+                     {
+                         // UpdatePreviews에서 assembly.name으로 자동 설정되므로, assembly가 null이 아니면 보통 ID는 있음.
+                         // 하지만 만약을 대비해 체크하거나, StartCombatTestAsync에서 ID 누락 시 오류 처리 강화.
+                         // Log($"CanStartCombat: 플레이어 스쿼드 유닛(어셈블리 모드)에 Persistent ID가 없습니다 (Team ID: {setup.teamId}).", LogLevel.Debug);
+                         // return false; // 여기서는 일단 통과시키고 시작 시점에서 처리할 수도 있음
+                     }
                 }
             }
+             // 중복 Persistent ID 검사는 ValidateSetup에서 이미 수행하므로 여기서는 생략 가능
 
             return true; // 모든 검증 통과
         }
@@ -970,5 +1108,24 @@ namespace AF.Tests
         }
 
         // --- End ValueDropdown용 데이터 소스 메소드들 ---
+
+        // +++ Add Reset Button (Optional but Recommended) +++
+        [TitleGroup("플레이어 스쿼드 (상태 유지)")] // Place button within the player group
+        [Button("플레이어 상태 리셋", ButtonSizes.Medium), GUIColor(1f, 0.6f, 0.6f)]
+        [PropertySpace(10)]
+        public void ResetPlayerSquadState()
+        {
+            if (Application.isPlaying)
+            {
+                 _persistentPlayerFrames.Clear();
+                 Debug.Log("플레이어 스쿼드 상태가 리셋되었습니다.");
+                 // Optionally, force UI update if needed
+            }
+            else
+            {
+                 Debug.LogWarning("플레이어 상태 리셋은 플레이 모드에서만 가능합니다.");
+            }
+        }
+        // +++ End Reset Button +++
     }
 } 

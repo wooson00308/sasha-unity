@@ -135,7 +135,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &5991517
 RectTransform:
   m_ObjectHideFlags: 0
@@ -270,7 +270,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &196203048
 RectTransform:
   m_ObjectHideFlags: 0
@@ -305,7 +305,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &209861630
 RectTransform:
   m_ObjectHideFlags: 0
@@ -989,9 +989,9 @@ RectTransform:
   - {fileID: 233887169}
   m_Father: {fileID: 5991517}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 540, y: -816.6667}
   m_SizeDelta: {x: 800, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &540350270
@@ -1156,7 +1156,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &550824983
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1844,7 +1844,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &930701941
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2622,7 +2622,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1153885014
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2780,7 +2780,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1203827025}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -2789,11 +2789,11 @@ RectTransform:
   - {fileID: 620076052}
   m_Father: {fileID: 1339947199}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0.5, y: 1}
+  m_AnchorMax: {x: 0.5, y: 1}
+  m_AnchoredPosition: {x: 0, y: -250}
+  m_SizeDelta: {x: 1080, y: 1400}
+  m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1203827027
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3308,9 +3308,9 @@ RectTransform:
   - {fileID: 748083526}
   m_Father: {fileID: 5991517}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 540, y: -583.3334}
   m_SizeDelta: {x: 800, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1394246694
@@ -3410,7 +3410,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1414849286
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3670,9 +3670,9 @@ RectTransform:
   - {fileID: 638643961}
   m_Father: {fileID: 5991517}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 540, y: -1283.3334}
   m_SizeDelta: {x: 800, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1501984229
@@ -3791,9 +3791,9 @@ RectTransform:
   - {fileID: 1143707373}
   m_Father: {fileID: 5991517}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 540, y: -1050}
   m_SizeDelta: {x: 800, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1554228256
@@ -3893,7 +3893,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1725650417
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3957,7 +3957,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d84e6695e49b11048a399fff4d16a5e4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  battleParticipants: []
+  playerSquadSetups:
+  - useCustomAssembly: 0
+    customAFName: "\uC0AC\uC0E4 \uC544\uC2A4\uB110"
+    assembly: {fileID: 11400000, guid: 1f875e017325e0b46a7b682037881af7, type: 2}
+    teamId: 0
+    teamColorPreview: {r: 0.9, g: 0.2, b: 0.2, a: 1}
+    startPosition: {x: 0, y: 0, z: 0}
+    customFrame: {fileID: 11400000, guid: af5da3f2a66441d4d9470992bacf1113, type: 2}
+    customHead: {fileID: 11400000, guid: 534fa8694d5196d4c953a58fe7fcc8b4, type: 2}
+    customBody: {fileID: 11400000, guid: 80308bc8c686e5445b249dc7690cc24a, type: 2}
+    customArms: {fileID: 11400000, guid: b53af4acb4c4f1c44a058610b593df55, type: 2}
+    customLegs: {fileID: 11400000, guid: 0cff3641fb0ffa249aa44da52bf21304, type: 2}
+    customWeaponR1: {fileID: 11400000, guid: 3544b8e2167abc342a009b4b5cc1da60, type: 2}
+    customWeaponL1: {fileID: 11400000, guid: 609e0524f10f03a44923a055f4700f24, type: 2}
+    customPilot: {fileID: 11400000, guid: cdb0a7238e2549d40ba4c9d65889e0fb, type: 2}
+    persistentId: ASM_SASHA_ARSENAL
+  afSetups:
+  - useCustomAssembly: 0
+    customAFName: "\uAC00\uB514\uC5B8 \uD0C0\uC774\uD0C4"
+    assembly: {fileID: 11400000, guid: f6e75b11971664144829202919f69561, type: 2}
+    teamId: 1
+    teamColorPreview: {r: 0.9, g: 0.2, b: 0.2, a: 1}
+    startPosition: {x: 40, y: 0, z: 0}
+    customFrame: {fileID: 11400000, guid: ed63a6717b9613c46b747f8da461e1c1, type: 2}
+    customHead: {fileID: 11400000, guid: 14c175a24dc623b4ea435ae2cdea38b1, type: 2}
+    customBody: {fileID: 11400000, guid: ffa1b6cac72043f45808bf8916c89d47, type: 2}
+    customArms: {fileID: 11400000, guid: d0a6a239bea0f8b45abcd7c435366b70, type: 2}
+    customLegs: {fileID: 11400000, guid: 0202d4b3bc3550f4db363ca5856ed864, type: 2}
+    customWeaponR1: {fileID: 11400000, guid: 61a149f5aad7c1f4992fc9f806874aeb, type: 2}
+    customWeaponL1: {fileID: 11400000, guid: e3029029c1de46a4387e8c7b42206e38, type: 2}
+    customPilot: {fileID: 11400000, guid: 27fe24e6d86ec36418a561ef07435773, type: 2}
+    persistentId: ASM_GUARDIAN_TITAN
   logCombatDetails: 0
   showLogLevelPrefix: 0
   showTurnPrefix: 0
@@ -4476,9 +4507,9 @@ RectTransform:
   - {fileID: 1889496673}
   m_Father: {fileID: 5991517}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 540, y: -116.66667}
   m_SizeDelta: {x: 800, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2007236597
@@ -4646,9 +4677,9 @@ RectTransform:
   - {fileID: 970578634}
   m_Father: {fileID: 5991517}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 540, y: -350}
   m_SizeDelta: {x: 800, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2023426746
