@@ -23,13 +23,13 @@ MonoBehaviour:
   Stat_Durability: 400
   Stat_EnergyEff: 0.6
   Stat_MaxAP: 5
-  Stat_APRecovery: 3
+  Stat_APRecovery: 2.5
   FrameWeight: 40
-  Slot_Head: HeadSlot
-  Slot_Body: BodySlot
-  Slot_Arm_L: ArmSlot_L
-  Slot_Arm_R: ArmSlot_R
-  Slot_Legs: LegsSlot
+  Slot_Head: Head
+  Slot_Body: Body
+  Slot_Arm_L: Arm_Left
+  Slot_Arm_R: Arm_Right
+  Slot_Legs: Legs
   Slot_Backpack: 
   Slot_Weapon_1: WeaponSlot_R
   Slot_Weapon_2: WeaponSlot_L

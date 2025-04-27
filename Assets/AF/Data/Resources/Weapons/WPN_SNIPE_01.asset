@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ecd9d45bb68cd6e4899907f3144afa8d, type: 3}
+  m_Name: WPN_SNIPE_01
+  m_EditorClassIdentifier: 
+  WeaponID: WPN_SNIPE_01
+  WeaponName: "\uC800\uACA9 \uC18C\uCD1D"
+  WeaponType: 2
+  DamageType: 0
+  BaseDamage: 77
+  Accuracy: 0.95
+  Range: 20
+  AttackSpeed: 0.4
+  OverheatPerShot: 0.25
+  AmmoCapacity: 0
+  BaseAPCost: 9
+  SpecialEffects: []
+  Notes: "\uC790\uB3D9 \uC0DD\uC131"

@@ -15,7 +15,7 @@ MonoBehaviour:
   PartID: ARM_HEAVY_01
   PartName: "\uC911\uB7C9 \uD314 \uC720\uB2DB"
   PartType: 3
-  Stat_AttackPower: 1
+  Stat_AttackPower: 0.9
   Stat_Defense: 0.1
   Stat_Speed: 0
   Stat_Accuracy: 0

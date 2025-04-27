@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6bcd9b4e12eae264cae0069bcfc78b67, type: 3}
+  m_Name: ASM_SASHA_SPECIAL_01
+  m_EditorClassIdentifier: 
+  AssemblyID: ASM_SASHA_SPECIAL_01
+  AFName: "\uC0AC\uC0E4 \uC2A4\uD398\uC15C"
+  TeamID: 0
+  FrameID: FRM_SASHA_CUSTOM_01
+  PilotID: PILOT_SASHA_AI
+  HeadPartID: PART_HEAD_SASHA_01
+  BodyPartID: BODY_STD_01
+  LeftArmPartID: ARM_PRECISION_01
+  RightArmPartID: ARM_STD_01
+  LegsPartID: LEGS_STD_01
+  BackpackPartID: BK_APBOOST_01
+  Weapon1ID: WPN_RAILGUN_SASHA_01
+  Weapon2ID: 
+  Notes: "\uC0AC\uC0E4\uC758 \uCCAB \uCEE4\uC2A4\uD140 \uBE4C\uB4DC"
