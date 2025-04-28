@@ -160,7 +160,6 @@ namespace AF.Models
 
                 _parts[slotIdentifier] = part;
                 RecalculateStats(); // 새 파츠 포함하여 스탯 재계산
-                Debug.Log($"ArmoredFrame({Name}): 파츠 '{part.Name}'을(를) 슬롯 '{slotIdentifier}'에 성공적으로 장착했습니다.");
                 // TODO: PartAttachedEvent 발행 고려
                 return true;
             }
@@ -181,7 +180,6 @@ namespace AF.Models
             {
                 _parts.Remove(slotIdentifier);
                 RecalculateStats(); // 파츠 제거 후 스탯 재계산
-                Debug.Log($"ArmoredFrame({Name}): 슬롯 '{slotIdentifier}'에서 파츠 '{part.Name}'을(를) 성공적으로 제거했습니다.");
                 // TODO: PartDetachedEvent 발행 고려
                 return part;
             }
@@ -217,7 +215,6 @@ namespace AF.Models
                 // TODO: 무기 장착 슬롯 시스템 구현 시 이 로직 변경 필요
                 // TODO: 무기 스탯을 CombinedStats에 반영해야 할 수도 있음 (RecalculateStats 수정)
                 RecalculateStats(); // 임시: 무기 변경 시 스탯 재계산 (필요시)
-                Debug.Log($"ArmoredFrame({Name}): 무기 '{weapon.Name}' 장착.");
             }
         }
 
@@ -229,7 +226,6 @@ namespace AF.Models
             if (weapon != null && _equippedWeapons.Remove(weapon))
             {
                  RecalculateStats(); // 임시: 무기 변경 시 스탯 재계산 (필요시)
-                 Debug.Log($"ArmoredFrame({Name}): 무기 '{weapon.Name}' 제거.");
                  return true;
             }
             return false;
@@ -255,12 +251,10 @@ namespace AF.Models
             {
                 // 이미 같은 효과가 있으면 지속 시간만 갱신 (또는 가장 긴 시간으로 설정 등 정책 결정 필요)
                 existingEffect.DurationTurns = Math.Max(existingEffect.DurationTurns, effect.DurationTurns); 
-                Debug.Log($"ArmoredFrame({Name}): 상태 효과 '{effect.EffectName}' 지속 시간 갱신 ({existingEffect.DurationTurns} 턴 남음).");
             }
             else
             {
                 _activeStatusEffects.Add(effect);
-                Debug.Log($"ArmoredFrame({Name}): 상태 효과 '{effect.EffectName}' 적용 ({effect.DurationTurns} 턴 동안).");
                 // TODO: StatusEffectAppliedEvent 발행 고려
             }
             
@@ -277,7 +271,6 @@ namespace AF.Models
             int removedCount = _activeStatusEffects.RemoveAll(e => e.EffectName == effectName);
             if (removedCount > 0)
             {
-                 Debug.Log($"ArmoredFrame({Name}): 상태 효과 '{effectName}' 제거됨.");
                  // TODO: StatusEffectRemovedEvent 발행 고려
                  
                  // 상태 효과 제거 후 스탯/상태 재계산 필요 시 호출
@@ -309,7 +302,6 @@ namespace AF.Models
                 {
                     // 이벤트 버스를 통해 StatusEffectTickEvent 발행 (정식 클래스 이름 사용)
                     _eventBus?.Publish(new StatusEffectEvents.StatusEffectTickEvent(this, effect)); 
-                    Debug.Log($"ArmoredFrame({Name}): 상태 효과 '{effect.EffectName}' 틱 발생! (Type: {effect.TickEffectType}, Value: {effect.TickValue}). 이벤트 발행됨.");
                 }
                 
                 // 2. 지속 시간 감소 (영구 지속(-1) 효과 제외)
@@ -331,7 +323,6 @@ namespace AF.Models
             {
                 if (_activeStatusEffects.Remove(expired))
                 {
-                    Debug.Log($"ArmoredFrame({Name}): 상태 효과 '{expired.EffectName}' 만료됨.");
                     requiresRecalculation = true;
                     // TODO: StatusEffectExpiredEvent 발행 고려
                     // _eventBus?.Publish(new StatusEffectExpiredEvent(this, expired.EffectType...));
@@ -352,17 +343,12 @@ namespace AF.Models
         /// </summary>
         private void RecalculateStats()
         {
-            Debug.Log($"--- RecalculateStats START ({Name}) --- Current Combined: {_combinedStats}"); // 시작 로그 (유닛 이름 추가)
             // Stats 객체를 새로 생성하여 초기화
             _combinedStats = new Stats();
-            Debug.Log($"Initialized Combined: {_combinedStats}"); // 초기화 후 로그
-
             // 1. 프레임 기본 스탯 추가
             if (_frameBase != null)
             {
-                Debug.Log($"Adding Frame ({_frameBase.Name}) Stats: {_frameBase.BaseStats}"); // 더할 값 로그
                 _combinedStats += _frameBase.BaseStats;
-                Debug.Log($"After Frame: {_combinedStats}"); // 더한 후 로그
             }
 
             // 2. 모든 장착된 파츠 스탯 합산 (Evasion 및 EnergyEfficiency 제외)
@@ -385,9 +371,7 @@ namespace AF.Models
                         part.PartStats.MaxAP,
                         part.PartStats.APRecovery
                     );
-                    Debug.Log($"Adding Part ({part.Name} in {slotId}) Stats: {statsToAdd}"); // 더할 값 로그 (슬롯 ID 추가)
                     _combinedStats += statsToAdd;
-                    Debug.Log($"After Part ({part.Name}): {_combinedStats}"); // 더한 후 로그
                     totalPartsWeight += part.Weight;
                 }
             }
@@ -452,7 +436,6 @@ namespace AF.Models
             Part legsPart = GetPart("Legs"); // "Legs" 슬롯 가정
             if (legsPart != null) // Legs 파츠 Evasion 로그 추가
             {
-                 Debug.Log($"Adding Legs Part ({legsPart.Name}) Evasion Bonus: {legsPart.PartStats.Evasion}");
                  partsEvasionBonus += legsPart.PartStats.Evasion;
             }
             // TODO: 다른 슬롯의 Legs 파츠가 있다면 추가 (예: "Leg_Left", "Leg_Right")
@@ -463,10 +446,6 @@ namespace AF.Models
 
             // 최종 Evasion 계산 및 CombinedStats에 반영
             float finalEvasion = baseEvasion + pilotEvasionBonus + partsEvasionBonus;
-            Debug.Log($"Calculated Evasion: Base({baseEvasion:F2}) + Pilot({pilotEvasionBonus:F2}) + Parts({partsEvasionBonus:F2}) = Final({finalEvasion:F2})"); // Evasion 계산 로그
-            
-            // 최종 CombinedStats 생성 전, 현재 값 로그 (Evasion 제외된 값)
-            Debug.Log($"Pre-Final Combined Stats (before Evasion overwrite): {_combinedStats}");
             
             // 5.5. EnergyEfficiency 계산 (프레임 + 파일럿 베이스 + 파일럿 보너스)
             float finalEnergyEfficiency = (_frameBase?.BaseStats.EnergyEfficiency ?? 0f) 
@@ -494,7 +473,6 @@ namespace AF.Models
                 {
                     // Stats 클래스의 ApplyModifier 메소드를 사용하여 _combinedStats 직접 수정
                     _combinedStats.ApplyModifier(effect.StatToModify, effect.ModificationType, effect.ModificationValue);
-                    Debug.Log($"Applying Status Effect ({effect.EffectName}): Modified {_combinedStats}"); // 상태 효과 적용 후 로그
                 }
             }
 
@@ -503,7 +481,6 @@ namespace AF.Models
 
             // 작동 상태 재확인 (내구도 등)
             CheckOperationalStatus();
-            Debug.Log($"--- RecalculateStats END ({Name}) --- Final Combined: {_combinedStats}"); // 종료 로그 (유닛 이름 추가)
         }
 
         /// <summary>
@@ -529,7 +506,6 @@ namespace AF.Models
                 if (!_parts.TryGetValue(bodySlotKey, out Part bodyPart) || !bodyPart.IsOperational)
                 {
                     _isOperational = false;
-                    // Debug.Log($"ArmoredFrame({Name}): Body 파츠 부재 또는 파괴로 작동 불능 상태.");
                     return; // Body 없으면 바로 작동 불능
                 }
             }
@@ -565,14 +541,12 @@ namespace AF.Models
 
                 if (wasDestroyedByThisHit)
                 {
-                    Debug.LogWarning($"ArmoredFrame({Name}): 슬롯 \'{targetSlotIdentifier}\'의 파츠 \'{targetPart.Name}\' 파괴됨!");
                     targetPart.OnDestroyed(this); 
 
                     // <<< Body 파괴 시 즉시 격파 처리 추가 >>>
                     if (targetSlotIdentifier == "Body") 
                     {
                         _isOperational = false;
-                        Debug.LogError($"ArmoredFrame({Name}): Body 파츠 파괴로 인해 작동 불능!");
                     }
                     // <<< Body 파괴 시 즉시 격파 처리 추가 끝 >>>
 
@@ -623,9 +597,6 @@ namespace AF.Models
             
             float recoveredAP = _combinedStats.APRecovery;
             _currentAP = Mathf.Min(_currentAP + recoveredAP, _combinedStats.MaxAP); // MaxAP를 넘지 않도록
-            
-            // TODO: AP 회복 관련 이벤트 발행 고려 (APChangedEvent 등)
-            Debug.Log($"ArmoredFrame({Name}): AP 회복 +{recoveredAP}, 현재 AP: {_currentAP}/{_combinedStats.MaxAP}");
         }
 
         /// <summary>
@@ -640,8 +611,6 @@ namespace AF.Models
             if (_currentAP >= amount)
             {
                 _currentAP -= amount;
-                // TODO: AP 소모 관련 이벤트 발행 고려
-                Debug.Log($"ArmoredFrame({Name}): AP 소모 -{amount}, 현재 AP: {_currentAP}/{_combinedStats.MaxAP}");
                 return true;
             }
             else

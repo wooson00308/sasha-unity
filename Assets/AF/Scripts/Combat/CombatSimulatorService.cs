@@ -68,9 +68,6 @@ namespace AF.Combat
             _isInCombat = false;
             _currentTurn = 0;
             _currentBattleId = null;
-            
-            // Debug.Log("[CombatSimulatorService] 서비스 초기화 완료");
-            Debug.Log("[CombatSimulatorService] 서비스 초기화 완료");
         }
 
         /// <summary>
@@ -80,8 +77,6 @@ namespace AF.Combat
         {
             if (_isInCombat)
             {
-                // Debug.LogWarning("[CombatSimulatorService] 전투 중 강제 종료..."); // Optional: Keep Debug for forced shutdowns?
-                Debug.LogWarning("[CombatSimulatorService] 전투 중 강제 종료...");
                 EndCombat(CombatSessionEvents.CombatEndEvent.ResultType.Aborted);
             }
             
@@ -92,9 +87,6 @@ namespace AF.Combat
             _previousPartDurability = null;
             // <<< 방어 기록 HashSet 초기화 >>>
             _defendedThisTurn = null;
-            
-            // Debug.Log("[CombatSimulatorService] 서비스 종료");
-            Debug.Log("[CombatSimulatorService] 서비스 종료");
         }
         
         /// <summary>
@@ -125,9 +117,6 @@ namespace AF.Combat
             Vector3 battleLocation = Vector3.zero; // 기본값으로 설정, 필요한 경우 위치 정보 추가
             var startEvent = new CombatSessionEvents.CombatStartEvent(participants, _currentBattleId, battleName, battleLocation);
             _eventBus.Publish(startEvent);
-            
-            // Debug.Log($"[CombatSimulatorService] 전투 시작: {battleName} (ID: {_currentBattleId})");
-            Debug.Log($"[CombatSimulatorService] 전투 시작: {battleName} (ID: {_currentBattleId})");
             
             // 자동 처리 모드인 경우 첫 턴 시작
             if (autoProcess)
@@ -172,9 +161,6 @@ namespace AF.Combat
             _previousPartDurability.Clear();
             // <<< 방어 기록 HashSet 비우기 >>>
             _defendedThisTurn.Clear();
-            
-            // Debug.Log($"[CombatSimulatorService] 전투 종료: {_battleName} (ID: {_currentBattleId}, 결과: {result})");
-            Debug.Log($"[CombatSimulatorService] 전투 종료: {_battleName} (ID: {_currentBattleId}, 결과: {result})");
             
             _currentBattleId = null;
             _battleName = null;
@@ -310,8 +296,6 @@ namespace AF.Combat
         /// </summary>
         public bool PerformAction(ArmoredFrame actor, CombatActionEvents.ActionType actionType, ArmoredFrame targetFrame, Vector3? targetPosition, Weapon weapon)
         {
-            Debug.Log($"[!!!] PerformAction 함수 진입! 액션: {actionType}"); // <<< 진짜 첫 줄 로그
-
             if (!_isInCombat || actor == null || !actor.IsOperational || actor != _currentActiveUnit)
             {
                 Debug.LogWarning("[CombatSimulatorService] 유효하지 않은 행동 요청입니다.");
@@ -530,12 +514,6 @@ namespace AF.Combat
         /// </summary>
         public bool PerformAttack(ArmoredFrame attacker, ArmoredFrame target, Weapon weapon)
         {
-            Debug.Log("[!!!] PerformAttack 진입 확인!"); // <<< 간단 로그 추가
-
-            // 메서드 시작 지점 로그 (LogLevel 수정)
-            // Debug.Log($"시작: {attacker.Name}이(가) {target.Name}을(를) {weapon.Name}(으)로 공격 시도"); // 위 로그로 대체
-            Debug.Log($"시작: {attacker.Name}이(가) {target.Name}을(를) {weapon.Name}(으)로 공격 시도");
-            
             if (!_isInCombat || attacker != _currentActiveUnit)
             {
                 // Debug.LogWarning("[CombatSimulatorService] 유효하지 않은 공격 요청입니다.");
@@ -642,11 +620,6 @@ namespace AF.Combat
                     // 최적 사거리와 최대 사거리가 같은 경우 (근접 무기 등), 벗어나면 바로 최대 패널티
                     rangeModifier = 0.5f; // 최소 명중률 보장 (임시)
                 }
-                Debug.Log($"거리 보정: 최적({optimalDistance:F1}) 초과 ({distance:F1}), 보정치: {rangeModifier:P1}");
-            }
-            else
-            {
-                Debug.Log($"거리 보정: 최적({optimalDistance:F1}) 이내 ({distance:F1}), 보정 없음");
             }
 
             float finalAccuracy = baseHitChance * rangeModifier; // 최종 명중률 = 스탯 기반 명중률 * 거리 보정치
@@ -665,13 +638,6 @@ namespace AF.Combat
             float accuracyRoll = UnityEngine.Random.value; // 0.0 ~ 1.0 사이 랜덤 값
             bool hit = accuracyRoll <= finalAccuracy;
 
-            // 추가 로그: 명중률 계산 과정 및 판정 결과 (LogLevel 수정)
-            // Debug.Log($"명중률 계산: 무기({weaponAccuracy:P1}) + 공격자보정({attackerBonus:P1}) - 대상회피({targetPenalty:P1}) = 최종({finalAccuracy:P1})"); // 이전 로그
-            // Debug.Log($"명중 판정: {(hit ? "성공" : "실패")} (Roll: {accuracyRoll:F2} vs {finalAccuracy:P1})"); // 이전 로그
-            Debug.Log($"명중률 계산: 기본({baseHitChance:P1}) * 거리보정({rangeModifier:P1}) = 최종({finalAccuracy:P1})"); // 수정된 로그
-            Debug.Log($"명중 판정: {(hit ? "성공" : "실패")} (Roll: {accuracyRoll:F2} vs {finalAccuracy:P1})");
-            // <<< 명중 판정 로직 수정 끝 >>>
-            
             // 무기 발사 이벤트 발행
             var weaponFiredEvent = new CombatActionEvents.WeaponFiredEvent(attacker, target, weapon, hit, accuracyRoll);
             _eventBus.Publish(weaponFiredEvent);
@@ -684,9 +650,6 @@ namespace AF.Combat
                 
                 // 방어력 및 기타 요소를 고려한 최종 데미지 계산
                 float calculatedDamage = rawDamage * 0.8f; // 예시로 80%만 적용
-                
-                // 추가 로그: 데미지 계산 (LogLevel 수정)
-                Debug.Log($"데미지 계산: 기본 {rawDamage}, 계산 후 {calculatedDamage}");
 
                 // 타겟팅할 슬롯 결정 (이름 변경 및 로직 수정 필요)
                 string targetSlotIdentifier = GetRandomTargetPartSlot(target);
@@ -706,9 +669,6 @@ namespace AF.Combat
                 float currentDurability = damagedPart.CurrentDurability;
                 float maxDurability = damagedPart.MaxDurability;
 
-                // 추가 로그: 타겟 슬롯 (LogLevel 수정)
-                Debug.Log($"타겟 슬롯: {targetSlotIdentifier} (현재 내구도: {currentDurability:F0})");
-                
                 // 데미지 계산 이벤트 발행 (PartType 대신 슬롯 식별자?) -> 일단 PartType 유지
                 var damageCalculatedEvent = new DamageEvents.DamageCalculatedEvent(
                     attacker, target, weapon, rawDamage, calculatedDamage, weapon.DamageType, damagedPart.Type); // 파츠 타입 전달
@@ -718,22 +678,10 @@ namespace AF.Combat
                 // 임시로 약간의 랜덤 요소 추가 (크리티컬 여부)
                 bool isCritical = UnityEngine.Random.value <= 0.2f; // 20% 크리티컬 확률
                 float finalDamage = isCritical ? calculatedDamage * 1.5f : calculatedDamage;
-                
-                // 추가 로그: 크리티컬 및 최종 데미지 (LogLevel 수정)
-                Debug.Log($"최종 데미지: {finalDamage} {(isCritical ? "(크리티컬!)" : "")}");
-                
-                // 추가 로그: 데미지 적용 시도 (LogLevel 수정)
-                Debug.Log($"{target.Name}의 {targetSlotIdentifier}에 {finalDamage} 데미지 적용 시도");
-                
+
                 // 실제 데미지 적용 (PartType 대신 슬롯 식별자 사용)
                 bool partDestroyed = target.ApplyDamage(targetSlotIdentifier, finalDamage, _currentTurn);
-                
-                // 추가 로그: 파츠 파괴 여부 (LogLevel 수정)
-                Debug.Log($"파츠 파괴 여부: {(partDestroyed ? "파괴됨" : "파괴되지 않음")}");
 
-                // 추가 로그: 파츠 남은 내구도 (LogLevel 수정)
-                Debug.Log($"파츠 내구도: {currentDurability}/{maxDurability}");
-                
                 // 데미지 적용 이벤트 발행 (파라미터 수정)
                 var damageAppliedEvent = new DamageEvents.DamageAppliedEvent(
                     attacker, target, finalDamage, damagedPart.Type, isCritical, // Use PartType
@@ -750,16 +698,11 @@ namespace AF.Combat
                         $"{targetSlotIdentifier} 파트가 파괴되었습니다.", 
                         $"{target.Name}의 성능이 감소했습니다.");
                     _eventBus.Publish(partDestroyedEvent);
-                    
-                    Debug.LogError($"파츠 파괴 상세: {target.Name}의 {targetSlotIdentifier} 파츠가 파괴됨 (성능 감소)");
                 }
                 
                 // 타겟이 전투 불능 상태가 된 경우 처리
                 if (!target.IsOperational)
                 {
-                    // Debug.Log($"[CombatSimulatorService] {target.Name}이(가) 전투 불능 상태가 되었습니다.");
-                    Debug.LogError($"[CombatSimulatorService] {target.Name}이(가) 전투 불능 상태가 되었습니다.");
-                    
                     // 전투 종료 조건 체크
                     CheckBattleEndCondition();
                 }
@@ -772,13 +715,8 @@ namespace AF.Combat
                     attacker, target, weapon.Damage, avoidanceType, 
                     $"{target.Name}이(가) 공격을 회피했습니다."); // description 추가
                 _eventBus.Publish(damageAvoidedEvent);
-                
-                // 추가 로그: 회피 상세 정보 (LogLevel 수정)
-                Debug.Log($"회피 상세: {target.Name}이(가) {attacker.Name}의 공격을 회피함 (회피 유형: {avoidanceType})");
             }
-            
-            // 메서드 종료 로그 (LogLevel 수정)
-            Debug.Log($"종료: {attacker.Name}의 공격 {(hit ? "명중" : "빗나감")}");
+
             // 공격 시도 자체가 유효했다면 성공으로 간주 (명중 여부와 별개)
             return true; // <-- hit 대신 true 반환
         }
@@ -910,7 +848,6 @@ namespace AF.Combat
                 float reloadAPCost = weaponToReloadMelee.ReloadAPCost;
                 if (activeUnit.HasEnoughAP(reloadAPCost))
                 {
-                    Debug.Log($"    -> Melee AI: {weaponToReloadMelee.Name} 재장전 결정 (AP:{reloadAPCost:F1})");
                     return (CombatActionEvents.ActionType.Reload, null, null, weaponToReloadMelee);
                 }
             }
@@ -929,7 +866,6 @@ namespace AF.Combat
                                           meleeWeaponClose.HasAmmo();
                     if (canAttackClose)
                     {
-                         Debug.Log($"    -> Melee AI: 근접 공격 결정 (가까움, {meleeWeaponClose.Name})");
                         return (CombatActionEvents.ActionType.Attack, closestEnemy, null, meleeWeaponClose);
                     }
                 }
@@ -938,12 +874,10 @@ namespace AF.Combat
                 bool canDefend = activeUnit.HasEnoughAP(defendAPCost) && !_defendedThisTurn.Contains(activeUnit);
                 if (canDefend)
                 {
-                    Debug.Log($"    -> Melee AI: 방어 결정 (가까움, 공격 불가)");
                     return (CombatActionEvents.ActionType.Defend, null, null, null);
                 }
                 else
                 {
-                    Debug.Log($"    -> Melee AI: 행동 보류 (가까움, 공격/방어 불가)");
                     return (default, null, null, null); // 제자리 대기
                 }
             }
@@ -961,7 +895,6 @@ namespace AF.Combat
 
                 if (canAttack)
                 {
-                    Debug.Log($"    -> Melee AI: 근접 공격 결정 ({meleeWeapon.Name})");
                     return (CombatActionEvents.ActionType.Attack, closestEnemy, null, meleeWeapon);
                 }
             }
@@ -971,7 +904,6 @@ namespace AF.Combat
             bool canMove = activeUnit.HasEnoughAP(moveAPCost);
             if (canMove)
             {
-                Debug.Log($"    -> Melee AI: 적에게 접근 이동 결정");
                 return (CombatActionEvents.ActionType.Move, closestEnemy, closestEnemy.Position, null);
             }
 
@@ -980,12 +912,9 @@ namespace AF.Combat
             bool canDefendFinal = activeUnit.HasEnoughAP(defendAPCostFinal) && !_defendedThisTurn.Contains(activeUnit);
             if (canDefendFinal)
             {
-                Debug.Log($"    -> Melee AI: 방어 결정 (공격/이동 불가)");
                 return (CombatActionEvents.ActionType.Defend, null, null, null);
             }
 
-
-            Debug.Log($"    -> Melee AI: 수행 가능한 행동 없음");
             return (default, null, null, null);
         }
 
@@ -1006,13 +935,7 @@ namespace AF.Combat
                 float reloadAPCost = weaponToReloadRanged.ReloadAPCost;
                 if (activeUnit.HasEnoughAP(reloadAPCost))
                 {
-                    Debug.Log($"    -> Ranged AI: {weaponToReloadRanged.Name} 재장전 결정 (AP:{reloadAPCost:F1})");
                     return (CombatActionEvents.ActionType.Reload, null, null, weaponToReloadRanged);
-                }
-                else
-                {
-                     Debug.Log($"    -> Ranged AI: {weaponToReloadRanged.Name} 재장전 필요하나 AP 부족 ({activeUnit.CurrentAP:F1}/{reloadAPCost:F1}).");
-                     // 재장전 못하면 일단 다른 행동 고려
                 }
             }
 
@@ -1038,7 +961,6 @@ namespace AF.Combat
             bool hasAttackAP = activeUnit.HasEnoughAP(attackAPCost);
             if (isInRange && hasAttackAP)
             {
-                Debug.Log($"    -> Ranged AI: 원거리 공격 결정 ({preferredWeapon.Name})");
                 return (CombatActionEvents.ActionType.Attack, closestEnemy, null, preferredWeapon);
             }
 
@@ -1057,7 +979,6 @@ namespace AF.Combat
                         retreatDirection = (activeUnit.Position - closestEnemy.Position).normalized;
                     }
                     Vector3 retreatTargetPosition = activeUnit.Position + retreatDirection * activeUnit.CombinedStats.Speed;
-                     Debug.Log($"    -> Ranged AI: 너무 가까움, 후퇴 이동 결정.");
                     return (CombatActionEvents.ActionType.Move, closestEnemy, retreatTargetPosition, null);
                 }
 
@@ -1070,25 +991,19 @@ namespace AF.Combat
                     bool nearOptimal = distanceToOptimal < 0.1f;
                     if (nearOptimal)
                     {
-                        // 최적 거리에 가까우면 공격/방어 시도 후 안되면 대기
-                        Debug.Log($"    -> Ranged AI: 최적 거리에 가까움. 공격/방어 시도.");
                         if (activeUnit.HasEnoughAP(attackAPCost)) {
-                            Debug.Log($"        -> 공격 시도 ({preferredWeapon.Name})");
                             return (CombatActionEvents.ActionType.Attack, closestEnemy, null, preferredWeapon);
                         }
                         bool canDefendNear = activeUnit.HasEnoughAP(defendAPCost) && !_defendedThisTurn.Contains(activeUnit);
                         if (canDefendNear) {
-                             Debug.Log($"        -> 방어 결정.");
                             return (CombatActionEvents.ActionType.Defend, null, null, null);
                         }
                         else {
-                             Debug.Log("        -> 공격/방어 불가. 행동 보류.");
                             return (default, null, null, null);
                         }
                     }
                     // 3-2-2. 아직 멀었으면 접근
                     else {
-                         Debug.Log($"    -> Ranged AI: 너무 멈, 최적 거리로 접근 이동 결정.");
                         Vector3 directionToEnemy = (closestEnemy.Position - activeUnit.Position).normalized;
                         float distanceToMove = Mathf.Min(activeUnit.CombinedStats.Speed, distanceToOptimal);
                         Vector3 approachTargetPosition = activeUnit.Position + directionToEnemy * distanceToMove;
@@ -1096,7 +1011,6 @@ namespace AF.Combat
                     }
                 }
                  // 3-3. 그 외 (적정 거리인데 공격 AP 부족)
-                 Debug.Log($"    -> Ranged AI: 적정 거리이나 공격 AP 부족. 행동 보류 시도.");
                  // return (default, null, null, null); // 바로 보류하지 않고 방어 시도
             }
 
@@ -1104,12 +1018,10 @@ namespace AF.Combat
             bool canDefend = activeUnit.HasEnoughAP(defendAPCost) && !_defendedThisTurn.Contains(activeUnit);
             if (canDefend)
             {
-                Debug.Log($"    -> Ranged AI: 방어 결정 (공격/이동 불가)");
                 return (CombatActionEvents.ActionType.Defend, null, null, null);
             }
 
             // 5. 수행 가능한 행동 없음
-            Debug.LogWarning($"    -> Ranged AI: 수행 가능한 행동 없음.");
             return (default, null, null, null);
         }
 
@@ -1125,7 +1037,6 @@ namespace AF.Combat
             bool canDefend = activeUnit.HasEnoughAP(defendAPCost) && !_defendedThisTurn.Contains(activeUnit);
             if (canDefend)
             {
-                 Debug.Log($"    -> Defense AI: 방어 결정 (AP:{defendAPCost:F1}).");
                 return (CombatActionEvents.ActionType.Defend, null, null, null);
             }
 
@@ -1140,7 +1051,6 @@ namespace AF.Combat
                 float reloadAPCost = weaponToReloadDefense.ReloadAPCost;
                 if (activeUnit.HasEnoughAP(reloadAPCost))
                 {
-                    Debug.Log($"    -> Defense AI: {weaponToReloadDefense.Name} 재장전 결정 (방어 불가, AP:{reloadAPCost:F1})");
                     return (CombatActionEvents.ActionType.Reload, null, null, weaponToReloadDefense);
                 }
             }
@@ -1148,7 +1058,6 @@ namespace AF.Combat
             // 3. 방어/재장전 불가 시 표준 로직 시도 (선택 사항)
             // return DetermineStandardCombatAction(activeUnit, closestEnemy, minDistance); // 필요 시 주석 해제
 
-            Debug.Log($"    -> Defense AI: 방어/재장전 불가. 행동 보류.");
             return (default, null, null, null);
             }
 
@@ -1171,14 +1080,8 @@ namespace AF.Combat
                 float reloadAPCost = weaponToReload.ReloadAPCost;
                 if (activeUnit.HasEnoughAP(reloadAPCost))
                 {
-                    Debug.Log($"    -> AI 결정: {weaponToReload.Name} 재장전 (AP:{reloadAPCost:F1})");
                     // TODO: ActionType enum에 Reload 추가 필요
                     return (CombatActionEvents.ActionType.Reload, null, null, weaponToReload);
-                }
-                else
-                {
-                    Debug.Log($"    -> AI 결정: {weaponToReload.Name} 재장전 필요하나 AP 부족 ({activeUnit.CurrentAP:F1}/{reloadAPCost:F1}).");
-                    // 재장전 못하면 다른 행동 고려 (아래 로직 계속 진행)
                 }
             }
 
@@ -1197,7 +1100,6 @@ namespace AF.Combat
 
                 if (canMeleeAttack)
                 {
-                    Debug.Log($"    -> AI 결정: 근접 공격 ({meleeWeapon.Name}, AP:{meleeAttackAPCost:F1})");
                     return (CombatActionEvents.ActionType.Attack, closestEnemy, null, meleeWeapon);
                 }
             }
@@ -1226,7 +1128,6 @@ namespace AF.Combat
 
             if (bestRangedWeapon != null) // 공격 가능한 원거리 무기 찾음
             {
-                Debug.Log($"    -> AI 결정: 원거리 공격 ({bestRangedWeapon.Name}, AP:{CalculateAttackAPCost(activeUnit, bestRangedWeapon):F1})");
                 return (CombatActionEvents.ActionType.Attack, closestEnemy, null, bestRangedWeapon);
             }
 
@@ -1302,7 +1203,6 @@ namespace AF.Combat
         /// </summary>
         private (CombatActionEvents.ActionType, ArmoredFrame, Vector3?, Weapon) DetermineSupportAction(ArmoredFrame activeUnit, ArmoredFrame closestEnemy, float minDistance)
         {
-
             // 1. 가장 체력이 낮은 아군 찾기
             ArmoredFrame lowestAlly = FindLowestHPDamagedAlly(activeUnit);
 
@@ -1317,17 +1217,14 @@ namespace AF.Combat
             // 3. 행동 결정 (우선순위: 아군 수리 > 자가 수리 > 표준 행동)
             if (canRepairAlly)
             {
-                 // Debug.Log($"  -> Support: 아군 수리 결정 ..."); // 기존 로그 대체
                 return (CombatActionEvents.ActionType.RepairAlly, lowestAlly, null, null);
             }
             else if (canRepairSelf)
             {
-                 // Debug.Log($"  -> Support: 자가 수리 결정 ..."); // 기존 로그 대체
                 return (CombatActionEvents.ActionType.RepairSelf, activeUnit, null, null);
             }
             else
             {
-                 // Debug.Log($"  -> Support: 수리 행동 불가, 표준 로직 사용."); // 기존 로그 대체
                 return DetermineStandardCombatAction(activeUnit, closestEnemy, minDistance);
             }
         }
@@ -1622,9 +1519,6 @@ namespace AF.Combat
             // 최소 AP 비용 보장 (예: 0.5 AP)
             finalCost = Mathf.Max(0.5f, finalCost);
 
-            // 이동 AP 계산 로그 (주석 처리)
-            // Debug.Log($"    {unit.Name} 이동 AP 계산: 무게({unit.TotalWeight:F0}) 페널티 {weightPenalty:F2}, 속도({unit.CombinedStats.Speed:F1}) 보너스 {speedBonus:F2} => 최종 {finalCost:F1}");
-            
             return finalCost;
         }
 
@@ -1702,7 +1596,6 @@ namespace AF.Combat
             actor.Position = newPosition; // ArmoredFrame의 Position 속성 업데이트
 
             string description = $"목표 지점 방향으로 {distanceToMove:F1} 만큼 이동. 새 위치: {newPosition}";
-            Debug.Log($"[{actor.Name}] 이동 완료. 새 위치: {newPosition}");
 
             // 상세 정보 포함하여 반환
             return (true, description, newPosition, distanceToMove);
