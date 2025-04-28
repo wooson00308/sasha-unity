@@ -19,6 +19,8 @@ namespace ExcelToSO.DataModels
         public float OverheatPerShot { get; private set; }
         public int AmmoCapacity { get; private set; }
         public float BaseAPCost { get; private set; }
+        public float ReloadAPCost { get; private set; }
+        public int ReloadTurns { get; private set; }
         public string SpecialEffects { get; private set; }
         public string Notes { get; private set; }
 
@@ -35,8 +37,10 @@ namespace ExcelToSO.DataModels
             OverheatPerShot = GetFloatValue(row, 8);
             AmmoCapacity = GetIntValue(row, 9);
             BaseAPCost = GetFloatValue(row, 10);
-            SpecialEffects = row.GetCell(11)?.ToString() ?? "";
-            Notes = row.GetCell(12)?.ToString() ?? "";
+            ReloadAPCost = GetFloatValue(row, 11);
+            ReloadTurns = GetIntValue(row, 12);
+            SpecialEffects = row.GetCell(13)?.ToString() ?? "";
+            Notes = row.GetCell(14)?.ToString() ?? "";
         }
 
         private float GetFloatValue(IRow row, int cellIndex, float defaultValue = 0f)

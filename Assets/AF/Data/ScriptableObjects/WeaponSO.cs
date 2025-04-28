@@ -33,6 +33,8 @@ namespace AF.Data
         public float OverheatPerShot;
         public int AmmoCapacity;
         public float BaseAPCost;
+        public float ReloadAPCost;
+        public int ReloadTurns;
         public List<string> SpecialEffects; // List
         [TextArea]
         public string Notes;
@@ -98,6 +100,8 @@ namespace AF.Data
             OverheatPerShot = data.OverheatPerShot;
             AmmoCapacity = data.AmmoCapacity;
             BaseAPCost = data.BaseAPCost;
+            ReloadAPCost = data.ReloadAPCost;
+            ReloadTurns = data.ReloadTurns;
             SpecialEffects = data.SpecialEffects?.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                                              .Select(s => s.Trim())
                                              .ToList() ?? new List<string>();

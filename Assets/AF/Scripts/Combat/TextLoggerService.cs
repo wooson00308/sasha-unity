@@ -176,14 +176,14 @@ namespace AF.Combat
         private void HandleCombatEnd(CombatSessionEvents.CombatEndEvent ev)
         {
             // TextLogger의 LogEvent 사용하던 것 복구
-            _textLogger?.Log($"<sprite index=12> === 전투 종료 === ID: {ev.BattleId}, 결과: {ev.Result}, 지속시간: {ev.Duration:F1}초", LogLevel.Info); // BATTLE END 아이콘
+            _textLogger?.Log($"<sprite index=12> === 전투 종료 ===, 결과: {ev.Result}", LogLevel.Info); // BATTLE END 아이콘
         }
 
         private void HandleTurnStart(CombatSessionEvents.TurnStartEvent ev)
         {
             // TextLogger의 LogEvent 사용하던 것 복구
             _textLogger?.Log($"<sprite index=13> --- Turn {ev.TurnNumber} 시작: [{ev.ActiveUnit.Name}] ---", LogLevel.Info); // TURN START 아이콘
-            LogUnitDetailsOnTurnStart(ev.ActiveUnit);
+            //LogUnitDetailsOnTurnStart(ev.ActiveUnit);
         }
 
         private void HandleTurnEnd(CombatSessionEvents.TurnEndEvent ev)
@@ -245,15 +245,19 @@ namespace AF.Combat
         {
             float distance = Vector3.Distance(ev.Attacker.Position, ev.Target.Position);
             string logMsg;
+            string ammoStatus = ev.Weapon.MaxAmmo <= 0 
+                ? "(탄약: ∞)" 
+                : $"(탄약: {ev.Weapon.CurrentAmmo}/{ev.Weapon.MaxAmmo})"; // 잔탄량 정보 추가
+
             if (ev.Hit)
             {
                 // <<< 공격 성공 아이콘 추가 >>>
-                logMsg = $"<sprite index=8> {ev.Attacker.Name}의 {ev.Weapon.Name}(이)가 {distance:F1}m 거리에서 {ev.Target.Name}에게 명중!"; // ATK 아이콘 (명중)
+                logMsg = $"<sprite index=8> {ev.Attacker.Name}의 {ev.Weapon.Name}(이)가 {distance:F1}m 거리에서 {ev.Target.Name}에게 명중! {ammoStatus}"; // 잔탄량 추가
             }
             else
             {
                 // <<< 공격 실패 아이콘 추가 (Miss와 구분 위해 ATK 사용) >>>
-                logMsg = $"<sprite index=8> {ev.Attacker.Name}의 {ev.Weapon.Name} 발사! 하지만 {distance:F1}m 거리의 {ev.Target.Name}(은)는 빗나갔다!"; // ATK 아이콘 (빗나감)
+                logMsg = $"<sprite index=8> {ev.Attacker.Name}의 {ev.Weapon.Name} 발사! 하지만 {distance:F1}m 거리의 {ev.Target.Name}(은)는 빗나갔다! {ammoStatus}"; // 잔탄량 추가
             }
             _textLogger?.Log(logMsg, LogLevel.Info);
         }
@@ -267,7 +271,7 @@ namespace AF.Combat
             string prefix = _textLogger.UseIndentation ? "  " : ""; 
             // <<< 메시지 생성 시 criticalTag 사용 >>>
             // <<< 데미지 아이콘 추가 >>>
-            string logMsg = $"{prefix}<sprite index=0> {ev.Target.Name}의 [{partName}]에 충격! [{ev.DamageDealt:F0}] 피해!{criticalTag} (내구도: {ev.PartCurrentDurability:F0}/{ev.PartMaxDurability:F0})"; // HIT 아이콘
+            string logMsg = $"{prefix}{ev.Target.Name}의 [{partName}]에 충격! [{ev.DamageDealt:F0}] 피해!{criticalTag} (내구도: {ev.PartCurrentDurability:F0}/{ev.PartMaxDurability:F0})"; // HIT 아이콘
             _textLogger?.Log(logMsg, LogLevel.Warning);
         }
 
@@ -413,7 +417,8 @@ namespace AF.Combat
             // 아무 변경 사항도 없었으면 메시지 출력 (선택적)
             if (!anyChangeLogged)
             {
-                 _textLogger.Log("  (No significant status changes this turn)", LogLevel.Info);
+                 string prefix = _textLogger.UseIndentation ? "  " : ""; // 들여쓰기 적용
+                 _textLogger.Log($"{prefix}<sprite index=18> 시스템 스캔 완료: 모든 유닛 상태 정상 유지.", LogLevel.Info); // Sci-fi 느낌 로그!
             }
             
             // 턴 종료 시 다음 턴 비교를 위해 현재 상태 기록 (LogUnitDetailsInternal에서 이미 처리됨)

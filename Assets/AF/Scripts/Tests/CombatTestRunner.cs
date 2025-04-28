@@ -1001,7 +1001,10 @@ namespace AF.Tests
                      weaponSO.Range,
                      weaponSO.AttackSpeed, 
                      weaponSO.OverheatPerShot,
-                     weaponSO.BaseAPCost // AP Cost 추가
+                     weaponSO.BaseAPCost,
+                     weaponSO.AmmoCapacity,
+                     weaponSO.ReloadAPCost,
+                     weaponSO.ReloadTurns
                  );
                 af.AttachWeapon(runtimeWeapon);
             } catch (Exception e) { Log($"커스텀 무기 생성/부착 오류 ({weaponSO.name}): {e.Message}", LogLevel.Error); }
@@ -1045,9 +1048,18 @@ namespace AF.Tests
             {
                 try {
                      Weapon runtimeWeapon = new Weapon(
-                         weaponSO.WeaponName, weaponSO.WeaponType, weaponSO.DamageType,
-                         weaponSO.BaseDamage, weaponSO.Accuracy, weaponSO.Range,
-                         weaponSO.AttackSpeed, weaponSO.OverheatPerShot
+                         weaponSO.WeaponName ?? weaponSO.name,
+                         weaponSO.WeaponType, 
+                         weaponSO.DamageType,
+                         weaponSO.BaseDamage, 
+                         weaponSO.Accuracy, 
+                         weaponSO.Range,
+                         weaponSO.AttackSpeed, 
+                         weaponSO.OverheatPerShot,
+                         weaponSO.BaseAPCost,
+                         weaponSO.AmmoCapacity,
+                         weaponSO.ReloadAPCost,
+                         weaponSO.ReloadTurns
                      );
                     af.AttachWeapon(runtimeWeapon);
                 } catch (Exception e) { Debug.LogError($"Weapon instantiation/attach error for {weaponId}: {e.Message}"); }

@@ -1,0 +1,36 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description: Guidelines for utilizing ByteRover memory search. Provides guidance on selecting effective search keywords and interpreting results.
+alwaysApply: true
+---
+
+# ByteRover Search Utilization Guidelines
+
+This rule provides guidelines for effectively using the ByteRover memory search functionality.
+
+## 1. Keyword Selection
+- Prioritize using **clear and specific keywords**.
+    - Examples: Specific system names (`CombatSimulatorService`), core concepts (`pilot survival`, `part unlocking`), project name (`sasha-unity`).
+- Keywords directly related to the **core terms in the stored information** are more effective than general or vague terms.
+
+## 2. Result Interpretation
+- Search results are likely to be returned as **information fragments (short phrases, sentences)**. Do not expect the entire stored document to be returned at once.
+- Multiple relevant fragments may be returned; synthesize the information as needed.
+
+## 3. Language Flexibility
+- It appears capable of handling both Korean and English search queries. **Keyword clarity** has a greater impact on results than the language itself.
+
+## 4. Acknowledge Search Limitations
+- May not be suitable for searching certain types of information, such as **file/folder structures**. Utilize other tools (`list_dir`) or relevant rules (`structure_style.mdc`, etc.) in such cases.
+- Information that has not been stored cannot be retrieved.
+
+## 5. Continuous Learning
+- The most effective keywords and search methods should be identified through **ongoing usage and testing**. If search results are unsatisfactory, try different keywords or approaches.
+
+## 6. (Future Consideration) Information Storage Strategy
+
+- When storing information in ByteRover, consider breaking it down into **smaller, meaningful units** to potentially improve future search efficiency. (This is primarily the user's role)

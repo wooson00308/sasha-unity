@@ -16,13 +16,14 @@ MonoBehaviour:
   WeaponName: "\uC0AC\uC0E4 \uCEE4\uC2A4\uD140 \uB808\uC77C\uAC74"
   WeaponType: 2
   DamageType: 1
-  BaseDamage: 85
+  BaseDamage: 160
   Accuracy: 0.92
   Range: 25
   AttackSpeed: 0.3
   OverheatPerShot: 0.3
   AmmoCapacity: 0
   BaseAPCost: 12
-  SpecialEffects:
-  - Piercing
-  Notes: "\uC0AC\uC0E4\uAC00 \uD2B9\uBCC4 \uC81C\uC791\uD55C \uC5D0\uB108\uC9C0 \uB808\uC77C\uAC74"
+  ReloadAPCost: 0
+  ReloadTurns: 0
+  SpecialEffects: []
+  Notes: 

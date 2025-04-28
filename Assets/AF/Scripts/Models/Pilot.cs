@@ -170,6 +170,10 @@ namespace AF.Models
                     // 기계 전문화: 균형 잡힌 보너스
                     return new Stats(0.1f, 0.1f, 0.1f, 0.05f, 0.05f, 10.0f, 1.1f, 0, 0);
                 
+                case SpecializationType.Evasion:
+                    // 예시: 회피율과 속도 보너스
+                    return new Stats(0, 0, 0.1f, 0, 0.2f, 0, 1.0f, 0, 0); // Spd +0.1, Eva +0.2
+
                 default:
                     return bonus;
             }

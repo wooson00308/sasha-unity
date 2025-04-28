@@ -16,12 +16,14 @@ MonoBehaviour:
   WeaponName: "\uD45C\uC900 \uAE30\uAD00\uCD1D"
   WeaponType: 1
   DamageType: 0
-  BaseDamage: 17
+  BaseDamage: 30
   Accuracy: 0.7
   Range: 7
   AttackSpeed: 2.5
   OverheatPerShot: 0.05
-  AmmoCapacity: 0
-  BaseAPCost: 3
+  AmmoCapacity: 50
+  BaseAPCost: 2
+  ReloadAPCost: 1.5
+  ReloadTurns: 1
   SpecialEffects: []
-  Notes: "\uC790\uB3D9 \uC0DD\uC131"
+  Notes: 

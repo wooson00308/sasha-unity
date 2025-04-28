@@ -1,0 +1,31 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description: Core project structure and basic coding style guidelines.
+globs: ["Assets/AF/Scripts/**/*.cs", "Assets/ExcelToSO/Scripts/**/*.cs"] # Apply to specific C# script folders
+alwaysApply: true
+---
+
+# Project Structure & Style Guide
+
+## Core Folders
+- `Assets/AF/Scripts/`: Contains all core gameplay logic for Armored Frame.
+    - `Models/`: Data structures (Parts, Frames, Weapons, Stats, Enums).
+    - `Services/`: Core systems (EventBus, ServiceLocator).
+    - `UI/`: UI related logic.
+    - `Combat/`: Combat flow, CombatSim, events, logging.
+- `Assets/ExcelToSO/Scripts/`: Handles Excel data conversion to ScriptableObjects.
+    - `DataModels/`: C# classes matching Excel structure.
+    - `Editor/`: Unity Editor scripts for generation menu.
+
+## C# Coding Style
+- Use PascalCase for class names, method names, and properties.
+- Use camelCase for local variables and private fields (consider prefixing private fields with `_`).
+- Prefer explicit type declarations unless the type is obvious (`var` is acceptable for LINQ queries or complex generics if readability improves).
+- Keep methods concise and focused on a single responsibility.
+- Add XML documentation comments (`///`) for public APIs.
+- Use namespaces effectively to organize code (e.g., `AF.Combat`, `AF.Models`).
+- Follow SOLID principles where applicable.

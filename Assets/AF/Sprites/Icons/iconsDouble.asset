@@ -149,6 +149,11 @@ MonoBehaviour:
     m_Scale: 1
     m_Name: iconsDouble_49
   - m_ElementType: 2
+    m_Unicode: 57379
+    m_GlyphIndex: 204
+    m_Scale: 1
+    m_Name: iconsDouble_204
+  - m_ElementType: 2
     m_Unicode: 65534
     m_GlyphIndex: 0
     m_Scale: 1
@@ -1308,11 +1313,6 @@ MonoBehaviour:
     m_GlyphIndex: 254
     m_Scale: 1
     m_Name: iconsDouble_254
-  - m_ElementType: 2
-    m_Unicode: 57379
-    m_GlyphIndex: 204
-    m_Scale: 1
-    m_Name: iconsDouble_204
   m_GlyphTable:
   - m_Index: 0
     m_Metrics:

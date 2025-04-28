@@ -1,512 +1,64 @@
 ---
-description: 
-globs: *.cs
-alwaysApply: false
----
----
-description: unity project coding
+description: unity
 globs: 
 alwaysApply: false
 ---
 ---
-description: unity project rules
-globs: 
-alwaysApply: false
+description: General principles and high-level guidelines for acting as an expert in C# and Unity development.
+alwaysApply: true
 ---
-# Unity C# 코딩 컨벤션
 
-본 문서는 아머드 프레임(AF) 프로젝트에서 사용되는 Unity C# 코딩 컨벤션을 정의합니다.
-
-## 기본 원칙
-
-1. 기본적으로 마이크로소프트 C# 코딩 컨벤션을 따릅니다.
-2. 네임스페이스는 디렉토리 구조를 반영합니다. (Scripts 디렉토리는 제외)
-3. 하나의 파일에는 하나의 타입(class, interface, enum, struct)만 정의합니다.
-4. 가독성과 유지보수성을 최우선으로 고려합니다.
-5. Unity의 컴포넌트 기반 아키텍처를 활용하여 모듈성과 재사용성을 높입니다.
-
-## 파일 구조
-
-### 파일 이름
-
-- 파일 이름은 포함된 주요 타입의 이름과 일치해야 합니다.
-- PascalCase를 사용합니다. (예: `PlayerController.cs`, `IService.cs`)
-
-### 네임스페이스
-
-- 네임스페이스는 디렉토리 구조를 따릅니다. (Scripts 디렉토리는 생략)
-- 예: `Assets/AF/Scripts/EventBus/IEvent.cs` -> `namespace AF.EventBus`
-- 예제 코드는 `Examples` 서브네임스페이스를 사용합니다. (예: `AF.Services.Examples`)
-
-### Using 지시문
-
-- System 네임스페이스를 먼저 선언하고, 그 다음에 다른 네임스페이스를 알파벳 순으로 선언합니다.
-- Unity 네임스페이스는 System 네임스페이스 다음에 선언합니다.
-- 프로젝트 내 네임스페이스는 외부 네임스페이스 다음에 선언합니다.
-- 사용하지 않는 using 문은 제거합니다.
-
-```csharp
-using System;
-using System.Collections.Generic;
-
-using UnityEngine;
-using UnityEngine.UI;
-
-using AF.Services;
-```
-
-## 명명 규칙
-
-### 클래스 및 인터페이스
-
-- 클래스 이름은 명사 또는 명사구를 사용하며 PascalCase로 작성합니다.
-- 인터페이스 이름은 'I'로 시작하고 PascalCase로 작성합니다.
-- 클래스, 인터페이스, enum, struct의 기능명은 네임스페이스하면 안됩니다.
-
-```csharp
-public class PlayerController { }
-public interface IService { }
-```
-
-### 변수 및 필드
-
-- 지역 변수는 camelCase를 사용합니다.
-- 프라이빗 필드는 언더스코어(_)로 시작하고 camelCase를 사용합니다.
-- 상수는 모두 대문자와 언더스코어를 사용합니다.
-- 프로퍼티는 PascalCase를 사용합니다.
-
-```csharp
-public class ExampleClass
-{
-    // 상수
-    public const int MAX_PLAYERS = 4;
-    
-    // 프라이빗 필드
-    private int _playerHealth;
-    
-    // 프로퍼티
-    public int PlayerHealth { get; private set; }
-    
-    public void DoSomething()
-    {
-        // 지역 변수
-        int tempValue = 10;
-    }
-}
-```
-
-### 메서드 및 파라미터
-
-- 메서드 이름은 동사 또는 동사구를 사용하며 PascalCase로 작성합니다.
-- 파라미터 이름은 camelCase를 사용합니다.
-
-```csharp
-public void CalculateDamage(int damageAmount, float damageMultiplier)
-{
-    // 메서드 내용
-}
-```
-
-### 이벤트 및 델리게이트
-
-- 이벤트와 델리게이트는 PascalCase를 사용합니다.
-- 이벤트 핸들러는 'On'으로 시작합니다.
-
-```csharp
-// 델리게이트
-public delegate void PlayerDeathDelegate(Player player);
-
-// 이벤트
-public event PlayerDeathDelegate PlayerDied;
-
-// 이벤트 핸들러
-private void OnPlayerDied(Player player)
-{
-    // 핸들러 내용
-}
-```
-
-### 메서드 및 속성 이름 중복 방지
-
-- 클래스 내에서 필드, 프로퍼티, 메서드 간에 이름 중복을 피합니다.
-- 특히 필드 이름이 `_damage`일 때 프로퍼티 이름은 `Damage`로, 메서드 이름은 다른 의미를 가진 별도의 이름을 사용합니다.
-- 메서드의 동작을 의미하는 동사를 포함하여 이름을 지정합니다(예: `CalculateDamage`, `ApplyDamage` 등).
-
-```csharp
-// 잘못된 예: 속성과 메서드 이름이 같음
-public class Weapon
-{
-    private float _damage;
-    public float Damage => _damage;
-    
-    // Damage라는 메서드명은 프로퍼티와 혼동을 일으킴
-    public void Damage() // 이런 방식은 피해야 함!
-    {
-        // 구현...
-    }
-}
-
-// 올바른 예: 명확한 기능 구분
-public class Weapon
-{
-    private float _damage;
-    public float Damage => _damage; // 프로퍼티는 명사형
-    
-    // 메서드는 동사를 포함한 이름으로 지정
-    public void ApplyDamage() // 명확한 의미의 메서드명 사용
-    {
-        // 구현...
-    }
-    
-    public void CalculateDamage() // 다른 기능을 하는 메서드
-    {
-        // 구현...
-    }
-}
-```
-
-### 참조 및 타입 확인
-
-- 다른 클래스의 속성이나 메서드를 참조할 때는 해당 클래스의 코드를 직접 확인하여 정확한 이름, 타입, 동작을 확인합니다.
-- 특히 외부 클래스의 프로퍼티를 참조할 때는 정확한 대소문자와 이름을 사용합니다(예: `weapon.Damage`가 아닌 `weapon.BaseDamage`).
-- 참조하려는 속성이나 메서드가 실제로 존재하는지 항상 코드 검토를 통해 확인합니다.
-
-```csharp
-// 잘못된 예: 존재하지 않는 속성 참조
-public void ProcessWeapon(Weapon weapon)
-{
-    float damage = weapon.BaseDamage; // 만약 Weapon 클래스에 BaseDamage가 없고 Damage만 있다면 오류 발생
-}
-
-// 올바른 예: 정확한 속성 참조
-public void ProcessWeapon(Weapon weapon)
-{
-    float damage = weapon.Damage; // Weapon 클래스의 실제 프로퍼티 이름 사용
-}
-```
-
-## 코드 포맷팅
-
-### 중괄호
-
-- 중괄호는 새 줄에 배치합니다.
-
-```csharp
-if (condition)
-{
-    // 코드
-}
-else
-{
-    // 코드
-}
-```
-
-### 들여쓰기
-
-- 들여쓰기는 4개의 공백을 사용합니다.
-- 탭 대신 공백을 사용합니다.
-
-### 줄 길이
-
-- 한 줄은 최대 120자를 넘지 않도록 합니다.
-- 긴 문장은 가독성 있게 여러 줄로 나눕니다.
-
-### 주석
-
-- 모든 public 멤버에는 XML 문서 주석을 추가합니다.
-- 복잡한 로직에는 필요한 경우 설명 주석을 추가합니다.
-
-```csharp
-/// <summary>
-/// 플레이어에게 데미지를 입힙니다.
-/// </summary>
-/// <param name="amount">데미지 양</param>
-/// <returns>플레이어가 죽었는지 여부</returns>
-public bool ApplyDamage(int amount)
-{
-    // 복잡한 로직에 대한 설명
-    // 여기서는 체력이 0 이하로 떨어지면 플레이어가 죽은 것으로 간주
-    _health -= amount;
-    return _health <= 0;
-}
-```
-
-## Unity 특화 규칙
-
-### MonoBehaviour 메서드
-
-- Unity 라이프사이클 메서드는 파일 상단에 배치합니다. (Awake, Start, Update 등)
-- 필드 초기화는 Awake() 또는 Start()에서 수행합니다.
-- 무거운 작업은 Update()에서 피하고 코루틴이나 다른 방법을 사용합니다.
-
-### Inspector 노출 변수
-
-- [SerializeField] 속성을 사용하여 프라이빗 필드를 Inspector에 노출합니다.
-- Inspector에 노출하는 필드는 적절한 설명과 함께 그룹화합니다.
-- Range 속성을 사용하여 값의 범위를 제한합니다.
-
-```csharp
-[Header("Player Settings")]
-[SerializeField] private int _maxHealth = 100;
-[SerializeField] private float _moveSpeed = 5f;
-
-[Header("Combat Settings")]
-[SerializeField] private int _attackPower = 10;
-[Tooltip("공격 지연 시간(초)")]
-[Range(0.1f, 2f)]
-[SerializeField] private float _attackDelay = 0.5f;
-```
-
-### Unity 컴포넌트 패턴
-
-- 단일 책임 원칙을 따라 각 컴포넌트는 한 가지 기능에만 집중하도록 합니다.
-- GetComponent() 대신 TryGetComponent()를 사용하여 null 참조 예외를 방지합니다.
-- GameObject.Find() 또는 Transform.Find() 대신 직접 참조 또는 GetComponent()를 사용합니다.
-
-```csharp
-// 기존 방식
-//Rigidbody rb = GetComponent<Rigidbody>();
-//if (rb != null) { ... }
-
-// 권장 방식
-if (TryGetComponent<Rigidbody>(out Rigidbody rb))
-{
-    // Rigidbody 사용
-}
-```
-
-### UI 개발
-
-- 모든 텍스트 렌더링에는 TextMeshPro를 사용하는 것을 권장합니다.
-- UI 요소는 프리팹으로 만들어 재사용합니다.
-- UI 요소의 기능과 표현을 분리합니다.
-
-### 리소스 관리
-
-- ScriptableObject를 사용하여 데이터와 설정을 관리합니다.
-- 에셋 번들 시스템을 활용하여 리소스를 효율적으로 로드하고 관리합니다.
-- 태그와 레이어 시스템을 활용하여 오브젝트 분류 및 충돌 필터링을 수행합니다.
-
-## 상속 및 인터페이스 구현
-
-### 필수 메서드 구현
-
-- 상속받은 클래스나 구현한 인터페이스에서 요구하는 모든 필수 메서드(abstract, virtual, interface)는 반드시 구현합니다.
-- 코드 에디터의 경고나 오류 메시지를 무시하지 말고 모든 필수 메서드를 구현합니다.
-- 구현하지 않은 필수 메서드는 런타임 에러나 예상치 못한 동작의 원인이 될 수 있습니다.
-
-```csharp
-// 잘못된 예: IService 인터페이스의 일부 메서드 구현 누락
-public class DataService : IService
-{
-    public void Initialize() { /* 구현 */ }
-    // Shutdown() 메서드 구현 누락 - 컴파일 에러 발생
-}
-
-// 올바른 예: 모든 필수 메서드 구현
-public class DataService : IService
-{
-    public void Initialize() { /* 구현 */ }
-    public void Shutdown() { /* 구현 */ }
-}
-```
-
-### Unity 라이프사이클 메서드 재정의
-
-- MonoBehaviour 상속 시 Awake, Start, OnEnable 등의 라이프사이클 메서드를 재정의할 때는 항상 base 메서드를 호출합니다.
-- 부모 클래스의 가상 메서드를 재정의할 때는 override 키워드를 명시적으로 사용합니다.
-
-```csharp
-// 잘못된 예: base 메서드 호출 누락
-public class EnemyController : BaseController
-{
-    private void Awake()
-    {
-        // base.Awake() 호출 누락
-        // 부모 클래스의 초기화 코드가 실행되지 않음
-        InitEnemy();
-    }
-}
-
-// 올바른 예: base 메서드 호출
-public class EnemyController : BaseController
-{
-    protected override void Awake()
-    {
-        base.Awake(); // 부모 클래스의 초기화 수행
-        InitEnemy();
-    }
-}
-```
-
-### 빈 구현 처리
-
-- 인터페이스 구현 시 일부 메서드가 필요하지 않더라도 명시적으로 빈 구현을 제공합니다.
-- 빈 구현의 경우 주석으로 이유를 설명합니다.
-
-```csharp
-public class MinimalService : IComplexService
-{
-    public void Initialize() { /* 구현 */ }
-    
-    // 이 서비스에서는 필요하지 않지만 인터페이스 요구사항을 충족하기 위해 구현
-    public void ProcessData(Data data) { /* 의도적으로 비어 있음 */ }
-    
-    public void Shutdown() { /* 구현 */ }
-}
-```
-
-### 추상 클래스와 인터페이스 사용
-
-- 공통 기능을 공유해야 할 경우 추상 클래스를 사용합니다.
-- 행동 계약만 정의할 경우 인터페이스를 사용합니다.
-- 모든 자식 클래스에서 구현해야 하는 메서드는 abstract로, 선택적으로 재정의할 수 있는 메서드는 virtual로 선언합니다.
-
-```csharp
-// 추상 클래스 예시
-public abstract class BaseWeapon : MonoBehaviour
-{
-    // 모든 무기에서 반드시 구현해야 함
-    public abstract void Fire();
-    
-    // 기본 구현이 있지만 재정의 가능
-    public virtual void Reload()
-    {
-        // 기본 재장전 로직
-    }
-}
-
-// 상속 및 구현 예시
-public class Pistol : BaseWeapon
-{
-    // 반드시 구현해야 하는 메서드
-    public override void Fire()
-    {
-        // 권총 발사 로직
-    }
-    
-    // 선택적으로 재정의
-    public override void Reload()
-    {
-        base.Reload(); // 부모 클래스의 기본 로직 호출
-        // 권총 특화 재장전 로직 추가
-    }
-}
-```
-
-## 성능 최적화
-
-### 메모리 관리
-
-- 불필요한 가비지 생성을 최소화합니다.
-- 자주 사용되는 참조는 캐싱합니다.
-- 오브젝트 풀링을 사용하여 자주 생성되고 파괴되는 오브젝트를 관리합니다.
-
-```csharp
-// 캐싱 예시
-private Transform _transform;
-
-private void Awake()
-{
-    _transform = transform;
-}
-
-private void Update()
-{
-    // transform 대신 _transform 사용
-    _transform.Translate(Vector3.forward * Time.deltaTime);
-}
-```
-
-### 렌더링 최적화
-
-- 드로우 콜을 최소화하기 위해 머티리얼 배칭과 스프라이트 아틀라스를 사용합니다.
-- 복잡한 3D 모델에는 LOD(Level of Detail) 시스템을 구현합니다.
-- 렌더링 성능을 모니터링하기 위해 프레임 디버거를 활용합니다.
-
-### 물리 최적화
-
-- 단순화된 충돌 메시를 사용하여 물리 계산을 최적화합니다.
-- 필요한 경우 FixedUpdate의 시간 간격을 조정합니다.
-- Rigidbody를 사용하지 않는 오브젝트는 Static으로 설정합니다.
-
-### 멀티스레딩 및 비동기 처리
-
-- CPU 집약적인 작업에는 Unity의 Job System과 Burst Compiler를 활용합니다.
-- 시간 기반 작업과 비동기 작업에는 코루틴을 사용합니다.
-- 플랫폼 간 일관성을 유지하면서도 각 플랫폼의 하드웨어 특성을 고려합니다.
-
-## 에러 처리 및 디버깅
-
-### 예외 처리
-
-- 외부 입력이나 중요한 로직에서는 예외 처리를 사용합니다.
-- 예상 가능한 오류 상황에 대해 로그 메시지를 제공합니다.
-- 파일 I/O 및 네트워크 작업에는 항상 try-catch 블록을 사용합니다.
-
-```csharp
-try
-{
-    service.Initialize();
-}
-catch (Exception ex)
-{
-    Debug.LogError($"서비스 초기화 중 오류 발생: {ex.Message}");
-    // 적절한 오류 처리
-}
-```
-
-### 로깅 및 디버깅
-
-- Unity의 Debug 클래스를 활용하여 로깅 및 디버깅을 수행합니다. (Debug.Log, Debug.LogWarning, Debug.LogError)
-- 논리적 오류를 잡기 위해 Unity의 어설션 시스템(Debug.Assert)을 활용합니다.
-- 에디터 전용 코드는 #if UNITY_EDITOR 전처리기 지시문으로 감싸고 빌드에서 제거합니다.
-
-```csharp
-#if UNITY_EDITOR
-[ContextMenu("Debug Info")]
-private void DebugInfo()
-{
-    Debug.Log($"Current player state: {_currentState}");
-}
-#endif
-```
-
-### 프로파일링
-
-- Unity의 프로파일러를 활용하여 성능 문제를 식별하고 해결합니다.
-- 개발 과정에서 정기적으로 프로파일링을 수행하여 성능 병목 현상을 조기에 발견합니다.
-- 커스텀 디버그 시각화를 구현하여 개발 경험을 향상시킵니다.
-
-## 일반적인 관행
-
-### 의존성 주입
-
-- 직접적인 싱글톤 참조 대신 서비스 로케이터 또는 의존성 주입을 사용합니다.
-- 컴포넌트 간 강한 결합을 피하고 인터페이스를 통해 소통합니다.
-
-### 크로스 플랫폼 고려사항
-
-- Unity의 Input System을 사용하여 다양한 플랫폼에서의 입력 처리를 표준화합니다.
-- 플랫폼별 코드는 전처리기 지시문으로 분리합니다.
-- 다양한 하드웨어 환경에서의 성능을 고려합니다.
-
-```csharp
-#if UNITY_ANDROID || UNITY_IOS
-    // 모바일 플랫폼 전용 코드
-#elif UNITY_STANDALONE
-    // PC 플랫폼 전용 코드
-#endif
-```
-
-### 테스트
-
-- Unity의 테스트 프레임워크를 활용하여 단위 테스트 및 통합 테스트를 구현합니다.
-- 테스트 가능한 코드를 작성하기 위해 비즈니스 로직과 Unity 종속성을 분리합니다.
-
-### 버전 관리
-
-- 씬 변경 사항을 최소화하여 버전 관리 충돌을 줄입니다.
-- 프리팹 워크플로우를 활용하여 협업 효율성을 높입니다.
-- .meta 파일을 항상 함께 커밋합니다.
+# Unity/C# Expert Principles
+
+You are an expert in C#, Unity, and scalable game development.
+
+## Key Principles
+- Write clear, technical responses with precise C# and Unity examples.
+- Use Unity's built-in features and tools wherever possible to leverage its full capabilities.
+- Prioritize readability and maintainability; follow C# coding conventions and Unity best practices.
+- Use descriptive variable and function names; adhere to naming conventions (e.g., PascalCase for public members, camelCase for private members).
+- Structure your project in a modular way using Unity's component-based architecture to promote reusability and separation of concerns.
+
+## C#/Unity
+- Use MonoBehaviour for script components attached to GameObjects; prefer ScriptableObjects for data containers and shared resources.
+- Leverage Unity's physics engine and collision detection system for game mechanics and interactions.
+- Use Unity's Input System for handling player input across multiple platforms.
+- Utilize Unity's UI system (Canvas, UI elements) for creating user interfaces.
+- Follow the Component pattern strictly for clear separation of concerns and modularity.
+- Use Coroutines for time-based operations and asynchronous tasks within Unity's single-threaded environment.
+
+## Error Handling and Debugging
+- Implement error handling using try-catch blocks where appropriate, especially for file I/O and network operations.
+- Use Unity's Debug class for logging and debugging (e.g., Debug.Log, Debug.LogWarning, Debug.LogError).
+- Utilize Unity's profiler and frame debugger to identify and resolve performance issues.
+- Implement custom error messages and debug visualizations to improve the development experience.
+- Use Unity's assertion system (Debug.Assert) to catch logical errors during development.
+
+## Dependencies
+- Unity Engine
+- .NET Framework (version compatible with your Unity version)
+- Unity Asset Store packages (as needed for specific functionality)
+- Third-party plugins (carefully vetted for compatibility and performance)
+
+## Unity-Specific Guidelines
+- Use Prefabs for reusable game objects and UI elements.
+- Keep game logic in scripts; use the Unity Editor for scene composition and initial setup.
+- Utilize Unity's animation system (Animator, Animation Clips) for character and object animations.
+- Apply Unity's built-in lighting and post-processing effects for visual enhancements.
+- Use Unity's built-in testing framework for unit testing and integration testing.
+- Leverage Unity's asset bundle system for efficient resource management and loading.
+- Use Unity's tag and layer system for object categorization and collision filtering.
+
+## Performance Optimization
+- Use object pooling for frequently instantiated and destroyed objects.
+- Optimize draw calls by batching materials and using atlases for sprites and UI elements.
+- Implement level of detail (LOD) systems for complex 3D models to improve rendering performance.
+- Use Unity's Job System and Burst Compiler for CPU-intensive operations.
+- Optimize physics performance by using simplified collision meshes and adjusting fixed timestep.
+
+## Key Conventions
+1. Follow Unity's component-based architecture for modular and reusable game elements.
+2. Prioritize performance optimization and memory management in every stage of development.
+3. Maintain a clear and logical project structure to enhance readability and asset management.
+
+Refer to Unity documentation and C# programming guides for best practices in scripting, game architecture, and performance optimization.

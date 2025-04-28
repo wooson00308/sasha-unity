@@ -365,23 +365,23 @@ namespace AF.Models
                 Debug.Log($"After Frame: {_combinedStats}"); // 더한 후 로그
             }
 
-            // 2. 모든 장착된 파츠 스탯 합산 (Evasion 제외)
+            // 2. 모든 장착된 파츠 스탯 합산 (Evasion 및 EnergyEfficiency 제외)
             float totalPartsWeight = 0f;
-            foreach (var kvp in _parts) // key-value pair로 순회 (로그에 슬롯 ID 포함 위함)
+            foreach (var kvp in _parts)
             {
-                string slotId = kvp.Key; // 슬롯 ID 가져오기
-                Part part = kvp.Value;   // 파츠 가져오기
+                string slotId = kvp.Key;
+                Part part = kvp.Value;
                 if (part != null)
                 {
-                    // Evasion을 제외한 나머지 스탯만 합산
+                    // Evasion 및 EnergyEfficiency 제외
                     Stats statsToAdd = new Stats(
                         part.PartStats.AttackPower,
                         part.PartStats.Defense,
                         part.PartStats.Speed,
                         part.PartStats.Accuracy,
-                        0, // Evasion은 나중에 계산
+                        0, // Evasion 제외
                         part.PartStats.Durability,
-                        part.PartStats.EnergyEfficiency,
+                        0, // EnergyEfficiency 제외
                         part.PartStats.MaxAP,
                         part.PartStats.APRecovery
                     );
@@ -392,47 +392,43 @@ namespace AF.Models
                 }
             }
 
-            // 3. 파일럿 스탯 합산 (Evasion 제외)
+            // 3. 파일럿 스탯 합산 (Evasion 및 EnergyEfficiency 제외)
+            float pilotBaseEnergyEfficiency = 0f;
+            float pilotBonusEnergyEfficiency = 0f;
             if (_pilot != null)
             {
-                 // Stats pilotTotalStats = _pilot.GetTotalStats(); // 이전 코드: 파일럿 총 스탯 사용
-                 // Stats pilotStatsToAdd = new Stats( ... ); // 이전 코드: 총 스탯 기반 객체 생성
-                 // _combinedStats += pilotStatsToAdd; // 이전 코드: 총 스탯 객체 더하기
-                 
-                 // 수정: 파일럿 기본 스탯 (Evasion 제외) 직접 더하기
-                 Stats pilotBaseStatsNoEvasion = new Stats(
+                 // 파일럿 기본 스탯 (Evasion/Eff 제외) 직접 더하기
+                 Stats pilotBaseStatsNoEvasionEff = new Stats(
                     _pilot.BaseStats.AttackPower,
                     _pilot.BaseStats.Defense,
                     _pilot.BaseStats.Speed,
                     _pilot.BaseStats.Accuracy,
                     0, // Evasion 제외
                     _pilot.BaseStats.Durability,
-                    _pilot.BaseStats.EnergyEfficiency,
+                    0, // EnergyEfficiency 제외
                     _pilot.BaseStats.MaxAP,
                     _pilot.BaseStats.APRecovery
                  );
-                 Debug.Log($"Adding Pilot ({_pilot.Name}) Base Stats: {pilotBaseStatsNoEvasion}"); // 더할 값 로그
-                 _combinedStats += pilotBaseStatsNoEvasion;
-                 Debug.Log($"After Pilot Base: {_combinedStats}"); // 더한 후 로그
+                 _combinedStats += pilotBaseStatsNoEvasionEff;
+                 pilotBaseEnergyEfficiency = _pilot.BaseStats.EnergyEfficiency; // 파일럿 기본 Eff 따로 저장
                  
-                 // 수정: 파일럿 전문화 보너스 (Evasion 제외) 직접 더하기
-                 Stats pilotBonusStatsNoEvasion = new Stats(
+                 // 파일럿 전문화 보너스 (Evasion/Eff 제외) 직접 더하기
+                 Stats pilotBonusStatsNoEvasionEff = new Stats(
                      _pilot.SpecializationBonus.AttackPower,
                      _pilot.SpecializationBonus.Defense,
                      _pilot.SpecializationBonus.Speed,
                      _pilot.SpecializationBonus.Accuracy,
                      0, // Evasion 제외
                      _pilot.SpecializationBonus.Durability,
-                     _pilot.SpecializationBonus.EnergyEfficiency,
+                     0, // EnergyEfficiency 제외
                      _pilot.SpecializationBonus.MaxAP,
                      _pilot.SpecializationBonus.APRecovery
                  );
-                 Debug.Log($"Adding Pilot ({_pilot.Name}) Bonus Stats: {pilotBonusStatsNoEvasion}"); // 더할 값 로그
-                 _combinedStats += pilotBonusStatsNoEvasion;
-                 Debug.Log($"After Pilot Bonus: {_combinedStats}"); // 더한 후 로그
+                 _combinedStats += pilotBonusStatsNoEvasionEff;
+                 pilotBonusEnergyEfficiency = _pilot.SpecializationBonus.EnergyEfficiency; // 파일럿 보너스 Eff 따로 저장
             }
 
-            // 4. 총 무게 계산 (프레임 + 파츠)
+            // 4. 총 무게 계산
             _totalWeight = (_frameBase?.Weight ?? 0f) + totalPartsWeight;
 
             // 5. Evasion 스탯 특별 계산
@@ -472,19 +468,26 @@ namespace AF.Models
             // 최종 CombinedStats 생성 전, 현재 값 로그 (Evasion 제외된 값)
             Debug.Log($"Pre-Final Combined Stats (before Evasion overwrite): {_combinedStats}");
             
+            // 5.5. EnergyEfficiency 계산 (프레임 + 파일럿 베이스 + 파일럿 보너스)
+            float finalEnergyEfficiency = (_frameBase?.BaseStats.EnergyEfficiency ?? 0f) 
+                                        + pilotBaseEnergyEfficiency 
+                                        + pilotBonusEnergyEfficiency;
+            // 필요하다면 여기서 최소/최대값 제한 등 추가 가능
+
+            // 7. 최종 스탯 적용 (CombinedStats 다시 생성)
             _combinedStats = new Stats(
                  _combinedStats.AttackPower,
                  _combinedStats.Defense,
                  _combinedStats.Speed,
                  _combinedStats.Accuracy,
-                 finalEvasion, // 최종 계산된 Evasion 값 사용
+                 finalEvasion, 
                  _combinedStats.Durability,
-                 _combinedStats.EnergyEfficiency,
+                 finalEnergyEfficiency, // 계산된 최종 EnergyEfficiency 사용
                  _combinedStats.MaxAP,
                  _combinedStats.APRecovery
             );
 
-            // 6. 활성 상태 효과 적용
+            // 8. 상태 효과 적용
             foreach (var effect in _activeStatusEffects)
             {
                 if (effect.StatToModify != StatType.None && effect.ModificationType != ModificationType.None)

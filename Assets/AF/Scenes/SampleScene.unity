@@ -2926,7 +2926,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 0
-  m_Spacing: 10
+  m_Spacing: 20
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 1
@@ -3959,36 +3959,36 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerSquadSetups:
   - useCustomAssembly: 0
-    customAFName: "SASHA \uBD84\uC11D \uC720\uB2DB"
-    assembly: {fileID: 11400000, guid: ecaa3137880ca2046a1d2b017661ad4f, type: 2}
+    customAFName: "\uD06C\uB9BC\uC2A8 \uB370\uB4DC\uC544\uC774"
+    assembly: {fileID: 11400000, guid: 69171450ad83c1d4f9163f1aa70be07b, type: 2}
     teamId: 0
     teamColorPreview: {r: 0, g: 0, b: 0, a: 0}
     startPosition: {x: 0, y: 0, z: 0}
-    customFrame: {fileID: 11400000, guid: ae0e1f83a60977a4daeaba4d00a0247c, type: 2}
+    customFrame: {fileID: 11400000, guid: 4953d225f51f1bf4a9dc8e0ee2bea8ee, type: 2}
     customHead: {fileID: 11400000, guid: 84f18fb331da5db4a8e95e3f7040187c, type: 2}
-    customBody: {fileID: 11400000, guid: 94c1560f515ef8c4c9ae57820ff8a608, type: 2}
-    customArms: {fileID: 11400000, guid: 2d7f95d4f61b04f48a6cada280e6736c, type: 2}
-    customLegs: {fileID: 11400000, guid: 0034c50c2583c91419dda8b22b5958d9, type: 2}
-    customWeaponR1: {fileID: 11400000, guid: 74b7090b268c6f741bba6c28f863d3f6, type: 2}
+    customBody: {fileID: 11400000, guid: 26c1f6a7f2b7ad5459eb06bda6498e7c, type: 2}
+    customArms: {fileID: 11400000, guid: ca6e3261ee98e014c89c54376c308e71, type: 2}
+    customLegs: {fileID: 11400000, guid: 78d3cc7ae706ccb48a00fc1c2d8535ba, type: 2}
+    customWeaponR1: {fileID: 11400000, guid: 2c441138c51bce44ebeaa40cfe3bb82c, type: 2}
     customWeaponL1: {fileID: 0}
-    customPilot: {fileID: 11400000, guid: 10cb1ac32b0d52447ba0313757c7956e, type: 2}
-    persistentId: AF_SASHA_CORE
+    customPilot: {fileID: 11400000, guid: 5a606a1b12582644bb00669016dec86a, type: 2}
+    persistentId: Crimson_Deadeye
   afSetups:
   - useCustomAssembly: 0
-    customAFName: "\uC2E0\uC18D\uC758 \uC138\uC774\uBC84"
-    assembly: {fileID: 11400000, guid: 6e96ea29a2cb34344a59b026f42743ba, type: 2}
+    customAFName: "\uCF54\uBC1C\uD2B8 \uC2A4\uD2B8\uB77C\uC774\uCEE4"
+    assembly: {fileID: 11400000, guid: 89070a7e71225314889299faa6089b75, type: 2}
     teamId: 1
     teamColorPreview: {r: 0, g: 0, b: 0, a: 0}
-    startPosition: {x: 0, y: 0, z: 0}
-    customFrame: {fileID: 11400000, guid: e2bfae6ff34c7714e886711fcc3c90c5, type: 2}
+    startPosition: {x: 40, y: 0, z: 0}
+    customFrame: {fileID: 11400000, guid: ae0e1f83a60977a4daeaba4d00a0247c, type: 2}
     customHead: {fileID: 11400000, guid: 1e5fac94e025f7644a1b5bd127a3c38d, type: 2}
     customBody: {fileID: 11400000, guid: 94c1560f515ef8c4c9ae57820ff8a608, type: 2}
     customArms: {fileID: 11400000, guid: 2d7f95d4f61b04f48a6cada280e6736c, type: 2}
-    customLegs: {fileID: 11400000, guid: 78d3cc7ae706ccb48a00fc1c2d8535ba, type: 2}
-    customWeaponR1: {fileID: 11400000, guid: bc1690be888e8004989637365eb247aa, type: 2}
-    customWeaponL1: {fileID: 11400000, guid: 5ef8d5cea82b9224cb9f2b5ad48463da, type: 2}
-    customPilot: {fileID: 11400000, guid: c6b8bc701c8332d43adbd8a676ec5e1e, type: 2}
-    persistentId: AF_SWIFT_SABER
+    customLegs: {fileID: 11400000, guid: 0034c50c2583c91419dda8b22b5958d9, type: 2}
+    customWeaponR1: {fileID: 11400000, guid: c08e3ceb85c8bb3469c6f4598a280083, type: 2}
+    customWeaponL1: {fileID: 11400000, guid: ef43926a272330b40aa15660935db9e1, type: 2}
+    customPilot: {fileID: 11400000, guid: 6fe1b293c2ad78b4eaa7daeb9276525d, type: 2}
+    persistentId: Cobalt_Striker
   logCombatDetails: 0
   showLogLevelPrefix: 0
   showTurnPrefix: 0
@@ -4641,8 +4641,8 @@ MonoBehaviour:
   _scrollRect: {fileID: 1203827027}
   _logLinePrefab: {fileID: 2108587367042493686, guid: 5f13c62b6b0d9ff41b9d06e53abb5736, type: 3}
   _logContainer: {fileID: 1252633640}
-  _textAnimationDuration: 0.1
-  _lineDelay: 0.05
+  _textAnimationDuration: 0.05
+  _lineDelay: 0.1
 --- !u!1 &2023426744
 GameObject:
   m_ObjectHideFlags: 0
