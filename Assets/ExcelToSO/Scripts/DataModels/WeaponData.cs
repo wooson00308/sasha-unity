@@ -22,6 +22,8 @@ namespace ExcelToSO.DataModels
         public float ReloadAPCost { get; private set; }
         public int ReloadTurns { get; private set; }
         public string SpecialEffects { get; private set; }
+        public string AttackFlavorKey { get; private set; } // 공격 Flavor Key 추가
+        public string ReloadFlavorKey { get; private set; } // 재장전 Flavor Key 추가
         public string Notes { get; private set; }
 
         public void FromExcelRow(IRow row)
@@ -40,7 +42,9 @@ namespace ExcelToSO.DataModels
             ReloadAPCost = GetFloatValue(row, 11);
             ReloadTurns = GetIntValue(row, 12);
             SpecialEffects = row.GetCell(13)?.ToString() ?? "";
-            Notes = row.GetCell(14)?.ToString() ?? "";
+            AttackFlavorKey = row.GetCell(14)?.ToString() ?? ""; // 14번 셀에서 읽기
+            ReloadFlavorKey = row.GetCell(15)?.ToString() ?? ""; // 15번 셀에서 읽기
+            Notes = row.GetCell(16)?.ToString() ?? ""; // Notes는 16번 셀로 이동
         }
 
         private float GetFloatValue(IRow row, int cellIndex, float defaultValue = 0f)

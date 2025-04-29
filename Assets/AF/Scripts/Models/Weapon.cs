@@ -98,6 +98,16 @@ namespace AF.Models
         private List<string> _specialEffects;
 
         /// <summary>
+        /// 공격 시 사용할 Flavor Text 키
+        /// </summary>
+        [SerializeField] private string _attackFlavorKey = ""; // 추가 및 기본값 설정
+
+        /// <summary>
+        /// 재장전 시 사용할 Flavor Text 키
+        /// </summary>
+        [SerializeField] private string _reloadFlavorKey = ""; // 추가 및 기본값 설정
+
+        /// <summary>
         /// 무기가 현재 작동 가능한지 여부
         /// </summary>
         private bool _isOperational;
@@ -114,6 +124,8 @@ namespace AF.Models
         public float CurrentHeat => _currentHeat;
         public bool IsOperational => _isOperational;
         public IReadOnlyList<string> SpecialEffects => _specialEffects;
+        public string AttackFlavorKey => _attackFlavorKey;
+        public string ReloadFlavorKey => _reloadFlavorKey;
         public int MaxAmmo => _maxAmmo;
         public int CurrentAmmo => _currentAmmo;
         public float ReloadAPCost => _reloadAPCost;
@@ -203,10 +215,11 @@ namespace AF.Models
         }
 
         /// <summary>
-        /// 상세 정보를 지정하는 생성자 (탄약/재장전 포함)
+        /// 상세 정보를 지정하는 생성자 (탄약/재장전/FlavorKey 포함)
         /// </summary>
         public Weapon(string name, WeaponType type, DamageType damageType, float damage, float accuracy, float range, float attackSpeed, float overheatPerShot, float baseAPCost,
-                      int maxAmmo, float reloadAPCost, int reloadTurns) // 탄약/재장전 파라미터 추가
+                      int maxAmmo, float reloadAPCost, int reloadTurns,
+                      string attackFlavorKey, string reloadFlavorKey) // FlavorKey 파라미터 추가
         {
             _name = name;
             _type = type;
@@ -230,6 +243,47 @@ namespace AF.Models
             _currentHeat = 0.0f;
             _specialEffects = new List<string>();
             _isOperational = true;
+
+            // <<< Flavor Key 할당 추가 >>>
+            _attackFlavorKey = attackFlavorKey ?? "";
+            _reloadFlavorKey = reloadFlavorKey ?? "";
+            // <<< Flavor Key 할당 추가 끝 >>>
+        }
+
+        /// <summary>
+        /// WeaponSO 데이터로 Weapon 인스턴스를 초기화합니다.
+        /// </summary>
+        public void InitializeFromSO(Data.WeaponSO weaponSO)
+        {
+            if (weaponSO == null) 
+            {
+                Debug.LogError("Cannot initialize Weapon from null WeaponSO.");
+                // 기본값으로 두거나 예외 처리가 필요할 수 있음
+                return; 
+            }
+
+            _name = weaponSO.WeaponName;
+            _type = weaponSO.WeaponType;
+            _damageType = weaponSO.DamageType;
+            _damage = weaponSO.BaseDamage;
+            _accuracy = weaponSO.Accuracy;
+            _range = weaponSO.Range;
+            _attackSpeed = weaponSO.AttackSpeed;
+            _overheatPerShot = weaponSO.OverheatPerShot;
+            _baseAPCost = weaponSO.BaseAPCost;
+            _maxAmmo = weaponSO.AmmoCapacity;
+            _reloadAPCost = weaponSO.ReloadAPCost;
+            _reloadTurns = weaponSO.ReloadTurns;
+            _specialEffects = new List<string>(weaponSO.SpecialEffects ?? new List<string>());
+            _attackFlavorKey = weaponSO.AttackFlavorKey ?? ""; // SO에서 키 가져오기
+            _reloadFlavorKey = weaponSO.ReloadFlavorKey ?? ""; // SO에서 키 가져오기
+
+            // Runtime 상태 초기화
+            _currentAmmo = _maxAmmo > 0 ? _maxAmmo : 999; // 무한 탄약 처리
+            _isReloading = false;
+            _reloadStartTurn = -1;
+            _currentHeat = 0.0f;
+            _isOperational = true; 
         }
 
         /// <summary>
@@ -329,7 +383,7 @@ namespace AF.Models
                 _currentAmmo--;
                 try
                 {
-                    ServiceLocator.Instance.GetService<TextLoggerService>().TextLogger.Log($"<sprite index=18> [{_name}] 탄약 소모. 남은 탄약: {_currentAmmo}/{_maxAmmo}", LogLevel.Debug);
+                    //ServiceLocator.Instance.GetService<TextLoggerService>().TextLogger.Log($"<sprite index=18> [{_name}] 탄약 소모. 남은 탄약: {_currentAmmo}/{_maxAmmo}", LogLevel.Debug);
                 }
                 catch (Exception ex)
                 {
@@ -392,25 +446,51 @@ namespace AF.Models
                 return false; // 무한 탄약 무기
             }
 
+            // 로그 서비스를 안전하게 가져옵니다.
+            TextLoggerService loggerService = null;
+            try { loggerService = ServiceLocator.Instance.GetService<TextLoggerService>(); } 
+            catch (Exception ex) { Debug.LogError($"TextLoggerService 접근 오류: {ex.Message}"); }
 
             if (_reloadTurns > 0) // 재장전 시간이 필요한 경우
             {
                 _isReloading = true;
                 _reloadStartTurn = currentTurn;
-                try
+                
+                // <<< Flavor Text 기반 로그 >>>
+                if (loggerService != null && !string.IsNullOrEmpty(_reloadFlavorKey)) 
+                {
+                    string templateKey = $"{_reloadFlavorKey}_Start"; // 예: Reload_Shotgun_Start
+                    string flavorText = loggerService.GetRandomFlavorText(templateKey);
+                    if (!string.IsNullOrEmpty(flavorText))
+                    {
+                        int turnsRemaining = _reloadTurns - (currentTurn - _reloadStartTurn); // 남은 턴 계산
+                        var parameters = new Dictionary<string, string>
+                        {
+                            { "weaponName", _name },
+                            { "turnsRemaining", turnsRemaining.ToString() }
+                        };
+                        string formattedLog = loggerService.FormatFlavorText(flavorText, parameters);
+                        loggerService.TextLogger?.Log($"<sprite index=13> {formattedLog}"); // 아이콘 추가
+                    }
+                    else
+                    { 
+                        // 템플릿 못 찾으면 기본 로그
+                        int turnsRemaining = _reloadTurns - (currentTurn - _reloadStartTurn);
+                        loggerService.TextLogger?.Log($"<sprite index=13> [{_name}] 재장전 시작. 완료까지 {turnsRemaining}턴 필요 (현재 턴 포함).");
+                    }
+                }
+                else // loggerService가 없거나 키가 비었으면 기존 로그
                 {
                     int turnsRemaining = _reloadTurns - (currentTurn - _reloadStartTurn);
-                    ServiceLocator.Instance.GetService<TextLoggerService>().TextLogger.Log($"<sprite index=13> [{_name}] 재장전 시작. 완료까지 {turnsRemaining}턴 필요 (현재 턴 포함).");
+                    Debug.LogWarning($"<sprite index=13> [{_name}] 재장전 시작 (로그 시스템 문제 또는 FlavorKey 없음). 완료까지 {turnsRemaining}턴 필요.");
                 }
-                catch (Exception ex)
-                {
-                    Debug.LogError($"TextLoggerService 접근 오류: {ex.Message}");
-                }
+                // <<< Flavor Text 기반 로그 끝 >>>
+                
                 return true;
             }
             else // 즉시 재장전 (_reloadTurns == 0)
             {
-                FinishReload(); // 바로 완료 처리
+                FinishReload(); // 바로 완료 처리 (FinishReload에서 로그 처리)
                 return true;
             }
         }
@@ -426,14 +506,38 @@ namespace AF.Models
             }
             _isReloading = false;
             _reloadStartTurn = -1;
-            try
+            
+            // <<< Flavor Text 기반 로그 >>>
+            TextLoggerService loggerService = null;
+            try { loggerService = ServiceLocator.Instance.GetService<TextLoggerService>(); } 
+            catch (Exception ex) { Debug.LogError($"TextLoggerService 접근 오류: {ex.Message}"); }
+
+            if (loggerService != null && !string.IsNullOrEmpty(_reloadFlavorKey))
             {
-                ServiceLocator.Instance.GetService<TextLoggerService>().TextLogger.Log($"<sprite index=14> [{_name}] 재장전 완료! (탄약: {_currentAmmo}/{(_maxAmmo > 0 ? _maxAmmo.ToString() : "∞")})");
+                string templateKey = $"{_reloadFlavorKey}_Finish"; // 예: Reload_Shotgun_Finish
+                string flavorText = loggerService.GetRandomFlavorText(templateKey);
+                if (!string.IsNullOrEmpty(flavorText))
+                {
+                    var parameters = new Dictionary<string, string>
+                    {
+                        { "weaponName", _name },
+                        { "currentAmmo", _currentAmmo.ToString() },
+                        { "maxAmmo", (_maxAmmo > 0 ? _maxAmmo.ToString() : "∞") }
+                    };
+                    string formattedLog = loggerService.FormatFlavorText(flavorText, parameters);
+                    loggerService.TextLogger?.Log($"<sprite index=14> {formattedLog}"); // 아이콘 추가
+                }
+                else
+                { 
+                     // 템플릿 못 찾으면 기본 로그
+                    loggerService.TextLogger?.Log($"<sprite index=14> [{_name}] 재장전 완료! (탄약: {_currentAmmo}/{(_maxAmmo > 0 ? _maxAmmo.ToString() : "∞")})");
+                }
             }
-            catch (Exception ex)
+            else // loggerService가 없거나 키가 비었으면 기존 로그
             {
-                Debug.LogError($"TextLoggerService 접근 오류: {ex.Message}");
+                 Debug.LogWarning($"<sprite index=14> [{_name}] 재장전 완료! (로그 시스템 문제 또는 FlavorKey 없음)");
             }
+            // <<< Flavor Text 기반 로그 끝 >>>
         }
 
         /// <summary>

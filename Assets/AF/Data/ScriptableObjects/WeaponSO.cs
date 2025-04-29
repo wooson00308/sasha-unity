@@ -36,6 +36,8 @@ namespace AF.Data
         public float ReloadAPCost;
         public int ReloadTurns;
         public List<string> SpecialEffects; // List
+        public string AttackFlavorKey;
+        public string ReloadFlavorKey;
         [TextArea]
         public string Notes;
 
@@ -105,6 +107,8 @@ namespace AF.Data
             SpecialEffects = data.SpecialEffects?.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                                              .Select(s => s.Trim())
                                              .ToList() ?? new List<string>();
+            AttackFlavorKey = data.AttackFlavorKey;
+            ReloadFlavorKey = data.ReloadFlavorKey;
             Notes = data.Notes;
 
             #if UNITY_EDITOR

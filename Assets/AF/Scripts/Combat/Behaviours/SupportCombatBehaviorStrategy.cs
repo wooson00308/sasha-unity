@@ -42,7 +42,7 @@ namespace AF.Combat.Behaviors
 
             foreach (var a in ctx.GetAllies(unit))
             {
-                if (a == unit) continue;
+                if (a == unit || a == null || !a.IsOperational) continue;
                 var body = a.GetPart("Body");
                 if (body == null || body.MaxDurability <= 0) continue;
 

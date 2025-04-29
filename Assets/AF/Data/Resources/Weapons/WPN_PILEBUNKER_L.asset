@@ -26,4 +26,6 @@ MonoBehaviour:
   ReloadAPCost: 0
   ReloadTurns: 0
   SpecialEffects: []
+  AttackFlavorKey: Attack_WPN_PILEBUNKER_L
+  ReloadFlavorKey: Reload_WPN_PILEBUNKER_L
   Notes: 

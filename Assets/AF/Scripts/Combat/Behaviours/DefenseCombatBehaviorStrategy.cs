@@ -36,7 +36,12 @@ namespace AF.Combat.Behaviors
                 return (CombatActionEvents.ActionType.Reload, null, null, reloadWeapon);
             }
 
-            return (default, null, null, null);
+            // === 추가된 부분: 방어/재장전 외 다른 행동 시도 ===
+            var textLogger = ServiceLocator.Instance?.GetService<TextLoggerService>()?.TextLogger;
+            string unitName = activeUnit?.Name ?? "Unknown";
+            textLogger?.Log($"[{unitName} (Defense)] 방어/재장전 외 표준 행동 시도.", LogLevel.Debug);
+            return new StandardCombatBehaviorStrategy().DetermineAction(activeUnit, ctx);
+            // ============================================
         }
     }
 }

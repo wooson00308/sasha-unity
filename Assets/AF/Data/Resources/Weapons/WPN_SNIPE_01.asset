@@ -26,4 +26,6 @@ MonoBehaviour:
   ReloadAPCost: 1.5
   ReloadTurns: 2
   SpecialEffects: []
+  AttackFlavorKey: Attack_WPN_SNIPE_01
+  ReloadFlavorKey: Reload_WPN_SNIPE_01
   Notes: 

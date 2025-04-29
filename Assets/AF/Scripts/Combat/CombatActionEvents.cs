@@ -84,14 +84,16 @@ namespace AF.Combat
             public Weapon Weapon { get; private set; }
             public bool Hit { get; private set; }
             public float AccuracyRoll { get; private set; }
+            public bool IsCounterAttack { get; private set; }
 
-            public WeaponFiredEvent(ArmoredFrame attacker, ArmoredFrame target, Weapon weapon, bool hit, float accuracyRoll)
+            public WeaponFiredEvent(ArmoredFrame attacker, ArmoredFrame target, Weapon weapon, bool hit, float accuracyRoll, bool isCounterAttack)
             {
                 Attacker = attacker;
                 Target = target;
                 Weapon = weapon;
                 Hit = hit;
                 AccuracyRoll = accuracyRoll;
+                IsCounterAttack = isCounterAttack;
             }
         }
     }

@@ -1,6 +1,7 @@
 using AF.Combat;
 using AF.Services;
 using System.Collections.Generic;
+using AF.Models;
 
 namespace AF.Combat
 {
@@ -14,7 +15,10 @@ namespace AF.Combat
         /// </summary>
         /// <param name="message">로그 메시지</param>
         /// <param name="level">로그 레벨</param>
-        void Log(string message, LogLevel level = LogLevel.Info);
+        /// <param name="contextUnit">로그와 관련된 유닛 (UI 업데이트용)</param>
+        /// <param name="shouldUpdateTargetView">이 로그가 이벤트 대상 뷰 업데이트를 트리거해야 하는지 여부</param>
+        /// <param name="turnStartStateSnapshot">턴 시작 시점의 유닛 상태 스냅샷 (턴 시작 로그용)</param>
+        void Log(string message, LogLevel level = LogLevel.Info, ArmoredFrame contextUnit = null, bool shouldUpdateTargetView = false, Dictionary<string, ArmoredFrameSnapshot> turnStartStateSnapshot = null);
 
         /// <summary>
         /// 전투 이벤트 로깅
@@ -41,6 +45,20 @@ namespace AF.Combat
         /// <param name="searchTerm">검색어</param>
         /// <returns>필터링된 로그 리스트</returns>
         List<string> SearchLogs(string searchTerm);
+
+        /// <summary>
+        /// Filters and formats logs based on specified include/exclude levels.
+        /// </summary>
+        /// <param name="levelsToInclude">Array of LogLevels to include. If null or empty, all levels are potentially included (unless excluded).</param>
+        /// <param name="levelsToExclude">Array of LogLevels to exclude. If null, no levels are excluded.</param>
+        /// <returns>A list of formatted log strings matching the criteria.</returns>
+        List<string> GetFormattedLogs(LogLevel[] levelsToInclude = null, LogLevel[] levelsToExclude = null);
+
+        /// <summary>
+        /// Gets the raw list of LogEntry objects.
+        /// </summary>
+        /// <returns>A list of LogEntry objects.</returns>
+        List<TextLogger.LogEntry> GetLogEntries();
 
         /// <summary>
         /// 로그 초기화

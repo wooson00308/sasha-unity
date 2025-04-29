@@ -33,13 +33,14 @@ namespace AF.Combat
         private string _currentBattleId;
         private string _battleName;
         private bool   _isInCombat;
-        private int    _currentTurn;
+        private int    _currentCycle;
         private float  _combatStartTime;
 
         private List<ArmoredFrame>                    _participants;
         private Dictionary<ArmoredFrame,int>          _teamAssignments;
         private ArmoredFrame                          _currentActiveUnit;
         private HashSet<ArmoredFrame>                 _defendedThisTurn;
+        private HashSet<ArmoredFrame>                 _actedThisCycle;
 
         // 파일럿 전문화 → 전략
         private Dictionary<SpecializationType, IPilotBehaviorStrategy> _behaviorStrategies;
@@ -49,7 +50,7 @@ namespace AF.Combat
         // ──────────────────────────────────────────────────────────────
         public string       CurrentBattleId   => _currentBattleId;
         public bool         IsInCombat        => _isInCombat;
-        public int          CurrentTurn       => _currentTurn;
+        public int          CurrentCycle      => _currentCycle;
         public ArmoredFrame CurrentActiveUnit => _currentActiveUnit;
 
         // ──────────────────────────────────────────────────────────────
@@ -80,8 +81,9 @@ namespace AF.Combat
             _participants      = new List<ArmoredFrame>();
             _teamAssignments   = new Dictionary<ArmoredFrame,int>();
             _defendedThisTurn  = new HashSet<ArmoredFrame>();
+            _actedThisCycle    = new HashSet<ArmoredFrame>();
             _isInCombat        = false;
-            _currentTurn       = 0;
+            _currentCycle      = 0;
             _currentBattleId   = null;
         }
 
@@ -94,6 +96,7 @@ namespace AF.Combat
             _participants     = null;
             _teamAssignments  = null;
             _defendedThisTurn = null;
+            _actedThisCycle   = null;
         }
 
         // ──────────────────────────────────────────────────────────────
@@ -104,7 +107,7 @@ namespace AF.Combat
             if (_isInCombat) EndCombat();
 
             _isInCombat       = true;
-            _currentTurn      = 0;
+            _currentCycle     = 0;
             _battleName       = battleName;
             _currentBattleId  = $"BATTLE_{DateTime.Now:yyyyMMdd_HHmmss}_{UnityEngine.Random.Range(1000,9999)}";
             _combatStartTime  = Time.time;
@@ -112,11 +115,11 @@ namespace AF.Combat
             _participants     = participants.ToList();
             AssignTeams(participants);
             _defendedThisTurn.Clear();
+            _actedThisCycle.Clear();
 
             _eventBus.Publish(new CombatSessionEvents.CombatStartEvent(
                 participants, _currentBattleId, battleName, Vector3.zero));
 
-            if (autoProcess) ProcessNextTurn();
             return _currentBattleId;
         }
 
@@ -128,60 +131,102 @@ namespace AF.Combat
             float dur  = Time.time - _combatStartTime;
             var survivors = _participants.Where(p => p.IsOperational).ToArray();
 
+            // --- Create Final Snapshot --- 
+            var finalSnapshot = new Dictionary<string, ArmoredFrameSnapshot>();
+            if (_participants != null) // Check if participant list exists
+            {
+                foreach (var unit in _participants)
+                {
+                    if (unit != null && !string.IsNullOrEmpty(unit.Name))
+                    {
+                        finalSnapshot[unit.Name] = new ArmoredFrameSnapshot(unit);
+                    }
+                }
+            }
+            // --- Snapshot Creation End ---
+
+            // --- Publish Event with Snapshot --- 
             _eventBus.Publish(new CombatSessionEvents.CombatEndEvent(
-                survivors, result, _currentBattleId, dur));
+                survivors, result, _currentBattleId, dur, finalSnapshot)); // Pass snapshot
 
             // 상태 초기화
             _isInCombat        = false;
             _currentActiveUnit = null;
-            _participants.Clear();
-            _teamAssignments.Clear();
-            _defendedThisTurn.Clear();
+            // Clear participant lists AFTER publishing the event that uses them for snapshot
+            _participants?.Clear(); 
+            _teamAssignments?.Clear(); 
+            _defendedThisTurn?.Clear(); 
+            _actedThisCycle?.Clear();
 
             _currentBattleId = null;
             _battleName      = null;
-            _currentTurn     = 0;
+            _currentCycle    = 0;
         }
 
         // ──────────────────────────────────────────────────────────────
-        // 턴 진행
+        // 턴 진행 (사이클/활성화 로직으로 변경)
         // ──────────────────────────────────────────────────────────────
         public bool ProcessNextTurn()
         {
             if (!_isInCombat) return false;
 
-            _defendedThisTurn.Clear();
-
-            if (_currentTurn > 0 && _currentActiveUnit != null)
-                _eventBus.Publish(new CombatSessionEvents.TurnEndEvent(
-                    _currentTurn, _currentActiveUnit, _currentBattleId));
-
-            _currentTurn++;
-            _currentActiveUnit = GetNextActiveUnit();
-            if (_currentActiveUnit == null) { EndCombat(); return false; }
-
-            _eventBus.Publish(new CombatSessionEvents.TurnStartEvent(
-                _currentTurn, _currentActiveUnit, _currentBattleId));
-
-            // 재장전 완료 체크
-            foreach (var unit in _participants.Where(u=>u.IsOperational))
+            if (_currentActiveUnit != null)
             {
-                foreach (var w in unit.GetAllWeapons())
+                _eventBus.Publish(new CombatSessionEvents.UnitActivationEndEvent(
+                    _currentCycle, _currentActiveUnit, _currentBattleId));
+            }
+
+            var activeParticipants = _participants.Where(p => p.IsOperational).ToList();
+            bool isNewCycle = _actedThisCycle.SetEquals(activeParticipants);
+
+            if (isNewCycle || _currentCycle == 0)
+            {
+                if (_currentCycle > 0)
                 {
-                    if (w.IsReloading && w.CheckReloadCompletion(_currentTurn)) w.FinishReload();
+                    _eventBus.Publish(new CombatSessionEvents.RoundEndEvent(_currentCycle, _currentBattleId));
+                }
+
+                _currentCycle++;
+                _actedThisCycle.Clear();
+                _defendedThisTurn.Clear();
+
+                List<ArmoredFrame> initiativeSequence = activeParticipants;
+
+                _eventBus.Publish(new CombatSessionEvents.RoundStartEvent(
+                    _currentCycle, _currentBattleId, initiativeSequence));
+
+                foreach (var unit in activeParticipants)
+                {
+                    foreach (var w in unit.GetAllWeapons())
+                    {
+                        if (w.IsReloading && w.CheckReloadCompletion(_currentCycle)) w.FinishReload();
+                    }
                 }
             }
 
-            // AP 회복 + 상태효과
+            _currentActiveUnit = GetNextActiveUnit();
+            if (_currentActiveUnit == null)
+            {
+                Debug.LogWarning($"ProcessNextTurn: GetNextActiveUnit returned null, but it's not a new cycle start. Cycle: {_currentCycle}, Acted: {_actedThisCycle.Count}, Active: {activeParticipants.Count}");
+                CheckBattleEndCondition();
+                return !_isInCombat;
+            }
+
+            _eventBus.Publish(new CombatSessionEvents.UnitActivationStartEvent(
+                _currentCycle, _currentActiveUnit, _currentBattleId));
+
             _currentActiveUnit.RecoverAPOnTurnStart();
             _statusProcessor.Tick(MakeCtx(), _currentActiveUnit);
 
-            // AI 루프
             int actions=0, maxActions=30;
             while (_currentActiveUnit.IsOperational && actions<maxActions)
             {
                 var (act,tp,pos,wep) = DetermineActionForUnit(_currentActiveUnit);
-                if (act==default) break;
+                if (act==default)
+                {
+                    _textLogger?.TextLogger?.Log($"<sprite index=15> [{_currentActiveUnit.Name}] 추가 행동 프로토콜 없음. 시스템 대기 상태로 전환.", LogLevel.Info);
+                    break;
+                }
 
                 bool ok = _actionExecutor.Execute(
                     MakeCtx(), _currentActiveUnit, act, tp, pos, wep);
@@ -191,8 +236,10 @@ namespace AF.Combat
                 if (!ok || !_currentActiveUnit.IsOperational) break;
             }
 
+            _actedThisCycle.Add(_currentActiveUnit);
+
             CheckBattleEndCondition();
-            return true;
+            return _isInCombat;
         }
 
         // ──────────────────────────────────────────────────────────────
@@ -246,7 +293,7 @@ namespace AF.Combat
         // 내부 헬퍼
         // ──────────────────────────────────────────────────────────────
         private CombatContext MakeCtx() => new CombatContext(
-            _eventBus, _textLogger, _currentBattleId, _currentTurn,
+            _eventBus, _textLogger, _currentBattleId, _currentCycle,
             _defendedThisTurn, _participants, _teamAssignments);
 
         private void AssignTeams(IEnumerable<ArmoredFrame> parts)
@@ -257,12 +304,20 @@ namespace AF.Combat
 
         private ArmoredFrame GetNextActiveUnit()
         {
-            int idx = _currentActiveUnit!=null ? _participants.IndexOf(_currentActiveUnit) : -1;
-            for (int i=1;i<=_participants.Count;i++)
+            var operationalUnits = _participants.Where(p => p.IsOperational).ToList();
+            if (!operationalUnits.Any()) return null;
+
+            int startIndex = _currentActiveUnit != null ? operationalUnits.IndexOf(_currentActiveUnit) : -1;
+
+            for (int i = 1; i <= operationalUnits.Count; i++)
             {
-                var u = _participants[(idx+i)%_participants.Count];
-                if (u.IsOperational) return u;
+                var nextUnit = operationalUnits[(startIndex + i) % operationalUnits.Count];
+                if (!_actedThisCycle.Contains(nextUnit))
+                {
+                    return nextUnit;
+                }
             }
+
             return null;
         }
 

@@ -24,7 +24,7 @@ namespace AF.Combat
                     float dmg = effect.TickValue;
                     ctx.Bus.Publish(new StatusEffectEvents.StatusEffectTickEvent(unit, effect));
                     ctx.Bus.Publish(new DamageEvents.DamageAppliedEvent(null, unit, dmg,
-                        PartType.Body, false, 0f, 0f));
+                        PartType.Body, false, 0f, 0f, false));
                 }
                 else if (effect.EffectName.Contains("RepairOverTime"))
                 {

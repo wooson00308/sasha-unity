@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a72b79ef38f668d49a600667985cb086, type: 3}
+  m_Name: Flavor_DmgHi_03
+  m_EditorClassIdentifier: 
+  templateKey: DamageApplied_High
+  templateText: "\uB9F9\uB82C\uD55C \uD3EC\uD654! {target}\uC758 {part}\uAC00 {damage}
+    \uD53C\uD574\uB97C \uC785\uACE0 <color=red>\uB108\uB35C</color>\uAC70\uB9B0\uB2E4!"

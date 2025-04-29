@@ -26,4 +26,6 @@ MonoBehaviour:
   ReloadAPCost: 0
   ReloadTurns: 0
   SpecialEffects: []
+  AttackFlavorKey: Attack_WPN_SABER_LIGHT_01
+  ReloadFlavorKey: Reload_WPN_SABER_LIGHT_01
   Notes: 

@@ -40,6 +40,7 @@ namespace ExcelToSO.Editor
             GenerateSO<WeaponData, WeaponSO>(excelFilePath, "Weapons", "Weapons");
             GenerateSO<PilotData, PilotSO>(excelFilePath, "Pilots", "Pilots");
             GenerateSO<AssemblyData, AssemblySO>(excelFilePath, "AF_Assemblies", "Assemblies"); // Sheet name is AF_Assemblies
+            GenerateSO<FlavorTextData, FlavorTextSO>(excelFilePath, "FlavorTexts", "FlavorTexts");
 
             Debug.Log("Data generation complete!");
             AssetDatabase.Refresh(); // Refresh Asset Database after all generation

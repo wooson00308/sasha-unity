@@ -26,4 +26,6 @@ MonoBehaviour:
   ReloadAPCost: 2
   ReloadTurns: 2
   SpecialEffects: []
+  AttackFlavorKey: Attack_WPN_CANNON_HEAVY_01
+  ReloadFlavorKey: Reload_WPN_CANNON_HEAVY_01
   Notes: 

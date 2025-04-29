@@ -12,6 +12,8 @@ namespace AF.Combat
             CombatActionEvents.ActionType actionType,
             ArmoredFrame targetFrame,
             Vector3? targetPosition,
-            Weapon weapon);
+            Weapon weapon,
+            bool isCounter = false,
+            bool freeCounter = false);
     }
 }

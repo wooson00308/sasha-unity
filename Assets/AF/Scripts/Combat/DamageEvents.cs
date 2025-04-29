@@ -47,10 +47,12 @@ namespace AF.Combat
             public bool IsCritical { get; private set; }
             public float PartCurrentDurability { get; private set; }
             public float PartMaxDurability { get; private set; }
+            public bool IsCounterAttack { get; private set; }
 
             public DamageAppliedEvent(ArmoredFrame source, ArmoredFrame target,
                                     float damageDealt, PartType damagedPart, bool isCritical,
-                                    float partCurrentDurability, float partMaxDurability)
+                                    float partCurrentDurability, float partMaxDurability,
+                                    bool isCounterAttack)
             {
                 Source = source;
                 Target = target;
@@ -59,6 +61,7 @@ namespace AF.Combat
                 IsCritical = isCritical;
                 PartCurrentDurability = partCurrentDurability;
                 PartMaxDurability = partMaxDurability;
+                IsCounterAttack = isCounterAttack;
             }
         }
 
@@ -74,15 +77,18 @@ namespace AF.Combat
             public float DamageAvoided { get; private set; }
             public AvoidanceType Type { get; private set; }
             public string Description { get; private set; }
+            public bool IsCounterAttack { get; private set; }
 
             public DamageAvoidedEvent(ArmoredFrame source, ArmoredFrame target,
-                                     float damageAvoided, AvoidanceType type, string description)
+                                     float damageAvoided, AvoidanceType type, string description,
+                                     bool isCounterAttack)
             {
                 Source = source;
                 Target = target;
                 DamageAvoided = damageAvoided;
                 Type = type;
                 Description = description;
+                IsCounterAttack = isCounterAttack;
             }
         }
     }

@@ -26,4 +26,6 @@ MonoBehaviour:
   ReloadAPCost: 0
   ReloadTurns: 0
   SpecialEffects: []
+  AttackFlavorKey: Attack_WPN_RAILGUN_SASHA_01
+  ReloadFlavorKey: Reload_WPN_RAILGUN_SASHA_01
   Notes: 

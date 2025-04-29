@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a72b79ef38f668d49a600667985cb086, type: 3}
+  m_Name: Flavor_StatusTickHeal_01
+  m_EditorClassIdentifier: 
+  templateKey: StatusEffectTick_Heal
+  templateText: "\uB098\uB178 \uBA38\uC2E0 \uAC00\uB3D9. {target}\uC758 \uB0B4\uAD6C\uB3C4
+    <color=green>\uD68C\uBCF5</color> \uC2DC\uC791! (+{value})"

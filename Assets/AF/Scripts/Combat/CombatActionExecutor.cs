@@ -20,7 +20,9 @@ namespace AF.Combat
             CombatActionEvents.ActionType actionType,
             ArmoredFrame targetFrame,
             Vector3? targetPosition,
-            Weapon weapon)
+            Weapon weapon,
+            bool isCounter = false,
+            bool freeCounter = false)
         {
             if (actor == null || !actor.IsOperational)
             {
@@ -29,7 +31,7 @@ namespace AF.Combat
             }
 
             // === AP 비용 계산 ===
-            float apCost = actionType switch
+            float apCost = freeCounter ? 0f : actionType switch
             {
                 CombatActionEvents.ActionType.Attack     => weapon != null ? CalculateAttackAPCost(actor, weapon) : float.MaxValue,
                 CombatActionEvents.ActionType.Move       => CalculateMoveAPCost(actor),
@@ -64,7 +66,7 @@ namespace AF.Combat
                     // ============= 공격 ==========================
                     case CombatActionEvents.ActionType.Attack:
                         (success, resultDescription) =
-                            ExecuteAttack(ctx, actor, targetFrame, weapon);
+                            ExecuteAttack(ctx, actor, targetFrame, weapon, isCounter);
                         break;
 
                     // ============= 이동 ==========================
@@ -113,7 +115,7 @@ namespace AF.Combat
                 success = false;
             }
 
-            if (success) actor.ConsumeAP(apCost);
+            if (success && apCost > 0f) actor.ConsumeAP(apCost);
 
             ctx.Bus.Publish(new CombatActionEvents.ActionCompletedEvent(
                 actor, actionType, success, resultDescription, ctx.CurrentTurn,
@@ -130,7 +132,8 @@ namespace AF.Combat
             CombatContext ctx,
             ArmoredFrame attacker,
             ArmoredFrame target,
-            Weapon weapon)
+            Weapon weapon,
+            bool isCounter = false)
         {
             if (target == null || !ctx.Participants.Contains(target) || !target.IsOperational)
                 return (false, "유효하지 않은 대상");
@@ -176,7 +179,7 @@ namespace AF.Combat
             bool  hit  = rand <= baseHit;
 
             ctx.Bus.Publish(new CombatActionEvents.WeaponFiredEvent(
-                attacker, target, weapon, hit, rand));
+                attacker, target, weapon, hit, rand, isCounter));
 
             if (hit)
             {
@@ -197,7 +200,7 @@ namespace AF.Combat
 
                 ctx.Bus.Publish(new DamageEvents.DamageAppliedEvent(
                     attacker, target, finalD, part.Type, critical,
-                    part.CurrentDurability, part.MaxDurability));
+                    part.CurrentDurability, part.MaxDurability, isCounter));
 
                 if (destroyed)
                 {
@@ -214,9 +217,9 @@ namespace AF.Combat
                 ctx.Bus.Publish(new DamageEvents.DamageAvoidedEvent(
                     attacker, target, weapon.Damage,
                     DamageEvents.DamageAvoidedEvent.AvoidanceType.Dodge,
-                    $"{target.Name}이(가) 회피했습니다."));
+                    $"{target.Name}이(가) 회피했습니다.", isCounter));
             }
-
+            TryCounterAttack(ctx, target, attacker, isCounter);
             return (true, hit ? "공격 성공" : "공격 실패");
         }
 
@@ -303,6 +306,36 @@ namespace AF.Combat
             }
             int idx = UnityEngine.Random.Range(0, ops.Count);
             return ops[idx];
+        }
+
+        private void TryCounterAttack(
+                CombatContext ctx,
+                ArmoredFrame defender,
+                ArmoredFrame attacker,
+                bool thisWasCounter)
+        {
+            if (thisWasCounter) return;                  // 루프 방지
+            if (!defender.IsOperational) return;
+
+            Weapon w = defender.GetAllWeapons()
+                            .FirstOrDefault(wep =>
+                                !wep.IsReloading &&
+                                wep.HasAmmo() &&
+                                Vector3.Distance(defender.Position,
+                                                    attacker.Position) <= wep.Range);
+            if (w == null) return;
+
+            // --- Log Counter announcement BEFORE executing the counter attack ---
+            string counterAnnounceMsg = $"<sprite index=21> <color=lightblue>[{defender.Name}]</color>의 <color=lightblue>카운터!</color>";
+            ctx.Logger.TextLogger.Log(counterAnnounceMsg, LogLevel.Info); 
+            // --- End Counter announcement ---
+
+            // AP 0, Delay 0 ▶ freeCounter=true 로 호출
+            Execute(ctx, defender,
+                    CombatActionEvents.ActionType.Attack,
+                    attacker, null, w,
+                    /*isCounter*/ true,
+                    /*freeCounter*/ true);
         }
 
         #endregion

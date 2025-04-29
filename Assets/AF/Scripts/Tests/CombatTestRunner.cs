@@ -57,7 +57,7 @@ namespace AF.Tests
 
             [VerticalGroup("TopConfig/Left")]
             [EnableIf("useCustomAssembly")]
-            [LabelText("기체 이름")]
+            [LabelText("코드 네임")]
             public string customAFName;
 
             [VerticalGroup("TopConfig/Left")]
@@ -453,7 +453,7 @@ namespace AF.Tests
         [FoldoutGroup("현재 전투 상태"), ReadOnly, LabelText("전투 ID")]
         public string currentBattleId;
         [FoldoutGroup("현재 전투 상태"), ReadOnly, LabelText("현재 턴")]
-        public int currentTurn;
+        public int currentCycle;
         [FoldoutGroup("현재 전투 상태"), ReadOnly, LabelText("전투 진행 중")]
         public bool isInCombat;
 
@@ -511,6 +511,7 @@ namespace AF.Tests
 
         public void Log(string message, LogLevel level = LogLevel.Info)
         {
+             // Call the simpler Log method without snapshot parameters
              if (textLogger?.TextLogger != null) { textLogger.TextLogger.Log(message, level); }
              else { Debug.LogWarning($"TextLogger not available! Log message: [{level}] {message}"); }
         }
@@ -548,7 +549,7 @@ namespace AF.Tests
             // --- 상태 초기화 ---
             textLogger.ConcreteLogger?.Clear(); // TextLogger 직접 초기화
             isInCombat = true; // 전투 시작 플래그 설정
-            currentTurn = 0;
+            currentCycle = 0;
             currentBattleId = Guid.NewGuid().ToString().Substring(0, 8); // 고유한 전투 ID 생성
 
             Log($"전투 시뮬레이션 시작 준비... (ID: {currentBattleId})", LogLevel.System);
@@ -671,35 +672,48 @@ namespace AF.Tests
                  return;
             }
 
-            Log($"총 {allParticipants.Count}기 참가 확정. 전투 시뮬레이션 시작.", LogLevel.System);
+            Log($"참가자 {allParticipants.Count}명 확인.");
 
-            // --- 전투 시작 및 진행 ---
+            // --- 스냅샷 생성 로직 추가 ---
+            var initialSnapshot = new Dictionary<string, ArmoredFrameSnapshot>();
+            foreach (var unit in allParticipants)
+            {
+                if (unit != null && !string.IsNullOrEmpty(unit.Name))
+                {
+                    initialSnapshot[unit.Name] = new ArmoredFrameSnapshot(unit);
+                }
+            }
+            // --- 스냅샷 생성 로직 끝 ---
+
+            // --- Log 호출 수정: 스냅샷 추가 ---
+            // Log 메서드 시그니처에 맞게 contextUnit과 shouldUpdateTargetView 추가 (null, false)
+            // Log($"총 {allParticipants.Count}기 참가 확정. 전투 시뮬레이션 시작.", LogLevel.System, null, false, initialSnapshot); // CombatTestRunner.Log 사용 안 함
+            textLogger?.TextLogger?.Log($"총 {allParticipants.Count}기 참가 확정. 전투 시뮬레이션 시작.", LogLevel.System, null, false, initialSnapshot); // textLogger 직접 사용
+            // --- Log 호출 수정 끝 ---
+
+            Log("전투 시뮬레이터 시작..."); // 일반 로그는 기존 Log 헬퍼 사용
             string battleName = $"Test Battle {DateTime.Now:HH:mm:ss}";
-            // participants.ToArray() 대신 allParticipants.ToArray() 사용
-            currentBattleId = combatSimulator.StartCombat(allParticipants.ToArray(), battleName, false); 
-            // isInCombat = true; // 이미 위에서 설정됨
-            currentTurn = 1; // 턴 시작은 1부터
+            string battleId = combatSimulator.StartCombat(allParticipants.ToArray(), battleName, false);
+            // currentCycle = 1; // <<< 제거: Cycle 시작은 Simulator 내부에서 처리
 
             try
             {
                 bool combatEnded = false;
                 int safetyBreak = 1000; // 무한 루프 방지
-                int turnCounter = 0;
 
-                while (!combatEnded && isInCombat && turnCounter < safetyBreak)
+                while (!combatEnded && isInCombat && combatSimulator.CurrentCycle < safetyBreak)
                 {
                     // ProcessNextTurn() 반환값이 true면 전투 지속, false면 종료
-                    combatEnded = !combatSimulator.ProcessNextTurn(); 
-                    currentTurn = combatSimulator.CurrentTurn;
-                    turnCounter++;
+                    combatEnded = !combatSimulator.ProcessNextTurn();
+                    currentCycle = combatSimulator.CurrentCycle;
 
                     // UniTask.Yield 대신 Frame 단위 지연 등 다른 방식 고려 가능
                     await UniTask.Yield(PlayerLoopTiming.Update); 
                 }
 
-                if (turnCounter >= safetyBreak)
+                if (combatSimulator.CurrentCycle >= safetyBreak)
                 {
-                    Log($"안전 브레이크 발동! ({safetyBreak} 턴 초과)", LogLevel.Warning);
+                    Log($"안전 브레이크 발동! ({safetyBreak} 사이클 초과)", LogLevel.Warning);
                     // 전투 강제 종료 (무승부 처리 등)
                     if (isInCombat) combatSimulator.EndCombat(CombatSessionEvents.CombatEndEvent.ResultType.Draw);
                 }
@@ -717,7 +731,7 @@ namespace AF.Tests
                     combatSimulator.EndCombat(); // 확실하게 종료 호출
                 }
                 isInCombat = false; // 상태 확실히 업데이트
-                currentTurn = combatSimulator?.CurrentTurn ?? currentTurn; // 최종 턴 저장
+                currentCycle = combatSimulator?.CurrentCycle ?? currentCycle; // 최종 사이클 저장
                 Log("전투 프로세스 정리 완료.", LogLevel.System);
 
                 // 로그 파일 자동 저장 (옵션)
@@ -1004,7 +1018,9 @@ namespace AF.Tests
                      weaponSO.BaseAPCost,
                      weaponSO.AmmoCapacity,
                      weaponSO.ReloadAPCost,
-                     weaponSO.ReloadTurns
+                     weaponSO.ReloadTurns,
+                     weaponSO.AttackFlavorKey,
+                     weaponSO.ReloadFlavorKey 
                  );
                 af.AttachWeapon(runtimeWeapon);
             } catch (Exception e) { Log($"커스텀 무기 생성/부착 오류 ({weaponSO.name}): {e.Message}", LogLevel.Error); }
@@ -1059,7 +1075,9 @@ namespace AF.Tests
                          weaponSO.BaseAPCost,
                          weaponSO.AmmoCapacity,
                          weaponSO.ReloadAPCost,
-                         weaponSO.ReloadTurns
+                         weaponSO.ReloadTurns,
+                         weaponSO.AttackFlavorKey,
+                         weaponSO.ReloadFlavorKey
                      );
                     af.AttachWeapon(runtimeWeapon);
                 } catch (Exception e) { Debug.LogError($"Weapon instantiation/attach error for {weaponId}: {e.Message}"); }

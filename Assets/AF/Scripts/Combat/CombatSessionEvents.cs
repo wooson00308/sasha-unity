@@ -1,5 +1,6 @@
 using UnityEngine;
 using AF.Models;
+using System.Collections.Generic; // Needed for Dictionary
 
 namespace AF.Combat
 {
@@ -38,26 +39,28 @@ namespace AF.Combat
             public ResultType Result { get; private set; }
             public string BattleId { get; private set; }
             public float Duration { get; private set; }
+            public Dictionary<string, ArmoredFrameSnapshot> FinalParticipantSnapshots { get; private set; }
 
-            public CombatEndEvent(ArmoredFrame[] survivors, ResultType result, string battleId, float duration)
+            public CombatEndEvent(ArmoredFrame[] survivors, ResultType result, string battleId, float duration, Dictionary<string, ArmoredFrameSnapshot> finalSnapshots)
             {
                 Survivors = survivors;
                 Result = result;
                 BattleId = battleId;
                 Duration = duration;
+                FinalParticipantSnapshots = finalSnapshots ?? new Dictionary<string, ArmoredFrameSnapshot>();
             }
         }
 
         /// <summary>
-        /// 전투 턴 시작 이벤트
+        /// 전투 턴 시작 이벤트 -> 유닛 활성화 시작 이벤트로 변경
         /// </summary>
-        public class TurnStartEvent : ICombatEvent
+        public class UnitActivationStartEvent : ICombatEvent
         {
             public int TurnNumber { get; private set; }
             public ArmoredFrame ActiveUnit { get; private set; }
             public string BattleId { get; private set; }
 
-            public TurnStartEvent(int turnNumber, ArmoredFrame activeUnit, string battleId)
+            public UnitActivationStartEvent(int turnNumber, ArmoredFrame activeUnit, string battleId)
             {
                 TurnNumber = turnNumber;
                 ActiveUnit = activeUnit;
@@ -66,18 +69,50 @@ namespace AF.Combat
         }
 
         /// <summary>
-        /// 전투 턴 종료 이벤트
+        /// 전투 턴 종료 이벤트 -> 유닛 활성화 종료 이벤트로 변경
         /// </summary>
-        public class TurnEndEvent : ICombatEvent
+        public class UnitActivationEndEvent : ICombatEvent
         {
             public int TurnNumber { get; private set; }
             public ArmoredFrame ActiveUnit { get; private set; }
             public string BattleId { get; private set; }
 
-            public TurnEndEvent(int turnNumber, ArmoredFrame activeUnit, string battleId)
+            public UnitActivationEndEvent(int turnNumber, ArmoredFrame activeUnit, string battleId)
             {
                 TurnNumber = turnNumber;
                 ActiveUnit = activeUnit;
+                BattleId = battleId;
+            }
+        }
+
+        /// <summary>
+        /// 전투 라운드(사이클) 시작 이벤트
+        /// </summary>
+        public class RoundStartEvent : ICombatEvent
+        {
+            public int RoundNumber { get; private set; }
+            public string BattleId { get; private set; }
+            public List<ArmoredFrame> InitiativeSequence { get; private set; }
+
+            public RoundStartEvent(int roundNumber, string battleId, List<ArmoredFrame> initiativeSequence = null)
+            {
+                RoundNumber = roundNumber;
+                BattleId = battleId;
+                InitiativeSequence = initiativeSequence ?? new List<ArmoredFrame>();
+            }
+        }
+
+        /// <summary>
+        /// 전투 라운드(사이클) 종료 이벤트
+        /// </summary>
+        public class RoundEndEvent : ICombatEvent
+        {
+            public int RoundNumber { get; private set; }
+            public string BattleId { get; private set; }
+
+            public RoundEndEvent(int roundNumber, string battleId)
+            {
+                RoundNumber = roundNumber;
                 BattleId = battleId;
             }
         }

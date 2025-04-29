@@ -30,20 +30,27 @@ namespace AF.Combat
         public bool ShowTurnPrefix { get; set; } = true;
         public bool UseIndentation { get; set; } = true; // TextLoggerService 핸들러에서 사용할 플래그
 
-        // 내부 로그 엔트리 클래스
-        private class LogEntry
+        // 내부 로그 엔트리 클래스 -> public으로 변경
+        public class LogEntry
         {
             public string Message { get; set; }
             public LogLevel Level { get; set; }
             public DateTime Timestamp { get; set; }
             public int TurnNumber { get; set; }
+            public ArmoredFrame ContextUnit { get; set; } // 관련된 주요 유닛 참조 추가
+            public bool ShouldUpdateTargetView { get; set; } // 이 로그가 '이벤트 대상' 뷰를 업데이트해야 하는지 여부 (추가)
+            public Dictionary<string, ArmoredFrameSnapshot> TurnStartStateSnapshot { get; set; } // 턴 시작 시점 스냅샷 (추가)
 
-            public LogEntry(string message, LogLevel level, int turnNumber)
+            // 생성자 수정: turnStartStateSnapshot 추가 (기본값 null)
+            public LogEntry(string message, LogLevel level, int turnNumber, ArmoredFrame contextUnit = null, bool shouldUpdateTargetView = false, Dictionary<string, ArmoredFrameSnapshot> turnStartStateSnapshot = null)
             {
                 Message = message;
                 Level = level;
                 Timestamp = DateTime.Now;
                 TurnNumber = turnNumber;
+                ContextUnit = contextUnit;
+                ShouldUpdateTargetView = shouldUpdateTargetView;
+                TurnStartStateSnapshot = turnStartStateSnapshot; // 할당 추가
             }
         }
 
@@ -86,9 +93,9 @@ namespace AF.Combat
 
         #region ITextLogger Implementation
         
-        public void Log(string message, LogLevel level = LogLevel.Info)
+        public void Log(string message, LogLevel level = LogLevel.Info, ArmoredFrame contextUnit = null, bool shouldUpdateTargetView = false, Dictionary<string, ArmoredFrameSnapshot> turnStartStateSnapshot = null)
         {
-            _logs.Add(new LogEntry(message, level, _turnCounter));
+            _logs.Add(new LogEntry(message, level, _turnCounter, contextUnit, shouldUpdateTargetView, turnStartStateSnapshot));
             // 새 로그가 추가되었음을 알리는 이벤트 발생 로직 삭제
             // OnLogAdded?.Invoke(FormatLogEntry(_logs.Last()), level); 
         }
@@ -104,13 +111,13 @@ namespace AF.Combat
             {
                 LogCombatEnd(endEvent);
             }
-            else if (combatEvent is CombatSessionEvents.TurnStartEvent turnStartEvent)
+            else if (combatEvent is CombatSessionEvents.UnitActivationStartEvent unitActivationStartEvent)
             {
-                LogTurnStart(turnStartEvent);
+                LogUnitActivationStart(unitActivationStartEvent);
             }
-            else if (combatEvent is CombatSessionEvents.TurnEndEvent turnEndEvent)
+            else if (combatEvent is CombatSessionEvents.UnitActivationEndEvent unitActivationEndEvent)
             {
-                LogTurnEnd(turnEndEvent);
+                LogUnitActivationEnd(unitActivationEndEvent);
             }
             else if (combatEvent is CombatActionEvents.ActionStartEvent actionStartEvent)
             {
@@ -195,6 +202,31 @@ namespace AF.Combat
                 .Where(entry => entry.Message.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
                 .Select(entry => FormatLogEntry(entry))
                 .ToList();
+        }
+
+        /// <summary>
+        /// Filters and formats logs based on specified include/exclude levels.
+        /// </summary>
+        /// <param name="levelsToInclude">Array of LogLevels to include. If null or empty, all levels are potentially included (unless excluded).</param>
+        /// <param name="levelsToExclude">Array of LogLevels to exclude. If null, no levels are excluded.</param>
+        /// <returns>A list of formatted log strings matching the criteria.</returns>
+        public List<string> GetFormattedLogs(LogLevel[] levelsToInclude = null, LogLevel[] levelsToExclude = null)
+        {
+            IEnumerable<LogEntry> filteredLogs = _logs;
+
+            // Apply include filter
+            if (levelsToInclude != null && levelsToInclude.Length > 0)
+            {
+                filteredLogs = filteredLogs.Where(entry => levelsToInclude.Contains(entry.Level));
+            }
+
+            // Apply exclude filter
+            if (levelsToExclude != null && levelsToExclude.Length > 0)
+            {
+                filteredLogs = filteredLogs.Where(entry => !levelsToExclude.Contains(entry.Level));
+            }
+
+            return filteredLogs.Select(entry => FormatLogEntry(entry)).ToList();
         }
 
         public void Clear()
@@ -353,22 +385,23 @@ namespace AF.Combat
             LogUnitStatusSummary(evt.BattleId); 
         }
 
-        private void LogTurnStart(CombatSessionEvents.TurnStartEvent evt)
+        private void LogUnitActivationStart(CombatSessionEvents.UnitActivationStartEvent evt)
         {
-            _turnCounter = evt.TurnNumber; // 턴 카운터 업데이트
+            // _turnCounter = evt.TurnNumber; // 턴 카운터 업데이트 - CombatSimulatorService의 Cycle을 참조해야 할 수도 있음. 일단 LogEvent 호출부에서 관리.
             string apInfo = $"AP: {evt.ActiveUnit.CurrentAP:F1} / {evt.ActiveUnit.CombinedStats.MaxAP:F1}";
             // AP 회복량 정보는 CombatSimulatorService의 Debug.Log에 있으므로 여기선 생략하거나, 필요시 이벤트에 추가
-            Log($"<sprite index=13> ===== Turn {evt.TurnNumber}: [{evt.ActiveUnit.Name}] 행동 시작 ({apInfo}) =====", LogLevel.Info); // TURN START 아이콘
-            
-            // 턴 시작 시 상태 효과 처리 로그 (필요하다면)
-            // Log($"  * 상태 효과 처리 중...", LogLevel.Debug); 
+            // Log($"<sprite index=13> ===== Turn {evt.TurnNumber}: [{evt.ActiveUnit.Name}] 행동 시작 ({apInfo}) =====", LogLevel.Info); // TURN START 아이콘
+            // TextLoggerService에서 이미 포맷된 로그를 전달하므로, 여기서는 상세 로깅 불필요. 필요하다면 추가.
+            // Log($"Unit Activation Start: {evt.ActiveUnit.Name}", LogLevel.Debug); // 예시
         }
 
-        private void LogTurnEnd(CombatSessionEvents.TurnEndEvent evt)
+        private void LogUnitActivationEnd(CombatSessionEvents.UnitActivationEndEvent evt)
         {
             // 턴 종료 구분 로그
             string apInfo = $"AP: {evt.ActiveUnit.CurrentAP:F1} / {evt.ActiveUnit.CombinedStats.MaxAP:F1}";
-            Log($"<sprite index=14> ===== Turn {evt.TurnNumber}: [{evt.ActiveUnit.Name}] 행동 종료 ({apInfo}) =====", LogLevel.Info); // TURN END 아이콘
+            // Log($"<sprite index=14> ===== Turn {evt.TurnNumber}: [{evt.ActiveUnit.Name}] 행동 종료 ({apInfo}) =====", LogLevel.Info); // TURN END 아이콘
+            // TextLoggerService에서 이미 포맷된 로그를 전달하므로, 여기서는 상세 로깅 불필요. 필요하다면 추가.
+            // Log($"Unit Activation End: {evt.ActiveUnit.Name}", LogLevel.Debug); // 예시
         }
 
         // ActionStart는 간략화 또는 제거 고려 (현재 주석 처리)
@@ -401,13 +434,16 @@ namespace AF.Combat
             // UseIndentation 플래그 확인하여 들여쓰기 적용
             string prefix = UseIndentation ? "  >> " : ">> "; 
             // <<< 인덱스 태그 추가 >>>
-            Log($"{prefix}<sprite index=0> <color=red>-></color> {actionSpriteTag} [{GetActionDescription(evt.Action)}] {resultDetails} {apInfo}", LogLevel.Info);
+            // Log($"{prefix}<sprite index=0> <color=red>-></color> {actionSpriteTag} [{GetActionDescription(evt.Action)}] {resultDetails} {apInfo}", LogLevel.Info);
+            // Actor 이름 색상 추가
+            Log($"{prefix}<sprite index=0> <color=red>-></color> {actionSpriteTag} [{ColorizeText(evt.Actor.Name, "yellow")}] [{GetActionDescription(evt.Action)}] {resultDetails} {apInfo}", LogLevel.Info);
         }
         
         // WeaponFired는 ActionCompleted에서 통합 처리 가능 (현재 주석 처리)
         // private void LogWeaponFired(CombatActionEvents.WeaponFiredEvent evt)
         // {
-        //     Log($"  -> [무기 발사] {evt.Attacker.Name}의 {evt.Weapon.Name} (대상: {evt.Target.Name})", LogLevel.Debug);
+        //     // Attacker(yellow), Target(lightblue) 색상 적용 예시
+        //     Log($"  -> [무기 발사] {ColorizeText(evt.Attacker.Name, "yellow")}의 {evt.Weapon.Name} (대상: {ColorizeText(evt.Target.Name, "lightblue")})", LogLevel.Debug);
         // }
 
         // DamageCalculated는 너무 상세하여 제거 고려 (현재 주석 처리)
@@ -418,40 +454,40 @@ namespace AF.Combat
 
         private void LogDamageApplied(DamageEvents.DamageAppliedEvent evt)
         {
-            // Wrap source and target names in brackets
-            string attackerName = $"[{evt.Source.Name}]"; 
-            string targetName = $"[{evt.Target.Name}]";
+            // Wrap source and target names in brackets and apply colors
+            string attackerName = ColorizeText($"[{evt.Source.Name}]", "yellow"); 
+            string targetName = ColorizeText($"[{evt.Target.Name}]", "lightblue");
             string partName = evt.DamagedPart.ToString(); 
             string durabilityInfo = $"({evt.PartCurrentDurability:F0}/{evt.PartMaxDurability:F0})";
 
             // UseIndentation 플래그 확인하여 들여쓰기 적용
             string prefix = UseIndentation ? "    " : "";
-            // <<< 인덱스 태그 추가 >>>
+            // <<< 인덱스 태그 추가 & 색상 적용된 이름 사용 >>>
             Log($"{prefix}<sprite index=0> <color=red>-></color> {attackerName}의 공격! {targetName}의 {partName}{durabilityInfo}에 {evt.DamageDealt:F1} 데미지!", LogLevel.Info); // HIT 아이콘
         }
 
         private void LogDamageAvoided(DamageEvents.DamageAvoidedEvent evt)
         {
-            // Wrap source and target names in brackets
-            string attackerName = $"[{evt.Source.Name}]";
-            string targetName = $"[{evt.Target.Name}]";
+            // Wrap source and target names in brackets and apply colors
+            string attackerName = ColorizeText($"[{evt.Source.Name}]", "yellow");
+            string targetName = ColorizeText($"[{evt.Target.Name}]", "lightblue");
             
             // UseIndentation 플래그 확인하여 들여쓰기 적용
             string prefix = UseIndentation ? "    " : "";
-            // <<< 인덱스 태그 추가 >>>
-            Log($"{prefix}<sprite index=1> <color=cyan><<</color> {targetName}이(가) {attackerName}의 공격을 회피! ({evt.Type})", LogLevel.Info); // MISS 아이콘
+            // <<< 인덱스 태그 추가 & 색상 적용된 이름 사용 >>>
+            Log($"{prefix}<sprite index=1> <color=lightblue> << </color> {targetName}이(가) {attackerName}의 공격을 회피! ({evt.Type})", LogLevel.Info); // MISS 아이콘
         }
 
         private void LogPartDestroyed(PartEvents.PartDestroyedEvent evt)
         {
-            // Wrap owner name in brackets
-            string ownerName = $"[{evt.Frame.Name}]";
+            // Wrap owner name in brackets and apply color (owner is the affected one)
+            string ownerName = ColorizeText($"[{evt.Frame.Name}]", "yellow"); // Owner as yellow (actor context)
             string partName = evt.DestroyedPartType.ToString();
             string effectsInfo = evt.Effects != null && evt.Effects.Length > 0 ? $" ({string.Join(", ", evt.Effects)})" : "";
             
             // UseIndentation 플래그 확인하여 들여쓰기 적용
             string prefix = UseIndentation ? "  " : "";
-            // <<< 인덱스 태그 추가 >>>
+            // <<< 인덱스 태그 추가 & 색상 적용된 이름 사용 >>>
             Log($"{prefix}<sprite index=2> <color=orange>!!! {ownerName}의 {partName} 파괴됨!</color>{effectsInfo}", LogLevel.Warning); // DESTROYED 아이콘
         }
         
@@ -459,56 +495,59 @@ namespace AF.Combat
         // private void LogPartStatusChanged(PartEvents.PartStatusChangedEvent evt)
         // {
         //     string partName = evt.ChangedPart?.Name ?? evt.SlotIdentifier;
-        //     Log($"[T{_turnCounter}] {evt.Owner.Name}의 {partName} 상태 변경: {evt.NewStatus}", LogLevel.Debug);
+        //     Log($"[T{_turnCounter}] {ColorizeText(evt.Owner.Name, "yellow")}의 {partName} 상태 변경: {evt.NewStatus}", LogLevel.Debug);
         // }
 
         private void LogSystemCriticalFailure(PartEvents.SystemCriticalFailureEvent evt)
         {
-            // Wrap owner name in brackets
-            string ownerName = $"[{evt.Frame.Name}]";
+            // Wrap owner name in brackets and apply color (owner is the affected one)
+            string ownerName = ColorizeText($"[{evt.Frame.Name}]", "yellow"); // Owner as yellow (actor context)
             // evt.Reason 속성이 없으므로 기본 메시지 사용 또는 다른 속성 확인 필요
             string reason = "치명적 시스템 오류"; // evt.Reason 대신 기본 메시지 사용
             
             // UseIndentation 플래그 확인하여 들여쓰기 적용
             string prefix = UseIndentation ? "  " : "";
-            // <<< 인덱스 태그 추가 >>>
+            // <<< 인덱스 태그 추가 & 색상 적용된 이름 사용 >>>
             Log($"{prefix}<sprite index=3> <color=purple>*** {ownerName}: {reason} ***</color>", LogLevel.Critical); // SYS FAIL 아이콘
         }
         
         // <<< 상태 효과 로깅 추가 >>>
         private void LogStatusEffectApplied(StatusEffectEvents.StatusEffectAppliedEvent evt)
         {
-            // Wrap target name in brackets
-            string targetName = $"[{evt.Target.Name}]";
-            string sourceInfo = evt.Source != null ? $"({evt.Source.Name}에 의해) " : "";
+            // Wrap target name in brackets and apply color
+            string targetName = ColorizeText($"[{evt.Target.Name}]", "lightblue");
+            // Colorize source name if it exists
+            string sourceInfo = evt.Source != null ? $"( {ColorizeText(evt.Source.Name, "yellow")}에 의해) " : "";
             
             // UseIndentation 플래그 확인하여 들여쓰기 적용
             string prefix = UseIndentation ? "  >> " : ">> "; 
-            // <<< 인덱스 태그 추가 >>>
+            // <<< 인덱스 태그 추가 & 색상 적용된 이름 사용 >>>
             Log($"{prefix}<sprite index=4> {targetName}: 상태 효과 '{evt.EffectType}' 적용됨 {sourceInfo}({evt.Duration}턴)", LogLevel.Info); // EFFECT+ 아이콘
         }
 
         private void LogStatusEffectExpired(StatusEffectEvents.StatusEffectExpiredEvent evt)
         {
-            // Wrap target name in brackets
-            string targetName = $"[{evt.Target.Name}]";
+            // Wrap target name in brackets and apply color
+            string targetName = ColorizeText($"[{evt.Target.Name}]", "lightblue");
             string reason = evt.WasDispelled ? "(해제됨)" : "(만료됨)";
             
             // UseIndentation 플래그 확인하여 들여쓰기 적용
             string prefix = UseIndentation ? "  << " : "<< ";
-            // <<< 인덱스 태그 추가 >>>
+            // <<< 인덱스 태그 추가 & 색상 적용된 이름 사용 >>>
             Log($"{prefix}<sprite index=5> {targetName}: 상태 효과 '{evt.EffectType}' 종료 {reason}", LogLevel.Info); // EFFECT- 아이콘
         }
 
         private void LogStatusEffectTicked(StatusEffectEvents.StatusEffectTickEvent evt)
         {
+            // Colorize target name
+            string targetNameColored = ColorizeText($"[{evt.Target.Name}]", "lightblue"); 
             string effectName = evt.Effect.EffectName;
             string tickAction = evt.Effect.TickEffectType == TickEffectType.DamageOverTime ? "피해" : "회복";
             // <<< 인덱스 태그 사용 >>>
             string tickIconTag = evt.Effect.TickEffectType == TickEffectType.DamageOverTime ? "<sprite index=6>" : "<sprite index=7>"; // TICK / HEAL TICK 아이콘
             // 들여쓰기 로직 제거 (이제 LogStatusEffectTicked는 들여쓰기 안 함)
             // <<< 유니코드 스프라이트 태그 추가 및 기존 이모지 제거 >>>
-            string logMsg = $"<sprite index=0> [{evt.Target.Name}] < [{effectName}] 틱! ([{evt.Effect.TickValue:F0}] {tickAction})";
+            string logMsg = $"<sprite index=0> {targetNameColored} < [{effectName}] 틱! ([{evt.Effect.TickValue:F0}] {tickAction})";
 
             Log(logMsg, LogLevel.Info);
         }
@@ -606,6 +645,7 @@ namespace AF.Combat
                 { "<sprite index=18>", "[PART DMG]" },      // 파츠 손상
                 { "<sprite index=19>", "[PART CRIT]" },     // 파츠 위험
                 { "<sprite index=20>", "[PART EMPTY]" },    // 파츠 없음
+                { "<sprite index=23>", "[COUNTER]" },   // 새 카운터 아이콘
                 // 필요시 추가...
             };
 
@@ -763,6 +803,20 @@ namespace AF.Combat
         }
 
         #endregion
+
+        #endregion
+
+        #region Additional Methods
+
+        /// <summary>
+        /// Gets the raw list of LogEntry objects.
+        /// </summary>
+        /// <returns>A list of LogEntry objects.</returns>
+        public List<LogEntry> GetLogEntries()
+        {
+            // 방어적 복사본 반환 (선택적이지만 권장)
+            return new List<LogEntry>(_logs); 
+        }
 
         #endregion
     }

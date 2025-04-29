@@ -26,4 +26,6 @@ MonoBehaviour:
   ReloadAPCost: 1.5
   ReloadTurns: 1
   SpecialEffects: []
+  AttackFlavorKey: Attack_WPN_MG_MID_01
+  ReloadFlavorKey: Reload_WPN_MG_MID_01
   Notes: 

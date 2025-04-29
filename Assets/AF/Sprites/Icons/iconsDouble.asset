@@ -154,6 +154,11 @@ MonoBehaviour:
     m_Scale: 1
     m_Name: iconsDouble_204
   - m_ElementType: 2
+    m_Unicode: 57344
+    m_GlyphIndex: 59
+    m_Scale: 1
+    m_Name: iconsDouble_59
+  - m_ElementType: 2
     m_Unicode: 65534
     m_GlyphIndex: 0
     m_Scale: 1
@@ -1813,10 +1818,10 @@ MonoBehaviour:
   - m_Index: 31
     m_Metrics:
       m_Width: 97.52381
-      m_Height: 97.53846
-      m_HorizontalBearingX: 72.8
+      m_Height: 90
+      m_HorizontalBearingX: 0
       m_HorizontalBearingY: 100
-      m_HorizontalAdvance: -0.27
+      m_HorizontalAdvance: 62.3
     m_GlyphRect:
       m_X: 975
       m_Y: 1072
