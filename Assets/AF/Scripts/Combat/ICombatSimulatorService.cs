@@ -22,9 +22,9 @@ namespace AF.Combat
         bool IsInCombat { get; }
         
         /// <summary>
-        /// 현재 전투 사이클
+        /// 현재 전투 턴 (라운드)
         /// </summary>
-        int CurrentCycle { get; }
+        int CurrentTurn { get; }
         
         /// <summary>
         /// 현재 활성화된 유닛

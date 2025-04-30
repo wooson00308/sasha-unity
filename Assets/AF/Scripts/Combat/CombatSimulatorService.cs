@@ -33,14 +33,16 @@ namespace AF.Combat
         private string _currentBattleId;
         private string _battleName;
         private bool   _isInCombat;
-        private int    _currentCycle;
+        private int    _currentTurn;  // Renamed from _currentCycle (Represents the overall turn/round)
+        private int    _currentCycle; // Added (Represents the activation step within a turn)
         private float  _combatStartTime;
 
         private List<ArmoredFrame>                    _participants;
         private Dictionary<ArmoredFrame,int>          _teamAssignments;
         private ArmoredFrame                          _currentActiveUnit;
         private HashSet<ArmoredFrame>                 _defendedThisTurn;
-        private HashSet<ArmoredFrame>                 _actedThisCycle;
+        private HashSet<ArmoredFrame>                 _actedThisCycle; // Represents units acted *this turn*
+        private HashSet<ArmoredFrame>                 _movedThisActivation;
 
         // 파일럿 전문화 → 전략
         private Dictionary<SpecializationType, IPilotBehaviorStrategy> _behaviorStrategies;
@@ -50,8 +52,9 @@ namespace AF.Combat
         // ──────────────────────────────────────────────────────────────
         public string       CurrentBattleId   => _currentBattleId;
         public bool         IsInCombat        => _isInCombat;
-        public int          CurrentCycle      => _currentCycle;
+        public int          CurrentTurn       => _currentTurn; // Renamed from CurrentCycle
         public ArmoredFrame CurrentActiveUnit => _currentActiveUnit;
+        public HashSet<ArmoredFrame> MovedThisActivation => _movedThisActivation;
 
         // ──────────────────────────────────────────────────────────────
         // IService 기본
@@ -82,8 +85,10 @@ namespace AF.Combat
             _teamAssignments   = new Dictionary<ArmoredFrame,int>();
             _defendedThisTurn  = new HashSet<ArmoredFrame>();
             _actedThisCycle    = new HashSet<ArmoredFrame>();
+            _movedThisActivation = new HashSet<ArmoredFrame>();
             _isInCombat        = false;
-            _currentCycle      = 0;
+            _currentTurn       = 0; // Initialize turn
+            _currentCycle      = 0; // Initialize cycle
             _currentBattleId   = null;
         }
 
@@ -97,6 +102,11 @@ namespace AF.Combat
             _teamAssignments  = null;
             _defendedThisTurn = null;
             _actedThisCycle   = null;
+            _movedThisActivation = null;
+            _isInCombat        = false;
+            _currentTurn       = 0; // Reset turn
+            _currentCycle      = 0; // Reset cycle
+            _currentBattleId   = null;
         }
 
         // ──────────────────────────────────────────────────────────────
@@ -107,7 +117,8 @@ namespace AF.Combat
             if (_isInCombat) EndCombat();
 
             _isInCombat       = true;
-            _currentCycle     = 0;
+            _currentTurn      = 0; // Start at turn 0 (will increment to 1 on first ProcessNextTurn)
+            _currentCycle     = 0; // Start at cycle 0
             _battleName       = battleName;
             _currentBattleId  = $"BATTLE_{DateTime.Now:yyyyMMdd_HHmmss}_{UnityEngine.Random.Range(1000,9999)}";
             _combatStartTime  = Time.time;
@@ -116,6 +127,7 @@ namespace AF.Combat
             AssignTeams(participants);
             _defendedThisTurn.Clear();
             _actedThisCycle.Clear();
+            _movedThisActivation.Clear();
 
             _eventBus.Publish(new CombatSessionEvents.CombatStartEvent(
                 participants, _currentBattleId, battleName, Vector3.zero));
@@ -131,7 +143,7 @@ namespace AF.Combat
             float dur  = Time.time - _combatStartTime;
             var survivors = _participants.Where(p => p.IsOperational).ToArray();
 
-            // --- Create Final Snapshot --- 
+            // --- Create Final Snapshot ---
             var finalSnapshot = new Dictionary<string, ArmoredFrameSnapshot>();
             if (_participants != null) // Check if participant list exists
             {
@@ -145,7 +157,7 @@ namespace AF.Combat
             }
             // --- Snapshot Creation End ---
 
-            // --- Publish Event with Snapshot --- 
+            // --- Publish Event with Snapshot ---
             _eventBus.Publish(new CombatSessionEvents.CombatEndEvent(
                 survivors, result, _currentBattleId, dur, finalSnapshot)); // Pass snapshot
 
@@ -153,93 +165,126 @@ namespace AF.Combat
             _isInCombat        = false;
             _currentActiveUnit = null;
             // Clear participant lists AFTER publishing the event that uses them for snapshot
-            _participants?.Clear(); 
-            _teamAssignments?.Clear(); 
-            _defendedThisTurn?.Clear(); 
+            _participants?.Clear();
+            _teamAssignments?.Clear();
+            _defendedThisTurn?.Clear();
             _actedThisCycle?.Clear();
+            _movedThisActivation?.Clear();
 
             _currentBattleId = null;
             _battleName      = null;
-            _currentCycle    = 0;
+            _currentTurn     = 0; // Reset turn
+            _currentCycle    = 0; // Reset cycle
         }
 
         // ──────────────────────────────────────────────────────────────
-        // 턴 진행 (사이클/활성화 로직으로 변경)
+        // 턴 진행 (사이클/활성화 로직으로 변경) -> 이름 유지, 내부 변수 변경
         // ──────────────────────────────────────────────────────────────
-        public bool ProcessNextTurn()
+        public bool ProcessNextTurn() // Method name kept as is, logic reflects turn/cycle
         {
             if (!_isInCombat) return false;
 
+            // Publish end event for the PREVIOUSLY active unit's cycle
             if (_currentActiveUnit != null)
             {
                 _eventBus.Publish(new CombatSessionEvents.UnitActivationEndEvent(
-                    _currentCycle, _currentActiveUnit, _currentBattleId));
+                    _currentTurn, _currentCycle, _currentActiveUnit, _currentBattleId)); // Pass turn and cycle
             }
 
             var activeParticipants = _participants.Where(p => p.IsOperational).ToList();
-            bool isNewCycle = _actedThisCycle.SetEquals(activeParticipants);
+            bool isNewTurn = _actedThisCycle.SetEquals(activeParticipants); // Check if all active units have acted this turn
 
-            if (isNewCycle || _currentCycle == 0)
+            // --- Start New Turn Logic ---
+            if (isNewTurn || _currentTurn == 0) // If it's a new turn or the very first turn
             {
-                if (_currentCycle > 0)
+                if (_currentTurn > 0) // Publish RoundEnd only after the first turn
                 {
-                    _eventBus.Publish(new CombatSessionEvents.RoundEndEvent(_currentCycle, _currentBattleId));
+                    _eventBus.Publish(new CombatSessionEvents.RoundEndEvent(_currentTurn, _currentBattleId)); // Use _currentTurn
                 }
 
-                _currentCycle++;
-                _actedThisCycle.Clear();
-                _defendedThisTurn.Clear();
+                _currentTurn++;        // Increment the overall turn number
+                _currentCycle = 0;     // Reset the activation cycle counter for the new turn
+                _actedThisCycle.Clear(); // Clear the set of units that have acted
+                _defendedThisTurn.Clear(); // Clear defense status for the new turn
+                _movedThisActivation.Clear();
 
-                List<ArmoredFrame> initiativeSequence = activeParticipants;
+                List<ArmoredFrame> initiativeSequence = activeParticipants; // Use current active participants for initiative
 
                 _eventBus.Publish(new CombatSessionEvents.RoundStartEvent(
-                    _currentCycle, _currentBattleId, initiativeSequence));
+                    _currentTurn, _currentBattleId, initiativeSequence)); // Use _currentTurn
+            }
+            // --- End New Turn Logic ---
 
-                foreach (var unit in activeParticipants)
+            // --- Activate Next Unit ---
+            _currentActiveUnit = GetNextActiveUnit(); // Find the next unit yet to act this turn
+
+            // +++ Clear movement set for the new activation +++
+            _movedThisActivation.Clear(); 
+            // +++ Clear movement set end +++
+
+            if (_currentActiveUnit == null) // Should only happen if battle ends or an error occurs
+            {
+                // If GetNextActiveUnit is null but it wasn't the start of a new turn, something is wrong
+                if (!isNewTurn)
                 {
-                    foreach (var w in unit.GetAllWeapons())
-                    {
-                        if (w.IsReloading && w.CheckReloadCompletion(_currentCycle)) w.FinishReload();
-                    }
+                     Debug.LogWarning($"ProcessNextTurn: GetNextActiveUnit returned null unexpectedly. Turn: {_currentTurn}, Acted: {_actedThisCycle.Count}, Active: {activeParticipants.Count}");
+                }
+                CheckBattleEndCondition(); // Check end condition regardless
+                return !_isInCombat;       // Return false if combat has ended
+            }
+
+            // Increment the cycle counter for this unit's activation
+            _currentCycle++;
+
+            // +++ AP 회복 전 값 저장 및 회복 호출 +++
+            float apBeforeRecovery = _currentActiveUnit.CurrentAP;
+            _currentActiveUnit.RecoverAPOnTurnStart(); // Recover AP 
+            // +++ AP 회복 로직 끝 +++
+
+            // Publish start event for the NEWLY active unit's cycle
+            _eventBus.Publish(new CombatSessionEvents.UnitActivationStartEvent(
+                 _currentTurn, _currentCycle, _currentActiveUnit, _currentBattleId, apBeforeRecovery)); // <<< Pass apBeforeRecovery
+
+            // --- Process Active Unit's Cycle ---
+
+            // Check and complete reload for the activated unit at the start of its cycle
+            foreach (var w in _currentActiveUnit.GetAllWeapons())
+            {
+                if (w.IsReloading)
+                {
+                    // CheckReloadCompletion now also handles FinishReload if completed
+                    w.CheckReloadCompletion(_currentTurn); // Pass the current overall turn number
                 }
             }
 
-            _currentActiveUnit = GetNextActiveUnit();
-            if (_currentActiveUnit == null)
-            {
-                Debug.LogWarning($"ProcessNextTurn: GetNextActiveUnit returned null, but it's not a new cycle start. Cycle: {_currentCycle}, Acted: {_actedThisCycle.Count}, Active: {activeParticipants.Count}");
-                CheckBattleEndCondition();
-                return !_isInCombat;
-            }
+            _statusProcessor.Tick(MakeCtx(), _currentActiveUnit); // Apply status effect ticks
 
-            _eventBus.Publish(new CombatSessionEvents.UnitActivationStartEvent(
-                _currentCycle, _currentActiveUnit, _currentBattleId));
-
-            _currentActiveUnit.RecoverAPOnTurnStart();
-            _statusProcessor.Tick(MakeCtx(), _currentActiveUnit);
-
-            int actions=0, maxActions=30;
+            // Determine and execute actions for the unit
+            int actions=0, maxActions=30; // Safety break for action loop
             while (_currentActiveUnit.IsOperational && actions<maxActions)
             {
                 var (act,tp,pos,wep) = DetermineActionForUnit(_currentActiveUnit);
-                if (act==default)
+                if (act==default) // No action determined
                 {
-                    _textLogger?.TextLogger?.Log($"<sprite index=15> [{_currentActiveUnit.Name}] 추가 행동 프로토콜 없음. 시스템 대기 상태로 전환.", LogLevel.Info);
+                    _textLogger?.TextLogger?.Log($"[{_currentActiveUnit.Name}] 추가 행동 프로토콜 없음. 시스템 대기 상태로 전환.", LogLevel.Info);
                     break;
                 }
 
+                // Execute the action
                 bool ok = _actionExecutor.Execute(
                     MakeCtx(), _currentActiveUnit, act, tp, pos, wep);
 
                 actions++;
-                if (act==CombatActionEvents.ActionType.Reload && ok) break;
-                if (!ok || !_currentActiveUnit.IsOperational) break;
+                // Break conditions for the action loop
+                if (!ok || !_currentActiveUnit.IsOperational) break; // Stop if action failed or unit became non-operational
             }
 
-            _actedThisCycle.Add(_currentActiveUnit);
+            _actedThisCycle.Add(_currentActiveUnit); // Mark this unit as having acted this turn
 
-            CheckBattleEndCondition();
-            return _isInCombat;
+            // --- End Cycle Processing ---
+
+            CheckBattleEndCondition(); // Check if the battle ended after this cycle
+            return _isInCombat;        // Return true if combat is still ongoing
         }
 
         // ──────────────────────────────────────────────────────────────
@@ -293,8 +338,8 @@ namespace AF.Combat
         // 내부 헬퍼
         // ──────────────────────────────────────────────────────────────
         private CombatContext MakeCtx() => new CombatContext(
-            _eventBus, _textLogger, _currentBattleId, _currentCycle,
-            _defendedThisTurn, _participants, _teamAssignments);
+            _eventBus, _textLogger, _currentBattleId, _currentTurn, _currentCycle, // Pass _currentTurn and _currentCycle
+            _defendedThisTurn, _participants, _teamAssignments, _movedThisActivation);
 
         private void AssignTeams(IEnumerable<ArmoredFrame> parts)
         {
@@ -307,17 +352,21 @@ namespace AF.Combat
             var operationalUnits = _participants.Where(p => p.IsOperational).ToList();
             if (!operationalUnits.Any()) return null;
 
+            // Find the index of the current unit to start the search from
             int startIndex = _currentActiveUnit != null ? operationalUnits.IndexOf(_currentActiveUnit) : -1;
 
+            // Iterate through units in sequence, wrapping around
             for (int i = 1; i <= operationalUnits.Count; i++)
             {
                 var nextUnit = operationalUnits[(startIndex + i) % operationalUnits.Count];
+                // Return the first unit found that hasn't acted yet in this turn
                 if (!_actedThisCycle.Contains(nextUnit))
                 {
                     return nextUnit;
                 }
             }
 
+            // If all operational units have acted, return null
             return null;
         }
 

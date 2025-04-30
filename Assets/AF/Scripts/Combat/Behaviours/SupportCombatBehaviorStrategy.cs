@@ -2,6 +2,8 @@ using UnityEngine;
 using AF.Combat;
 using AF.Services;
 using AF.Models;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace AF.Combat.Behaviors
 {
@@ -40,7 +42,8 @@ namespace AF.Combat.Behaviors
             ArmoredFrame lowest = null;
             float ratio = float.MaxValue;
 
-            foreach (var a in ctx.GetAllies(unit))
+            var allies = ctx.GetAllies(unit);
+            foreach (var a in allies)
             {
                 if (a == unit || a == null || !a.IsOperational) continue;
                 var body = a.GetPart("Body");

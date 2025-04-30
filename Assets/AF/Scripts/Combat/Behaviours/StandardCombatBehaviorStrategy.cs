@@ -3,6 +3,7 @@ using UnityEngine;
 using AF.Combat;
 using AF.Services;
 using AF.Models;
+using System.Collections.Generic;
 
 namespace AF.Combat.Behaviors
 {
@@ -78,35 +79,43 @@ namespace AF.Combat.Behaviors
             float mvCost = CalculateMoveAPCost(activeUnit);
             if (activeUnit.HasEnoughAP(mvCost))
             {
-                if (rangedW != null) // 원거리 보유
+                if (ctx.MovedThisActivation.Contains(activeUnit))
                 {
-                    float optimal = rangedW.Range * OPTIMAL_RANGE_FACTOR;
-
-                    if (minDist < MIN_RANGED_SAFE_DISTANCE)
-                    {
-                        Vector3 dir = (minDist < 0.01f) ? Vector3.back :
-                                      (activeUnit.Position - closest.Position).normalized;
-                        Vector3 retreat = activeUnit.Position + dir * activeUnit.CombinedStats.Speed;
-                        return (CombatActionEvents.ActionType.Move, closest, retreat, null);
-                    }
-                    else if (minDist > optimal)
-                    {
-                        Vector3 dir = (closest.Position - activeUnit.Position).normalized;
-                        float distToMove = Mathf.Min(activeUnit.CombinedStats.Speed, minDist - optimal);
-                        Vector3 approach = activeUnit.Position + dir * distToMove;
-                        return (CombatActionEvents.ActionType.Move, closest, approach, null);
-                    }
+                    // 이미 이동했다면, 다른 행동(예: 방어)을 고려하도록 이동 결정 안 함
                 }
-                else if (meleeW != null) // 근접 전용
+                else
                 {
-                    if (minDist > meleeW.Range)
-                        return (CombatActionEvents.ActionType.Move, closest, closest.Position, null);
+                    if (rangedW != null) // 원거리 보유
+                    {
+                        float optimal = rangedW.Range * OPTIMAL_RANGE_FACTOR;
+
+                        if (minDist < MIN_RANGED_SAFE_DISTANCE)
+                        {
+                            Vector3 dir = (minDist < 0.01f) ? Vector3.back :
+                                          (activeUnit.Position - closest.Position).normalized;
+                            Vector3 retreat = activeUnit.Position + dir * activeUnit.CombinedStats.Speed;
+                            return (CombatActionEvents.ActionType.Move, closest, retreat, null);
+                        }
+                        else if (minDist > optimal)
+                        {
+                            Vector3 dir = (closest.Position - activeUnit.Position).normalized;
+                            float distToMove = Mathf.Min(activeUnit.CombinedStats.Speed, minDist - optimal);
+                            Vector3 approach = activeUnit.Position + dir * distToMove;
+                            return (CombatActionEvents.ActionType.Move, closest, approach, null);
+                        }
+                    }
+                    else if (meleeW != null) // 근접 전용
+                    {
+                        if (minDist > meleeW.Range)
+                            return (CombatActionEvents.ActionType.Move, closest, closest.Position, null);
+                    }
                 }
             }
 
             // === 4. 방어 ===
             if (activeUnit.HasEnoughAP(DEFEND_AP_COST) &&
-                !ctx.HasUnitDefendedThisTurn(activeUnit))
+                !ctx.HasUnitDefendedThisTurn(activeUnit) &&
+                (!ctx.MovedThisActivation.Contains(activeUnit) || IsLowHealth(activeUnit)))
             {
                 return (CombatActionEvents.ActionType.Defend, null, null, null);
             }

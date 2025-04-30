@@ -636,8 +636,50 @@ namespace AF.Models
             return _currentAP > requiredAmount - 0.001f; 
         }
 
+        /// <summary>
+        /// 지정된 슬롯의 파츠를 수리합니다.
+        /// </summary>
+        /// <param name="targetSlotIdentifier">수리할 파츠의 슬롯 식별자</param>
+        /// <param name="repairAmount">수리하려는 양</param>
+        /// <returns>실제로 수리된 내구도 양</returns>
+        public float ApplyRepair(string targetSlotIdentifier, float repairAmount)
+        {
+            if (repairAmount <= 0) return 0f; // 수리량이 0 이하면 아무것도 하지 않음
+
+            if (_parts.TryGetValue(targetSlotIdentifier, out Part targetPart))
+            {
+                float maxDurability = targetPart.PartStats.Durability;
+                float currentDurability = targetPart.CurrentDurability;
+
+                if (currentDurability >= maxDurability) return 0f; // 이미 최대 내구도면 수리 불가
+
+                float targetDurability = currentDurability + repairAmount; // 목표 내구도 계산
+                float actualRepairAmount = Mathf.Min(repairAmount, maxDurability - currentDurability); // 실제 수리될 양 계산
+
+                // SetDurability 호출하고 상태 변경 여부 확인
+                bool? statusChanged = targetPart.SetDurability(targetDurability);
+
+                // 상태가 변경되었고, 그 상태가 '작동 가능(true)'이면 후속 처리
+                if (statusChanged.HasValue && statusChanged.Value)
+                {
+                    // 파츠가 수리되어 작동 가능 상태가 되면, 전체 스탯 및 작동 상태 재계산 필요
+                    RecalculateStats();
+                    CheckOperationalStatus();
+                    // TODO: PartRepairedEvent 같은 이벤트 발행 고려 가능
+                    Debug.Log($"ArmoredFrame({Name}): {targetSlotIdentifier} 파츠 수리 완료. 작동 가능 상태로 복구됨.");
+                }
+
+                return actualRepairAmount; // 실제 수리된 양 반환
+            }
+            else
+            {
+                Debug.LogWarning($"ArmoredFrame({Name}): 존재하지 않는 슬롯 '{targetSlotIdentifier}'에 수리 적용 시도됨.");
+                return 0f;
+            }
+        }
+
         // TODO: 수리 메서드 (Repair)도 슬롯 기반으로 수정 필요
-        // public void RepairPart(string slotIdentifier, float amount) { ... }
-        // public void RepairAllParts(float amount) { ... }
+        // public void RepairPart(string slotIdentifier, float amount) { ... } // ApplyRepair로 대체 가능
+        // public void RepairAllParts(float amount) { ... } // 필요하다면 구현
     }
 } 

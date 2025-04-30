@@ -23,7 +23,7 @@ namespace AF.Combat
                 {
                     float dmg = effect.TickValue;
                     ctx.Bus.Publish(new StatusEffectEvents.StatusEffectTickEvent(unit, effect));
-                    ctx.Bus.Publish(new DamageEvents.DamageAppliedEvent(null, unit, dmg,
+                    ctx.Bus.Publish(new DamageEvents.DamageAppliedEvent(null, unit, null, dmg, 
                         PartType.Body, false, 0f, 0f, false));
                 }
                 else if (effect.EffectName.Contains("RepairOverTime"))
@@ -37,11 +37,9 @@ namespace AF.Combat
                     if (effect.DurationTurns <= 0)
                     {
                         unit.RemoveStatusEffect(effect.EffectName);
-                        var tp = effect.EffectName.Contains("DamageOverTime")
-                            ? StatusEffectEvents.StatusEffectType.Debuff_Burning
-                            : StatusEffectEvents.StatusEffectType.Buff_RepairField;
+                        var effectType = effect.EffectType;
                         ctx.Bus.Publish(new StatusEffectEvents.StatusEffectExpiredEvent(
-                            unit, tp, effect.EffectName));
+                            unit, effectType, effect.EffectName));
                     }
                 }
             }

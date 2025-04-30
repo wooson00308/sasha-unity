@@ -15,24 +15,30 @@ namespace AF.Combat
             TextLoggerService logger,
             string battleId,
             int currentTurn,
+            int currentCycle,
             HashSet<ArmoredFrame> defended,
             IList<ArmoredFrame> participants,
-            IDictionary<ArmoredFrame, int> teamAssignments)
+            IDictionary<ArmoredFrame, int> teamAssignments,
+            HashSet<ArmoredFrame> movedThisActivation)
         {
             Bus              = bus;
             Logger           = logger;
             BattleId         = battleId;
             CurrentTurn      = currentTurn;
+            CurrentCycle     = currentCycle;
             DefendedThisTurn = defended;
             Participants     = participants;
             TeamAssignments  = teamAssignments;
+            MovedThisActivation = movedThisActivation;
         }
 
         public EventBus.EventBus          Bus               { get; }
         public TextLoggerService          Logger            { get; }
         public string                     BattleId          { get; }
         public int                        CurrentTurn       { get; }
+        public int                        CurrentCycle      { get; }
         public HashSet<ArmoredFrame>      DefendedThisTurn  { get; }
+        public HashSet<ArmoredFrame>      MovedThisActivation { get; }
         public IList<ArmoredFrame>        Participants      { get; }
         public IDictionary<ArmoredFrame,int> TeamAssignments { get; }
     }

@@ -12,6 +12,9 @@ namespace AF.Combat
     /// </summary>
     public sealed class CombatActionExecutor : ICombatActionExecutor
     {
+        // <<< 수리량 상수 정의 >>>
+        private const float BASE_REPAIR_AMOUNT = 50f;
+
         #region Execute (PerformAction 대체) ----------------------------------
 
         public bool Execute(
@@ -29,6 +32,18 @@ namespace AF.Combat
                 Debug.LogWarning("[CombatActionExecutor] 유효하지 않은 행동 요청입니다.");
                 return false;
             }
+
+            // +++ 이동 횟수 제한 체크 +++
+            if (actionType == CombatActionEvents.ActionType.Move)
+            {
+                if (ctx.MovedThisActivation.Contains(actor))
+                {
+                    ctx.Bus.Publish(new CombatActionEvents.ActionCompletedEvent(
+                        actor, actionType, false, "이미 이동함", ctx.CurrentTurn, null, null, targetFrame, isCounter));
+                    return false; // 이미 이동했으므로 실패 처리
+                }
+            }
+            // +++ 이동 횟수 제한 체크 끝 +++
 
             // === AP 비용 계산 ===
             float apCost = freeCounter ? 0f : actionType switch
@@ -77,6 +92,10 @@ namespace AF.Combat
                         resultDescription= mv.description;
                         finalPos         = mv.newPosition;
                         distMoved        = mv.distanceMoved;
+                        if(success)
+                        {
+                             ctx.MovedThisActivation.Add(actor);
+                        }
                         break;
 
                     // ============= 방어 ==========================
@@ -88,20 +107,78 @@ namespace AF.Combat
 
                     // ============= 재장전 ========================
                     case CombatActionEvents.ActionType.Reload:
-                        (success, resultDescription) = ExecuteReload(actor, weapon, ctx.CurrentTurn);
+                        (success, resultDescription) = ExecuteReload(actor, weapon, ctx);
                         break;
 
-                    // ============= 수리 ==========================
+                    // ============= 수리 (수정) =====================
                     case CombatActionEvents.ActionType.RepairAlly:
-                        success = (targetFrame != null && targetFrame != actor);
-                        resultDescription = success ? $"{targetFrame.Name} 수리 시도"
-                                                     : "수리 대상 아군 지정 필요";
+                    {
+                        ArmoredFrame actualTarget = targetFrame; // 명확성을 위해 변수 사용
+                        if (actualTarget == null || actualTarget == actor || !actualTarget.IsOperational)
+                        {
+                            resultDescription = "유효한 아군 수리 대상 지정 필요";
+                            success = false;
+                        }
+                        else
+                        {
+                            string targetSlot = GetMostDamagedPartSlot(actualTarget);
+                            if (targetSlot != null)
+                            {
+                                float repairAmount = BASE_REPAIR_AMOUNT; // <<< 실제 수리량 >>>
+                                float repairedAmount = actualTarget.ApplyRepair(targetSlot, repairAmount);
+
+                                if (repairedAmount > 0)
+                                {
+                                    success = true;
+                                    resultDescription = $"{actualTarget.Name}의 {targetSlot} 파츠를 {repairedAmount:F1} 만큼 수리";
+                                    ctx.Bus.Publish(new CombatActionEvents.RepairAppliedEvent(
+                                        actor, actualTarget, actionType, targetSlot, repairedAmount, ctx.CurrentTurn));
+                                }
+                                else
+                                {
+                                    success = false; // 수리할 필요 없거나 실패
+                                    resultDescription = $"{actualTarget.Name}의 {targetSlot} 파츠는 수리 불필요";
+                                    // 실패했지만 이벤트는 발행하지 않음 (선택적)
+                                }
+                            }
+                            else
+                            {
+                                success = false;
+                                resultDescription = $"{actualTarget.Name}에 수리할 파츠 없음";
+                            }
+                        }
                         break;
+                    } // case RepairAlly 끝
 
                     case CombatActionEvents.ActionType.RepairSelf:
-                        success = true;
-                        resultDescription = "자가 수리 시도";
+                    {
+                        ArmoredFrame selfTarget = actor; // 자가 수리 대상은 자신
+                        string targetSlot = GetMostDamagedPartSlot(selfTarget);
+                        if (targetSlot != null)
+                        {
+                            float repairAmount = BASE_REPAIR_AMOUNT; // <<< 실제 수리량 >>>
+                            float repairedAmount = selfTarget.ApplyRepair(targetSlot, repairAmount);
+
+                            if (repairedAmount > 0)
+                            {
+                                success = true;
+                                resultDescription = $"자가 수리: {targetSlot} 파츠 {repairedAmount:F1} 회복";
+                                ctx.Bus.Publish(new CombatActionEvents.RepairAppliedEvent(
+                                    actor, selfTarget, actionType, targetSlot, repairedAmount, ctx.CurrentTurn));
+                            }
+                            else
+                            {
+                                success = false;
+                                resultDescription = $"자가 수리: {targetSlot} 파츠 수리 불필요";
+                            }
+                        }
+                        else
+                        {
+                            success = false;
+                            resultDescription = "자가 수리: 수리할 파츠 없음";
+                        }
                         break;
+                    } // case RepairSelf 끝
 
                     default:
                         resultDescription = "알 수 없는 행동 타입";
@@ -119,7 +196,7 @@ namespace AF.Combat
 
             ctx.Bus.Publish(new CombatActionEvents.ActionCompletedEvent(
                 actor, actionType, success, resultDescription, ctx.CurrentTurn,
-                finalPos, distMoved, targetFrame));
+                finalPos, distMoved, targetFrame, isCounter));
 
             return success;
         }
@@ -199,7 +276,7 @@ namespace AF.Combat
                 bool destroyed = target.ApplyDamage(slot, finalD, ctx.CurrentTurn);
 
                 ctx.Bus.Publish(new DamageEvents.DamageAppliedEvent(
-                    attacker, target, finalD, part.Type, critical,
+                    attacker, target, weapon, finalD, part.Type, critical,
                     part.CurrentDurability, part.MaxDurability, isCounter));
 
                 if (destroyed)
@@ -248,12 +325,12 @@ namespace AF.Combat
         }
 
         private (bool success, string description) ExecuteReload(
-            ArmoredFrame actor, Weapon weapon, int turn)
+            ArmoredFrame actor, Weapon weapon, CombatContext ctx)
         {
             if (weapon == null)
                 return (false, "재장전할 무기 정보 없음");
 
-            bool ok = weapon.StartReload(turn);
+            bool ok = weapon.StartReload(ctx.CurrentTurn);
 
             return ok
                 ? (true, weapon.ReloadTurns == 0
@@ -266,10 +343,12 @@ namespace AF.Combat
             ArmoredFrame actor, HashSet<ArmoredFrame> defendedSet)
         {
             var eff = new StatusEffect(
-                "Defense Buff", 1,
-                StatType.Defense,
-                ModificationType.Multiplicative,
-                1.5f);
+                "Defense Buff", // effectName
+                1, // durationTurns
+                StatusEffectEvents.StatusEffectType.Buff_DefenseBoost, // <<< effectType 추가 >>>
+                StatType.Defense, // statToModify
+                ModificationType.Multiplicative, // modType
+                1.5f); // modValue
             actor.AddStatusEffect(eff);
             defendedSet.Add(actor);
         }
@@ -308,6 +387,36 @@ namespace AF.Combat
             return ops[idx];
         }
 
+        private string GetMostDamagedPartSlot(ArmoredFrame target)
+        {
+            string mostDamagedSlot = null;
+            float lowestDurabilityRatio = float.MaxValue;
+
+            // 작동 가능하고, 최대 내구도보다 현재 내구도가 낮은 파츠만 고려
+            foreach (var kvp in target.Parts.Where(p => p.Value.IsOperational && p.Value.CurrentDurability < p.Value.MaxDurability))
+            {
+                Part part = kvp.Value;
+                // 최대 내구도가 0 이하인 경우 방지
+                if (part.MaxDurability <= 0) continue;
+
+                float currentRatio = part.CurrentDurability / part.MaxDurability;
+
+                if (currentRatio < lowestDurabilityRatio)
+                {
+                    lowestDurabilityRatio = currentRatio;
+                    mostDamagedSlot = kvp.Key;
+                }
+            }
+
+            // 수리할 파츠가 없다면 null 반환
+            if (mostDamagedSlot == null)
+            {
+                 return null; // 수리할 대상 없음 명확히 하기
+            }
+
+            return mostDamagedSlot;
+        }
+
         private void TryCounterAttack(
                 CombatContext ctx,
                 ArmoredFrame defender,
@@ -326,7 +435,7 @@ namespace AF.Combat
             if (w == null) return;
 
             // --- Log Counter announcement BEFORE executing the counter attack ---
-            string counterAnnounceMsg = $"<sprite index=21> <color=lightblue>[{defender.Name}]</color>의 <color=lightblue>카운터!</color>";
+            string counterAnnounceMsg = $"<color=lightblue>[{defender.Name}]</color>의 <color=lightblue>카운터!</color>";
             ctx.Logger.TextLogger.Log(counterAnnounceMsg, LogLevel.Info); 
             // --- End Counter announcement ---
 

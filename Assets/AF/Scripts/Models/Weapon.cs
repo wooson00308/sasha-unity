@@ -73,7 +73,7 @@ namespace AF.Models
         [SerializeField] private float _reloadAPCost = 1.5f; // 기본 재장전 AP 소모 1.5로 설정
 
         /// <summary>
-        /// 재장전에 필요한 턴 수 (0이면 즉시, 1 이상이면 해당 턴 동안 재장전 상태)
+        /// 재장전에 필요한 사이클 수 (0이면 즉시, 1 이상이면 해당 사이클 동안 재장전 상태)
         /// </summary>
         [SerializeField] private int _reloadTurns = 0; // 기본값: 즉시 재장전
 
@@ -83,7 +83,7 @@ namespace AF.Models
         private bool _isReloading = false;
 
         /// <summary>
-        /// 재장전 시작 턴
+        /// 재장전 시작 사이클 -> 턴으로 변경
         /// </summary>
         private int _reloadStartTurn = -1;
 
@@ -405,7 +405,7 @@ namespace AF.Models
         /// <summary>
         /// 재장전을 시작합니다.
         /// </summary>
-        /// <param name="currentTurn">현재 게임 턴</param>
+        /// <param name="currentTurn">현재 전투 턴</param>
         /// <returns>재장전 시작 성공 여부 (이미 재장전 중이거나 탄약이 가득 차 있으면 실패)</returns>
         public bool StartReload(int currentTurn)
         {
@@ -463,7 +463,7 @@ namespace AF.Models
                     string flavorText = loggerService.GetRandomFlavorText(templateKey);
                     if (!string.IsNullOrEmpty(flavorText))
                     {
-                        int turnsRemaining = _reloadTurns - (currentTurn - _reloadStartTurn); // 남은 턴 계산
+                        int turnsRemaining = Mathf.Max(0, _reloadTurns - (currentTurn - _reloadStartTurn));
                         var parameters = new Dictionary<string, string>
                         {
                             { "weaponName", _name },
@@ -475,14 +475,14 @@ namespace AF.Models
                     else
                     { 
                         // 템플릿 못 찾으면 기본 로그
-                        int turnsRemaining = _reloadTurns - (currentTurn - _reloadStartTurn);
-                        loggerService.TextLogger?.Log($"<sprite index=13> [{_name}] 재장전 시작. 완료까지 {turnsRemaining}턴 필요 (현재 턴 포함).");
+                        int turnsRemaining = Mathf.Max(0, _reloadTurns - (currentTurn - _reloadStartTurn));
+                        loggerService.TextLogger?.Log($"<sprite index=13> [{_name}] 재장전 시작. 완료까지 {turnsRemaining} 턴 필요.");
                     }
                 }
                 else // loggerService가 없거나 키가 비었으면 기존 로그
                 {
-                    int turnsRemaining = _reloadTurns - (currentTurn - _reloadStartTurn);
-                    Debug.LogWarning($"<sprite index=13> [{_name}] 재장전 시작 (로그 시스템 문제 또는 FlavorKey 없음). 완료까지 {turnsRemaining}턴 필요.");
+                    int turnsRemaining = Mathf.Max(0, _reloadTurns - (currentTurn - _reloadStartTurn));
+                    Debug.LogWarning($"<sprite index=13> [{_name}] 재장전 시작 (로그 시스템 문제 또는 FlavorKey 없음). 완료까지 {turnsRemaining} 턴 필요.");
                 }
                 // <<< Flavor Text 기반 로그 끝 >>>
                 
@@ -504,6 +504,7 @@ namespace AF.Models
             {
                 _currentAmmo = _maxAmmo;
             }
+            bool wasReloading = _isReloading; // Store previous state for logging
             _isReloading = false;
             _reloadStartTurn = -1;
             
@@ -543,22 +544,25 @@ namespace AF.Models
         /// <summary>
         /// 현재 턴을 기준으로 재장전이 완료되었는지 확인합니다.
         /// </summary>
-        /// <param name="currentTurn">현재 게임 턴</param>
+        /// <param name="currentTurn">현재 전투 턴</param>
         /// <returns>재장전 완료 여부</returns>
         public bool CheckReloadCompletion(int currentTurn)
         {
-            if (!_isReloading) return false;
+            if (!_isReloading || _reloadStartTurn < 0) 
+            {
+                return false;
+            }
 
-            bool completed = currentTurn - _reloadStartTurn >= _reloadTurns;
+            bool completed = currentTurn >= _reloadStartTurn + _reloadTurns;
             
             if (!completed && _reloadTurns > 0)
             {
                 try
                 {
-                    int turnsRemaining = _reloadTurns - (currentTurn - _reloadStartTurn);
+                    int turnsRemaining = Mathf.Max(0, (_reloadStartTurn + _reloadTurns) - currentTurn);
                     if (turnsRemaining > 0)
                     {
-                        ServiceLocator.Instance.GetService<TextLoggerService>().TextLogger.Log($"<sprite index=22> [{_name}] 재장전 진행 중... {turnsRemaining}턴 남음.", LogLevel.Info);
+                        ServiceLocator.Instance.GetService<TextLoggerService>().TextLogger.Log($"<sprite index=22> [{_name}] 재장전 완료까지 {turnsRemaining} 턴 남음.", LogLevel.Info);
                     }
                 }
                 catch (Exception ex)
@@ -567,7 +571,51 @@ namespace AF.Models
                 }
             }
             
+            if (completed)
+            {
+                FinishReload();
+            }
+
             return completed;
+        }
+
+        /// <summary>
+        /// 무기를 복사합니다. (상태 초기화 포함)
+        /// </summary>
+        public Weapon Clone()
+        {
+            Weapon clone = new Weapon(
+                this._name,
+                this._type,
+                this._damageType,
+                this._damage,
+                this._accuracy,
+                this._range,
+                this._attackSpeed,
+                this._overheatPerShot,
+                this._baseAPCost,
+                this._maxAmmo,
+                this._reloadAPCost,
+                this._reloadTurns,
+                this._attackFlavorKey,
+                this._reloadFlavorKey
+            );
+
+            // 상태 변수 초기화
+            clone._currentAmmo = (_maxAmmo <= 0) ? 0 : _maxAmmo; // 무한 탄약이 아니면 최대 탄약으로 시작
+            clone._currentHeat = 0f;
+            clone._isOperational = true; // 복사 시 작동 상태로 시작
+            clone._isReloading = false;
+            clone._reloadStartTurn = -1;
+            if (this._specialEffects != null)
+            {
+                clone._specialEffects = new List<string>(this._specialEffects);
+            }
+            else
+            {
+                clone._specialEffects = new List<string>();
+            }
+            return clone;
         }
     }
 } 

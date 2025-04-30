@@ -75,35 +75,37 @@ namespace AF.Models
         }
 
         /// <summary>
-        /// 데미지를 적용합니다.
+        /// 파츠의 현재 내구도를 설정하고 작동 상태를 갱신합니다.
         /// </summary>
-        /// <param name="damageAmount">적용할 데미지 양</param>
-        /// <returns>파츠가 파괴되었는지 여부</returns>
-        public virtual bool ApplyDamage(float damageAmount)
+        /// <param name="value">설정할 내구도 값</param>
+        /// <returns>이 호출로 인해 파츠가 작동 가능(true) 또는 불가능(false) 상태로 변경되었는지 여부. 상태 변경 없으면 null 반환.</returns>
+        public virtual bool? SetDurability(float value)
         {
-            _currentDurability -= damageAmount;
-            
-            // 내구도가 0 이하로 떨어지면 파츠는 작동 불능 상태가 됩니다.
-            if (_currentDurability <= 0)
+            bool previousOperationalState = _isOperational;
+            _currentDurability = Mathf.Clamp(value, 0, _maxDurability); // 0 ~ MaxDurability 범위 유지
+
+            bool newOperationalState = _currentDurability > 0;
+
+            if (previousOperationalState != newOperationalState)
             {
-                _currentDurability = 0;
-                _isOperational = false;
-                return true; // 파츠 파괴됨
+                _isOperational = newOperationalState;
+                return _isOperational; // 상태 변경 발생 (true: 작동 가능해짐, false: 작동 불가능해짐)
             }
-            return false; // 파츠 파괴되지 않음
+
+            return null; // 상태 변경 없음
         }
 
         /// <summary>
-        /// 내구도를 회복합니다.
+        /// 데미지를 적용합니다.
         /// </summary>
-        /// <param name="repairAmount">회복할 내구도 양</param>
-        public virtual void Repair(float repairAmount)
+        /// <param name="damageAmount">적용할 데미지 양</param>
+        /// <returns>파츠가 파괴되었는지 여부 (이 공격으로 인해 작동 불능 상태가 되었는지)</returns>
+        public virtual bool ApplyDamage(float damageAmount)
         {
-            _currentDurability = Mathf.Min(_currentDurability + repairAmount, _maxDurability);
-            if (_currentDurability > 0)
-            {
-                _isOperational = true;
-            }
+            bool? statusChanged = SetDurability(_currentDurability - damageAmount);
+
+            // 상태가 변경되었고, 그 상태가 '작동 불가능(false)'이면 파괴된 것으로 간주
+            return statusChanged.HasValue && !statusChanged.Value;
         }
 
         /// <summary>

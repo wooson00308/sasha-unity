@@ -432,6 +432,10 @@ namespace AF.Tests
         [LabelText("행동 요약 로그 표시 (성공/실패)")]
         public bool logActionSummaries = true;
 
+        [FoldoutGroup("전투 옵션", expanded: true)]
+        [LabelText("로그에 스프라이트 아이콘 사용")]
+        public bool useSpriteIconsInLog = true;
+
         [VerticalGroup("Logging")]
         [LabelWidth(120)]
         public bool logAIDecisions = true; // AI 의사결정 로그 토글 추가
@@ -535,7 +539,7 @@ namespace AF.Tests
 
             if (combatSimulator == null || textLogger == null)
             {
-                Log("필수 서비스(CombatSimulatorService or TextLoggerService)를 찾을 수 없습니다!", LogLevel.Critical);
+                Log("필수 서비스(CombatSimulatorService or TextLoggerService)를 찾을 수 없습니다!", LogLevel.Error);
                 return;
             }
             
@@ -544,6 +548,7 @@ namespace AF.Tests
             textLogger.SetShowTurnPrefix(showTurnPrefix);
             textLogger.SetUseIndentation(useLogIndentation);
             textLogger.SetLogActionSummaries(logActionSummaries);
+            textLogger.SetUseSpriteIcons(useSpriteIconsInLog);
             // ---------------------
 
             // --- 상태 초기화 ---
@@ -558,7 +563,7 @@ namespace AF.Tests
             List<ArmoredFrame> allParticipants = new List<ArmoredFrame>();
 
             // 1. 플레이어 스쿼드 처리 (상태 유지 로직)
-            Log("--- 플레이어 스쿼드 처리 시작 ---", LogLevel.Debug);
+            //Log("--- 플레이어 스쿼드 처리 시작 ---", LogLevel.Debug);
             for (int i = 0; i < playerSquadSetups.Count; i++)
             {
                 var playerSetup = playerSquadSetups[i];
@@ -583,7 +588,7 @@ namespace AF.Tests
                     }
                     else // 저장된 상태가 없으면 새로 생성
                     {
-                        Log($"신규 플레이어 유닛 '{playerSetup.persistentId}' 생성 시도.", LogLevel.Info);
+                        //Log($"신규 플레이어 유닛 '{playerSetup.persistentId}' 생성 시도.", LogLevel.Info);
                         if (playerSetup.useCustomAssembly)
                         {
                             playerAf = CreateCustomArmoredFrame(playerSetup, i + 1);
@@ -602,7 +607,7 @@ namespace AF.Tests
                         if (playerAf != null)
                         {
                             _persistentPlayerFrames.Add(playerSetup.persistentId, playerAf);
-                            Log($"신규 플레이어 유닛 '{playerSetup.persistentId}' 생성 및 저장 완료.", LogLevel.Info);
+                            //Log($"신규 플레이어 유닛 '{playerSetup.persistentId}' 생성 및 저장 완료.", LogLevel.Info);
                         }
                     }
 
@@ -610,7 +615,7 @@ namespace AF.Tests
                     if (playerAf != null)
                     {
                         allParticipants.Add(playerAf);
-                        Log($"플레이어 유닛 [{playerAf.Name}] ({playerSetup.persistentId}) 전투 준비 완료 (팀: {playerAf.TeamId}, 위치: {playerAf.Position})");
+                        //Log($"플레이어 유닛 [{playerAf.Name}] ({playerSetup.persistentId}) 전투 준비 완료 (팀: {playerAf.TeamId}, 위치: {playerAf.Position})");
                     }
                 }
                 catch (Exception ex)
@@ -618,17 +623,17 @@ namespace AF.Tests
                     Log($"플레이어 스쿼드 유닛 {i+1} ({playerSetup.persistentId}) 처리 중 오류 발생: {ex.Message}", LogLevel.Error);
                 }
             }
-            Log("--- 플레이어 스쿼드 처리 완료 ---", LogLevel.Debug);
+            //Log("--- 플레이어 스쿼드 처리 완료 ---", LogLevel.Debug);
 
             // 2. 시나리오 참가자 처리 (일회성 유닛)
-            Log("--- 시나리오 참가자 처리 시작 ---", LogLevel.Debug);
+            //Log("--- 시나리오 참가자 처리 시작 ---", LogLevel.Debug);
             for (int i = 0; i < afSetups.Count; i++)
             {
                 var scenarioSetup = afSetups[i];
                 ArmoredFrame scenarioAf = null;
                  try
                  {
-                     Log($"시나리오 유닛 {i+1} 생성 시도.", LogLevel.Info);
+                     //Log($"시나리오 유닛 {i+1} 생성 시도.", LogLevel.Info);
                      if (scenarioSetup.useCustomAssembly)
                      {
                          scenarioAf = CreateCustomArmoredFrame(scenarioSetup, playerSquadSetups.Count + i + 1); // 인덱스 조정
@@ -647,7 +652,7 @@ namespace AF.Tests
                      if (scenarioAf != null)
                      {
                          allParticipants.Add(scenarioAf);
-                         Log($"시나리오 유닛 [{scenarioAf.Name}] 생성 완료 (팀: {scenarioAf.TeamId}, 위치: {scenarioAf.Position})");
+                         //Log($"시나리오 유닛 [{scenarioAf.Name}] 생성 완료 (팀: {scenarioAf.TeamId}, 위치: {scenarioAf.Position})");
                      }
                  }
                  catch (Exception ex)
@@ -655,7 +660,7 @@ namespace AF.Tests
                      Log($"시나리오 유닛 {i+1} 생성 중 오류 발생: {ex.Message}", LogLevel.Error);
                  }
             }
-            Log("--- 시나리오 참가자 처리 완료 ---", LogLevel.Debug);
+            //Log("--- 시나리오 참가자 처리 완료 ---", LogLevel.Debug);
 
             // --- 최종 참가자 검증 ---
             if (allParticipants.Count < 2)
@@ -672,7 +677,7 @@ namespace AF.Tests
                  return;
             }
 
-            Log($"참가자 {allParticipants.Count}명 확인.");
+            //Log($"참가자 {allParticipants.Count}명 확인.");
 
             // --- 스냅샷 생성 로직 추가 ---
             var initialSnapshot = new Dictionary<string, ArmoredFrameSnapshot>();
@@ -701,26 +706,25 @@ namespace AF.Tests
                 bool combatEnded = false;
                 int safetyBreak = 1000; // 무한 루프 방지
 
-                while (!combatEnded && isInCombat && combatSimulator.CurrentCycle < safetyBreak)
+                while (!combatEnded && isInCombat && combatSimulator.CurrentTurn < safetyBreak)
                 {
                     // ProcessNextTurn() 반환값이 true면 전투 지속, false면 종료
-                    combatEnded = !combatSimulator.ProcessNextTurn();
-                    currentCycle = combatSimulator.CurrentCycle;
+                    combatEnded = !combatSimulator.ProcessNextTurn(); 
 
                     // UniTask.Yield 대신 Frame 단위 지연 등 다른 방식 고려 가능
                     await UniTask.Yield(PlayerLoopTiming.Update); 
                 }
 
-                if (combatSimulator.CurrentCycle >= safetyBreak)
+                if (combatSimulator.CurrentTurn >= safetyBreak)
                 {
-                    Log($"안전 브레이크 발동! ({safetyBreak} 사이클 초과)", LogLevel.Warning);
+                    Log($"안전 브레이크 발동! ({safetyBreak} 턴 초과)", LogLevel.Warning);
                     // 전투 강제 종료 (무승부 처리 등)
                     if (isInCombat) combatSimulator.EndCombat(CombatSessionEvents.CombatEndEvent.ResultType.Draw);
                 }
             }
             catch (Exception ex)
             {
-                Log($"전투 시뮬레이션 중 오류 발생: {ex.Message} {ex.StackTrace}", LogLevel.Critical);
+                Log($"전투 시뮬레이션 중 오류 발생: {ex.Message} {ex.StackTrace}", LogLevel.Error);
             }
             finally
             {
@@ -731,7 +735,6 @@ namespace AF.Tests
                     combatSimulator.EndCombat(); // 확실하게 종료 호출
                 }
                 isInCombat = false; // 상태 확실히 업데이트
-                currentCycle = combatSimulator?.CurrentCycle ?? currentCycle; // 최종 사이클 저장
                 Log("전투 프로세스 정리 완료.", LogLevel.System);
 
                 // 로그 파일 자동 저장 (옵션)
@@ -882,7 +885,7 @@ namespace AF.Tests
             AttachWeaponFromSO(af, assemblyData.Weapon1ID);
             AttachWeaponFromSO(af, assemblyData.Weapon2ID);
 
-            Log($"--- AF 생성 완료: [{af.Name}] ({assemblyId}) ---", LogLevel.System);
+            //Log($"--- AF 생성 완료: [{af.Name}] ({assemblyId}) ---", LogLevel.System);
 
             return af;
         }

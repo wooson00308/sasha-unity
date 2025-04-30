@@ -446,8 +446,13 @@ namespace AF.UI
                 }
                 
                 // 3. 메인 로그 애니메이션 재생 및 대기
-                await CreateAndAnimateLogLine(logEntry.Message);
+                string messageToDisplay = logEntry.Message;
+                if (logEntry.Level == LogLevel.System)
+                {
+                    messageToDisplay = $"<size=30>{logEntry.Message}</size>";
                 }
+                await CreateAndAnimateLogLine(messageToDisplay);
+            }
 
             Debug.Log("전투 로그 재생 완료.");
         }
@@ -461,8 +466,13 @@ namespace AF.UI
             if (_logLinePrefab == null || _logContainer == null || _scrollRect == null) return;
 
             GameObject logInstance = Instantiate(_logLinePrefab, _logContainer);
-
             TMP_Text logText = logInstance.GetComponentInChildren<TMP_Text>();
+
+            if (_scrollRect != null)
+            {
+                 await _scrollRect.DOVerticalNormalizedPos(0f, 0.1f).SetEase(Ease.OutQuad).AsyncWaitForCompletion(); // <<< DOTween 애니메이션 추가
+            }
+
             if (logText != null)
             {
                 logText.text = "";
@@ -473,15 +483,12 @@ namespace AF.UI
                  Debug.LogWarning("로그 라인 프리팹에 TMP_Text 컴포넌트를 찾을 수 없습니다.");
             }
 
-            await UniTask.Yield(PlayerLoopTiming.LastUpdate);
-            if (_scrollRect != null)
-            {
-                 _scrollRect.verticalNormalizedPosition = 0f;
-            }
-
             if (_lineDelay > 0)
             {
                 await UniTask.Delay(TimeSpan.FromSeconds(_lineDelay));
+            }
+            else {
+                await UniTask.Yield(PlayerLoopTiming.LastUpdate); // Wait one frame for rebuild to settle
             }
         }
 

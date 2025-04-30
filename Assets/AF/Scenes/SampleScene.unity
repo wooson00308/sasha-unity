@@ -2127,7 +2127,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 0}
+  m_Color: {r: 0.31038624, g: 0.56312495, b: 0.7075472, a: 0.5372549}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2325,8 +2325,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -1172.7705}
-  m_SizeDelta: {x: 1080, y: 565.2482}
+  m_AnchoredPosition: {x: 0, y: -348}
+  m_SizeDelta: {x: 1080, y: 1048.5835}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &844015759
 MonoBehaviour:
@@ -2371,7 +2371,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 0}
+  m_Color: {r: 0.31038624, g: 0.56312495, b: 0.7075472, a: 0.5372549}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2530,8 +2530,8 @@ MonoBehaviour:
 
 '
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 1652967aa1a680d468a179ef865a00b9, type: 2}
+  m_sharedMaterial: {fileID: 2346881251476708019, guid: 1652967aa1a680d468a179ef865a00b9, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -2561,7 +2561,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 1
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -3484,8 +3484,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 621}
-  m_SizeDelta: {x: 1080, y: 800.0374}
+  m_AnchoredPosition: {x: 0, y: -494}
+  m_SizeDelta: {x: 1080, y: 320.5791}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1203827027
 MonoBehaviour:
@@ -3530,7 +3530,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 0}
+  m_Color: {r: 0.31038624, g: 0.56312495, b: 0.7075472, a: 0.5372549}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -3617,9 +3617,9 @@ MonoBehaviour:
     m_Left: 0
     m_Right: 0
     m_Top: 0
-    m_Bottom: 0
+    m_Bottom: 50
   m_ChildAlignment: 0
-  m_Spacing: 20
+  m_Spacing: 30
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 1
@@ -3808,10 +3808,10 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1203827026}
-  - {fileID: 844015758}
-  - {fileID: 657277238}
   - {fileID: 548763686}
+  - {fileID: 844015758}
+  - {fileID: 1203827026}
+  - {fileID: 657277238}
   - {fileID: 5991517}
   - {fileID: 1153885014}
   - {fileID: 930701941}
@@ -4220,8 +4220,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "Funds: \n0"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 1652967aa1a680d468a179ef865a00b9, type: 2}
+  m_sharedMaterial: {fileID: 2346881251476708019, guid: 1652967aa1a680d468a179ef865a00b9, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -4251,7 +4251,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 1
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -4871,7 +4871,7 @@ MonoBehaviour:
     assembly: {fileID: 11400000, guid: 69171450ad83c1d4f9163f1aa70be07b, type: 2}
     teamId: 0
     teamColorPreview: {r: 0.9, g: 0.2, b: 0.2, a: 1}
-    startPosition: {x: -40, y: 0, z: 0}
+    startPosition: {x: 20, y: 0, z: 0}
     customFrame: {fileID: 0}
     customHead: {fileID: 0}
     customBody: {fileID: 0}
@@ -4885,9 +4885,9 @@ MonoBehaviour:
   - useCustomAssembly: 0
     customAFName: "\uD06C\uB9BC\uC2A8 \uC800\uAC70\uB108\uD2B8"
     assembly: {fileID: 11400000, guid: afcb4dd15ec4bee42b1f10c7c103fd79, type: 2}
-    teamId: 0
+    teamId: 1
     teamColorPreview: {r: 0.9, g: 0.2, b: 0.2, a: 1}
-    startPosition: {x: -20, y: 0, z: 0}
+    startPosition: {x: 0, y: 0, z: 0}
     customFrame: {fileID: 11400000, guid: 845f8a86665567b459228dfbbdd31c14, type: 2}
     customHead: {fileID: 11400000, guid: e3f09fa668e5caa46a1fcddfca46a27d, type: 2}
     customBody: {fileID: 11400000, guid: 179fcae7bfe86e8438f3f86d044fd502, type: 2}
@@ -4897,59 +4897,15 @@ MonoBehaviour:
     customWeaponL1: {fileID: 11400000, guid: 2d0595d3ba1bd064496486fcbfd16857, type: 2}
     customPilot: {fileID: 11400000, guid: 694905c2fd5d33d4485fd9d2751ca4d5, type: 2}
     persistentId: Crimson_Juggernaut
-  - useCustomAssembly: 0
-    customAFName: "\uCF54\uBC1C\uD2B8 \uBC45\uAC00\uB4DC"
-    assembly: {fileID: 11400000, guid: 903cf094c4dc7034483f90c9ce86aae5, type: 2}
-    teamId: 1
-    teamColorPreview: {r: 0.2, g: 0.4, b: 0.9, a: 1}
-    startPosition: {x: 40, y: 0, z: 0}
-    customFrame: {fileID: 0}
-    customHead: {fileID: 0}
-    customBody: {fileID: 0}
-    customArms: {fileID: 0}
-    customLegs: {fileID: 0}
-    customWeaponR1: {fileID: 0}
-    customWeaponL1: {fileID: 0}
-    customPilot: {fileID: 0}
-    persistentId: Cobalt_Vanguard
-  - useCustomAssembly: 0
-    customAFName: "\uCF54\uBC1C\uD2B8 \uC2A4\uD2B8\uB77C\uC774\uCEE4"
-    assembly: {fileID: 11400000, guid: 89070a7e71225314889299faa6089b75, type: 2}
-    teamId: 1
-    teamColorPreview: {r: 0.2, g: 0.4, b: 0.9, a: 1}
-    startPosition: {x: 40, y: 0, z: 0}
-    customFrame: {fileID: 0}
-    customHead: {fileID: 0}
-    customBody: {fileID: 0}
-    customArms: {fileID: 0}
-    customLegs: {fileID: 0}
-    customWeaponR1: {fileID: 0}
-    customWeaponL1: {fileID: 0}
-    customPilot: {fileID: 0}
-    persistentId: Cobalt_Striker
-  - useCustomAssembly: 0
-    customAFName: "\uD06C\uB9BC\uC2A8 \uC6CC\uB4E0"
-    assembly: {fileID: 11400000, guid: 9e807f0ac5785bd419932050d6a927ac, type: 2}
-    teamId: 1
-    teamColorPreview: {r: 0.9, g: 0.2, b: 0.2, a: 1}
-    startPosition: {x: 40, y: 0, z: 0}
-    customFrame: {fileID: 11400000, guid: ae0e1f83a60977a4daeaba4d00a0247c, type: 2}
-    customHead: {fileID: 11400000, guid: 80688ab2f1942764db0d5e34cab92041, type: 2}
-    customBody: {fileID: 11400000, guid: 94c1560f515ef8c4c9ae57820ff8a608, type: 2}
-    customArms: {fileID: 11400000, guid: 2d7f95d4f61b04f48a6cada280e6736c, type: 2}
-    customLegs: {fileID: 11400000, guid: 0034c50c2583c91419dda8b22b5958d9, type: 2}
-    customWeaponR1: {fileID: 11400000, guid: 74b7090b268c6f741bba6c28f863d3f6, type: 2}
-    customWeaponL1: {fileID: 0}
-    customPilot: {fileID: 11400000, guid: cfcbf9cd9b8dcc543b4b089dcae40fff, type: 2}
-    persistentId: Crimson_Warden
   logCombatDetails: 0
   showLogLevelPrefix: 0
   showTurnPrefix: 0
   useLogIndentation: 0
   logActionSummaries: 0
+  useSpriteIconsInLog: 0
   logAIDecisions: 0
   currentBattleId: 
-  currentTurn: 0
+  currentCycle: 0
   isInCombat: 0
 --- !u!1 &1834438968
 GameObject:
@@ -5478,8 +5434,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "Time: \n00:00"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 1652967aa1a680d468a179ef865a00b9, type: 2}
+  m_sharedMaterial: {fileID: 2346881251476708019, guid: 1652967aa1a680d468a179ef865a00b9, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -5509,7 +5465,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 1
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -5792,8 +5748,8 @@ MonoBehaviour:
   _logContainer: {fileID: 1252633640}
   _unitDetailTextDisplay: {fileID: 84564455}
   _eventTargetDetailTextDisplay: {fileID: 1909351341}
-  _textAnimationDuration: 0.05
-  _lineDelay: 0.1
+  _textAnimationDuration: 0.5
+  _lineDelay: 0.3
 --- !u!1 &2023426744
 GameObject:
   m_ObjectHideFlags: 0

@@ -3,6 +3,7 @@ using UnityEngine;
 using AF.Combat;
 using AF.Services;
 using AF.Models;
+using System.Collections.Generic;
 
 namespace AF.Combat.Behaviors
 {
@@ -90,19 +91,26 @@ namespace AF.Combat.Behaviors
             float moveCost = CalculateMoveAPCost(activeUnit);
             bool canMove = activeUnit.HasEnoughAP(moveCost);
 
-            if (canMove && closestOperationalEnemy != null) // Check target validity
+            if (canMove && closestOperationalEnemy != null)
             {
-                var meleeWeaponForRange = activeUnit.EquippedWeapons.FirstOrDefault(w => w.Type == WeaponType.Melee && w.IsOperational);
-                float targetDistance = meleeWeaponForRange?.Range * 0.5f ?? 0.1f; // 무기 사거리의 절반 또는 최소 거리 목표
+                if (ctx.MovedThisActivation.Contains(activeUnit))
+                {
+                    // 이미 이동했으면 이동 결정 안 함
+                }
+                else // 아직 이동 안 했으면 이동 로직 실행
+                {
+                    var meleeWeaponForRange = activeUnit.EquippedWeapons.FirstOrDefault(w => w.Type == WeaponType.Melee && w.IsOperational);
+                    float targetDistance = meleeWeaponForRange?.Range * 0.5f ?? 0.1f; // 무기 사거리의 절반 또는 최소 거리 목표
 
-                // 이미 목표 거리보다 가까우면 이동 불필요
-                if (minDist <= targetDistance + 0.01f) {
-                    // Fall through to defense
-                } else {
-                    // 목표를 향해 이동
-                    Vector3 direction = (closestOperationalEnemy.Position - activeUnit.Position).normalized;
-                    Vector3 targetPos = activeUnit.Position + direction * activeUnit.CombinedStats.Speed;
-                    return (CombatActionEvents.ActionType.Move, closestOperationalEnemy, targetPos, null);
+                    // 이미 목표 거리보다 가까우면 이동 불필요
+                    if (minDist <= targetDistance + 0.01f) {
+                        // Fall through to defense
+                    } else {
+                        // 목표를 향해 이동
+                        Vector3 direction = (closestOperationalEnemy.Position - activeUnit.Position).normalized;
+                        Vector3 targetPos = activeUnit.Position + direction * activeUnit.CombinedStats.Speed;
+                        return (CombatActionEvents.ActionType.Move, closestOperationalEnemy, targetPos, null);
+                    }
                 }
             }
 
@@ -111,7 +119,8 @@ namespace AF.Combat.Behaviors
             bool canDefend = activeUnit.HasEnoughAP(DEFEND_AP_COST);
             bool defended = ctx.HasUnitDefendedThisTurn(activeUnit);
 
-            if (canDefend && !defended)
+            if (canDefend && !defended &&
+                (!ctx.MovedThisActivation.Contains(activeUnit) || IsLowHealth(activeUnit)))
             {
                 return (CombatActionEvents.ActionType.Defend, null, null, null);
             }

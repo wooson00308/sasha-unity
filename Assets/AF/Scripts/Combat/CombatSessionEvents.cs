@@ -56,15 +56,19 @@ namespace AF.Combat
         /// </summary>
         public class UnitActivationStartEvent : ICombatEvent
         {
-            public int TurnNumber { get; private set; }
+            public int CurrentTurn { get; private set; }
+            public int CurrentCycle { get; private set; }
             public ArmoredFrame ActiveUnit { get; private set; }
             public string BattleId { get; private set; }
+            public float APBeforeRecovery { get; private set; }
 
-            public UnitActivationStartEvent(int turnNumber, ArmoredFrame activeUnit, string battleId)
+            public UnitActivationStartEvent(int currentTurn, int currentCycle, ArmoredFrame activeUnit, string battleId, float apBeforeRecovery)
             {
-                TurnNumber = turnNumber;
+                CurrentTurn = currentTurn;
+                CurrentCycle = currentCycle;
                 ActiveUnit = activeUnit;
                 BattleId = battleId;
+                APBeforeRecovery = apBeforeRecovery;
             }
         }
 
@@ -73,13 +77,15 @@ namespace AF.Combat
         /// </summary>
         public class UnitActivationEndEvent : ICombatEvent
         {
-            public int TurnNumber { get; private set; }
+            public int CurrentTurn { get; private set; }
+            public int CurrentCycle { get; private set; }
             public ArmoredFrame ActiveUnit { get; private set; }
             public string BattleId { get; private set; }
 
-            public UnitActivationEndEvent(int turnNumber, ArmoredFrame activeUnit, string battleId)
+            public UnitActivationEndEvent(int currentTurn, int currentCycle, ArmoredFrame activeUnit, string battleId)
             {
-                TurnNumber = turnNumber;
+                CurrentTurn = currentTurn;
+                CurrentCycle = currentCycle;
                 ActiveUnit = activeUnit;
                 BattleId = battleId;
             }

@@ -1,4 +1,5 @@
 using System;
+using AF.Combat; // StatusEffectEvents.StatusEffectType 사용을 위해 추가
 
 namespace AF.Models
 {
@@ -12,6 +13,9 @@ namespace AF.Models
         public string EffectName { get; private set; }
         public int DurationTurns { get; set; } // 남은 턴 수, -1은 영구 지속
 
+        // +++ StatusEffectType 프로퍼티 추가 +++
+        public StatusEffectEvents.StatusEffectType EffectType { get; private set; }
+
         // 스탯 변경 정보
         public StatType StatToModify { get; private set; }
         public ModificationType ModificationType { get; private set; }
@@ -22,12 +26,13 @@ namespace AF.Models
         public float TickValue { get; private set; }
 
         /// <summary>
-        /// 기본 생성자 (효과 없음)
+        /// 기본 생성자 (수정됨: EffectType 추가)
         /// </summary>
-        private StatusEffect(string effectName, int durationTurns)
+        private StatusEffect(string effectName, int durationTurns, StatusEffectEvents.StatusEffectType effectType) // EffectType 파라미터 추가
         {
             EffectName = effectName;
             DurationTurns = durationTurns;
+            EffectType = effectType; // 새로 추가된 프로퍼티 초기화
             StatToModify = StatType.None;
             ModificationType = ModificationType.None;
             ModificationValue = 0f;
@@ -36,10 +41,11 @@ namespace AF.Models
         }
 
         /// <summary>
-        /// 스탯 변경 효과 생성자
+        /// 스탯 변경 효과 생성자 (수정됨: EffectType 추가)
         /// </summary>
-        public StatusEffect(string effectName, int durationTurns, StatType statToModify, ModificationType modType, float modValue)
-            : this(effectName, durationTurns) // 기본 생성자 호출
+        public StatusEffect(string effectName, int durationTurns, StatusEffectEvents.StatusEffectType effectType, // EffectType 파라미터 추가
+                            StatType statToModify, ModificationType modType, float modValue)
+            : this(effectName, durationTurns, effectType) // 기본 생성자 호출 (EffectType 전달)
         {
             StatToModify = statToModify;
             ModificationType = modType;
@@ -47,20 +53,23 @@ namespace AF.Models
         }
 
         /// <summary>
-        /// 틱 효과 생성자
+        /// 틱 효과 생성자 (수정됨: EffectType 추가)
         /// </summary>
-        public StatusEffect(string effectName, int durationTurns, TickEffectType tickType, float tickValue)
-            : this(effectName, durationTurns) // 기본 생성자 호출
+        public StatusEffect(string effectName, int durationTurns, StatusEffectEvents.StatusEffectType effectType, // EffectType 파라미터 추가
+                            TickEffectType tickType, float tickValue)
+            : this(effectName, durationTurns, effectType) // 기본 생성자 호출 (EffectType 전달)
         {
             TickEffectType = tickType;
             TickValue = tickValue;
         }
         
         /// <summary>
-        /// 스탯 변경 + 틱 효과 동시 적용 생성자 (필요시)
+        /// 스탯 변경 + 틱 효과 동시 적용 생성자 (수정됨: EffectType 추가)
         /// </summary>
-        public StatusEffect(string effectName, int durationTurns, StatType statToModify, ModificationType modType, float modValue, TickEffectType tickType, float tickValue)
-            : this(effectName, durationTurns, statToModify, modType, modValue) // 스탯 변경 생성자 호출
+        public StatusEffect(string effectName, int durationTurns, StatusEffectEvents.StatusEffectType effectType, // EffectType 파라미터 추가
+                            StatType statToModify, ModificationType modType, float modValue,
+                            TickEffectType tickType, float tickValue)
+            : this(effectName, durationTurns, effectType, statToModify, modType, modValue) // 스탯 변경 생성자 호출 (EffectType 전달)
         {
             TickEffectType = tickType;
             TickValue = tickValue;

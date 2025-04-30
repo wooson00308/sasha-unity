@@ -42,6 +42,7 @@ namespace AF.Combat
         {
             public ArmoredFrame Source { get; private set; }
             public ArmoredFrame Target { get; private set; }
+            public Weapon Weapon { get; private set; }
             public float DamageDealt { get; private set; }
             public PartType DamagedPart { get; private set; }
             public bool IsCritical { get; private set; }
@@ -50,12 +51,14 @@ namespace AF.Combat
             public bool IsCounterAttack { get; private set; }
 
             public DamageAppliedEvent(ArmoredFrame source, ArmoredFrame target,
+                                    Weapon weapon,
                                     float damageDealt, PartType damagedPart, bool isCritical,
                                     float partCurrentDurability, float partMaxDurability,
                                     bool isCounterAttack)
             {
                 Source = source;
                 Target = target;
+                Weapon = weapon;
                 DamageDealt = damageDealt;
                 DamagedPart = damagedPart;
                 IsCritical = isCritical;

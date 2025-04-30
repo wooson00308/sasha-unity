@@ -3,6 +3,7 @@ using UnityEngine;
 using AF.Combat;
 using AF.Services;
 using AF.Models;
+using System.Collections.Generic;
 
 namespace AF.Combat.Behaviors
 {
@@ -82,72 +83,77 @@ namespace AF.Combat.Behaviors
             }
 
 
-            // === 3) 사거리&AP 되면 발사 (선택된 무기 및 작동 가능한 타겟이 있을 경우) ===
-            if (fireWeapon != null && closestOperationalEnemy != null) {
+            // === 3) 공격 시도 (수정됨: 80% ~ 100% 거리 조건) ===
+            if (fireWeapon != null && closestOperationalEnemy != null) 
+            {
                 float attackCost = CalculateAttackAPCost(activeUnit, fireWeapon);
-                bool inRange = minDist <= fireWeapon.Range + 0.001f; // 약간의 오차 허용
+                float weaponRange = fireWeapon.Range;
+                // <<< 거리 조건 수정: 80% 이상이고 최대 사거리 내일 때 공격 >>>
+                bool isInAttackRange = minDist >= weaponRange * OPTIMAL_RANGE_FACTOR && minDist <= weaponRange + 0.001f;
                 bool hasAP = activeUnit.HasEnoughAP(attackCost);
 
-                if (inRange && hasAP)
+                if (isInAttackRange && hasAP)
                 {
                     return (CombatActionEvents.ActionType.Attack, closestOperationalEnemy, null, fireWeapon);
                 }
             }
 
 
-            // === 4) 위치 조정 (공격할 무기가 있거나, 공격 못했을 때, 작동 가능한 타겟이 있을 경우) ===
-            // 공격할 무기가 없어도 최적 위치로 이동 시도 가능
+            // === 4) 위치 조정 (공격 안 했고 이동 가능할 때) (수정됨) ===
             float moveCost = CalculateMoveAPCost(activeUnit);
             bool canMove = activeUnit.HasEnoughAP(moveCost);
 
-            if (canMove && closestOperationalEnemy != null) {
-                Weapon referenceWeapon = fireWeapon ?? activeUnit.GetAllWeapons().Where(w => w.Type != WeaponType.Melee && w.IsOperational).OrderByDescending(w => w.Range).FirstOrDefault(); // 주 공격 무기 없으면 사거리 가장 긴 원거리 무기 기준
+            if (canMove && closestOperationalEnemy != null && !ctx.MovedThisActivation.Contains(activeUnit))
+            {
+                Weapon referenceWeapon = fireWeapon ?? activeUnit.GetAllWeapons()
+                                                        .Where(w => w.Type != WeaponType.Melee && w.IsOperational)
+                                                        .OrderByDescending(w => w.Range).FirstOrDefault();
 
                 if (referenceWeapon != null)
                 {
-                    float optimalRange = referenceWeapon.Range * OPTIMAL_RANGE_FACTOR;
+                    float weaponRange = referenceWeapon.Range;
+                    float closeThresholdDist = weaponRange * CLOSE_RANGE_THRESHOLD; // 60% 거리
+                    float optimalDist = weaponRange * OPTIMAL_RANGE_FACTOR;      // 80% 거리
 
-                    // a) 너무 가깝냐?
-                    if (minDist < MIN_RANGED_SAFE_DISTANCE)
+                    // a) 너무 가깝다 (60% 미만): 후퇴해서 60% 거리 확보 시도 (기존 유지)
+                    if (minDist < closeThresholdDist)
                     {
-                        Vector3 dir = (minDist < 0.01f)
-                                    ? Vector3.back
-                                    : (activeUnit.Position - closestOperationalEnemy.Position).normalized;
-                        Vector3 retreat = activeUnit.Position + dir * activeUnit.CombinedStats.Speed;
-                        return (CombatActionEvents.ActionType.Move, closestOperationalEnemy, retreat, null);
+                        Vector3 dir = (minDist < 0.01f) ? Vector3.back : (activeUnit.Position - closestOperationalEnemy.Position).normalized;
+                        Vector3 targetPos = closestOperationalEnemy.Position + dir * closeThresholdDist;
+                        Vector3 moveVec = targetPos - activeUnit.Position;
+                        float distToMove = Mathf.Min(activeUnit.CombinedStats.Speed, moveVec.magnitude);
+                        Vector3 retreatPos = activeUnit.Position + moveVec.normalized * distToMove;
+                        return (CombatActionEvents.ActionType.Move, closestOperationalEnemy, retreatPos, null);
                     }
-                    // b) 너무 멀다 (또는 공격할 수 없었다면 최적 거리로 이동 시도)
-                    else if (minDist > optimalRange || fireWeapon == null || !(minDist <= fireWeapon.Range + 0.001f && activeUnit.HasEnoughAP(CalculateAttackAPCost(activeUnit, fireWeapon)))) // 공격 못하는 경우 포함
+                    // b) 너무 멀다 (100% 초과): 최대 사거리까지만 접근 (목표 지점 수정)
+                    else if (minDist > weaponRange + 0.001f)
                     {
-                        Vector3 dir = (closestOperationalEnemy.Position - activeUnit.Position).normalized;
-                        // 목표 지점: 최적 사거리 지점
-                        Vector3 targetPos = closestOperationalEnemy.Position - dir * optimalRange;
-                        // 현재 위치에서 목표 지점으로 이동 벡터
-                        Vector3 moveDir = (targetPos - activeUnit.Position).normalized;
-                        // 실제 이동 거리 계산 (최대 이동 속도 제한)
-                        float distToTargetPos = Vector3.Distance(activeUnit.Position, targetPos);
-                        float distToMove = Mathf.Min(activeUnit.CombinedStats.Speed, distToTargetPos);
-                        // 최종 이동 위치
-                        Vector3 approach = activeUnit.Position + moveDir * distToMove;
-
-                        return (CombatActionEvents.ActionType.Move, closestOperationalEnemy, approach, null);
+                       Vector3 dir = (closestOperationalEnemy.Position - activeUnit.Position).normalized;
+                       // <<< 목표 지점 수정: 적 위치에서 최대 사거리만큼 떨어진 지점 >>>
+                       Vector3 targetPos = closestOperationalEnemy.Position - dir * weaponRange;
+                       // <<< 목표 지점 수정 끝 >>>
+                        Vector3 moveVec = targetPos - activeUnit.Position;
+                        float distToMove = Mathf.Min(activeUnit.CombinedStats.Speed, moveVec.magnitude);
+                        Vector3 approachPos = activeUnit.Position + moveVec.normalized * distToMove;
+                        return (CombatActionEvents.ActionType.Move, closestOperationalEnemy, approachPos, null);
                     }
+                    // c) 60% ~ 100% 사이인데 공격 못했다면? -> 현재 위치 유지 (이동 안 함)
                 }
+                // else: 참조할 원거리 무기가 없음 -> 이동 결정 안 함
             } else if (canMove && closestOperationalEnemy == null) {
                  // textLogger?.Log($"[{unitName} (Ranged)] 이동 가능하나 주변에 작동 가능한 적 없음. 이동 보류.", LogLevel.Debug);
             }
 
 
-            // === 5) 방어 ===
-            bool canDefend = activeUnit.HasEnoughAP(DEFEND_AP_COST);
-            bool defended = ctx.HasUnitDefendedThisTurn(activeUnit);
-
-            if (canDefend && !defended)
+            // === 5) 방어 (기존과 동일, 조건은 이미 수정됨) ===
+            if (activeUnit.HasEnoughAP(DEFEND_AP_COST) &&
+                !ctx.HasUnitDefendedThisTurn(activeUnit) &&
+                (!ctx.MovedThisActivation.Contains(activeUnit) || IsLowHealth(activeUnit)))
             {
                 return (CombatActionEvents.ActionType.Defend, null, null, null);
             }
 
-            return (default, null, null, null); // 모든 조건 불만족 시 행동 없음
+            return (default, null, null, null); // 최종적으로 할 행동 없음
         }
     }
 }
