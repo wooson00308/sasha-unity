@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq; // Required for Linq operations like Select
+using UnityEngine; // Added for Vector3
 
 namespace AF.Models
 {
@@ -48,6 +49,8 @@ namespace AF.Models
     public struct ArmoredFrameSnapshot
     {
         public string Name { get; }
+        public Vector3 Position { get; }
+        public int TeamId { get; }
         public float CurrentAP { get; }
         public float MaxAP { get; }
         public float CurrentTotalDurability { get; } // Combined durability of all parts
@@ -62,6 +65,8 @@ namespace AF.Models
             if (frame == null)
             {
                 Name = "Invalid";
+                Position = Vector3.zero;
+                TeamId = -1;
                 CurrentAP = 0; MaxAP = 0;
                 CurrentTotalDurability = 0; MaxTotalDurability = 0;
                 IsOperational = false;
@@ -72,6 +77,8 @@ namespace AF.Models
             }
 
             Name = frame.Name;
+            Position = frame.Position;
+            TeamId = frame.TeamId;
             CurrentAP = frame.CurrentAP;
             // Note: Accessing CombinedStats directly might trigger recalculation if not cached.
             // Consider if a snapshot of Stats itself is needed, or just the relevant values.
