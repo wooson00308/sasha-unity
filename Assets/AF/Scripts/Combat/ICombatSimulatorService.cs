@@ -27,6 +27,11 @@ namespace AF.Combat
         int CurrentTurn { get; }
         
         /// <summary>
+        /// 현재 턴(라운드) 내의 활성화 사이클 번호
+        /// </summary>
+        int CurrentCycle { get; }
+        
+        /// <summary>
         /// 현재 활성화된 유닛
         /// </summary>
         ArmoredFrame CurrentActiveUnit { get; }

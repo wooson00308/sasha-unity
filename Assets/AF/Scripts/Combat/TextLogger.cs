@@ -22,6 +22,7 @@ namespace AF.Combat
         private EventBus.EventBus _eventBus;
         private List<LogEntry> _logs = new List<LogEntry>();
         private int _turnCounter = 0;
+        private int _cycleCounter = 0;
         private string _currentBattleId;
         private bool _isInitialized = false;
 
@@ -37,20 +38,151 @@ namespace AF.Combat
             public LogLevel Level { get; set; }
             public DateTime Timestamp { get; set; }
             public int TurnNumber { get; set; }
-            public ArmoredFrame ContextUnit { get; set; } // 관련된 주요 유닛 참조 추가
-            public bool ShouldUpdateTargetView { get; set; } // 이 로그가 '이벤트 대상' 뷰를 업데이트해야 하는지 여부 (추가)
-            public Dictionary<string, ArmoredFrameSnapshot> TurnStartStateSnapshot { get; set; } // 턴 시작 시점 스냅샷 (추가)
+            public int CycleNumber { get; set; }
+            public ArmoredFrame ContextUnit { get; set; }
+            public bool ShouldUpdateTargetView { get; set; }
 
-            // 생성자 수정: turnStartStateSnapshot 추가 (기본값 null)
-            public LogEntry(string message, LogLevel level, int turnNumber, ArmoredFrame contextUnit = null, bool shouldUpdateTargetView = false, Dictionary<string, ArmoredFrameSnapshot> turnStartStateSnapshot = null)
+            // === 스냅샷 및 델타 정보 ===
+            public LogEventType EventType { get; set; }
+            public Dictionary<string, ArmoredFrameSnapshot> TurnStartStateSnapshot { get; set; }
+
+            // --- DamageApplied 델타 정보 필드 --- (예시, 필요에 따라 추가/수정)
+            public string Damage_SourceUnitName { get; set; }
+            public string Damage_TargetUnitName { get; set; }
+            public string Damage_DamagedPartSlot { get; set; }
+            public float Damage_AmountDealt { get; set; }
+            public float Damage_NewDurability { get; set; }
+            public bool Damage_IsCritical { get; set; }
+            public bool Damage_PartWasDestroyed { get; set; }
+            // --- 델타 정보 필드 끝 ---
+
+            // +++ ActionCompleted 델타 정보 필드 +++
+            public string Action_ActorName { get; set; }
+            public CombatActionEvents.ActionType Action_Type { get; set; }
+            public bool Action_IsSuccess { get; set; }
+            public string Action_ResultDescription { get; set; }
+            public string Action_TargetName { get; set; } // Optional (e.g., for Move action target)
+            public float? Action_DistanceMoved { get; set; } // Optional for Move
+            public Vector3? Action_NewPosition { get; set; } // Optional for Move
+            public bool Action_IsCounterAttack { get; set; } // Added
+
+            // +++ DamageAvoided 델타 정보 필드 +++
+            public string Avoid_SourceName { get; set; }
+            public string Avoid_TargetName { get; set; }
+            public DamageEvents.DamageAvoidedEvent.AvoidanceType? Avoid_Type { get; set; }
+            public bool Avoid_IsCounterAttack { get; set; }
+
+            // +++ PartDestroyed 델타 정보 필드 +++
+            public string PartDestroyed_OwnerName { get; set; }
+            public PartType? PartDestroyed_PartType { get; set; }
+            public string PartDestroyed_DestroyerName { get; set; } // Optional
+
+            // +++ WeaponFired 델타 정보 필드 +++
+            public string Weapon_AttackerName { get; set; }
+            public string Weapon_TargetName { get; set; }
+            public string Weapon_WeaponName { get; set; }
+            public bool Weapon_IsHit { get; set; }
+            public bool Weapon_IsCounterAttack { get; set; }
+            public int Weapon_CurrentAmmo { get; set; } // Optional, maybe not needed if snapshot exists
+            public int Weapon_MaxAmmo { get; set; } // Optional
+
+            // +++ StatusEffectApplied 델타 정보 필드 +++
+            public string StatusApplied_TargetName { get; set; }
+            public string StatusApplied_SourceName { get; set; } // Optional
+            public StatusEffectEvents.StatusEffectType? StatusApplied_EffectType { get; set; }
+            public int StatusApplied_Duration { get; set; }
+            public float StatusApplied_Magnitude { get; set; }
+
+            // +++ StatusEffectExpired 델타 정보 필드 +++
+            public string StatusExpired_TargetName { get; set; }
+            public StatusEffectEvents.StatusEffectType? StatusExpired_EffectType { get; set; }
+            public bool StatusExpired_WasDispelled { get; set; }
+
+            // +++ StatusEffectTick 델타 정보 필드 +++
+            public string StatusTick_TargetName { get; set; }
+            public string StatusTick_EffectName { get; set; } // Use string name
+            public float StatusTick_Value { get; set; }
+            public TickEffectType StatusTick_TickType { get; set; }
+
+            // +++ RepairApplied 델타 정보 필드 +++
+            public string Repair_ActorName { get; set; }
+            public string Repair_TargetName { get; set; }
+            public string Repair_PartSlot { get; set; }
+            public float Repair_Amount { get; set; }
+            public CombatActionEvents.ActionType Repair_ActionType { get; set; } // Distinguish Self/Ally repair
+
+            public LogEntry(string message, LogLevel level, int turnNumber, int cycleNumber,
+                            LogEventType eventType,
+                            ArmoredFrame contextUnit = null, bool shouldUpdateTargetView = false,
+                            Dictionary<string, ArmoredFrameSnapshot> turnStartStateSnapshot = null)
             {
                 Message = message;
                 Level = level;
                 Timestamp = DateTime.Now;
                 TurnNumber = turnNumber;
+                CycleNumber = cycleNumber;
+                EventType = eventType;
                 ContextUnit = contextUnit;
                 ShouldUpdateTargetView = shouldUpdateTargetView;
-                TurnStartStateSnapshot = turnStartStateSnapshot; // 할당 추가
+                TurnStartStateSnapshot = turnStartStateSnapshot;
+
+                // 델타 필드 기본값 초기화 (null 또는 기본값)
+                Damage_SourceUnitName = null;
+                Damage_TargetUnitName = null;
+                Damage_DamagedPartSlot = null;
+                Damage_AmountDealt = 0f;
+                Damage_NewDurability = -1f;
+                Damage_IsCritical = false;
+                Damage_PartWasDestroyed = false;
+
+                // +++ 새로 추가된 델타 필드 초기화 +++
+                Action_ActorName = null;
+                Action_Type = CombatActionEvents.ActionType.None;
+                Action_IsSuccess = false;
+                Action_ResultDescription = null;
+                Action_TargetName = null;
+                Action_DistanceMoved = null;
+                Action_NewPosition = null;
+                Action_IsCounterAttack = false;
+
+                Avoid_SourceName = null;
+                Avoid_TargetName = null;
+                Avoid_Type = null;
+                Avoid_IsCounterAttack = false;
+
+                PartDestroyed_OwnerName = null;
+                PartDestroyed_PartType = null;
+                PartDestroyed_DestroyerName = null;
+
+                // +++ Initialize NEW delta fields +++
+                Weapon_AttackerName = null;
+                Weapon_TargetName = null;
+                Weapon_WeaponName = null;
+                Weapon_IsHit = false;
+                Weapon_IsCounterAttack = false;
+                Weapon_CurrentAmmo = -1;
+                Weapon_MaxAmmo = -1;
+
+                StatusApplied_TargetName = null;
+                StatusApplied_SourceName = null;
+                StatusApplied_EffectType = null;
+                StatusApplied_Duration = 0;
+                StatusApplied_Magnitude = 0f;
+
+                StatusExpired_TargetName = null;
+                StatusExpired_EffectType = null;
+                StatusExpired_WasDispelled = false;
+
+                StatusTick_TargetName = null;
+                StatusTick_EffectName = null;
+                StatusTick_Value = 0f;
+                StatusTick_TickType = TickEffectType.None;
+
+                Repair_ActorName = null;
+                Repair_TargetName = null;
+                Repair_PartSlot = null;
+                Repair_Amount = 0f;
+                Repair_ActionType = CombatActionEvents.ActionType.None;
             }
         }
 
@@ -93,9 +225,9 @@ namespace AF.Combat
 
         #region ITextLogger Implementation
         
-        public void Log(string message, LogLevel level = LogLevel.Info, ArmoredFrame contextUnit = null, bool shouldUpdateTargetView = false, Dictionary<string, ArmoredFrameSnapshot> turnStartStateSnapshot = null)
+        public void Log(string message, LogLevel level = LogLevel.Info, LogEventType eventType = LogEventType.Unknown, ArmoredFrame contextUnit = null, bool shouldUpdateTargetView = false, Dictionary<string, ArmoredFrameSnapshot> turnStartStateSnapshot = null)
         {
-            _logs.Add(new LogEntry(message, level, _turnCounter, contextUnit, shouldUpdateTargetView, turnStartStateSnapshot));
+            _logs.Add(new LogEntry(message, level, _turnCounter, _cycleCounter, eventType, contextUnit, shouldUpdateTargetView, turnStartStateSnapshot));
             // 새 로그가 추가되었음을 알리는 이벤트 발생 로직 삭제
             // OnLogAdded?.Invoke(FormatLogEntry(_logs.Last()), level); 
         }
@@ -233,6 +365,7 @@ namespace AF.Combat
         {
             _logs.Clear();
             _turnCounter = 0;
+            _cycleCounter = 0;
             _currentBattleId = null;
         }
 
@@ -336,6 +469,7 @@ namespace AF.Combat
             Clear(); // 전투 시작 시 이전 로그 삭제
             _currentBattleId = evt.BattleId;
             _turnCounter = 0;
+            _cycleCounter = 0;
 
             StringBuilder sb = new StringBuilder();
             sb.Append("<sprite index=11> "); // BATTLE START 아이콘
@@ -815,7 +949,41 @@ namespace AF.Combat
         public List<LogEntry> GetLogEntries()
         {
             // 방어적 복사본 반환 (선택적이지만 권장)
-            return new List<LogEntry>(_logs); 
+            return new List<LogEntry>(_logs);
+        }
+
+        /// <summary>
+        /// Directly adds a pre-constructed LogEntry to the internal log list.
+        /// Use this when LogEntry details (like EventType and delta info) are set externally.
+        /// </summary>
+        /// <param name="entry">The LogEntry object to add.</param>
+        public void AddLogEntryDirectly(LogEntry entry)
+        {
+             if (entry == null) return;
+             _logs.Add(entry);
+             // Note: We might not need to invoke OnLogAdded here if the consuming UI
+             // fetches the full log list after combat ends.
+             // If real-time log updates are needed, consider invoking:
+             // OnLogAdded?.Invoke(FormatLogEntry(entry), entry.Level);
+        }
+
+        // +++ Fallback 메서드 추가 +++
+        /// <summary>
+        /// Gets the current turn number stored internally for logging purposes.
+        /// Primarily used as a fallback if CombatSimulatorService is unavailable.
+        /// </summary>
+        public int GetCurrentTurnForLogging()
+        {
+            return _turnCounter;
+        }
+
+        /// <summary>
+        /// Gets the current cycle number stored internally for logging purposes.
+        /// Primarily used as a fallback if CombatSimulatorService is unavailable.
+        /// </summary>
+        public int GetCurrentCycleForLogging()
+        {
+             return _cycleCounter;
         }
 
         #endregion

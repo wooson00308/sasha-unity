@@ -15,14 +15,16 @@ namespace AF.Combat
         {
             public ArmoredFrame Frame { get; private set; }
             public PartType DestroyedPartType { get; private set; }
+            public string DestroyedSlotId { get; private set; }
             public ArmoredFrame Destroyer { get; private set; }
             public string[] Effects { get; private set; }
 
             public PartDestroyedEvent(ArmoredFrame frame, PartType destroyedPartType,
-                                     ArmoredFrame destroyer, params string[] effects)
+                                     string destroyedSlotId, ArmoredFrame destroyer, params string[] effects)
             {
                 Frame = frame;
                 DestroyedPartType = destroyedPartType;
+                DestroyedSlotId = destroyedSlotId;
                 Destroyer = destroyer;
                 Effects = effects;
             }

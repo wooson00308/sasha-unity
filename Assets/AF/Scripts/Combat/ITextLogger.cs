@@ -15,10 +15,11 @@ namespace AF.Combat
         /// </summary>
         /// <param name="message">로그 메시지</param>
         /// <param name="level">로그 레벨</param>
+        /// <param name="eventType">로그 이벤트 타입 (델타 로깅용)</param>
         /// <param name="contextUnit">로그와 관련된 유닛 (UI 업데이트용)</param>
         /// <param name="shouldUpdateTargetView">이 로그가 이벤트 대상 뷰 업데이트를 트리거해야 하는지 여부</param>
         /// <param name="turnStartStateSnapshot">턴 시작 시점의 유닛 상태 스냅샷 (턴 시작 로그용)</param>
-        void Log(string message, LogLevel level = LogLevel.Info, ArmoredFrame contextUnit = null, bool shouldUpdateTargetView = false, Dictionary<string, ArmoredFrameSnapshot> turnStartStateSnapshot = null);
+        void Log(string message, LogLevel level = LogLevel.Info, LogEventType eventType = LogEventType.Unknown, ArmoredFrame contextUnit = null, bool shouldUpdateTargetView = false, Dictionary<string, ArmoredFrameSnapshot> turnStartStateSnapshot = null);
 
         /// <summary>
         /// 전투 이벤트 로깅

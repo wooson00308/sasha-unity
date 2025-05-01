@@ -289,93 +289,198 @@ namespace AF.Combat
 
         private void HandleCombatStart(CombatSessionEvents.CombatStartEvent ev)
         {
-            // TextLogger의 LogEvent 사용하던 것 복구
-            string iconTag = _useSpriteIcons ? "<sprite index=11> " : ""; // <<< 아이콘 조건부 추가
-            _textLogger?.Log($"{iconTag}=== 전투 시작 === ID: {ev.BattleId}, 이름: {ev.BattleName}", LogLevel.System, contextUnit: null, shouldUpdateTargetView: false); // Context: null, Update: false
-            // LogAllUnitDetailsOnInit(ev.Participants); // Logging call removed
+            // <<< 기존 Log 호출 주석 처리 >>>
+            // string iconTag = _useSpriteIcons ? "<sprite index=11> " : "";
+            // _textLogger?.Log($"{iconTag}=== 전투 시작 === ID: {ev.BattleId}, 이름: {ev.BattleName}", LogLevel.System, contextUnit: null, shouldUpdateTargetView: false);
+
+            // +++ LogEntry 직접 생성 방식으로 변경 +++
+            if (_textLogger != null)
+            {
+                string iconTag = _useSpriteIcons ? "<sprite index=11> " : "";
+                string message = $"{iconTag}=== 전투 시작 === ID: {ev.BattleId}, 이름: {ev.BattleName}";
+
+                var logEntry = new TextLogger.LogEntry(
+                    message,
+                    LogLevel.System,
+                    0, // Combat start is turn 0
+                    0, // Combat start is cycle 0
+                    LogEventType.CombatStart, // <<< 타입 지정
+                    contextUnit: null,
+                    shouldUpdateTargetView: false,
+                    turnStartStateSnapshot: null // CombatStart에는 스냅샷 없음
+                );
+                 _textLogger.AddLogEntryDirectly(logEntry);
+            }
         }
 
         private void HandleCombatEnd(CombatSessionEvents.CombatEndEvent ev)
         {
-            string iconTag = _useSpriteIcons ? "<sprite index=12> " : ""; // <<< 아이콘 조건부 추가
-            // TextLogger의 LogEvent 사용하던 것 복구 -> 스냅샷 포함하도록 수정
-            _textLogger?.Log(
-                $"{iconTag}=== 전투 종료 ===, 결과: {ev.Result}", 
-                LogLevel.Info, 
-                contextUnit: null, // 전투 종료 로그는 특정 컨텍스트 유닛 없음
-                shouldUpdateTargetView: false, // 전투 종료 로그는 대상 뷰 업데이트 안 함
-                turnStartStateSnapshot: ev.FinalParticipantSnapshots // 이벤트에서 최종 스냅샷 가져오기
-            );
-            // 전투 종료 시 라운드 정보도 함께 로그 (선택적)
-            _textLogger?.Log($"//==[ Combat Session Terminated ]==//", LogLevel.System);
+            // <<< 기존 Log 호출 주석 처리 >>>
+            // string iconTag = _useSpriteIcons ? "<sprite index=12> " : "";
+            // _textLogger?.Log(
+            //     $"{iconTag}=== 전투 종료 ===, 결과: {ev.Result}",
+            //     LogLevel.Info,
+            //     contextUnit: null,
+            //     shouldUpdateTargetView: false,
+            //     turnStartStateSnapshot: ev.FinalParticipantSnapshots
+            // );
+            // _textLogger?.Log($"//==[ Combat Session Terminated ]==//", LogLevel.System);
+
+            // +++ LogEntry 직접 생성 방식으로 변경 +++
+            if (_textLogger != null)
+            {
+                string iconTag = _useSpriteIcons ? "<sprite index=12> " : "";
+                string message = $"{iconTag}=== 전투 종료 ===, 결과: {ev.Result}";
+                // CombatSimulatorService에서 현재 턴/사이클 가져오기 (종료 시점)
+                ICombatSimulatorService simulator = null;
+                try { simulator = ServiceLocator.Instance.GetService<ICombatSimulatorService>(); } catch { /* ignored */ }
+                int currentTurn = simulator?.CurrentTurn ?? _textLogger.GetCurrentTurnForLogging();
+                int currentCycle = simulator?.CurrentCycle ?? _textLogger.GetCurrentCycleForLogging();
+
+                var logEntry = new TextLogger.LogEntry(
+                    message,
+                    LogLevel.Info, // Info 레벨 사용
+                    currentTurn,  // 종료 시점 턴
+                    currentCycle, // 종료 시점 사이클
+                    LogEventType.CombatEnd, // <<< 타입 지정
+                    contextUnit: null,
+                    shouldUpdateTargetView: false,
+                    turnStartStateSnapshot: ev.FinalParticipantSnapshots // 최종 스냅샷 전달
+                );
+                _textLogger.AddLogEntryDirectly(logEntry);
+
+                // 시스템 종료 메시지 추가
+                var systemEndEntry = new TextLogger.LogEntry(
+                    "//==[ Combat Session Terminated ]==//",
+                    LogLevel.System,
+                    currentTurn,
+                    currentCycle,
+                    LogEventType.SystemMessage, // SystemMessage 타입 사용
+                    contextUnit: null,
+                    shouldUpdateTargetView: false,
+                    turnStartStateSnapshot: null
+                );
+                _textLogger.AddLogEntryDirectly(systemEndEntry);
+            }
         }
 
         private void HandleUnitActivationStart(CombatSessionEvents.UnitActivationStartEvent ev)
         {
+            // <<< 기존 Log 호출 주석 처리 >>>
+            // string activeUnitNameColored = ColorizeText($"[{ev.ActiveUnit.Name}]", "yellow");
+            // string apInfo = $" (AP: {ev.APBeforeRecovery:F1} -> {ev.ActiveUnit.CurrentAP:F1}/{ev.ActiveUnit.CombinedStats.MaxAP:F1})";
+            // string iconTag = _useSpriteIcons ? "> " : "";
+            // var snapshotDict = new Dictionary<string, ArmoredFrameSnapshot>();
+            // var simulator = ServiceLocator.Instance.GetService<ICombatSimulatorService>();
+            // if (simulator != null)
+            // {
+            //     var participants = simulator.GetParticipants();
+            //     if (participants != null)
+            //     {
+            //         foreach (var unit in participants)
+            //         {
+            //             if (unit != null && !string.IsNullOrEmpty(unit.Name))
+            //             {
+            //                 snapshotDict[unit.Name] = new ArmoredFrameSnapshot(unit);
+            //             }
+            //         }
+            //     }
+            // }
+            // else { Debug.LogError("Could not get CombatSimulatorService to create unit activation start snapshot."); }
+            // _textLogger?.Log(
+            //     $"{iconTag}Unit Activation: {activeUnitNameColored}{apInfo}",
+            //     LogLevel.Info,
+            //     contextUnit: ev.ActiveUnit,
+            //     shouldUpdateTargetView: true,
+            //     turnStartStateSnapshot: snapshotDict
+            // );
+
+            // +++ LogEntry 직접 생성 방식으로 변경 +++
+            if (_textLogger != null)
+        {
             string activeUnitNameColored = ColorizeText($"[{ev.ActiveUnit.Name}]", "yellow");
-            string apInfo = $" (AP: {ev.APBeforeRecovery:F1} -> {ev.ActiveUnit.CurrentAP:F1}/{ev.ActiveUnit.CombinedStats.MaxAP:F1})"; // <<< NEW AP Info
-            string iconTag = _useSpriteIcons ? "> " : ""; // <<< 아이콘 조건부 변경 (기존 > 문자 유지)
+                string apInfo = $" (AP: {ev.APBeforeRecovery:F1} -> {ev.ActiveUnit.CurrentAP:F1}/{ev.ActiveUnit.CombinedStats.MaxAP:F1})";
+                string iconTag = _useSpriteIcons ? "> " : "";
+                string message = $"{iconTag}Unit Activation: {activeUnitNameColored}{apInfo}";
             
-            // +++ 스냅샷 생성 로직 추가 (End에서 이동) +++
+                // 스냅샷 생성 (기존 로직 재사용)
             var snapshotDict = new Dictionary<string, ArmoredFrameSnapshot>();
-            var simulator = ServiceLocator.Instance.GetService<ICombatSimulatorService>(); // 시뮬레이터 다시 참조
+                var simulator = ServiceLocator.Instance.GetService<ICombatSimulatorService>();
             if (simulator != null)
             {
-                var participants = simulator.GetParticipants(); // 현재 참가자 목록 가져오기
+                    var participants = simulator.GetParticipants();
                 if (participants != null)
                 {
                     foreach (var unit in participants)
                     {
                         if (unit != null && !string.IsNullOrEmpty(unit.Name))
                         {
-                            snapshotDict[unit.Name] = new ArmoredFrameSnapshot(unit); // 현재 상태 스냅샷
+                                snapshotDict[unit.Name] = new ArmoredFrameSnapshot(unit);
+                            }
                         }
                     }
                 }
-            }
-            else
-            {
-                 Debug.LogError("Could not get CombatSimulatorService to create unit activation start snapshot.");
-            }
-            // +++ 스냅샷 생성 로직 끝 +++
-            
-            _textLogger?.Log(
-                $"{iconTag}Unit Activation: {activeUnitNameColored}{apInfo}", // <<< 아이콘 변수 사용
+                else { Debug.LogError("Could not get CombatSimulatorService to create unit activation start snapshot."); }
+
+                var logEntry = new TextLogger.LogEntry(
+                    message,
                 LogLevel.Info,
-                contextUnit: ev.ActiveUnit, // 컨텍스트 유닛 추가
-                shouldUpdateTargetView: true, // 대상 뷰 업데이트 추가
-                turnStartStateSnapshot: snapshotDict // 스냅샷 추가
-            );
+                    ev.CurrentTurn, // 이벤트의 턴 번호 사용
+                    ev.CurrentCycle, // 이벤트의 사이클 번호 사용
+                    LogEventType.UnitActivationStart, // <<< 타입 지정
+                    contextUnit: ev.ActiveUnit,
+                    shouldUpdateTargetView: true,
+                    turnStartStateSnapshot: snapshotDict // 생성된 스냅샷 전달
+                );
+                 _textLogger.AddLogEntryDirectly(logEntry);
+            }
         }
 
         private void HandleUnitActivationEnd(CombatSessionEvents.UnitActivationEndEvent ev)
         {
-            string activeUnitNameColored = $"[{ev.ActiveUnit.Name}]"; // 종료 시점 유닛 이름도 색상 적용
-            string remainingApInfo = $" (Remaining AP: {ev.ActiveUnit.CurrentAP:F1})"; // 종료 시점 AP 사용
-            string iconTag = _useSpriteIcons ? "< " : ""; // <<< 아이콘 조건부 변경 (기존 < 문자 유지)
-            
-            // +++ 유닛 비활성화 로그 추가 (주석 해제 및 아이콘 적용) +++
-             _textLogger?.Log(
-                 $"{iconTag}Unit Standby: {activeUnitNameColored}{remainingApInfo}", // Standby 로그 (아이콘 변수 사용)
-                 LogLevel.Info, // 로그 레벨
-                 contextUnit: ev.ActiveUnit, // Event Target View 업데이트용 컨텍스트 유닛
-                 shouldUpdateTargetView: true, // Event Target View 업데이트 활성화
-                 turnStartStateSnapshot: null // 스냅샷은 Start에서 처리하므로 여기선 null
-             );
-            _textLogger?.Log($"_\n_", LogLevel.Info); // <<< 구분선 로그 (주석 처리된 로그 밑으로 이동)
-             // +++ 유닛 비활성화 로그 추가 끝 +++
+            // <<< 기존 Log 호출 주석 처리 >>>
+            // string activeUnitNameColored = $"[{ev.ActiveUnit.Name}]";
+            // string remainingApInfo = $" (Remaining AP: {ev.ActiveUnit.CurrentAP:F1})";
+            // string iconTag = _useSpriteIcons ? "< " : "";
+            // _textLogger?.Log(
+            //     $"{iconTag}Unit Standby: {activeUnitNameColored}{remainingApInfo}",
+            //     LogLevel.Info,
+            //     contextUnit: ev.ActiveUnit,
+            //     shouldUpdateTargetView: true,
+            //     turnStartStateSnapshot: null
+            // );
+            // _textLogger?.Log($"_\n_", LogLevel.Info);
 
-            // 2. Log the unit standby message, passing the snapshot dictionary
-            // SF 스타일 로그 포맷 적용 및 스냅샷 전달
-            /* // <<< 로그 출력 주석 처리 >>>
-             _textLogger?.Log(
-                 $\"< Unit Standby: {activeUnitNameColored}{remainingApInfo}\", // Standby 로그
-                 LogLevel.Info, // 로그 레벨
-                 contextUnit: ev.ActiveUnit, // Event Target View 업데이트용 컨텍스트 유닛
-                 shouldUpdateTargetView: true, // Event Target View 업데이트 활성화
-                 turnStartStateSnapshot: null // 스냅샷은 Start에서 처리하므로 여기선 null
-             );
-            */ // <<< 로그 출력 주석 처리 끝 >>>
+             // +++ LogEntry 직접 생성 방식으로 변경 +++
+            if (_textLogger != null)
+            {
+                //string activeUnitNameColored = ColorizeText($"[{ev.ActiveUnit.Name}]", "yellow"); // 색상 적용
+                string activeUnitName = $"[{ev.ActiveUnit.Name}]"; // 색상 적용
+                string remainingApInfo = $" (Remaining AP: {ev.ActiveUnit.CurrentAP:F1})";
+                string iconTag = _useSpriteIcons ? "< " : "";
+                //string message = $"{iconTag}Unit Standby: {activeUnitNameColored}{remainingApInfo}";
+                string message = $"{iconTag}Unit Standby: {activeUnitName}{remainingApInfo}";
+
+                 var logEntry = new TextLogger.LogEntry(
+                     message,
+                     LogLevel.Info,
+                     ev.CurrentTurn, // 이벤트의 턴 번호 사용
+                     ev.CurrentCycle, // 이벤트의 사이클 번호 사용
+                     LogEventType.UnitActivationEnd, // <<< 타입 지정
+                     contextUnit: ev.ActiveUnit,
+                     shouldUpdateTargetView: true,
+                     turnStartStateSnapshot: null // 종료 시점에는 스냅샷 없음
+                 );
+                _textLogger.AddLogEntryDirectly(logEntry);
+
+                _textLogger.Log(" ", LogLevel.Info);
+                _textLogger.Log(" ", LogLevel.Info);
+                _textLogger.Log(" ", LogLevel.Info);
+                _textLogger.Log(" ", LogLevel.Info);
+                _textLogger.Log(" ", LogLevel.Info);
+                _textLogger.Log(" ", LogLevel.Info);
+                _textLogger.Log(" ", LogLevel.Info);
+            }
         }
 
         private void HandleActionStart(CombatActionEvents.ActionStartEvent ev)
@@ -386,12 +491,11 @@ namespace AF.Combat
 
         private void HandleActionCompleted(CombatActionEvents.ActionCompletedEvent ev)
         {
-            // +++ 반격 행동일 경우 로그 건너뛰기 +++
-            if (ev.IsCounterAttack)
-            {
-                return; // 반격 행동 완료 로그는 남기지 않음
-            }
-            // +++ 반격 행동일 경우 로그 건너뛰기 끝 +++
+            if (ev.IsCounterAttack) return; // 반격 로그는 건너뛰기
+
+            // --- Flavor Text/Log Message 생성 로직 (기존과 동일) ---
+            string logMsg = ""; // Initialize logMsg
+            LogLevel logLevel = ev.Success ? LogLevel.Info : LogLevel.Warning;
             
             // 상세 이동 로그 처리
             if (ev.Action == CombatActionEvents.ActionType.Move && ev.Success)
@@ -400,145 +504,129 @@ namespace AF.Combat
                 string actorNameColored = ColorizeText($"[{ev.Actor.Name}]", "yellow");
                 string targetName = ev.MoveTarget != null ? ColorizeText($"[{ev.MoveTarget.Name}]", "lightblue") : "지정되지 않은 목표";
                 string distanceText = ev.DistanceMoved.HasValue ? $"{ev.DistanceMoved.Value:F1} 만큼" : "일정 거리만큼";
-                
-                // +++ 목표와의 최종 거리 계산 및 로그 추가 +++
                 string targetDistanceText = "";
                 if (ev.MoveTarget != null && ev.NewPosition.HasValue)
                 {
                     float finalDistance = Vector3.Distance(ev.NewPosition.Value, ev.MoveTarget.Position);
                     targetDistanceText = $". (거리: {finalDistance:F1}m)";
                 }
-                else if (ev.MoveTarget != null) // 위치 정보는 없지만 타겟은 있는 경우
+                else if (ev.MoveTarget != null)
                 {
-                     float finalDistance = Vector3.Distance(ev.Actor.Position, ev.MoveTarget.Position); // 현재 위치 기준 거리
+                    float finalDistance = Vector3.Distance(ev.Actor.Position, ev.MoveTarget.Position);
                      targetDistanceText = $". (거리: {finalDistance:F1}m)";
                 }
-                // +++ 목표와의 최종 거리 계산 및 로그 추가 끝 +++
-
-                string iconTag = _useSpriteIcons ? "<sprite index=10> " : ""; // <<< 아이콘 조건부 추가
-                string logMsg = $"{prefix}{iconTag}{actorNameColored}(이)가 {targetName} 방향으로 {distanceText} 이동{targetDistanceText}";
-                
-                _textLogger?.Log(logMsg, LogLevel.Info, contextUnit: ev.Actor, shouldUpdateTargetView: true);
+                string iconTag = _useSpriteIcons ? "<sprite index=10> " : "";
+                logMsg = $"{prefix}{iconTag}{actorNameColored}(이)가 {targetName} 방향으로 {distanceText} 이동{targetDistanceText}";
             }
-            // +++ 방어 로그 명시적 처리 추가 +++
+            // 방어 로그 처리
             else if (ev.Action == CombatActionEvents.ActionType.Defend && ev.Success)
             {
                 string prefix = _textLogger.UseIndentation ? "  " : "";
                 string actorNameColored = ColorizeText($"[{ev.Actor.Name}]", "yellow");
-                string actionIconTag = _useSpriteIcons ? "<sprite index=9> " : ""; // 방어 아이콘
+                string actionIconTag = _useSpriteIcons ? "<sprite index=9> " : "";
                 string apInfo = $"잔여 동력: {ev.Actor.CurrentAP:F1}/{ev.Actor.CombinedStats.MaxAP:F1}.";
-                string logMsg = $"{prefix}{actionIconTag}{actorNameColored} 방어 태세 돌입. {apInfo}"; // 메시지 약간 수정
-
-                _textLogger?.Log(logMsg, LogLevel.Info, contextUnit: ev.Actor, shouldUpdateTargetView: true);
+                logMsg = $"{prefix}{actionIconTag}{actorNameColored} 방어 태세 돌입. {apInfo}";
             }
-            // +++ 방어 로그 명시적 처리 추가 끝 +++
-            else if (_logActionSummaries) // 나머지 일반 액션 (Attack, Reload, 실패 등)
+            // 나머지 일반 액션 (Attack, Reload, 실패 등)
+            else if (_logActionSummaries)
             {
-                // Colorize Actor name (yellow)
                 string actorNameColored = ColorizeText($"[{ev.Actor.Name}]", "yellow");
                 string actionName = ev.Action.ToString();
                 string prefix = _textLogger.UseIndentation ? "  " : "";
                 string actionIconTag = "";
-                if (_useSpriteIcons) // <<< 아이콘 사용 여부 체크
+                if (_useSpriteIcons)
                 {
                     switch (ev.Action)
                     {
-                        case CombatActionEvents.ActionType.Attack: actionIconTag = "<sprite index=8> "; break; // 공백 추가
-                        // case CombatActionEvents.ActionType.Defend: actionIconTag = "<sprite index=9> "; break; // 이제 위에서 처리함
-                        // case CombatActionEvents.ActionType.Move:   actionIconTag = "<sprite index=10> "; break; // 이제 위에서 처리함
-                        case CombatActionEvents.ActionType.Reload: actionIconTag = "<sprite index=13> "; break; // 공백 추가
-                        // TODO: Repair 아이콘 추가?
+                        case CombatActionEvents.ActionType.Attack: actionIconTag = "<sprite index=8> "; break;
+                        case CombatActionEvents.ActionType.Reload: actionIconTag = "<sprite index=13> "; break;
                     }
                 }
-                
-                // +++ SF 메카 스타일 로그 메시지 생성 +++
-                string logMsg;
                 if (ev.Success)
                 {
-                    string apInfo = $"잔여 동력: {ev.Actor.CurrentAP:F1}/{ev.Actor.CombinedStats.MaxAP:F1}."; // AP 정보 포맷 변경
-                    logMsg = $"{prefix}{actionIconTag}[{actorNameColored}] {actionName} 프로토콜 실행 완료. {apInfo}"; // <<< 아이콘 변수 사용
+                    string apInfo = $"잔여 동력: {ev.Actor.CurrentAP:F1}/{ev.Actor.CombinedStats.MaxAP:F1}.";
+                    logMsg = $"{prefix}{actionIconTag}[{actorNameColored}] {actionName} 프로토콜 실행 완료. {apInfo}";
                 }
                 else
                 {
                     string reason = string.IsNullOrEmpty(ev.ResultDescription) ? "알 수 없는 오류" : ev.ResultDescription;
-                    logMsg = $"{prefix}{actionIconTag}[{actorNameColored}] {actionName} 프로토콜 실행 실패. (사유: {reason})"; // <<< 아이콘 변수 사용
+                    logMsg = $"{prefix}{actionIconTag}[{actorNameColored}] {actionName} 프로토콜 실행 실패. (사유: {reason})";
                 }
-                // +++ SF 메카 스타일 로그 메시지 생성 끝 +++
-                
-                LogLevel logLevel = ev.Success ? LogLevel.Info : LogLevel.Warning;
-                // 일반 행동 완료 로그는 행동 유닛(Actor) 컨텍스트, 대상 뷰 업데이트 true
-                _textLogger?.Log(logMsg, logLevel, contextUnit: ev.Actor, shouldUpdateTargetView: true);
             }
+            // --- Log Message 생성 로직 끝 ---
+
+            // +++ 델타 로그 기록 로직 +++
+            if (_textLogger != null && !string.IsNullOrEmpty(logMsg)) // logMsg가 생성되었을 때만 기록
+            {
+                ICombatSimulatorService simulator = null;
+                try { simulator = ServiceLocator.Instance.GetService<ICombatSimulatorService>(); }
+                catch (Exception serviceEx) { Debug.LogError($"CombatSimulatorService 가져오기 실패: {serviceEx.Message}"); }
+
+                int currentTurn = simulator?.CurrentTurn ?? _textLogger.GetCurrentTurnForLogging();
+                int currentCycle = simulator?.CurrentCycle ?? _textLogger.GetCurrentCycleForLogging();
+
+                var logEntry = new TextLogger.LogEntry(
+                    logMsg,
+                    logLevel,
+                    currentTurn,
+                    currentCycle,
+                    LogEventType.ActionCompleted, // <<< 이벤트 타입 지정
+                    contextUnit: ev.Actor,
+                    shouldUpdateTargetView: true,
+                    turnStartStateSnapshot: null
+                );
+
+                // 델타 정보 채우기
+                logEntry.Action_ActorName = ev.Actor.Name;
+                logEntry.Action_Type = ev.Action;
+                logEntry.Action_IsSuccess = ev.Success;
+                logEntry.Action_ResultDescription = ev.ResultDescription;
+                logEntry.Action_TargetName = ev.MoveTarget?.Name; // MoveTarget이 null일 수 있음
+                logEntry.Action_DistanceMoved = ev.DistanceMoved;
+                logEntry.Action_NewPosition = ev.NewPosition;
+                logEntry.Action_IsCounterAttack = ev.IsCounterAttack;
+
+                _textLogger.AddLogEntryDirectly(logEntry);
+            }
+            // +++ 델타 로그 기록 로직 끝 +++
         }
 
         private void HandleWeaponFired(CombatActionEvents.WeaponFiredEvent ev)
         {
-            // 로그 서비스를 안전하게 가져옵니다.
+            // --- Flavor Text/Log Message 생성 로직 (기존과 동일) ---
             TextLoggerService loggerService = null;
-            try { loggerService = ServiceLocator.Instance.GetService<TextLoggerService>(); } 
-            catch (Exception ex) { Debug.LogError($"TextLoggerService 접근 오류: {ex.Message}"); }
+            try { loggerService = ServiceLocator.Instance.GetService<TextLoggerService>(); } catch (Exception ex) { Debug.LogError($"TextLoggerService 접근 오류: {ex.Message}"); }
 
             float distance = Vector3.Distance(ev.Attacker.Position, ev.Target.Position);
-            string logMsg = ""; // 빈 문자열로 초기화
+            string logMsg = "";
             string hitOrMissText = ev.Hit ? "명중!" : "빗나갔다!";
-            string iconTag = ""; // <<< 아이콘 변수 초기화
-            if (_useSpriteIcons) // <<< 아이콘 사용 여부 체크
-            {
-                iconTag = ev.Hit ? "<sprite index=8> " : "<sprite index=1> "; // 공백 추가
-            }
+            string iconTag = "";
+            if (_useSpriteIcons) { iconTag = ev.Hit ? "<sprite index=8> " : "<sprite index=1> "; }
 
-            // <<< Flavor Text 기반 로그 시도 >>>
             bool useFlavorText = false;
             if (loggerService != null && !string.IsNullOrEmpty(ev.Weapon.AttackFlavorKey))
             {
-                string templateKey = ev.Weapon.AttackFlavorKey; // 키 그대로 사용
-                // 필요하다면 _Hit, _Miss 접미사 추가 가능: templateKey += ev.Hit ? "_Hit" : "_Miss";
+                string templateKey = ev.Weapon.AttackFlavorKey;
                 string flavorText = loggerService.GetRandomFlavorText(templateKey);
-
                 if (!string.IsNullOrEmpty(flavorText))
                 {
                     var parameters = new Dictionary<string, string>
                     {
-                        // FormatFlavorText 내부에서 attacker/target 색상 처리하므로 이름만 전달
                         { "attacker", ev.Attacker.Name }, 
                         { "target", ev.Target.Name },
                         { "weaponName", ev.Weapon.Name },
                         { "distance", distance.ToString("F1") },
                         { "hitOrMiss", hitOrMissText },
-                        // 반격 여부 정보 전달 (FormatFlavorText에서 색상 결정에 사용 가능)
                         { "isCounterAttack", ev.IsCounterAttack.ToString().ToLower() },
-                        // --- ADDED --- Get weapon name from the event
-                        { "weapon", ev.Weapon?.Name ?? "알 수 없는 무기" } // Use "weapon" key
+                        { "weapon", ev.Weapon?.Name ?? "알 수 없는 무기" }
                     };
-                    
-                    // --- 제거된 부분: ammoStatus 파라미터 추가 --- 
-                    // if (!ev.IsCounterAttack && ev.Weapon.MaxAmmo > 0) 
-                    // { 
-                    //     parameters.Add("ammoStatus", $"(탄약: {ev.Weapon.CurrentAmmo}/{ev.Weapon.MaxAmmo})");
-                    // } else if (!ev.IsCounterAttack) {
-                    //      parameters.Add("ammoStatus", "(탄약: ∞)");
-                    // }
-                    // --- 제거 끝 ---
-
                     logMsg = loggerService.FormatFlavorText(flavorText, parameters);
                     logMsg = $"{iconTag}{logMsg}"; 
                     useFlavorText = true;
-
-                    // <<< 추가: Flavor Text 사용 시에도 잔탄 정보 덧붙이기 >>>
-                    if (ev.Weapon.MaxAmmo > 0) 
-                    { 
-                        logMsg += $" (탄약: {ev.Weapon.CurrentAmmo}/{ev.Weapon.MaxAmmo})";
-                    } 
-                    else 
-                    {
-                        logMsg += " (탄약: ∞)";
-                    }
-                    // <<< 추가 끝 >>>
+                    if (ev.Weapon.MaxAmmo > 0) { logMsg += $" (탄약: {ev.Weapon.CurrentAmmo}/{ev.Weapon.MaxAmmo})"; }
+                    else { logMsg += " (탄약: ∞)"; }
                 }
             }
-            // <<< Flavor Text 기반 로그 끝 >>>
-
-            // <<< Flavor Text를 사용하지 못했을 경우 기존 로직 사용 >>>
             if (!useFlavorText)
             {
                 string attackerColor = ev.IsCounterAttack ? "lightblue" : "yellow";
@@ -546,79 +634,152 @@ namespace AF.Combat
                 string attackerNameColored = ColorizeText($"[{ev.Attacker.Name}]", attackerColor);
                 string targetNameColored = ColorizeText($"[{ev.Target.Name}]", targetColor);
                 string ammoStatus = ev.Weapon.MaxAmmo <= 0 ? "(탄약: ∞)" : $"(탄약: {ev.Weapon.CurrentAmmo}/{ev.Weapon.MaxAmmo})";
-                
                 logMsg = $"{iconTag}{attackerNameColored}의 {ev.Weapon.Name}(이)가 {distance:F1}m 거리에서 {targetNameColored}에게 {hitOrMissText} {ammoStatus}";
             }
-            // <<< 기존 로직 끝 >>>
-            
-            // Determine context unit based on counter attack status for target view update
+            // --- Log Message 생성 로직 끝 ---
+
+            // +++ 델타 로그 기록 로직 +++
+            if (_textLogger != null && !string.IsNullOrEmpty(logMsg))
+            {
+                ICombatSimulatorService simulator = null;
+                try { simulator = ServiceLocator.Instance.GetService<ICombatSimulatorService>(); }
+                catch (Exception serviceEx) { Debug.LogError($"CombatSimulatorService 가져오기 실패: {serviceEx.Message}"); }
+
+                int currentTurn = simulator?.CurrentTurn ?? _textLogger.GetCurrentTurnForLogging();
+                int currentCycle = simulator?.CurrentCycle ?? _textLogger.GetCurrentCycleForLogging();
             ArmoredFrame contextUnit = ev.IsCounterAttack ? ev.Target : ev.Attacker;
              
-            // Log the final message (either flavor text or default)
-            _textLogger?.Log(logMsg, LogLevel.Info, contextUnit: contextUnit, shouldUpdateTargetView: true);
+                var logEntry = new TextLogger.LogEntry(
+                    logMsg,
+                    LogLevel.Info,
+                    currentTurn,
+                    currentCycle,
+                    LogEventType.WeaponFired, // <<< 이벤트 타입 지정
+                    contextUnit: contextUnit,
+                    shouldUpdateTargetView: true,
+                    turnStartStateSnapshot: null
+                );
+
+                // 델타 정보 채우기
+                logEntry.Weapon_AttackerName = ev.Attacker.Name;
+                logEntry.Weapon_TargetName = ev.Target.Name;
+                logEntry.Weapon_WeaponName = ev.Weapon?.Name;
+                logEntry.Weapon_IsHit = ev.Hit;
+                logEntry.Weapon_IsCounterAttack = ev.IsCounterAttack;
+                logEntry.Weapon_CurrentAmmo = ev.Weapon?.CurrentAmmo ?? -1;
+                logEntry.Weapon_MaxAmmo = ev.Weapon?.MaxAmmo ?? -1;
+
+                _textLogger.AddLogEntryDirectly(logEntry);
+            }
+            // +++ 델타 로그 기록 로직 끝 +++
         }
 
         private void HandleDamageApplied(DamageEvents.DamageAppliedEvent ev)
         {
+            // Flavor Text 생성 로직은 그대로 유지 (LogEntry의 Message 필드를 채우기 위함)
+            string logMsg;
+            string iconTagFlavor = _useSpriteIcons ? "<sprite index=0> " : "";
+
             // Check if this is a counter-attack damage
             if (ev.IsCounterAttack)
             {
-                // Construct specific log for counter-attack damage (no flavor text)
-                string counterAttackerNameColored = ColorizeText($"[{ev.Source.Name}]", "lightblue"); // Source is the counter-attacker
-                string counterTargetNameColored = ColorizeText($"[{ev.Target.Name}]", "yellow"); // Target is the counter-target
+                // Construct specific log for counter-attack damage
+                string counterAttackerNameColored = ColorizeText($"[{ev.Source?.Name ?? "Unknown Source"}]", "lightblue"); // Null check added for safety
+                string counterTargetNameColored = ColorizeText($"[{ev.Target.Name}]", "yellow");
                 string criticalTag = ev.IsCritical ? " <sprite index=15>!!" : "";
                 string partName = ev.DamagedPart.ToString();
                 string prefix = _textLogger.UseIndentation ? "    " : ""; 
-                string iconTag = _useSpriteIcons ? "<sprite index=0> " : ""; // <<< 아이콘 조건부 추가 (공백 포함)
-                string logMsg = 
-                    $"{prefix}{iconTag}{counterAttackerNameColored}의 반격! {counterTargetNameColored}의 {partName}에 {ev.DamageDealt:F0} 피해!{criticalTag}";
-
-                // Log directly, context is the unit being hit by the counter
-                _textLogger?.Log(logMsg, LogLevel.Info, contextUnit: ev.Target, shouldUpdateTargetView: true); 
+                logMsg = $"{prefix}{iconTagFlavor}{counterAttackerNameColored}의 반격! {counterTargetNameColored}의 {partName}에 {ev.DamageDealt:F0} 피해!{criticalTag}";
             }
-            else // Normal damage, use flavor text
+            else // Normal damage, use flavor text logic
             {
-                // 1. Determine Template Key based on critical hit and damage amount (example threshold)
                 string templateKey;
-                float damagePercentage = ev.PartMaxDurability > 0 ? ev.DamageDealt / ev.PartMaxDurability : 0f; // Estimate impact
-
+                float damagePercentage = ev.PartMaxDurability > 0 ? ev.DamageDealt / ev.PartMaxDurability : 0f;
                 if (ev.IsCritical) { templateKey = "DamageApplied_Crit"; }
                 else if (damagePercentage > 0.3f) { templateKey = "DamageApplied_High"; }
                 else { templateKey = "DamageApplied_Low"; }
 
-                // 2. Prepare parameters for the template (roles are normal)
-                var parameters = new Dictionary<string, string>();
-                parameters.Add("attacker", ev.Source?.Name ?? "알 수 없는 공격자");
-                parameters.Add("target", ev.Target.Name);
-                parameters.Add("part", ev.DamagedPart.ToString());
-                parameters.Add("damage", ev.DamageDealt.ToString("F0"));
-                // --- ADDED --- Get weapon name from the event
-                parameters.Add("weapon", ev.Weapon?.Name ?? "알 수 없는 무기"); // Use "weapon" key
-                // --- END ADDED ---
-
-                // 3. Get and format the flavor text
+                var parameters = new Dictionary<string, string>
+                {
+                    { "attacker", ev.Source?.Name ?? "알 수 없는 공격자" },
+                    { "target", ev.Target.Name },
+                    { "part", ev.DamagedPart.ToString() },
+                    { "damage", ev.DamageDealt.ToString("F0") },
+                    { "weapon", ev.Weapon?.Name ?? "알 수 없는 무기" }
+                };
                 string flavorText = GetRandomFlavorText(templateKey);
                 string formattedFlavorLog = FormatFlavorText(flavorText, parameters);
 
-                // 4. Log the flavor text (if found)
                 if (!string.IsNullOrEmpty(formattedFlavorLog))
                 {
-                    string iconTagFlavor = _useSpriteIcons ? "<sprite index=0> " : ""; // <<< 아이콘 조건부 추가 (공백 포함)
-                    // 피격 로그는 피격 대상(Target) 컨텍스트, 대상 뷰 업데이트 true
-                    _textLogger?.Log($"{iconTagFlavor}{formattedFlavorLog}", LogLevel.Info, contextUnit: ev.Target, shouldUpdateTargetView: true); 
+                    logMsg = $"{iconTagFlavor}{formattedFlavorLog}";
+                }
+                else // Fallback if flavor text not found
+                {
+                    // Default message if flavor text fails
+                    string attackerNameColored = ColorizeText($"[{ev.Source?.Name ?? "Unknown Source"}]", "yellow");
+                    string targetNameColored = ColorizeText($"[{ev.Target.Name}]", "lightblue");
+                    logMsg = $"{iconTagFlavor}{attackerNameColored}가 {targetNameColored}의 {ev.DamagedPart}에 {ev.DamageDealt:F0} 피해를 입혔습니다.";
+                    Debug.LogWarning($"Flavor text not found for key: {templateKey}");
+                }
+            }
+
+            // --- 델타 로그 기록 로직 ---
+            if (_textLogger != null) // TextLogger 인스턴스 확인
+            {
+                // CombatSimulatorService에서 현재 턴과 사이클 번호 가져오기
+                ICombatSimulatorService simulator = null;
+                try{ // ServiceLocator 사용 시 예외 발생 가능성 고려
+                    simulator = ServiceLocator.Instance.GetService<ICombatSimulatorService>();
+                } catch (Exception serviceEx) {
+                    Debug.LogError($"CombatSimulatorService 가져오기 실패: {serviceEx.Message}");
                 }
 
-                // 5. Log the original detailed info (removed as requested previously)
-                // string criticalTag = ev.IsCritical ? " <sprite index=15>!!" : ""; 
-                // string partName = ev.DamagedPart.ToString();
-                // string prefix = _textLogger.UseIndentation ? "    " : "  "; 
-                // string detailLogMsg = ...
-                // _textLogger?.Log(detailLogMsg, LogLevel.UnitDetail); 
+                // Fallback 값 설정 (Simulator가 null일 경우 대비)
+                int currentTurn = simulator?.CurrentTurn ?? _textLogger.GetCurrentTurnForLogging();
+                int currentCycle = simulator?.CurrentCycle ?? _textLogger.GetCurrentCycleForLogging();
+
+                // 새 LogEntry 생성 (EventType: DamageApplied)
+                var logEntry = new TextLogger.LogEntry(
+                    logMsg, // 위에서 생성한 flavor text 메시지
+                    LogLevel.Info,
+                    currentTurn,
+                    currentCycle, // 실제 사이클 번호 사용
+                    LogEventType.DamageApplied, // 이벤트 타입 지정
+                    contextUnit: ev.Target, // 피격 대상이 주요 컨텍스트
+                    shouldUpdateTargetView: true,
+                    turnStartStateSnapshot: null // 전체 스냅샷은 저장 안 함
+                );
+
+                // 델타 정보 채우기
+                logEntry.Damage_SourceUnitName = ev.Source?.Name;
+                logEntry.Damage_TargetUnitName = ev.Target.Name;
+                logEntry.Damage_DamagedPartSlot = ev.DamagedPart.ToString(); // PartType을 string으로 변환
+                logEntry.Damage_AmountDealt = ev.DamageDealt;
+                logEntry.Damage_NewDurability = ev.PartCurrentDurability; // DamageAppliedEvent에 이미 적용 후 내구도 정보가 있음
+                logEntry.Damage_IsCritical = ev.IsCritical;
+                // PartWasDestroyed 정보는 DamageAppliedEvent에 직접적으로 없으므로,
+                // NewDurability가 0 이하인지 체크하여 추론하거나, PartDestroyedEvent를 별도로 처리해야 함.
+                logEntry.Damage_PartWasDestroyed = ev.PartCurrentDurability <= 0; // 간단한 추론 방식
+
+                // TextLogger의 AddLogEntryDirectly 메서드 호출
+                _textLogger.AddLogEntryDirectly(logEntry);
+
+                // 참고: 재생 로직(CombatTextUIService 등)에서 EventType이 DamageApplied인 로그를 만나면,
+                // 이 델타 정보를 사용하여 UI를 업데이트하도록 수정해야 합니다.
             }
+            // --- 델타 로그 기록 로직 끝 ---
+
+            // 이 핸들러 내의 기존 _textLogger.Log(...) 호출은 제거됨
         }
 
         private void HandleDamageAvoided(DamageEvents.DamageAvoidedEvent ev)
         {
+            // --- Flavor Text/Log Message 생성 로직 (기존과 유사) ---
+            string logMsg = "";
+            LogLevel logLevel = LogLevel.Info;
+            string iconTag = _useSpriteIcons ? "<sprite index=1> " : "";
+
              // Check if this is avoidance from a counter-attack
             if (ev.IsCounterAttack)
             {
@@ -626,76 +787,93 @@ namespace AF.Combat
                 string counterAttackerNameColored = ColorizeText($"[{ev.Source.Name}]", "yellow"); // Source is the counter-attacker
                 string counterTargetNameColored = ColorizeText($"[{ev.Target.Name}]", "lightblue"); // Target is the one avoiding the counter
                 string prefix = _textLogger.UseIndentation ? "    " : ""; 
-                string iconTag = _useSpriteIcons ? "<sprite index=1> " : ""; // <<< 아이콘 조건부 추가 (공백 포함)
-                string logMsg = 
+                logMsg =
                     $"{prefix}{iconTag}{counterTargetNameColored}(이)가 {counterAttackerNameColored}의 반격을 회피! ({ev.Type})";
-
-                // Log directly, context is the unit avoiding the counter
-                _textLogger?.Log(logMsg, LogLevel.Info, contextUnit: ev.Target, shouldUpdateTargetView: true); 
             }
             else // Normal avoidance, use flavor text
             {
-                // 1. Determine Template Key based on AvoidanceType
                 string templateKey = $"DamageAvoided_{ev.Type}"; // e.g., "DamageAvoided_Dodge"
-
-                // 2. Prepare parameters (roles are normal)
                 var parameters = new Dictionary<string, string>();
                 parameters.Add("attacker", ev.Source?.Name ?? "알 수 없는 공격자");
                 parameters.Add("target", ev.Target.Name); // Avoider is the target
 
-                // 3. Get and format the flavor text
                 string flavorText = GetRandomFlavorText(templateKey);
                 string formattedFlavorLog = FormatFlavorText(flavorText, parameters); // FormatFlavorText will colorize based on keys
 
-                // 4. Log the flavor text (if found)
                 if (!string.IsNullOrEmpty(formattedFlavorLog))
                 {
-                    string iconTagFlavor = _useSpriteIcons ? "<sprite index=1> " : ""; // <<< 아이콘 조건부 추가 (공백 포함)
-                    // 회피 로그는 회피한 유닛(Target) 컨텍스트, 대상 뷰 업데이트 true
-                    _textLogger?.Log($"{iconTagFlavor}{formattedFlavorLog}", LogLevel.Info, contextUnit: ev.Target, shouldUpdateTargetView: true); 
+                     logMsg = $"{iconTag}{formattedFlavorLog}";
                 }
-                
-                // 5. Log the original detailed info (removed as requested previously)
-                // string prefix = _textLogger.UseIndentation ? "    " : "  "; 
-                // string attackerName = ...
-                // string detailLogMsg = ...
-                // _textLogger?.Log(detailLogMsg, LogLevel.UnitDetail); 
+                else // Fallback
+                {
+                    // Default message if flavor text fails
+                    string attackerNameColored = ColorizeText($"[{ev.Source?.Name ?? "Unknown Source"}]", "yellow");
+                    string targetNameColored = ColorizeText($"[{ev.Target.Name}]", "lightblue");
+                    logMsg = $"{iconTag}{targetNameColored}(이)가 {attackerNameColored}의 공격을 회피! ({ev.Type})";
+                    Debug.LogWarning($"Flavor text not found for key: {templateKey}");
+                }
             }
+            // --- Log Message 생성 로직 끝 ---
+
+            // +++ 델타 로그 기록 로직 +++
+            if (_textLogger != null && !string.IsNullOrEmpty(logMsg))
+            {
+                ICombatSimulatorService simulator = null;
+                try { simulator = ServiceLocator.Instance.GetService<ICombatSimulatorService>(); }
+                catch (Exception serviceEx) { Debug.LogError($"CombatSimulatorService 가져오기 실패: {serviceEx.Message}"); }
+
+                int currentTurn = simulator?.CurrentTurn ?? _textLogger.GetCurrentTurnForLogging();
+                int currentCycle = simulator?.CurrentCycle ?? _textLogger.GetCurrentCycleForLogging();
+
+                var logEntry = new TextLogger.LogEntry(
+                    logMsg,
+                    logLevel,
+                    currentTurn,
+                    currentCycle,
+                    LogEventType.DamageAvoided, // <<< 이벤트 타입 지정
+                    contextUnit: ev.Target, // 회피한 유닛이 컨텍스트
+                    shouldUpdateTargetView: true,
+                    turnStartStateSnapshot: null
+                );
+
+                // 델타 정보 채우기
+                logEntry.Avoid_SourceName = ev.Source?.Name;
+                logEntry.Avoid_TargetName = ev.Target.Name;
+                logEntry.Avoid_Type = ev.Type;
+                logEntry.Avoid_IsCounterAttack = ev.IsCounterAttack;
+
+                _textLogger.AddLogEntryDirectly(logEntry);
+            }
+            // +++ 델타 로그 기록 로직 끝 ---
+
+            // 기존 _textLogger?.Log(...) 호출은 제거됨
         }
 
         private void HandlePartDestroyed(PartEvents.PartDestroyedEvent ev)
         {
-            // 1. Determine Template Key based on PartType
-            string partTypeString = ev.DestroyedPartType.ToString(); // e.g., "Head", "Body", "Arm", "Legs"
-            string templateKey;
+            // --- Flavor Text/Log Message 생성 로직 (기존과 동일) ---
+            string logMsg = "";
+            LogLevel logLevel = LogLevel.Warning;
+            string iconTag = _useSpriteIcons ? "<sprite index=2> " : "";
 
-            // Map PartType enum to a more specific key if needed, or use the enum string directly
+            // 1. Determine Template Key based on PartType
+            string partTypeString = ev.DestroyedPartType.ToString();
+            string templateKey;
             switch (ev.DestroyedPartType)
             {
-                case PartType.Head:
-                    templateKey = "PartDestroyed_Head";
-                    break;
-                case PartType.Body:
-                    templateKey = "PartDestroyed_Body";
-                    break;
-                case PartType.Arm: // Assuming Arm type exists
-                    templateKey = "PartDestroyed_Arm";
-                    break;
-                case PartType.Legs:
-                    templateKey = "PartDestroyed_Legs";
-                    break;
-                default: // Fallback for other part types
-                    templateKey = "PartDestroyed_General"; // Need a general template in Excel too
-                    break;
+                case PartType.Head: templateKey = "PartDestroyed_Head"; break;
+                case PartType.Body: templateKey = "PartDestroyed_Body"; break;
+                case PartType.Arm: templateKey = "PartDestroyed_Arm"; break;
+                case PartType.Legs: templateKey = "PartDestroyed_Legs"; break;
+                default: templateKey = "PartDestroyed_General"; break;
             }
-
 
             // 2. Prepare parameters
             var parameters = new Dictionary<string, string>
             {
                 { "target", ev.Frame.Name },
-                { "part", partTypeString }, // Use the string representation of the part type
-                { "destroyer", ev.Destroyer?.Name ?? "알 수 없는 원인" } // Null check for destroyer
+                { "part", partTypeString },
+                { "destroyer", ev.Destroyer?.Name ?? "알 수 없는 원인" }
             };
 
             // 3. Get and format the flavor text
@@ -705,41 +883,59 @@ namespace AF.Combat
             // 4. Log the flavor text (if found)
             if (!string.IsNullOrEmpty(formattedFlavorLog))
             {
-                string iconTag = _useSpriteIcons ? "<sprite index=2> " : ""; // <<< 아이콘 조건부 추가 (공백 포함)
-                // 파츠 파괴 로그는 파괴된 유닛(Frame) 컨텍스트, 대상 뷰 업데이트 true
-                _textLogger?.Log($"{iconTag}{formattedFlavorLog}", LogLevel.Warning, contextUnit: ev.Frame, shouldUpdateTargetView: true); 
+                 logMsg = $"{iconTag}{formattedFlavorLog}";
             }
-
-            // 5. Log the original detailed info (adjusted level and formatting)
-            string prefix = _textLogger.UseIndentation ? "    " : "  "; // Indent more for detail line
-            string destroyerInfo = ev.Destroyer != null ? $" (Destroyer: {ev.Destroyer.Name})" : "";
-            string effectsInfo = ""; // Initialize effectsInfo
-
-            if (ev.Effects != null && ev.Effects.Length > 0)
+            else // Fallback
             {
-                if (ev.Effects.Length == 1)
-                {
-                    // 효과가 하나일 경우
-                    effectsInfo = $" -> Effect: {ev.Effects[0]}";
-                }
-                else
-                {
-                    // 효과가 여러 개일 경우: 개수와 첫 번째 효과 + "..."
-                    effectsInfo = $" -> Effects: {ev.Effects.Length} ({ev.Effects[0]}...)"; 
-                }
+                // Default message if flavor text fails
+                string ownerNameColored = ColorizeText($"[{ev.Frame.Name}]", "yellow"); // Owner as yellow
+                string destroyerInfo = ev.Destroyer != null ? $" by {ColorizeText(ev.Destroyer.Name, "yellow")}" : ""; // Destroyer colored if present
+                logMsg = $"{iconTag}<color=orange>!!! {ownerNameColored}'s {partTypeString} destroyed!{destroyerInfo}</color>";
+                Debug.LogWarning($"Flavor text not found for key: {templateKey}");
             }
+            // --- Log Message 생성 로직 끝 ---
 
-            string detailLogMsg = $"{prefix}<sprite index=2> Detail: [{ev.Frame.Name}]'s [{partTypeString}] destroyed!{destroyerInfo}{effectsInfo}"; // 수정된 effectsInfo 사용
-            // _textLogger?.Log(detailLogMsg, LogLevel.UnitDetail); // Log details as UnitDetail -> REMOVED
+            // +++ 델타 로그 기록 로직 +++
+            if (_textLogger != null && !string.IsNullOrEmpty(logMsg))
+            {
+                 ICombatSimulatorService simulator = null;
+                 try { simulator = ServiceLocator.Instance.GetService<ICombatSimulatorService>(); }
+                 catch (Exception serviceEx) { Debug.LogError($"CombatSimulatorService 가져오기 실패: {serviceEx.Message}"); }
+
+                 int currentTurn = simulator?.CurrentTurn ?? _textLogger.GetCurrentTurnForLogging();
+                 int currentCycle = simulator?.CurrentCycle ?? _textLogger.GetCurrentCycleForLogging();
+
+                 var logEntry = new TextLogger.LogEntry(
+                     logMsg,
+                     logLevel,
+                     currentTurn,
+                     currentCycle,
+                     LogEventType.PartDestroyed, // <<< 이벤트 타입 지정
+                     contextUnit: ev.Frame, // 파괴된 유닛이 컨텍스트
+                     shouldUpdateTargetView: true,
+                     turnStartStateSnapshot: null
+                 );
+
+                 // 델타 정보 채우기
+                 logEntry.PartDestroyed_OwnerName = ev.Frame.Name;
+                 logEntry.PartDestroyed_PartType = ev.DestroyedPartType; // Nullable 아님
+                 logEntry.PartDestroyed_DestroyerName = ev.Destroyer?.Name; // Nullable
+
+                 _textLogger.AddLogEntryDirectly(logEntry);
+            }
+            // +++ 델타 로그 기록 로직 끝 +++
+
+            // 기존 _textLogger?.Log(...) 호출은 제거됨
+            // 기존 상세 로그 로직도 제거됨
         }
 
         private void HandleStatusEffectApplied(StatusEffectEvents.StatusEffectAppliedEvent ev)
         {
-            // 1. Determine Template Key
-            string templateKey = "StatusEffectApplied"; // General key for now
+            // --- Flavor Text/Log Message 생성 로직 (기존과 동일) ---
+            string logMsg = "";
+            LogLevel logLevel = LogLevel.Info;
 
-            // 2. Prepare parameters
-            // Clean up the effect name for display
+            string templateKey = "StatusEffectApplied";
             string effectName = ev.EffectType.ToString().Replace("Buff_", "").Replace("Debuff_", "").Replace("Environmental_", "");
             effectName = System.Text.RegularExpressions.Regex.Replace(effectName, "([A-Z])", " $1").Trim();
             string durationText = ev.Duration == -1 ? "영구 지속" : $"{ev.Duration}턴";
@@ -748,166 +944,230 @@ namespace AF.Combat
             {
                 { "target", ev.Target.Name },
                 { "effect", effectName },
-                { "source", ev.Source?.Name ?? "알 수 없는 원인" }, // Null check for source
+                { "source", ev.Source?.Name ?? "알 수 없는 원인" },
                 { "duration", durationText },
-                { "magnitude", ev.Magnitude.ToString("F1") } // Add magnitude if needed by templates
+                { "magnitude", ev.Magnitude.ToString("F1") }
             };
-
-            // 3. Get and format the flavor text
             string flavorText = GetRandomFlavorText(templateKey);
             string formattedFlavorLog = FormatFlavorText(flavorText, parameters);
 
-            // 4. Log the flavor text (if found)
             if (!string.IsNullOrEmpty(formattedFlavorLog))
             {
-                string iconTag = _useSpriteIcons ? "<sprite index=4> " : ""; // <<< 아이콘 조건부 추가 (공백 포함)
-                // 효과 적용 로그는 적용된 유닛(Target) 컨텍스트, 대상 뷰 업데이트 true
-                _textLogger?.Log($"{iconTag}{formattedFlavorLog}", LogLevel.Info, contextUnit: ev.Target, shouldUpdateTargetView: true);
+                string iconTag = _useSpriteIcons ? "<sprite index=4> " : "";
+                logMsg = $"{iconTag}{formattedFlavorLog}";
             }
+            else // Fallback
+            {
+                 string targetNameColored = ColorizeText($"[{ev.Target.Name}]", "lightblue");
+                 string sourceInfo = ev.Source != null ? $" ({ColorizeText(ev.Source.Name, "yellow")}에 의해)" : "";
+                 logMsg = $"{(_useSpriteIcons ? "<sprite index=4> " : "")}{targetNameColored}: 상태 효과 '{effectName}' 적용됨 {sourceInfo}({durationText})";
+                 Debug.LogWarning($"Flavor text not found for key: {templateKey}");
+            }
+            // --- Log Message 생성 로직 끝 ---
 
-            // 5. Log the original detailed info (adjusted level and formatting)
-            string prefix = _textLogger.UseIndentation ? "    " : "  "; // Indent more for detail line
-            string sourceText = ev.Source != null ? $" by {ev.Source.Name}" : "";
-            string magnitudeText = ev.Magnitude != 0f ? $" (Magnitude: {ev.Magnitude:F1})" : "";
-            string detailLogMsg = $"{prefix}<sprite index=4> Detail: [{ev.Target.Name}] gained [{effectName}] effect{sourceText} ({durationText}){magnitudeText}";
-            // _textLogger?.Log(detailLogMsg, LogLevel.UnitDetail); // Log details as UnitDetail -> REMOVED
+            // +++ 델타 로그 기록 로직 +++
+            if (_textLogger != null && !string.IsNullOrEmpty(logMsg))
+            {
+                ICombatSimulatorService simulator = null;
+                try { simulator = ServiceLocator.Instance.GetService<ICombatSimulatorService>(); }
+                catch (Exception serviceEx) { Debug.LogError($"CombatSimulatorService 가져오기 실패: {serviceEx.Message}"); }
+
+                int currentTurn = simulator?.CurrentTurn ?? _textLogger.GetCurrentTurnForLogging();
+                int currentCycle = simulator?.CurrentCycle ?? _textLogger.GetCurrentCycleForLogging();
+
+                var logEntry = new TextLogger.LogEntry(
+                    logMsg,
+                    logLevel,
+                    currentTurn,
+                    currentCycle,
+                    LogEventType.StatusEffectApplied, // <<< 이벤트 타입 지정
+                    contextUnit: ev.Target,
+                    shouldUpdateTargetView: true,
+                    turnStartStateSnapshot: null
+                );
+
+                // 델타 정보 채우기
+                logEntry.StatusApplied_TargetName = ev.Target.Name;
+                logEntry.StatusApplied_SourceName = ev.Source?.Name;
+                logEntry.StatusApplied_EffectType = ev.EffectType; // Nullable 아님
+                logEntry.StatusApplied_Duration = ev.Duration;
+                logEntry.StatusApplied_Magnitude = ev.Magnitude;
+
+                _textLogger.AddLogEntryDirectly(logEntry);
+            }
+            // +++ 델타 로그 기록 로직 끝 +++
         }
 
         private void HandleStatusEffectExpired(StatusEffectEvents.StatusEffectExpiredEvent ev)
         {
-            // 1. Determine Template Key
-            string templateKey = "StatusEffectExpired"; // General key for now
+            // --- Flavor Text/Log Message 생성 로직 (기존과 동일) ---
+            string logMsg = "";
+            LogLevel logLevel = LogLevel.Info;
 
-            // 2. Prepare parameters (EXCLUDING target)
+            string templateKey = "StatusEffectExpired";
             string effectName = ev.EffectType.ToString().Replace("Buff_", "").Replace("Debuff_", "").Replace("Environmental_", "");
             effectName = System.Text.RegularExpressions.Regex.Replace(effectName, "([A-Z])", " $1").Trim();
-            string reason = ev.WasDispelled ? "해제됨" : "만료됨"; // Reason for expiration
+            string reason = ev.WasDispelled ? "해제됨" : "만료됨";
 
             var parameters = new Dictionary<string, string>
             {
-                // { "target", ev.Target.Name }, // <<< target 키 제거! >>>
                 { "effect", effectName },
                 { "reason", reason }
             };
-
-            // 3. Get the flavor text template
             string flavorText = GetRandomFlavorText(templateKey);
-            string logMsg;
             string iconTag = _useSpriteIcons ? "<sprite index=5> " : "";
 
-            // 4. Format and log
             if (!string.IsNullOrEmpty(flavorText))
             {
-                // <<< target 이름 직접 색칠 >>>
                 string targetNameColored = ColorizeText($"[{ev.Target.Name}]", "yellow");
-
-                // <<< 템플릿에서 {target} 부분 제거하고 나머지 포맷팅 >>>
-                string templateWithoutTarget = flavorText.Replace("{target}", ""); // {target} 플레이스홀더 제거
-                string formattedRestOfString = FormatFlavorText(templateWithoutTarget, parameters); // 나머지 부분 포맷
-
-                // <<< 최종 로그 메시지 조합 >>>
+                string templateWithoutTarget = flavorText.Replace("{target}", "");
+                string formattedRestOfString = FormatFlavorText(templateWithoutTarget, parameters);
                 logMsg = $"{iconTag}{targetNameColored}{formattedRestOfString}";
-
-                // 효과 만료 로그는 해당 유닛(Target) 컨텍스트, 대상 뷰 업데이트 true
-                _textLogger?.Log(logMsg, LogLevel.Info, contextUnit: ev.Target, shouldUpdateTargetView: true);
             }
-            else // Fallback if flavor text is not found
+            else // Fallback
             {
-                // 기존 로직과 유사한 간단한 메시지 (Target 이름 노란색 적용)
                 string targetNameColored = ColorizeText($"[{ev.Target.Name}]", "yellow");
-                string effectNameColored = ColorizeText(effectName, "grey"); // 효과 이름은 회색 유지
+                string effectNameColored = ColorizeText(effectName, "grey");
                 logMsg = $"{iconTag}{targetNameColored}의 {effectNameColored} 효과가 {reason}.";
                  Debug.LogWarning($"Flavor text not found for key: {templateKey}. Using default expiration log.");
-                _textLogger?.Log(logMsg, LogLevel.Info, contextUnit: ev.Target, shouldUpdateTargetView: true);
             }
+            // --- Log Message 생성 로직 끝 ---
 
-            // 5. Log the original detailed info (REMOVED)
-            // ...
+            // +++ 델타 로그 기록 로직 +++
+            if (_textLogger != null && !string.IsNullOrEmpty(logMsg))
+            {
+                ICombatSimulatorService simulator = null;
+                try { simulator = ServiceLocator.Instance.GetService<ICombatSimulatorService>(); }
+                catch (Exception serviceEx) { Debug.LogError($"CombatSimulatorService 가져오기 실패: {serviceEx.Message}"); }
+
+                int currentTurn = simulator?.CurrentTurn ?? _textLogger.GetCurrentTurnForLogging();
+                int currentCycle = simulator?.CurrentCycle ?? _textLogger.GetCurrentCycleForLogging();
+
+                var logEntry = new TextLogger.LogEntry(
+                    logMsg,
+                    logLevel,
+                    currentTurn,
+                    currentCycle,
+                    LogEventType.StatusEffectExpired, // <<< 이벤트 타입 지정
+                    contextUnit: ev.Target,
+                    shouldUpdateTargetView: true,
+                    turnStartStateSnapshot: null
+                );
+
+                // 델타 정보 채우기
+                logEntry.StatusExpired_TargetName = ev.Target.Name;
+                logEntry.StatusExpired_EffectType = ev.EffectType; // Nullable 아님
+                logEntry.StatusExpired_WasDispelled = ev.WasDispelled;
+
+                _textLogger.AddLogEntryDirectly(logEntry);
+            }
+            // +++ 델타 로그 기록 로직 끝 +++
         }
 
         private void HandleStatusEffectTick(StatusEffectEvents.StatusEffectTickEvent ev)
         {
-            // 1. Determine Template Key based on TickEffectType
-            string templateKey;
-            string tickIconTag = ""; // <<< 아이콘 변수 초기화
-            string tickActionText; // For detail log
+            // --- Flavor Text/Log Message 생성 로직 (기존과 동일) ---
+            string logMsg = "";
+            LogLevel logLevel = LogLevel.Info;
 
+            string templateKey;
+            string tickIconTag = "";
             if (ev.Effect.TickEffectType == TickEffectType.DamageOverTime)
             {
                 templateKey = "StatusEffectTick_Damage";
-                if (_useSpriteIcons) tickIconTag = "<sprite index=6> "; // 공백 추가
-                tickActionText = "damage";
+                if (_useSpriteIcons) tickIconTag = "<sprite index=6> ";
             }
-            else // Assuming HealOverTime or others
+            else
             {
                 templateKey = "StatusEffectTick_Heal";
-                if (_useSpriteIcons) tickIconTag = "<sprite index=7> "; // 공백 추가
-                tickActionText = "heal";
+                if (_useSpriteIcons) tickIconTag = "<sprite index=7> ";
             }
 
-            // 2. Prepare parameters
             string effectName = ev.Effect.EffectName;
-
             var parameters = new Dictionary<string, string>
             {
                 { "target", ev.Target.Name },
                 { "effect", effectName },
                 { "value", ev.Effect.TickValue.ToString("F0") } 
             };
-
-            // 3. Get and format the flavor text
             string flavorText = GetRandomFlavorText(templateKey);
             string formattedFlavorLog = FormatFlavorText(flavorText, parameters);
 
-            // 4. Log the flavor text (if found)
             if (!string.IsNullOrEmpty(formattedFlavorLog))
             {
-                // 틱 효과 로그는 해당 유닛(Target) 컨텍스트, 대상 뷰 업데이트 true
-                _textLogger?.Log($"{tickIconTag}{formattedFlavorLog}", LogLevel.Info, contextUnit: ev.Target, shouldUpdateTargetView: true);
+                logMsg = $"{tickIconTag}{formattedFlavorLog}";
             }
+            else // Fallback
+            {
+                string targetNameColored = ColorizeText($"[{ev.Target.Name}]", "lightblue");
+                string tickAction = ev.Effect.TickEffectType == TickEffectType.DamageOverTime ? "피해" : "회복";
+                logMsg = $"{tickIconTag}{targetNameColored} < [{effectName}] 틱! ([{ev.Effect.TickValue:F0}] {tickAction})";
+                Debug.LogWarning($"Flavor text not found for key: {templateKey}");
+            }
+            // --- Log Message 생성 로직 끝 ---
 
-            // 5. Log the original detailed info (adjusted level and formatting)
-            string prefix = _textLogger.UseIndentation ? "      " : "    "; // Indent even more for tick detail
-            string detailLogMsg = $"{prefix}{tickIconTag} Detail: [{ev.Target.Name}] ticked by [{effectName}] for [{ev.Effect.TickValue:F0}] {tickActionText}.";
-            // _textLogger?.Log(detailLogMsg, LogLevel.UnitDetail); // Log details as UnitDetail -> REMOVED
+            // +++ 델타 로그 기록 로직 +++
+            if (_textLogger != null && !string.IsNullOrEmpty(logMsg))
+            {
+                ICombatSimulatorService simulator = null;
+                try { simulator = ServiceLocator.Instance.GetService<ICombatSimulatorService>(); }
+                catch (Exception serviceEx) { Debug.LogError($"CombatSimulatorService 가져오기 실패: {serviceEx.Message}"); }
+
+                int currentTurn = simulator?.CurrentTurn ?? _textLogger.GetCurrentTurnForLogging();
+                int currentCycle = simulator?.CurrentCycle ?? _textLogger.GetCurrentCycleForLogging();
+
+                var logEntry = new TextLogger.LogEntry(
+                    logMsg,
+                    logLevel,
+                    currentTurn,
+                    currentCycle,
+                    LogEventType.StatusEffectTicked, // <<< 이벤트 타입 지정
+                    contextUnit: ev.Target,
+                    shouldUpdateTargetView: true,
+                    turnStartStateSnapshot: null
+                );
+
+                // 델타 정보 채우기
+                logEntry.StatusTick_TargetName = ev.Target.Name;
+                logEntry.StatusTick_EffectName = ev.Effect.EffectName;
+                logEntry.StatusTick_Value = ev.Effect.TickValue;
+                logEntry.StatusTick_TickType = ev.Effect.TickEffectType;
+
+                _textLogger.AddLogEntryDirectly(logEntry);
+            }
+            // +++ 델타 로그 기록 로직 끝 +++
         }
         
         // +++ 새로운 이벤트 핸들러 추가 +++
         private void HandleRepairApplied(CombatActionEvents.RepairAppliedEvent ev)
         {
-            // 1. Determine Template Key based on ActionType
+            // --- Flavor Text/Log Message 생성 로직 (기존과 동일) ---
+            string logMsg = "";
+            LogLevel logLevel = LogLevel.Info;
+
             string templateKey = ev.ActionType == CombatActionEvents.ActionType.RepairAlly
                 ? "RepairAlly_Success"
                 : "RepairSelf_Success";
-
-            // 2. Prepare parameters
             var parameters = new Dictionary<string, string>
             {
                 { "actor", ev.Actor.Name },
-                { "target", ev.Target.Name }, // For RepairSelf, target is the same as actor
+                { "target", ev.Target.Name },
                 { "part", ev.TargetSlotIdentifier },
                 { "amount", ev.AmountRepaired.ToString("F1") }
             };
-
-            // 3. Get and format the flavor text
             string flavorText = GetRandomFlavorText(templateKey);
             string formattedFlavorLog = FormatFlavorText(flavorText, parameters);
-
-            // 4. Log the flavor text (if found) or a default message
-            string logMsg;
-            string iconTag = _useSpriteIcons ? "<sprite index=7> " : ""; // 힐링/수리 아이콘
+            string iconTag = _useSpriteIcons ? "<sprite index=7> " : "";
 
             if (!string.IsNullOrEmpty(formattedFlavorLog))
             {
                 logMsg = $"{iconTag}{formattedFlavorLog}";
             }
-            else // Fallback if flavor text is not found
+            else // Fallback
             {
-                // 기존 로직과 유사한 간단한 메시지
                 string actorNameColored = ColorizeText($"[{ev.Actor.Name}]", "yellow");
                 string targetNameColored = ColorizeText($"[{ev.Target.Name}]", "lightblue");
                 string repairedAmountColored = $"<color=lime>+{ev.AmountRepaired:F1}</color>";
-
                 if (ev.ActionType == CombatActionEvents.ActionType.RepairAlly)
                 {
                      logMsg = $"{iconTag}{actorNameColored}(이)가 {targetNameColored}의 [{ev.TargetSlotIdentifier}] 파츠 {repairedAmountColored} 수리 완료.";
@@ -918,9 +1178,39 @@ namespace AF.Combat
                 }
                  Debug.LogWarning($"Flavor text not found for key: {templateKey}. Using default repair log.");
             }
+            // --- Log Message 생성 로직 끝 ---
 
-            // 로그 기록 (수리 대상 유닛 기준으로 Context 설정)
-            _textLogger?.Log(logMsg, LogLevel.Info, contextUnit: ev.Target, shouldUpdateTargetView: true);
+            // +++ 델타 로그 기록 로직 +++
+            if (_textLogger != null && !string.IsNullOrEmpty(logMsg))
+            {
+                ICombatSimulatorService simulator = null;
+                try { simulator = ServiceLocator.Instance.GetService<ICombatSimulatorService>(); }
+                catch (Exception serviceEx) { Debug.LogError($"CombatSimulatorService 가져오기 실패: {serviceEx.Message}"); }
+
+                int currentTurn = simulator?.CurrentTurn ?? _textLogger.GetCurrentTurnForLogging();
+                int currentCycle = simulator?.CurrentCycle ?? _textLogger.GetCurrentCycleForLogging();
+
+                var logEntry = new TextLogger.LogEntry(
+                    logMsg,
+                    logLevel,
+                    currentTurn,
+                    currentCycle,
+                    LogEventType.RepairApplied, // <<< 이벤트 타입 지정
+                    contextUnit: ev.Target,
+                    shouldUpdateTargetView: true,
+                    turnStartStateSnapshot: null
+                );
+
+                // 델타 정보 채우기
+                logEntry.Repair_ActorName = ev.Actor.Name;
+                logEntry.Repair_TargetName = ev.Target.Name;
+                logEntry.Repair_PartSlot = ev.TargetSlotIdentifier;
+                logEntry.Repair_Amount = ev.AmountRepaired;
+                logEntry.Repair_ActionType = ev.ActionType;
+
+                _textLogger.AddLogEntryDirectly(logEntry);
+            }
+            // +++ 델타 로그 기록 로직 끝 +++
         }
         // +++ 새로운 이벤트 핸들러 추가 끝 +++
         
@@ -971,18 +1261,51 @@ namespace AF.Combat
 
         private void HandleRoundStart(CombatSessionEvents.RoundStartEvent ev)
         {
-            _textLogger?.Log($"//==[ Combat Turn {ev.RoundNumber} Initiated ]==//", LogLevel.System);
+            // <<< 기존 Log 호출 주석 처리 >>>
+            // _textLogger?.Log($"//==[ Combat Turn {ev.RoundNumber} Initiated ]==//", LogLevel.System);
 
-            // 선택 사항: 행동 순서 로그
-            //if (ev.InitiativeSequence != null && ev.InitiativeSequence.Any())
-            //{
-            //    string sequence = string.Join(" > ", ev.InitiativeSequence.Select(u => $"[{u.Name}]"));
-            //     _textLogger?.Log($"--- Initiative Sequence: {sequence} ---", LogLevel.Info);
-            //}
+            // +++ LogEntry 직접 생성 방식으로 변경 +++
+            if (_textLogger != null)
+            {
+                 string message = $"//==[ Combat Turn {ev.RoundNumber} Initiated ]==//";
+
+                 // 라운드 시작 시 스냅샷 생성 (UnitActivationStart와 유사하게)
+                 var snapshotDict = new Dictionary<string, ArmoredFrameSnapshot>();
+                 var simulator = ServiceLocator.Instance.GetService<ICombatSimulatorService>();
+                 if (simulator != null)
+                 {
+                     // 라운드 시작 이벤트에 포함된 initiativeSequence 사용
+                     var participants = ev.InitiativeSequence;
+                     if (participants != null)
+                     {
+                         foreach (var unit in participants)
+                         {
+                             if (unit != null && !string.IsNullOrEmpty(unit.Name))
+                             {
+                                 snapshotDict[unit.Name] = new ArmoredFrameSnapshot(unit);
+                             }
+                         }
+                     }
+                 }
+                 else { Debug.LogError("Could not get CombatSimulatorService to create round start snapshot."); }
+
+                 var logEntry = new TextLogger.LogEntry(
+                     message,
+                     LogLevel.System,
+                     ev.RoundNumber, // 이벤트의 라운드(턴) 번호 사용
+                     0, // 라운드 시작은 사이클 0
+                     LogEventType.RoundStart, // <<< 타입 지정
+                     contextUnit: null,
+                     shouldUpdateTargetView: false,
+                     turnStartStateSnapshot: snapshotDict // 생성된 스냅샷 전달
+                 );
+                 _textLogger.AddLogEntryDirectly(logEntry);
+            }
         }
 
         private void HandleRoundEnd(CombatSessionEvents.RoundEndEvent ev)
         {
+            // 기존 주석 처리 유지
             //_textLogger?.Log($"//==[ Combat Turn {ev.RoundNumber} Complete ]==//", LogLevel.System);
         }
     }

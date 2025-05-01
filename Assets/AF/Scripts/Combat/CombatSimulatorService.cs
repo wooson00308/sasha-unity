@@ -53,6 +53,7 @@ namespace AF.Combat
         public string       CurrentBattleId   => _currentBattleId;
         public bool         IsInCombat        => _isInCombat;
         public int          CurrentTurn       => _currentTurn; // Renamed from CurrentCycle
+        public int          CurrentCycle      => _currentCycle; // <<< 구현 추가
         public ArmoredFrame CurrentActiveUnit => _currentActiveUnit;
         public HashSet<ArmoredFrame> MovedThisActivation => _movedThisActivation;
 

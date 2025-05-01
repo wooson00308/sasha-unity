@@ -282,9 +282,13 @@ namespace AF.Combat
                 if (destroyed)
                 {
                     ctx.Bus.Publish(new PartEvents.PartDestroyedEvent(
-                        target, part.Type, attacker,
-                        $"{slot} 파트가 파괴되었습니다.",
-                        $"{target.Name} 성능이 감소했습니다."));
+                        target,             // frame
+                        part.Type,          // destroyedPartType
+                        slot,               // destroyedSlotId
+                        attacker,           // destroyer
+                        $"{slot} 파트가 파괴되었습니다.", // effects[0]
+                        $"{target.Name} 성능이 감소했습니다." // effects[1]
+                    ));
                 }
 
                 // 전투 불능 → 결과는 시뮬레이터가 체크

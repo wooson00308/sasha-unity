@@ -9,6 +9,7 @@ using UnityEngine.UI; // Added for Image, LineRenderer etc.
 using TMPro; // Added for TextMeshPro
 using Cysharp.Threading.Tasks; // Added for UniTask
 using System;
+using DG.Tweening; // Added for DOTween animations
 
 namespace AF.UI
 {
@@ -30,6 +31,12 @@ namespace AF.UI
         [Header("Radar Settings")]
         [SerializeField] private float radarRadius = 100f; // UI 상의 레이더 반지름
         [SerializeField] private float maxDetectionRange = 50f; // 게임 월드 상 최대 탐지 거리 (UI 스케일링용)
+
+        [Header("Visual Effects")]
+        [SerializeField] private Color damageFlashColor = Color.magenta;
+        [SerializeField] private float flashDuration = 0.2f;
+        [SerializeField] private float pulseScale = 1.8f;
+        [SerializeField] private float moveAnimDuration = 0.3f;
 
         // Changed Dictionary Key from ArmoredFrame to string (Unit Name)
         private Dictionary<string, GameObject> _unitMarkers = new Dictionary<string, GameObject>();
@@ -150,34 +157,112 @@ namespace AF.UI
             ClearRadar(); // Ensure radar is clear before playback
             Debug.Log("Starting Radar Playback...");
 
-            // Loop through log entries and update radar based on snapshots
+            Dictionary<string, ArmoredFrameSnapshot> currentPlaybackState = null; // <<< 상태 저장용
+            ArmoredFrameSnapshot? activeUnitSnapshotForPositioning = null; // <<< 중심점 계산용
+
             foreach (var logEntry in logEntries)
             {
-                // Check if snapshot exists and context unit is valid
-                if (logEntry.TurnStartStateSnapshot != null && logEntry.ContextUnit != null)
+                // --- Full Snapshot Processing --- (Turn Start / Activation Start)
+                if (logEntry.EventType == LogEventType.UnitActivationStart || logEntry.EventType == LogEventType.RoundStart)
                 {
-                    // Find the snapshot for the active unit (ContextUnit)
-                    // Since ArmoredFrameSnapshot is likely a struct, it cannot be null.
-                    // We just need to check if the key exists.
-                    if (logEntry.TurnStartStateSnapshot.TryGetValue(logEntry.ContextUnit.Name, out var activeUnitSnapshot))
+                    if (logEntry.TurnStartStateSnapshot != null)
                     {
-                        // Update the radar display using the snapshot data
-                        UpdateRadarDisplayFromSnapshot(logEntry.TurnStartStateSnapshot, activeUnitSnapshot);
+                        currentPlaybackState = new Dictionary<string, ArmoredFrameSnapshot>(logEntry.TurnStartStateSnapshot); // Copy snapshot
 
-                        // Add delay for playback pacing (adjust as needed)
-                        await UniTask.Delay(TimeSpan.FromSeconds(0.2f)); // Example delay
-                    }
-                    else
-                    {
-                         Debug.LogWarning($"Could not find snapshot for active unit '{logEntry.ContextUnit.Name}' in TurnStartStateSnapshot.");
-                         // Skip update if active unit snapshot is missing
-                         continue;
+                        // Determine the active unit for radar centering
+                        if (logEntry.ContextUnit != null && currentPlaybackState.TryGetValue(logEntry.ContextUnit.Name, out var activeSnap))
+                        {
+                            activeUnitSnapshotForPositioning = activeSnap;
+                        }
+                        else if (currentPlaybackState.Count > 0) // Fallback if context unit is weird
+                        {
+                            activeUnitSnapshotForPositioning = currentPlaybackState.Values.FirstOrDefault(s => s.IsOperational);
+                            if(activeUnitSnapshotForPositioning == null && currentPlaybackState.Count > 0) // If no operational, take first
+                                activeUnitSnapshotForPositioning = currentPlaybackState.Values.First();
+                        }
+                        else { activeUnitSnapshotForPositioning = null; } // No units in snapshot?
+
+                        // Update the entire radar display based on this snapshot
+                        if(activeUnitSnapshotForPositioning != null)
+                             UpdateRadarDisplayFromSnapshot(currentPlaybackState, activeUnitSnapshotForPositioning.Value);
+
+                        await UniTask.Delay(TimeSpan.FromSeconds(0.2f)); // Delay after full update
+                        continue; // Proceed to next log entry
                     }
                 }
-                else
+
+                // --- Delta Log Processing --- Apply effects/animations --- //
+                if (currentPlaybackState == null || activeUnitSnapshotForPositioning == null)
                 {
-                     await UniTask.Yield(); // Wait a frame for non-snapshot entries
+                    await UniTask.Yield(); // Skip delta processing if we don't have a base state
+                    continue;
                 }
+
+                GameObject targetMarker = null;
+                string targetUnitName = null;
+
+                // Get the relevant marker based on the event type
+                switch (logEntry.EventType)
+                {
+                    case LogEventType.ActionCompleted:
+                        targetUnitName = logEntry.Action_ActorName;
+                        if (!string.IsNullOrEmpty(targetUnitName) && _unitMarkers.TryGetValue(targetUnitName, out targetMarker))
+                        {
+                            if (logEntry.Action_Type == CombatActionEvents.ActionType.Move && logEntry.Action_IsSuccess && logEntry.Action_NewPosition.HasValue)
+                            {
+                                Vector2 newRadarPos = CalculateRadarPosition(activeUnitSnapshotForPositioning.Value.Position, logEntry.Action_NewPosition.Value);
+                                await targetMarker.GetComponent<RectTransform>().DOAnchorPos(newRadarPos, moveAnimDuration).SetEase(Ease.OutQuad).AsyncWaitForCompletion();
+                            }
+                            else if (logEntry.Action_IsSuccess) // Play effect for other successful actions
+                            {
+                                await PlayPulseEffect(targetMarker);
+                            }
+                        }
+                        break;
+
+                    case LogEventType.DamageApplied:
+                        targetUnitName = logEntry.Damage_TargetUnitName;
+                        if (!string.IsNullOrEmpty(targetUnitName) && _unitMarkers.TryGetValue(targetUnitName, out targetMarker))
+                        {
+                            await PlayFlashEffect(targetMarker, damageFlashColor);
+                        }
+                        break;
+
+                    case LogEventType.PartDestroyed:
+                        targetUnitName = logEntry.PartDestroyed_OwnerName;
+                        if (!string.IsNullOrEmpty(targetUnitName) && _unitMarkers.TryGetValue(targetUnitName, out targetMarker))
+                        {
+                            await PlayFlashEffect(targetMarker, Color.black);
+                            // Potentially update marker appearance more drastically here
+                            if(currentPlaybackState.TryGetValue(targetUnitName, out var ownerSnap)) // Requires snapshot update logic first
+                                UpdateMarkerAppearanceFromSnapshot(targetMarker, ownerSnap, targetUnitName == activeUnitSnapshotForPositioning.Value.Name);
+                        }
+                        break;
+
+                    case LogEventType.StatusEffectApplied:
+                        targetUnitName = logEntry.StatusApplied_TargetName;
+                        if (!string.IsNullOrEmpty(targetUnitName) && _unitMarkers.TryGetValue(targetUnitName, out targetMarker))
+                        {
+                            await PlayPulseEffect(targetMarker, 1.2f, 0.15f);
+                        }
+                        break;
+
+                    case LogEventType.RepairApplied:
+                        targetUnitName = logEntry.Repair_TargetName;
+                        if (!string.IsNullOrEmpty(targetUnitName) && _unitMarkers.TryGetValue(targetUnitName, out targetMarker))
+                        {
+                            await PlayFlashEffect(targetMarker, Color.green);
+                        }
+                        break;
+
+                    // Add cases for other EventTypes like WeaponFired (draw temporary line?), DamageAvoided (different flash?) etc.
+
+                    default:
+                        await UniTask.Yield(); // Yield briefly for unhandled event types
+                        break;
+                }
+                 // Minimal delay between delta effects/updates
+                 await UniTask.Delay(TimeSpan.FromSeconds(0.05f));
             }
 
             Debug.Log("Radar Playback Finished.");
@@ -391,6 +476,34 @@ namespace AF.UI
              return null;
         }
         */
+
+        #endregion
+
+        #region Visual Effects Helpers
+
+        private async UniTask PlayFlashEffect(GameObject marker, Color flashColor)
+        {
+            if (marker == null) return;
+            var image = marker.GetComponent<Image>();
+            if (image == null) return;
+
+            Color originalColor = image.color;
+            await image.DOColor(flashColor, flashDuration / 2).SetEase(Ease.OutQuad).AsyncWaitForCompletion();
+            await image.DOColor(originalColor, flashDuration / 2).SetEase(Ease.InQuad).AsyncWaitForCompletion();
+        }
+
+        private async UniTask PlayPulseEffect(GameObject marker, float targetScale = 0f, float duration = 0f)
+        {
+            if (marker == null) return;
+            if (targetScale <= 0f) targetScale = pulseScale;
+            if (duration <= 0f) duration = flashDuration;
+
+            Vector3 originalScale = marker.transform.localScale;
+            // Ensure the original scale is set before pulsing if needed (might be redundant)
+            // marker.transform.localScale = originalScale; 
+            await marker.transform.DOScale(originalScale * targetScale, duration / 2).SetEase(Ease.OutQuad).AsyncWaitForCompletion();
+            await marker.transform.DOScale(originalScale, duration / 2).SetEase(Ease.InQuad).AsyncWaitForCompletion();
+        }
 
         #endregion
     }

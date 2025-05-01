@@ -21,6 +21,14 @@ namespace AF.Models
              MaxDurability = part?.MaxDurability ?? 0;
              IsOperational = part?.IsOperational ?? false;
         }
+
+        public PartSnapshot(string name, float currentDurability, float maxDurability, bool isOperational)
+        {
+            Name = name;
+            CurrentDurability = currentDurability;
+            MaxDurability = maxDurability;
+            IsOperational = isOperational;
+        }
     }
 
     /// <summary>
@@ -104,7 +112,7 @@ namespace AF.Models
                     else
                     {
                         // Optionally handle null parts in the dictionary if needed
-                        PartSnapshots[kvp.Key] = new PartSnapshot(null); // Or skip adding
+                        PartSnapshots[kvp.Key] = new PartSnapshot((Part)null); // Or skip adding
                     }
                 }
             }
@@ -116,6 +124,26 @@ namespace AF.Models
             {
                  WeaponSnapshots = weapons.Select(w => new WeaponSnapshot(w)).ToList();
             }
+        }
+
+        // +++ New constructor accepting all fields (for internal updates) +++
+        public ArmoredFrameSnapshot(
+            string name, Vector3 position, int teamId, float currentAP, float maxAP,
+            float currentTotalDurability, float maxTotalDurability, bool isOperational,
+            Stats combinedStats, Dictionary<string, PartSnapshot> partSnapshots, List<WeaponSnapshot> weaponSnapshots)
+        {
+            Name = name;
+            Position = position;
+            TeamId = teamId;
+            CurrentAP = currentAP;
+            MaxAP = maxAP;
+            CurrentTotalDurability = currentTotalDurability;
+            MaxTotalDurability = maxTotalDurability;
+            IsOperational = isOperational;
+            CombinedStats = combinedStats;
+            // Ensure collections are not null
+            PartSnapshots = partSnapshots ?? new Dictionary<string, PartSnapshot>();
+            WeaponSnapshots = weaponSnapshots ?? new List<WeaponSnapshot>();
         }
     }
 } 

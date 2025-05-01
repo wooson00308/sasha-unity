@@ -693,7 +693,14 @@ namespace AF.Tests
             // --- Log 호출 수정: 스냅샷 추가 ---
             // Log 메서드 시그니처에 맞게 contextUnit과 shouldUpdateTargetView 추가 (null, false)
             // Log($"총 {allParticipants.Count}기 참가 확정. 전투 시뮬레이션 시작.", LogLevel.System, null, false, initialSnapshot); // CombatTestRunner.Log 사용 안 함
-            textLogger?.TextLogger?.Log($"총 {allParticipants.Count}기 참가 확정. 전투 시뮬레이션 시작.", LogLevel.System, null, false, initialSnapshot); // textLogger 직접 사용
+            textLogger?.TextLogger?.Log(
+                $"총 {allParticipants.Count}기 참가 확정. 전투 시뮬레이션 시작.", // message
+                LogLevel.System,                        // level
+                LogEventType.CombatStart,               // eventType 
+                null,                                   // contextUnit
+                false,                                  // shouldUpdateTargetView
+                initialSnapshot                         // turnStartStateSnapshot
+            );
             // --- Log 호출 수정 끝 ---
 
             Log("전투 시뮬레이터 시작..."); // 일반 로그는 기존 Log 헬퍼 사용
