@@ -11,6 +11,7 @@ using Cysharp.Threading.Tasks;
 using System; // TimeSpan 사용 위해 추가
 using System.Linq;
 using System.Text;
+using System.Threading; // <<< CancellationTokenSource 사용 위해 추가
 
 namespace AF.UI
 {
@@ -22,19 +23,28 @@ namespace AF.UI
         [Header("UI References")] 
         // 기존 _logTextDisplay는 프리팹 방식으로 대체될 수 있으므로 주석 처리 또는 제거 고려
         // [SerializeField] private TMP_Text _logTextDisplay; 
-        [SerializeField] private ScrollRect _scrollRect; // 자동 스크롤용
+        [SerializeField] private ScrollRect _mainLogScrollRect; // <<< 이름 변경: _scrollRect -> _mainLogScrollRect
         [SerializeField] private GameObject _logLinePrefab; // 로그 한 줄을 표시할 프리팹
         [SerializeField] private Transform _logContainer; // 프리팹이 생성될 부모 컨테이너 (VerticalLayoutGroup 등)
         [SerializeField] private TMP_Text _unitDetailTextDisplay; // 유닛 상세 정보를 표시할 텍스트 (이제 전체 유닛용)
         [SerializeField] private TMP_Text _eventTargetDetailTextDisplay; // 최근 이벤트 대상 유닛 상세 정보 표시용 (추가)
+        [SerializeField] private TMP_Text _damageTargetDetailTextDisplay; // 피격 대상 표시용 추가
+        // +++ 상세 뷰 스크롤 렉트 추가 +++
+        [SerializeField] private ScrollRect _unitDetailScrollRect;
+        [SerializeField] private ScrollRect _eventTargetDetailScrollRect;
+        [SerializeField] private ScrollRect _damageTargetDetailScrollRect;
 
         [Header("Animation Settings")]
         // [SerializeField] private float _fadeInDuration = 0.3f; // 각 라인 페이드인 시간 (이제 사용 안 함)
         [SerializeField] private float _textAnimationDuration = 0.5f; // 텍스트 타이핑 애니메이션 시간
         [SerializeField] private float _lineDelay = 0.1f; // 다음 라인 표시 전 딜레이
+        [SerializeField] private float _damageTargetDisplayClearDelay = 1.5f; // <<< 피격 대상 UI 지연 삭제 시간
+        [SerializeField] private float _durationPerCharacter = 0.02f; // <<< 글자당 애니메이션 시간 추가
+        [SerializeField] private float _minTextAnimationDuration = 0.1f; // <<< 최소 애니메이션 시간 추가
 
         private EventBus.EventBus _eventBus;
         private bool _isInitialized = false;
+        private CancellationTokenSource _clearDamageTargetDisplayCts; // <<< 지연 삭제 취소 토큰
         // StringBuilder 와 라인 카운트는 프리팹 방식에서는 관리 방식 변경 필요
         // private System.Text.StringBuilder _logBuilder = new System.Text.StringBuilder();
         // private int _currentLogLines = 0;
@@ -55,7 +65,7 @@ namespace AF.UI
                 Debug.LogError("CombatTextUIService 초기화 실패: EventBus 참조를 가져올 수 없습니다.");
                 return;
             }
-            if (_logLinePrefab == null || _logContainer == null || _scrollRect == null)
+            if (_logLinePrefab == null || _logContainer == null || _mainLogScrollRect == null)
             {
                 Debug.LogError("CombatTextUIService 초기화 실패: 필요한 UI 참조(프리팹, 컨테이너, 스크롤렉트)가 설정되지 않았습니다.");
                 return;
@@ -65,6 +75,14 @@ namespace AF.UI
                 Debug.LogWarning("CombatTextUIService 초기화 경고: Unit Detail Text Display가 설정되지 않았습니다.");
                 // 상세 정보 표시 기능은 작동하지 않지만, 서비스 자체는 계속 진행하도록 할 수 있음
             }
+            if (_damageTargetDetailTextDisplay == null)
+            {
+                 Debug.LogWarning("CombatTextUIService 초기화 경고: Damage Target Detail Text Display가 설정되지 않았습니다.");
+            }
+            // +++ 상세 뷰 스크롤 렉트 Null 체크 추가 +++
+            if (_unitDetailScrollRect == null) Debug.LogWarning("CombatTextUIService: Unit Detail ScrollRect is not assigned.");
+            if (_eventTargetDetailScrollRect == null) Debug.LogWarning("CombatTextUIService: Event Target Detail ScrollRect is not assigned.");
+            if (_damageTargetDetailScrollRect == null) Debug.LogWarning("CombatTextUIService: Damage Target Detail ScrollRect is not assigned.");
 
             SubscribeToEvents();
             ClearLog(); 
@@ -75,6 +93,8 @@ namespace AF.UI
         {
             if (!_isInitialized) return;
             UnsubscribeFromEvents();
+            _clearDamageTargetDisplayCts?.Cancel(); // <<< 종료 시 지연 작업 취소
+            _clearDamageTargetDisplayCts?.Dispose();
             _eventBus = null;
             _isInitialized = false;
         }
@@ -124,13 +144,8 @@ namespace AF.UI
         /// </summary>
         private void UpdateEventTargetDetailDisplay(ArmoredFrame affectedUnit)
         {
-            if (affectedUnit == null || _eventTargetDetailTextDisplay == null) 
-            {
-                 if (_eventTargetDetailTextDisplay != null) _eventTargetDetailTextDisplay.text = ""; // Clear if no target
-                 return;
-            }
-             // Use the existing formatter for live ArmoredFrame data
-            _eventTargetDetailTextDisplay.text = FormatUnitDetails(affectedUnit); 
+            if (affectedUnit == null || _eventTargetDetailTextDisplay == null) { if (_eventTargetDetailTextDisplay != null) _eventTargetDetailTextDisplay.text = ""; return; }
+            _eventTargetDetailTextDisplay.text = FormatUnitDetails(affectedUnit);
         }
 
         /// <summary>
@@ -292,6 +307,221 @@ namespace AF.UI
             return sb.ToString().TrimEnd('\r', '\n');
         }
 
+        // --- Implemented UpdateSnapshotWithDelta (Revised with Debug Logs) --- //
+        private Dictionary<string, ArmoredFrameSnapshot> UpdateSnapshotWithDelta(
+            Dictionary<string, ArmoredFrameSnapshot> currentSnapshots,
+            TextLogger.LogEntry deltaEntry)
+        {
+            if (currentSnapshots == null || deltaEntry == null)
+            {
+                Debug.LogWarning("[UpdateSnapshotWithDelta] Input snapshots or deltaEntry is null.");
+                return currentSnapshots;
+            }
+
+            // Create a copy to modify
+            var updatedSnapshots = new Dictionary<string, ArmoredFrameSnapshot>(currentSnapshots);
+            bool snapshotUpdated = false; // Flag to track if any change was made
+
+            // <<< DEBUG: Log entry and event type >>>
+            // Debug.Log($"[UpdateSnapshotWithDelta] Processing Delta Log - Type: {deltaEntry.EventType}");
+
+            switch (deltaEntry.EventType)
+            {
+                case LogEventType.DamageApplied:
+                    // <<< DEBUG: Log DamageApplied processing >>>
+                    // Debug.Log($"[UpdateSnapshotWithDelta] Handling DamageApplied for Target: {deltaEntry.Damage_TargetUnitName}, Part: {deltaEntry.Damage_DamagedPartSlot}, Amount: {deltaEntry.Damage_AmountDealt}");
+                    if (!string.IsNullOrEmpty(deltaEntry.Damage_TargetUnitName) &&
+                        updatedSnapshots.TryGetValue(deltaEntry.Damage_TargetUnitName, out var targetSnapshot_Dmg))
+                    {
+                        // <<< DEBUG: Target snapshot found >>>
+                        // Debug.Log($"[UpdateSnapshotWithDelta] Found target snapshot for {deltaEntry.Damage_TargetUnitName}. Current Total Dur: {targetSnapshot_Dmg.CurrentTotalDurability}");
+
+                        var updatedPartSnapshots_Dmg = new Dictionary<string, PartSnapshot>(targetSnapshot_Dmg.PartSnapshots);
+                        if (!string.IsNullOrEmpty(deltaEntry.Damage_DamagedPartSlot) &&
+                            updatedPartSnapshots_Dmg.TryGetValue(deltaEntry.Damage_DamagedPartSlot, out var damagedPartSnapshot_Dmg))
+                        {
+                             // <<< DEBUG: Part snapshot found >>>
+                             // Debug.Log($"[UpdateSnapshotWithDelta] Found part snapshot for {deltaEntry.Damage_DamagedPartSlot}. Current Dur: {damagedPartSnapshot_Dmg.CurrentDurability}, New Dur from Delta: {deltaEntry.Damage_NewDurability}");
+
+                            var updatedPart_Dmg = CreateUpdatedPartSnapshot(
+                                damagedPartSnapshot_Dmg,
+                                newDurability: deltaEntry.Damage_NewDurability // Use delta's calculated new durability
+                            );
+                            updatedPartSnapshots_Dmg[deltaEntry.Damage_DamagedPartSlot] = updatedPart_Dmg;
+
+                             // <<< DEBUG: Part updated in dictionary >>>
+                             // Debug.Log($"[UpdateSnapshotWithDelta] Updated part {deltaEntry.Damage_DamagedPartSlot} durability to {updatedPart_Dmg.CurrentDurability}");
+
+                            var updatedTargetSnapshot_Dmg = CreateUpdatedArmoredFrameSnapshot(
+                                targetSnapshot_Dmg,
+                                updatedPartSnapshots_Dmg
+                            );
+                            updatedSnapshots[deltaEntry.Damage_TargetUnitName] = updatedTargetSnapshot_Dmg;
+                            snapshotUpdated = true; // Mark as updated
+
+                             // <<< DEBUG: Frame snapshot updated >>>
+                             // Debug.Log($"[UpdateSnapshotWithDelta] Updated frame snapshot for {deltaEntry.Damage_TargetUnitName}. New Total Dur: {updatedTargetSnapshot_Dmg.CurrentTotalDurability}");
+                        }
+                        else { /* Debug.LogWarning($"[UpdateSnapshotWithDelta] Part snapshot not found for slot: {deltaEntry.Damage_DamagedPartSlot}"); */ }
+                    }
+                    else { /* Debug.LogWarning($"[UpdateSnapshotWithDelta] Target snapshot not found for name: {deltaEntry.Damage_TargetUnitName}"); */ }
+                    break;
+
+                case LogEventType.ActionCompleted:
+                     // <<< DEBUG: Log ActionCompleted processing >>>
+                     // Debug.Log($"[UpdateSnapshotWithDelta] Handling ActionCompleted for Actor: {deltaEntry.Action_ActorName}, Type: {deltaEntry.Action_Type}");
+                    if (deltaEntry.Action_Type == CombatActionEvents.ActionType.Move &&
+                        deltaEntry.Action_IsSuccess &&
+                        !string.IsNullOrEmpty(deltaEntry.Action_ActorName) &&
+                        deltaEntry.Action_NewPosition.HasValue &&
+                        updatedSnapshots.TryGetValue(deltaEntry.Action_ActorName, out var actorSnapshot_Move))
+                    {
+                        // <<< DEBUG: Processing Move action >>>
+                        // Debug.Log($"[UpdateSnapshotWithDelta] Updating position for {deltaEntry.Action_ActorName} to {deltaEntry.Action_NewPosition.Value}");
+                        var updatedActorSnapshot_Move = CreateUpdatedArmoredFrameSnapshot(
+                            actorSnapshot_Move,
+                            newPosition: deltaEntry.Action_NewPosition.Value
+                        );
+                        updatedSnapshots[deltaEntry.Action_ActorName] = updatedActorSnapshot_Move;
+                        snapshotUpdated = true;
+                    }
+                    // TODO: Handle AP changes if delta includes it. E.g.:
+                    /*
+                    if (deltaEntry.Action_APCost.HasValue && !string.IsNullOrEmpty(deltaEntry.Action_ActorName) && updatedSnapshots.TryGetValue(deltaEntry.Action_ActorName, out var actorSnapshot_AP)) {
+                         float newAP = actorSnapshot_AP.CurrentAP - deltaEntry.Action_APCost.Value;
+                         var updatedActorSnapshot_AP = CreateUpdatedArmoredFrameSnapshot(
+                             actorSnapshot_AP,
+                             newCurrentAP: newAP
+                         );
+                         updatedSnapshots[deltaEntry.Action_ActorName] = updatedActorSnapshot_AP;
+                         snapshotUpdated = true;
+                    }
+                    */
+                    break;
+
+                case LogEventType.RepairApplied:
+                    // <<< DEBUG: Log RepairApplied processing >>>
+                    // Debug.Log($"[UpdateSnapshotWithDelta] Handling RepairApplied for Target: {deltaEntry.Repair_TargetName}, Part: {deltaEntry.Repair_PartSlot}, Amount: {deltaEntry.Repair_Amount}");
+                    if (!string.IsNullOrEmpty(deltaEntry.Repair_TargetName) &&
+                        updatedSnapshots.TryGetValue(deltaEntry.Repair_TargetName, out var targetSnapshot_Rep))
+                    {
+                        var updatedPartSnapshots_Rep = new Dictionary<string, PartSnapshot>(targetSnapshot_Rep.PartSnapshots);
+                        if (!string.IsNullOrEmpty(deltaEntry.Repair_PartSlot) &&
+                            updatedPartSnapshots_Rep.TryGetValue(deltaEntry.Repair_PartSlot, out var repairedPartSnapshot_Rep))
+                        {
+                            // <<< DEBUG: Part found for repair >>>
+                            // Debug.Log($"[UpdateSnapshotWithDelta] Found part {deltaEntry.Repair_PartSlot} for repair. Current Dur: {repairedPartSnapshot_Rep.CurrentDurability}");
+
+                            float newDurability = Mathf.Min(repairedPartSnapshot_Rep.CurrentDurability + deltaEntry.Repair_Amount, repairedPartSnapshot_Rep.MaxDurability);
+                            var updatedRepairedPart_Rep = CreateUpdatedPartSnapshot(
+                                repairedPartSnapshot_Rep,
+                                newDurability: newDurability
+                            );
+                            updatedPartSnapshots_Rep[deltaEntry.Repair_PartSlot] = updatedRepairedPart_Rep;
+
+                            // <<< DEBUG: Part repaired >>>
+                            // Debug.Log($"[UpdateSnapshotWithDelta] Repaired part {deltaEntry.Repair_PartSlot} to {newDurability}");
+
+                            var updatedTargetSnapshot_Rep = CreateUpdatedArmoredFrameSnapshot(
+                                targetSnapshot_Rep,
+                                updatedPartSnapshots_Rep
+                            );
+                            updatedSnapshots[deltaEntry.Repair_TargetName] = updatedTargetSnapshot_Rep;
+                            snapshotUpdated = true;
+
+                             // <<< DEBUG: Frame snapshot updated after repair >>>
+                             // Debug.Log($"[UpdateSnapshotWithDelta] Updated frame snapshot for {deltaEntry.Repair_TargetName} after repair. New Total Dur: {updatedTargetSnapshot_Rep.CurrentTotalDurability}");
+                        }
+                         else { /* Debug.LogWarning($"[UpdateSnapshotWithDelta] Part snapshot not found for repair slot: {deltaEntry.Repair_PartSlot}"); */ }
+                    }
+                     else { /* Debug.LogWarning($"[UpdateSnapshotWithDelta] Target snapshot not found for repair name: {deltaEntry.Repair_TargetName}"); */ }
+                    break;
+
+                case LogEventType.PartDestroyed:
+                    // <<< DEBUG: Log PartDestroyed processing >>>
+                    // Debug.Log($"[UpdateSnapshotWithDelta] Handling PartDestroyed for Owner: {deltaEntry.PartDestroyed_OwnerName}, PartType: {deltaEntry.PartDestroyed_PartType}");
+                    // TODO: This requires the LogEntry to contain the specific SLOT ID, not just PartType.
+                    // If Slot ID is added to LogEntry:
+                    /*
+                    if (!string.IsNullOrEmpty(deltaEntry.PartDestroyed_OwnerName) &&
+                        !string.IsNullOrEmpty(deltaEntry.PartDestroyed_SlotId) && // Assuming SlotId is added
+                        updatedSnapshots.TryGetValue(deltaEntry.PartDestroyed_OwnerName, out var ownerSnapshot_PD))
+                    {
+                        var updatedPartSnapshots_PD = new Dictionary<string, PartSnapshot>(ownerSnapshot_PD.PartSnapshots);
+                        if (updatedPartSnapshots_PD.TryGetValue(deltaEntry.PartDestroyed_SlotId, out var destroyedPartSnapshot_PD))
+                        {
+                            var updatedDestroyedPart_PD = CreateUpdatedPartSnapshot(
+                                destroyedPartSnapshot_PD,
+                                newDurability: 0 // Set durability to 0
+                            );
+                            updatedPartSnapshots_PD[deltaEntry.PartDestroyed_SlotId] = updatedDestroyedPart_PD;
+
+                            var updatedOwnerSnapshot_PD = CreateUpdatedArmoredFrameSnapshot(
+                                ownerSnapshot_PD,
+                                updatedPartSnapshots_PD
+                            );
+                            updatedSnapshots[deltaEntry.PartDestroyed_OwnerName] = updatedOwnerSnapshot_PD;
+                            snapshotUpdated = true;
+                            Debug.Log($"[UpdateSnapshotWithDelta] Marked part {deltaEntry.PartDestroyed_SlotId} as destroyed for {deltaEntry.PartDestroyed_OwnerName}");
+                        }
+                    }
+                    */
+                    break;
+
+                // Add other cases as needed (e.g., Status Effects changing stats, Weapon ammo changes)
+
+                default:
+                    break;
+            }
+
+             // <<< DEBUG: Log if snapshot was updated >>>
+             // if (snapshotUpdated) Debug.Log($"[UpdateSnapshotWithDelta] Snapshot was updated for event type {deltaEntry.EventType}.");
+             // else Debug.Log($"[UpdateSnapshotWithDelta] Snapshot NOT updated for event type {deltaEntry.EventType}.");
+
+            // Return the potentially modified dictionary
+            return updatedSnapshots;
+        }
+
+        // --- Helper methods for creating updated snapshots (struct immutability) ---
+
+        // Helper to create an updated PartSnapshot
+        private PartSnapshot CreateUpdatedPartSnapshot(PartSnapshot original, float? newDurability = null)
+        {
+            float durability = newDurability ?? original.CurrentDurability;
+            bool isOperational = durability > 0;
+            // Use the new constructor directly
+            return new PartSnapshot(original.Name, durability, original.MaxDurability, isOperational);
+        }
+
+        // Helper to create an updated ArmoredFrameSnapshot
+        private ArmoredFrameSnapshot CreateUpdatedArmoredFrameSnapshot(
+            ArmoredFrameSnapshot original,
+            Dictionary<string, PartSnapshot> newPartSnapshots = null,
+            Vector3? newPosition = null,
+            float? newCurrentAP = null // Optional: Add other fields to update as needed
+            )
+        {
+            var partsToUse = newPartSnapshots ?? original.PartSnapshots;
+            // Recalculate totals based on the parts collection being used
+            float totalCurrentDurability = partsToUse?.Values.Sum(p => p.CurrentDurability) ?? 0;
+            float totalMaxDurability = partsToUse?.Values.Sum(p => p.MaxDurability) ?? 0;
+            bool isOperational = totalCurrentDurability > 0;
+
+            // Use the new constructor directly
+            return new ArmoredFrameSnapshot(
+                original.Name,
+                newPosition ?? original.Position,
+                original.TeamId,
+                newCurrentAP ?? original.CurrentAP,
+                original.MaxAP, // Assuming MaxAP doesn't change mid-combat from these deltas
+                totalCurrentDurability, // Use recalculated value
+                totalMaxDurability,   // Use recalculated value
+                isOperational,        // Use recalculated value
+                original.CombinedStats, // Assuming stats don't change mid-combat from these deltas
+                partsToUse ?? new Dictionary<string, PartSnapshot>(),
+                original.WeaponSnapshots ?? new List<WeaponSnapshot>() // Assuming weapons don't change from these deltas
+            );
+        }
 
         #endregion
 
@@ -334,7 +564,7 @@ namespace AF.UI
             if (_unitDetailTextDisplay != null) 
                 _unitDetailTextDisplay.text = "Waiting for combat data..."; // 초기 메시지 설정
             if (_eventTargetDetailTextDisplay != null) 
-                _eventTargetDetailTextDisplay.text = ""; // 대상 창도 초기화
+                _eventTargetDetailTextDisplay.text = " "; // 대상 창도 초기화
             
             // 전투 시작 시 초기 참가자 정보 표시 시도 -> 제거: ProcessLogsAsync에서 첫 로그 처리 시 업데이트됨
             /*
@@ -404,57 +634,125 @@ namespace AF.UI
         // +++ 핸들러 추가 끝 +++
 
         // 로그 처리 로직 (로그 재생 및 상세 정보 동기화)
+        // ProcessLogsAsync: Updated logic for delta logs
         private async UniTaskVoid ProcessLogsAsync(CombatSessionEvents.CombatEndEvent evt)
         {
             ITextLogger textLogger = ServiceLocator.Instance.GetService<TextLoggerService>()?.TextLogger;
-            if (textLogger == null)
-            {
-                Debug.LogError("CombatTextUIService: TextLogger 참조를 가져올 수 없습니다.");
-                await CreateAndAnimateLogLine("오류: 전투 로그를 불러올 수 없습니다.");
-                return;
-            }
+            if (textLogger == null) { await CreateAndAnimateLogLine("오류: 전투 로그를 불러올 수 없습니다."); return; }
 
-            // 원본 LogEntry 리스트 가져오기
-            List<TextLogger.LogEntry> logEntries = textLogger.GetLogEntries(); 
+            List<TextLogger.LogEntry> logEntries = textLogger.GetLogEntries();
+            if (logEntries == null || logEntries.Count == 0) { Debug.LogWarning("표시할 전투 로그가 없습니다."); return; }
 
-            if (logEntries == null || logEntries.Count == 0)
-            {
-                Debug.LogWarning("표시할 전투 로그가 없습니다.");
-                return;
-            }
-            
-            // 전투 시작 시 초기 상태로 UI 클리어 (메인 로그 제외)
-            if (_unitDetailTextDisplay != null) _unitDetailTextDisplay.text = "";
-            if (_eventTargetDetailTextDisplay != null) _eventTargetDetailTextDisplay.text = "";
+            ClearLog(); // Clear UI before playback
+            if (_unitDetailTextDisplay != null) _unitDetailTextDisplay.text = " ";
+            if (_eventTargetDetailTextDisplay != null) _eventTargetDetailTextDisplay.text = " ";
+            if (_damageTargetDetailTextDisplay != null) _damageTargetDetailTextDisplay.text = " ";
 
-            // 로그 항목들을 순차적으로 처리하며 UI 업데이트 및 애니메이션 재생
+            // Use the correct snapshot type from AF.Models
+            Dictionary<string, AF.Models.ArmoredFrameSnapshot> currentPlaybackState = null;
+
+            Debug.Log("Starting Combat Log Playback...");
+
             foreach (var logEntry in logEntries)
             {
-                // 1. 전체 유닛 상세 정보 UI 업데이트 (턴 시작 로그일 때만)
-                if (logEntry.TurnStartStateSnapshot != null)
+                // <<< 루프 시작 시 무조건 취소 로직 제거 >>>
+                // _clearDamageTargetDisplayCts?.Cancel();
+                // _clearDamageTargetDisplayCts?.Dispose();
+                // _clearDamageTargetDisplayCts = null;
+
+                if (logEntry.EventType == LogEventType.UnitActivationStart || logEntry.EventType == LogEventType.RoundStart)
                 {
-                    UpdateAllUnitsDetailDisplay(logEntry.TurnStartStateSnapshot);
+                    if (logEntry.TurnStartStateSnapshot != null)
+                    {
+                        UpdateAllUnitsDetailDisplay(logEntry.TurnStartStateSnapshot);
+                        // Copy the dictionary, ensuring values are the correct AF.Models.ArmoredFrameSnapshot type
+                        currentPlaybackState = new Dictionary<string, AF.Models.ArmoredFrameSnapshot>(logEntry.TurnStartStateSnapshot);
+                    }
+                }
+                else if (currentPlaybackState != null)
+                {
+                    currentPlaybackState = UpdateSnapshotWithDelta(currentPlaybackState, logEntry);
+
+                    // <<< 전체 유닛 정보 UI를 매번 업데이트 >>>
+                    if (currentPlaybackState != null)
+                    {
+                        UpdateAllUnitsDetailDisplay(currentPlaybackState);
+                        // <<< 전체 유닛 상세 뷰 스크롤 맨 위로 >>>
+                        if (_unitDetailScrollRect != null) _unitDetailScrollRect.verticalNormalizedPosition = 1f;
+                    }
+                    // <<< 업데이트 로직 이동 끝 >>>
+
+                    // 이벤트 대상 UI 업데이트 (기존 로직)
+                    if (logEntry.ShouldUpdateTargetView && logEntry.ContextUnit != null)
+                    {
+                        if (currentPlaybackState != null && currentPlaybackState.TryGetValue(logEntry.ContextUnit.Name, out var updatedContextSnapshot))
+                        {
+                            _eventTargetDetailTextDisplay.text = FormatUnitDetailsFromSnapshot(updatedContextSnapshot);
+                            // <<< 이벤트 대상 상세 뷰 스크롤 맨 위로 >>>
+                            if (_eventTargetDetailScrollRect != null) _eventTargetDetailScrollRect.verticalNormalizedPosition = 1f;
+                        }
+                        else { _eventTargetDetailTextDisplay.text = FormatUnitDetails(logEntry.ContextUnit); } // Fallback
+                    }
+                    else if (!logEntry.ShouldUpdateTargetView && _eventTargetDetailTextDisplay != null) // 대상 업데이트 안 하면 비우기 (선택적)
+                    {
+                         // _eventTargetDetailTextDisplay.text = "";
+                    }
+
+                    // <<< 피격 대상 UI 업데이트 추가 >>>
+                    if (_damageTargetDetailTextDisplay != null) // UI 필드가 할당되었는지 확인
+                    {
+                        if (logEntry.EventType == LogEventType.DamageApplied && !string.IsNullOrEmpty(logEntry.Damage_TargetUnitName))
+                        {
+                            // <<< 새로운 DamageApplied 로그 처리: 기존 지연 삭제 취소 >>>
+                            _clearDamageTargetDisplayCts?.Cancel();
+                            _clearDamageTargetDisplayCts?.Dispose();
+                            _clearDamageTargetDisplayCts = null;
+
+                            if (currentPlaybackState != null && currentPlaybackState.TryGetValue(logEntry.Damage_TargetUnitName, out var damagedTargetSnapshot))
+                            {
+                                _damageTargetDetailTextDisplay.text = FormatUnitDetailsFromSnapshot(damagedTargetSnapshot);
+                                // <<< 피격 대상 상세 뷰 스크롤 맨 위로 >>>
+                                if (_damageTargetDetailScrollRect != null) _damageTargetDetailScrollRect.verticalNormalizedPosition = 1f;
+                            }
+                            else // 스냅샷에 없으면 Fallback (이론상 발생하면 안됨)
+                            {
+                                _damageTargetDetailTextDisplay.text = $"피격 대상 정보 없음: {logEntry.Damage_TargetUnitName}";
+                            }
+                        }
+                        else // DamageApplied 아니면 지연 삭제 시작 (이미 예약된 작업이 없으면)
+                        {
+                            // <<< 조건 추가: 이미 예약된 지연 삭제 작업이 없고, 텍스트가 비어있지 않다면 >>>
+                            if (_clearDamageTargetDisplayCts == null && !string.IsNullOrEmpty(_damageTargetDetailTextDisplay.text))
+                            {
+                                ClearDamageTargetDisplayAfterDelay().Forget();
+                            }
+                        }
+                    }
+                    // <<< 피격 대상 UI 업데이트 끝 >>>
+                }
+                else if (logEntry.ShouldUpdateTargetView && logEntry.ContextUnit != null)
+                {
+                    UpdateEventTargetDetailDisplay(logEntry.ContextUnit);
                 }
 
-                // 2. 이벤트 대상 상세 정보 UI 업데이트 (로그 애니메이션 전에!)
-                if (logEntry.ShouldUpdateTargetView && logEntry.ContextUnit != null)
-                {
-                    // 이벤트 대상 상세 정보 업데이트
-                    UpdateEventTargetDetailDisplay(logEntry.ContextUnit);
-                    // 전체 유닛 상세 정보도 함께 업데이트 (가장 최신 상태 반영) -> 제거: 턴 시작 시에만 업데이트
-                    // UpdateAllUnitsDetailDisplay(); 
-                }
-                
-                // 3. 메인 로그 애니메이션 재생 및 대기
                 string messageToDisplay = logEntry.Message;
-                if (logEntry.Level == LogLevel.System)
+                if (logEntry.Level == LogLevel.System || logEntry.EventType == LogEventType.RoundStart || logEntry.EventType == LogEventType.UnitActivationStart)
                 {
-                    messageToDisplay = $"<size=30>{logEntry.Message}</size>";
+                    messageToDisplay = $"<b>{logEntry.Message}</b>";
                 }
                 await CreateAndAnimateLogLine(messageToDisplay);
             }
+            Debug.Log("Combat Log Playback Finished.");
 
-            Debug.Log("전투 로그 재생 완료.");
+            // <<< 피격 대상 UI 클리어 추가 >>>
+            if (_damageTargetDetailTextDisplay != null)
+            {
+                 _damageTargetDetailTextDisplay.text = " ";
+            }
+            // <<< 클리어 시 지연 작업도 취소 >>>
+            _clearDamageTargetDisplayCts?.Cancel();
+            _clearDamageTargetDisplayCts?.Dispose();
+            _clearDamageTargetDisplayCts = null;
         }
 
         #endregion
@@ -463,20 +761,29 @@ namespace AF.UI
 
         private async UniTask CreateAndAnimateLogLine(string message)
         {
-            if (_logLinePrefab == null || _logContainer == null || _scrollRect == null) return;
+            if (_logLinePrefab == null || _logContainer == null) return;
 
             GameObject logInstance = Instantiate(_logLinePrefab, _logContainer);
             TMP_Text logText = logInstance.GetComponentInChildren<TMP_Text>();
 
-            if (_scrollRect != null)
+            // <<< 메인 로그 스크롤 로직 복원 (애니메이션 전) >>>
+            if (_mainLogScrollRect != null)
             {
-                 await _scrollRect.DOVerticalNormalizedPos(0f, 0.1f).SetEase(Ease.OutQuad).AsyncWaitForCompletion(); // <<< DOTween 애니메이션 추가
+                 // 즉시 맨 아래로 이동 (애니메이션 대신)
+                 await UniTask.Yield(PlayerLoopTiming.LastUpdate); // 레이아웃 업데이트 기다릴 수 있도록 Yield 추가
+                 _mainLogScrollRect.verticalNormalizedPosition = 0f;
+                 // 또는 애니메이션 사용:
+                 // await _mainLogScrollRect.DOVerticalNormalizedPos(0f, 0.1f).SetEase(Ease.OutQuad).AsyncWaitForCompletion();
             }
 
             if (logText != null)
             {
                 logText.text = "";
-                await logText.DOText(message, _textAnimationDuration).SetEase(Ease.Linear).AsyncWaitForCompletion();
+                // <<< 텍스트 길이에 따른 동적 듀레이션 계산 >>>
+                float targetDuration = message.Length * _durationPerCharacter;
+                float actualDuration = Mathf.Clamp(targetDuration, _minTextAnimationDuration, _textAnimationDuration);
+                // <<< 동적 듀레이션 적용 >>>
+                await logText.DOText(message, actualDuration).SetEase(Ease.Linear).AsyncWaitForCompletion();
             }
             else
             {
@@ -501,16 +808,50 @@ namespace AF.UI
                 Destroy(child.gameObject);
             }
 
-            if (_scrollRect != null)
+            if (_mainLogScrollRect != null)
             {
-                 _scrollRect.normalizedPosition = new Vector2(0, 1);
+                 _mainLogScrollRect.verticalNormalizedPosition = 1f;
             }
             if (_unitDetailTextDisplay != null)
             {
-                _unitDetailTextDisplay.text = "";
+                _unitDetailTextDisplay.text = " ";
+            }
+            if (_damageTargetDetailTextDisplay != null)
+            {
+                 _damageTargetDetailTextDisplay.text = " ";
             }
         }
 
         #endregion
+
+        // +++ 피격 대상 UI 지연 삭제 메서드 +++
+        private async UniTaskVoid ClearDamageTargetDisplayAfterDelay()
+        {
+            _clearDamageTargetDisplayCts = new CancellationTokenSource();
+            var token = _clearDamageTargetDisplayCts.Token;
+
+            try
+            {
+                await UniTask.Delay(TimeSpan.FromSeconds(_damageTargetDisplayClearDelay), cancellationToken: token);
+
+                // Delay가 성공적으로 완료되고 취소되지 않았으면 텍스트 클리어
+                if (_damageTargetDetailTextDisplay != null && !token.IsCancellationRequested)
+                {
+                    _damageTargetDetailTextDisplay.text = " ";
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                 // 작업이 취소된 경우 (예: 새로운 DamageApplied 로그가 와서)
+                 // Debug.Log("Damage target display clear cancelled.");
+            }
+            finally
+            {
+                // CTS 정리
+                _clearDamageTargetDisplayCts?.Dispose();
+                _clearDamageTargetDisplayCts = null;
+            }
+        }
+        // +++ 지연 삭제 메서드 끝 +++
     }
 } 
