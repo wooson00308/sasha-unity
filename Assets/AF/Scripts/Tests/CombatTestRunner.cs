@@ -8,6 +8,7 @@ using System;
 using AF.Data;
 using System.Linq;
 using Cysharp.Threading.Tasks;
+using AF.Combat.Agents; // Added for PilotAgent
 
 #if UNITY_EDITOR
 using UnityEditor; // Needed for AssetDatabase
@@ -42,6 +43,13 @@ namespace AF.Tests
         // +++ Player Squad State Storage +++
         private Dictionary<string, ArmoredFrame> _persistentPlayerFrames = new Dictionary<string, ArmoredFrame>();
         // +++ End Player Squad State Storage +++
+
+        // +++ Agent Host Prefab Reference +++
+        [TitleGroup("전투 테스트 설정")]
+        [Tooltip("AI 에이전트의 GameObject 템플릿 프리팹 (PilotAgent, DecisionRequester 등 포함)")]
+        [Required("에이전트 호스트 프리팹이 필요합니다.")]
+        public GameObject agentHostPrefab;
+        // +++ End Agent Host Prefab Reference +++
 
         [TitleGroup("전투 테스트 설정")]
         [InfoBox("전투 테스트에 참여할 기체와 팀 설정을 구성합니다.")]
@@ -81,7 +89,7 @@ namespace AF.Tests
             public Vector3 startPosition;
             // --- End Right Side Grouping ---
 
-            // --- Unified Parts Configuration & Preview --- 
+            // --- Unified Parts Configuration & Preview ---
             [FoldoutGroup("파츠 구성")]
             [HorizontalGroup("파츠 구성/Frame", LabelWidth = 100)]
             [VerticalGroup("파츠 구성/Frame/SO")]
@@ -227,7 +235,7 @@ namespace AF.Tests
                         FrameSO frameSO = FindResource<FrameSO>("Frames", assembly.FrameID);
                         PartSO headSO = FindResource<PartSO>("Parts", assembly.HeadPartID);
                         PartSO bodySO = FindResource<PartSO>("Parts", assembly.BodyPartID);
-                        PartSO armsSO = FindResource<PartSO>("Parts", assembly.LeftArmPartID);
+                        PartSO armsSO = FindResource<PartSO>("Parts", assembly.LeftArmPartID); // Assuming LeftArmID holds the Arm part
                         PartSO legsSO = FindResource<PartSO>("Parts", assembly.LegsPartID);
                         WeaponSO weapon1SO = FindResource<WeaponSO>("Weapons", assembly.Weapon1ID);
                         WeaponSO weapon2SO = FindResource<WeaponSO>("Weapons", assembly.Weapon2ID);
@@ -286,7 +294,7 @@ namespace AF.Tests
             private Sprite LoadSpritePreview(string id, string folderName)
             {
                 if (string.IsNullOrEmpty(id)) return null;
-#if UNITY_EDITOR
+                #if UNITY_EDITOR
                 string[] guids = AssetDatabase.FindAssets($"{id} t:sprite", new[] { $"Assets/AF/Sprites/{folderName}" });
                 if (guids.Length > 0)
                 {
@@ -294,7 +302,7 @@ namespace AF.Tests
                     return AssetDatabase.LoadAssetAtPath<Sprite>(path);
                 }
                 Debug.LogWarning($"Preview sprite not found for ID: {id} in folder: {folderName}");
-#endif
+                #endif
                 return null; // Return null if not in editor or not found
             }
 
@@ -453,11 +461,11 @@ namespace AF.Tests
         private Dictionary<string, PilotSO> pilotDatabase = new Dictionary<string, PilotSO>();
         [TabGroup("데이터베이스", "어셈블리")]
         private Dictionary<string, AssemblySO> assemblyDatabase = new Dictionary<string, AssemblySO>();
-        
+
         [FoldoutGroup("현재 전투 상태"), ReadOnly, LabelText("전투 ID")]
         public string currentBattleId;
         [FoldoutGroup("현재 전투 상태"), ReadOnly, LabelText("현재 턴")]
-        public int currentCycle;
+        public int currentCycle; // This likely should be CurrentTurn based on Simulator, maybe rename?
         [FoldoutGroup("현재 전투 상태"), ReadOnly, LabelText("전투 진행 중")]
         public bool isInCombat;
 
@@ -523,11 +531,20 @@ namespace AF.Tests
         [BoxGroup("전투 제어", centerLabel: true)]
         [HorizontalGroup("전투 제어/Buttons")]
         [Button(ButtonSizes.Large), GUIColor(0.3f, 0.8f, 0.3f), EnableIf("CanStartCombat")]
-        public async UniTaskVoid StartCombatTestAsync()
+        public async UniTask StartCombatTestAsync()
         {
+            // --- 추가: 메서드 진입 로그 ---
+            Debug.Log("StartCombatTestAsync entered.");
+            // --- 여기까지 ---
+
             if (isInCombat)
             {
                 Log("이미 전투가 진행 중입니다.", LogLevel.Warning);
+                return;
+            }
+            if (agentHostPrefab == null) // Prefab null check
+            {
+                Log("Agent Host Prefab이 설정되지 않았습니다!", LogLevel.Error);
                 return;
             }
 
@@ -542,8 +559,8 @@ namespace AF.Tests
                 Log("필수 서비스(CombatSimulatorService or TextLoggerService)를 찾을 수 없습니다!", LogLevel.Error);
                 return;
             }
-            
-            // --- 로그 포맷 설정 --- 
+
+            // --- 로그 포맷 설정 ---
             textLogger.SetShowLogLevel(showLogLevelPrefix);
             textLogger.SetShowTurnPrefix(showTurnPrefix);
             textLogger.SetUseIndentation(useLogIndentation);
@@ -554,7 +571,7 @@ namespace AF.Tests
             // --- 상태 초기화 ---
             textLogger.ConcreteLogger?.Clear(); // TextLogger 직접 초기화
             isInCombat = true; // 전투 시작 플래그 설정
-            currentCycle = 0;
+            // currentCycle = 0; // Cycle은 Simulator 내부에서 관리
             currentBattleId = Guid.NewGuid().ToString().Substring(0, 8); // 고유한 전투 ID 생성
 
             Log($"전투 시뮬레이션 시작 준비... (ID: {currentBattleId})", LogLevel.System);
@@ -583,7 +600,7 @@ namespace AF.Tests
                         Log($"기존 플레이어 유닛 '{playerSetup.persistentId}' 재사용.", LogLevel.Info);
                         playerAf = existingAf;
                         // 위치 업데이트 (새 전투 배치 위치 적용)
-                        playerAf.Position = playerSetup.startPosition; 
+                        playerAf.Position = playerSetup.startPosition;
                         // TODO: 필요하다면 다른 상태(예: AP)도 초기화/업데이트
                     }
                     else // 저장된 상태가 없으면 새로 생성
@@ -691,12 +708,10 @@ namespace AF.Tests
             // --- 스냅샷 생성 로직 끝 ---
 
             // --- Log 호출 수정: 스냅샷 추가 ---
-            // Log 메서드 시그니처에 맞게 contextUnit과 shouldUpdateTargetView 추가 (null, false)
-            // Log($"총 {allParticipants.Count}기 참가 확정. 전투 시뮬레이션 시작.", LogLevel.System, null, false, initialSnapshot); // CombatTestRunner.Log 사용 안 함
             textLogger?.TextLogger?.Log(
                 $"총 {allParticipants.Count}기 참가 확정. 전투 시뮬레이션 시작.", // message
                 LogLevel.System,                        // level
-                LogEventType.CombatStart,               // eventType 
+                LogEventType.CombatStart,               // eventType
                 null,                                   // contextUnit
                 false,                                  // shouldUpdateTargetView
                 initialSnapshot                         // turnStartStateSnapshot
@@ -706,25 +721,27 @@ namespace AF.Tests
             Log("전투 시뮬레이터 시작..."); // 일반 로그는 기존 Log 헬퍼 사용
             string battleName = $"Test Battle {DateTime.Now:HH:mm:ss}";
             string battleId = combatSimulator.StartCombat(allParticipants.ToArray(), battleName, false);
-            // currentCycle = 1; // <<< 제거: Cycle 시작은 Simulator 내부에서 처리
 
             try
             {
-                // Loop continues as long as combat is active and within safety limits
-                while (isInCombat && combatSimulator.CurrentTurn < 1000)
-                {
-                    // Await the asynchronous processing of the next turn/cycle
-                    await combatSimulator.ProcessNextTurnAsync(); // Pass CancellationToken if needed
+                int safetyBreak = 1000;
 
-                    // UniTask.Yield 대신 Frame 단위 지연 등 다른 방식 고려 가능
-                    await UniTask.Yield(PlayerLoopTiming.Update); 
+                Debug.Log("Entering combat loop...");
+
+                while (combatSimulator.IsInCombat && combatSimulator.CurrentTurn < safetyBreak)
+                {
+                    await combatSimulator.ProcessNextTurnAsync();
+                    await UniTask.Yield(PlayerLoopTiming.Update);
                 }
 
-                if (combatSimulator.CurrentTurn >= 1000)
+                Debug.Log($"Exited combat loop. Reason: isInCombat={combatSimulator.IsInCombat}, Turn={combatSimulator?.CurrentTurn}, SafetyBreak={safetyBreak}");
+
+                isInCombat = combatSimulator.IsInCombat;
+
+                if (combatSimulator != null && combatSimulator.CurrentTurn >= safetyBreak)
                 {
-                    Log($"안전 브레이크 발동! (1000 턴 초과)", LogLevel.Warning);
-                    // 전투 강제 종료 (무승부 처리 등)
-                    if (isInCombat) combatSimulator.EndCombat(CombatSessionEvents.CombatEndEvent.ResultType.Draw);
+                    Log($"안전 브레이크 발동! ({safetyBreak} 턴 초과)", LogLevel.Warning);
+                    if (combatSimulator.IsInCombat) combatSimulator.EndCombat(CombatSessionEvents.CombatEndEvent.ResultType.Draw);
                 }
             }
             catch (Exception ex)
@@ -733,35 +750,78 @@ namespace AF.Tests
             }
             finally
             {
+                Debug.Log("StartCombatTestAsync finally block reached.");
+
                 // CombatSimulator 내부에서 EndCombat 호출 시 isInCombat=false 처리될 수 있음
                 // Ensure EndCombat is called if the simulator is still active
-                if (combatSimulator != null && combatSimulator.IsInCombat) 
+                if (combatSimulator != null && combatSimulator.IsInCombat)
                 {
                     combatSimulator.EndCombat(); // 확실하게 종료 호출
                 }
-                isInCombat = false; // 상태 확실히 업데이트
                 Log("전투 프로세스 정리 완료.", LogLevel.System);
 
                 // 로그 파일 자동 저장 (옵션)
                 textLogger?.ConcreteLogger?.SaveToFile($"BattleLog_{currentBattleId}");
+
+                Debug.Log("StartCombatTestAsync finished.");
             }
         }
-        
+
         public void EndCombatTest()
         {
-            if (combatSimulator != null && isInCombat)
+            if (combatSimulator != null && combatSimulator.IsInCombat)
             {
                 combatSimulator.EndCombat();
-                isInCombat = false;
-                Log("=== 전투 테스트 중단됨 ===", LogLevel.System);
-                Debug.Log("전투가 수동으로 중단되었습니다.");
+                Log("전투가 수동으로 종료되었습니다.", LogLevel.Warning);
             }
+            // Clear participant references if needed
+            // combatSimulator?.ClearParticipants(); // Optionally clear here or rely on StartCombatTestAsync reinitialization
+        }
+
+        /// <summary>
+        /// 새로운 에피소드를 위해 전투 환경을 리셋합니다.
+        /// 이전 전투를 종료하고, 생성된 에이전트 호스트들을 제거합니다.
+        /// </summary>
+        public void ResetForNewEpisode()
+        {
+            // --- 추가: 메서드 진입 로그 ---
+            Debug.Log("ResetForNewEpisode entered.");
+            // --- 여기까지 ---
+
+            // 1. 현재 진행 중인 전투 강제 종료 (만약을 대비)
+            EndCombatTest();
+
+            // 2. 생성된 모든 에이전트 호스트 게임 오브젝트 파괴
+            //    AgentHostPrefab을 Instantiate할 때 이 CombatTestRunner 아래에 생성되도록 했으므로,
+            //    자식 오브젝트들을 순회하며 파괴합니다.
+            //    (더 안전하게 하려면 Instantiate 시 특정 태그를 붙이고 태그로 찾는 것이 좋음)
+            foreach (Transform child in transform)
+            {
+                // 에이전트 호스트 프리팹의 이름이나 특정 컴포넌트로 식별하는 것이 더 견고할 수 있음
+                // 여기서는 일단 모든 자식을 파괴한다고 가정 (CombatTestRunner 아래 다른 자식이 없다는 가정)
+                // 또는, AgentHostPrefab에 "AgentHost" 태그를 붙이고 아래 주석 코드를 사용
+                // if (child.CompareTag("AgentHost")) // "AgentHost" 태그가 지정된 경우
+                // {
+                    // DestroyImmediate(child.gameObject); // 에디터 모드 또는 즉시 파괴 필요 시
+                    Destroy(child.gameObject);
+                // }
+            }
+
+            // 3. 필요 시 전투 시뮬레이터 내부 상태 초기화 (EndCombat에서 처리될 수 있음)
+            // combatSimulator?.ResetState(); // 예시: 이런 메서드가 있다면 호출
+
+            // 4. 팀 ID별 색상 할당 초기화 (선택 사항)
+            // _currentTeamColors.Clear();
+
+            Debug.Log("ResetForNewEpisode finished.");
         }
 
         private bool CanStartCombat()
         {
             // 전투 중이면 비활성화
             if (isInCombat) return false;
+             // Prefab 설정 확인 추가
+             if (agentHostPrefab == null) return false;
 
             // 1. 모든 잠재적 참가자 목록 생성
             List<AFSetup> allPotentialSetups = new List<AFSetup>(playerSquadSetups);
@@ -790,7 +850,7 @@ namespace AF.Tests
                     if (setup.customFrame == null || setup.customBody == null)
                     {
                         // Log($"CanStartCombat: 커스텀 설정 오류 (Team ID: {setup.teamId}) - 필수 파츠(Frame, Body) 누락.", LogLevel.Debug);
-                        return false; 
+                        return false;
                     }
                      // 플레이어 스쿼드인 경우 Persistent ID 확인
                      if (playerSquadSetups.Contains(setup) && string.IsNullOrEmpty(setup.persistentId))
@@ -802,7 +862,7 @@ namespace AF.Tests
                 else
                 {
                     // 어셈블리 모드: Assembly 확인
-                    if (setup.assembly == null) 
+                    if (setup.assembly == null)
                     {
                          // Log($"CanStartCombat: 어셈블리 모드 설정 오류 (Team ID: {setup.teamId}) - Assembly 미설정.", LogLevel.Debug);
                          return false;
@@ -824,6 +884,11 @@ namespace AF.Tests
 
         private ArmoredFrame CreateTestArmoredFrame(string assemblyId, int teamId, Vector3 position)
         {
+            if (agentHostPrefab == null) // Check before use
+            {
+                Debug.LogError("CreateTestArmoredFrame Error: agentHostPrefab is not assigned!");
+                return null;
+            }
             if (!assemblyDatabase.TryGetValue(assemblyId, out AssemblySO assemblyData))
             {
                 Debug.LogError($"CreateTestArmoredFrame Error: AssemblySO with ID '{assemblyId}' not found in database.");
@@ -861,15 +926,22 @@ namespace AF.Tests
             // --- ArmoredFrame POCO 생성 ---
             ArmoredFrame af = new ArmoredFrame(instanceName, frame, position, teamId);
 
-            // --- PilotAgent 게임오브젝트 및 컴포넌트 생성 --- 
-            GameObject afGo = new GameObject(af.Name + "_AgentHost");
-            afGo.transform.SetParent(this.transform); // CombatTestRunner 자식으로 설정
-            var pilotAgentComponent = afGo.AddComponent<AF.Combat.Agents.PilotAgent>(); // 네임스페이스 포함하여 명시적 호출
+            // --- AgentHost Prefab 인스턴스화 및 PilotAgent 컴포넌트 가져오기 ---
+            GameObject agentGoInstance = Instantiate(agentHostPrefab, this.transform); // Instantiate and parent
+            agentGoInstance.name = af.Name + "_AgentHost"; // Set instance name
+            var pilotAgentComponent = agentGoInstance.GetComponent<PilotAgent>(); // Get component from prefab instance
+            if (pilotAgentComponent == null)
+            {
+                Debug.LogError($"CreateTestArmoredFrame Error: PilotAgent component not found on the instantiated agentHostPrefab for {af.Name}!");
+                Destroy(agentGoInstance); // Clean up the instance if agent component is missing
+                return null;
+            }
 
-            // --- 양방향 참조 설정 --- 
+            // --- 양방향 참조 설정 ---
             af.AgentComponent = pilotAgentComponent;          // AF POCO -> Agent 컴포넌트
             pilotAgentComponent.SetArmoredFrameReference(af); // Agent 컴포넌트 -> AF POCO
 
+            // --- 나머지 설정 (파일럿, 파츠, 무기) ---
             if (!pilotDatabase.TryGetValue(assemblyData.PilotID, out PilotSO pilotData))
             {
                  Debug.LogWarning($"PilotSO with ID '{assemblyData.PilotID}' not found for Assembly '{assemblyId}'. Using default Pilot.");
@@ -910,6 +982,11 @@ namespace AF.Tests
         /// </summary>
         private ArmoredFrame CreateCustomArmoredFrame(AFSetup setup, int participantIndex)
         {
+             if (agentHostPrefab == null) // Check before use
+             {
+                 Debug.LogError("CreateCustomArmoredFrame Error: agentHostPrefab is not assigned!");
+                 return null;
+             }
             // 필수 파츠 확인 (프레임, 바디)
             if (setup.customFrame == null || setup.customBody == null)
             {
@@ -941,10 +1018,16 @@ namespace AF.Tests
                                 : setup.customAFName;
             ArmoredFrame af = new ArmoredFrame(instanceName, frame, setup.startPosition, setup.teamId);
 
-            // --- PilotAgent 게임오브젝트 및 컴포넌트 생성 --- 
-            GameObject afGo = new GameObject(af.Name + "_AgentHost");
-            afGo.transform.SetParent(this.transform); // CombatTestRunner 자식으로 설정
-            var pilotAgentComponent = afGo.AddComponent<AF.Combat.Agents.PilotAgent>(); // 네임스페이스 포함하여 명시적 호출
+            // --- AgentHost Prefab 인스턴스화 및 PilotAgent 컴포넌트 가져오기 ---
+            GameObject agentGoInstance = Instantiate(agentHostPrefab, this.transform); // Instantiate and parent
+            agentGoInstance.name = af.Name + "_AgentHost"; // Set instance name
+            var pilotAgentComponent = agentGoInstance.GetComponent<PilotAgent>(); // Get component from prefab instance
+             if (pilotAgentComponent == null)
+             {
+                 Debug.LogError($"CreateCustomArmoredFrame Error: PilotAgent component not found on the instantiated agentHostPrefab for {af.Name}!");
+                 Destroy(agentGoInstance); // Clean up the instance
+                 return null;
+             }
 
             // --- 양방향 참조 설정 ---
             af.AgentComponent = pilotAgentComponent;          // AF POCO -> Agent 컴포넌트
@@ -963,7 +1046,7 @@ namespace AF.Tests
                     pilotData.Stat_AttackPower, pilotData.Stat_Defense, pilotData.Stat_Speed, pilotData.Stat_Accuracy,
                     pilotData.Stat_Evasion, pilotData.Stat_Durability, pilotData.Stat_EnergyEff, pilotData.Stat_MaxAP, pilotData.Stat_APRecovery
                 );
-                Pilot pilot = new Pilot(pilotData.PilotName ?? pilotData.name, pilotBaseStats, pilotData.Specialization);
+                Pilot pilot = new Pilot(pilotData.PilotName, pilotBaseStats, pilotData.Specialization);
                 af.AssignPilot(pilot);
             }
 
@@ -1035,19 +1118,19 @@ namespace AF.Tests
             try {
                  Weapon runtimeWeapon = new Weapon(
                      weaponSO.WeaponName ?? weaponSO.name,
-                     weaponSO.WeaponType, 
+                     weaponSO.WeaponType,
                      weaponSO.DamageType,
-                     weaponSO.BaseDamage, 
-                     weaponSO.Accuracy, 
+                     weaponSO.BaseDamage,
+                     weaponSO.Accuracy,
                      weaponSO.Range,
-                     weaponSO.AttackSpeed, 
+                     weaponSO.AttackSpeed,
                      weaponSO.OverheatPerShot,
                      weaponSO.BaseAPCost,
                      weaponSO.AmmoCapacity,
                      weaponSO.ReloadAPCost,
                      weaponSO.ReloadTurns,
                      weaponSO.AttackFlavorKey,
-                     weaponSO.ReloadFlavorKey 
+                     weaponSO.ReloadFlavorKey
                  );
                 af.AttachWeapon(runtimeWeapon);
             } catch (Exception e) { Log($"커스텀 무기 생성/부착 오류 ({weaponSO.name}): {e.Message}", LogLevel.Error); }
@@ -1092,12 +1175,12 @@ namespace AF.Tests
                 try {
                      Weapon runtimeWeapon = new Weapon(
                          weaponSO.WeaponName ?? weaponSO.name,
-                         weaponSO.WeaponType, 
+                         weaponSO.WeaponType,
                          weaponSO.DamageType,
-                         weaponSO.BaseDamage, 
-                         weaponSO.Accuracy, 
+                         weaponSO.BaseDamage,
+                         weaponSO.Accuracy,
                          weaponSO.Range,
-                         weaponSO.AttackSpeed, 
+                         weaponSO.AttackSpeed,
                          weaponSO.OverheatPerShot,
                          weaponSO.BaseAPCost,
                          weaponSO.AmmoCapacity,
@@ -1185,4 +1268,4 @@ namespace AF.Tests
         }
         // +++ End Reset Button +++
     }
-} 
+}

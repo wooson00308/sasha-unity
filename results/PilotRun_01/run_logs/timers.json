@@ -1,0 +1,42 @@
+{
+    "name": "root",
+    "metadata": {
+        "timer_format_version": "0.1.0",
+        "start_time_seconds": "1746176311",
+        "python_version": "3.8.10 (tags/v3.8.10:3d8993a, May  3 2021, 11:48:03) [MSC v.1928 64 bit (AMD64)]",
+        "command_line_arguments": "C:\\Users\\CATZE\\Desktop\\Development\\Unity\\Projects\\sasha-unity\\.venv-mlagents-py38\\lib\\site-packages\\mlagents\\trainers\\learn.py config/mlagents-config/pilot_config.yaml --run-id=PilotRun_01",
+        "mlagents_version": "0.28.0",
+        "mlagents_envs_version": "0.28.0",
+        "communication_protocol_version": "1.5.0",
+        "pytorch_version": "1.10.1+cpu",
+        "numpy_version": "1.24.4",
+        "end_time_seconds": "1746176321"
+    },
+    "total": 9.482515,
+    "count": 1,
+    "self": 0.011304199999999653,
+    "children": {
+        "run_training.setup": {
+            "total": 0.7660699999999996,
+            "count": 1,
+            "self": 0.7660699999999996
+        },
+        "TrainerController.start_learning": {
+            "total": 8.7051408,
+            "count": 1,
+            "self": 0.00018510000000127036,
+            "children": {
+                "TrainerController._reset_env": {
+                    "total": 8.7049247,
+                    "count": 1,
+                    "self": 8.7049247
+                },
+                "TrainerController._save_models": {
+                    "total": 3.0999999999892225e-05,
+                    "count": 1,
+                    "self": 3.0999999999892225e-05
+                }
+            }
+        }
+    }
+}

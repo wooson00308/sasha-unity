@@ -117,10 +117,21 @@ namespace AF.Combat.Agents
         /// <param name="sensor">관측 데이터를 추가할 센서.</param>
         public override void CollectObservations(VectorSensor sensor)
         {
-            if (_frame == null || _combatSimulator == null || !_frame.IsOperational)
+            if (_frame == null || _combatSimulator == null)
             {
+                // 참조가 아직 설정되지 않았으면 관측 없이 반환
+                // (초기화 단계에서 발생 가능)
+                // Debug.LogWarning($"PilotAgent {gameObject?.name ?? "Unknown"}: Frame or Simulator not ready. Skipping observation."); // 필요 시 주석 해제
+                sensor.AddObservation(new float[OBSERVATION_SIZE]); // 0으로 채워서 보내긴 해야 함
+                return;
+            }
+
+            if (!_frame.IsOperational)
+            {
+                // 작동 불능 상태 처리 (기존 로직 유지)
                 sensor.AddObservation(new float[OBSERVATION_SIZE]);
-                Debug.LogWarning($"PilotAgent {gameObject?.name ?? "Unknown"}: Invalid state. Adding zero observations.");
+                // 경고 메시지 레벨 조정 또는 제거 고려 (자주 발생 가능)
+                // Debug.LogWarning($"PilotAgent {gameObject?.name ?? "Unknown"}: Frame not operational. Adding zero observations."); 
                 return;
             }
 
@@ -259,11 +270,28 @@ namespace AF.Combat.Agents
         /// <param name="actions">결정된 행동 버퍼.</param>
         public override void OnActionReceived(ActionBuffers actions)
         {
-             if (_frame == null || _combatSimulator == null || !_frame.IsOperational || !_combatSimulator.IsInCombat || _combatSimulator.CurrentActiveUnit != _frame)
+            // --- 수정: Decision Source가 null이면 아직 요청 전이므로 무시하고 반환 ---
+            if (_decisionCompletionSource == null)
             {
-                // 행동을 수행할 수 없는 상태면 무시
+                // Debug.Log($"[{_frame?.Name ?? "Agent"}] OnActionReceived called but no decision requested yet. Ignoring."); // 필요 시 디버그 로그
                 return;
             }
+
+            // --- 기존 유효성 검사 (순서 약간 조정) ---
+            if (_frame == null || !_frame.IsOperational || _combatSimulator == null || !_combatSimulator.IsInCombat)
+            {
+                // 행동을 수행할 수 없는 상태면 요청 취소 시도 후 무시
+                Debug.LogWarning($"[{_frame?.Name ?? "Agent"}] OnActionReceived called in invalid state (Frame:{_frame != null}, Operational:{_frame?.IsOperational}, Sim:{_combatSimulator != null}, InCombat:{_combatSimulator?.IsInCombat}). Cancelling pending decision.");
+                _decisionCompletionSource.TrySetCanceled(); 
+                _cancellationTokenRegistration.Dispose();
+                _decisionCompletionSource = null;
+                return;
+            }
+            // 현재 유닛 턴이 아닐 경우에도 처리? (ML-Agents가 알아서 처리할 수도 있음. 일단 보류)
+            // if (_combatSimulator.CurrentActiveUnit != _frame)
+            // {
+            //     // ...
+            // }
 
             AddReward(REWARD_STEP); // Apply step penalty
 
@@ -345,18 +373,19 @@ namespace AF.Combat.Agents
                     break;
             }
 
-            // 결정된 행동 데이터를 _decisionCompletionSource를 통해 전달
-            if (_decisionCompletionSource != null && !_decisionCompletionSource.Task.Status.IsCompleted())
+            // --- 수정: 결정된 행동 데이터를 전달하고, 실패 시에만 경고 로그 --- 
+            var actionData = (chosenActionType, targetFrame, targetPosition, weapon);
+            bool setResultSuccess = _decisionCompletionSource.TrySetResult(actionData);
+
+            if (!setResultSuccess)
             {
-                var actionData = (chosenActionType, targetFrame, targetPosition, weapon);
-                _decisionCompletionSource.TrySetResult(actionData);
+                // 이미 완료되었거나 취소된 경우에만 경고 로그 출력
+                // (예: 타임아웃, 기체 파괴 등으로 RequestDecisionAsync 호출 측에서 취소한 경우)
+                 var status = _decisionCompletionSource.Task.Status;
+                 Debug.LogWarning($"[{_frame?.Name ?? "Agent"}] OnActionReceived: Could not set decision result. Task status was: {status}");
             }
-            else
-            {
-                // 이미 완료되었거나 없는 경우 (예: 타임아웃 또는 취소 후 OnActionReceived가 늦게 호출됨)
-                Debug.LogWarning($"[{_frame?.Name ?? "Agent"}] OnActionReceived called but no pending decision request found or it was already completed/cancelled.");
-            }
-             // 완료 후 리소스 정리
+
+            // 완료 후 리소스 정리 (TrySetResult 성공/실패와 관계없이 정리)
             _cancellationTokenRegistration.Dispose();
             _decisionCompletionSource = null;
 

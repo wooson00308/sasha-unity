@@ -1,0 +1,42 @@
+behaviors:
+  Pilot: # Behavior Name in Unity's Behavior Parameters component
+    trainer_type: ppo
+    hyperparameters:
+      batch_size: 1024
+      buffer_size: 10240
+      learning_rate: 3.0e-4 # 0.0003
+      beta: 5.0e-3 # 0.005 (Entropy regularization)
+      epsilon: 0.2 # PPO clipping
+      lambd: 0.95 # GAE lambda
+      num_epoch: 3 # Number of times to reuse buffer
+      learning_rate_schedule: linear # Gradual decrease
+
+    network_settings:
+      normalize: true # Normalize observations
+      hidden_units: 128 # Number of hidden layer neurons
+      num_layers: 2 # Number of hidden layers
+      vis_encode_type: simple # Used when no visual input
+
+    reward_signals:
+      extrinsic: # Reward from environment (our AddReward)
+        gamma: 0.99 # Future reward discount rate
+        strength: 1.0 # Reward strength
+
+    # self_play: # Self-Play settings excluded for now. Add later if needed.
+    #   save_steps: 50000
+    #   team_change: 200000
+    #   swap_steps: 10000
+    #   window: 10
+    #   play_against_latest_model_ratio: 0.5
+    #   initial_elo: 1200.0
+
+    max_steps: 1000000 # Total training steps (increase if needed)
+    time_horizon: 64   # Experience collection length per agent
+    summary_freq: 10000 # TensorBoard summary save frequency
+    threaded: true # Use multi-threading (usually faster)
+
+checkpoint_settings:
+  run_id: PilotRun_02 # Training run ID (log folder name)
+  initialize_from: null # Continue from previous training (null starts new)
+  load_model: null # Load pre-trained model
+  resume: false # Resume from previous checkpoint 
