@@ -12,6 +12,7 @@ namespace AF.Combat
     {
         public CombatContext(
             EventBus.EventBus bus,
+            ICombatSimulatorService simulator,
             TextLoggerService logger,
             string battleId,
             int currentTurn,
@@ -22,6 +23,7 @@ namespace AF.Combat
             HashSet<ArmoredFrame> movedThisActivation)
         {
             Bus              = bus;
+            Simulator        = simulator;
             Logger           = logger;
             BattleId         = battleId;
             CurrentTurn      = currentTurn;
@@ -33,6 +35,7 @@ namespace AF.Combat
         }
 
         public EventBus.EventBus          Bus               { get; }
+        public ICombatSimulatorService    Simulator         { get; }
         public TextLoggerService          Logger            { get; }
         public string                     BattleId          { get; }
         public int                        CurrentTurn       { get; }

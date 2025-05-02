@@ -11,7 +11,7 @@ namespace AF.Combat.Behaviors
     public sealed class RangedCombatBehaviorStrategy : PilotBehaviorStrategyBase
     {
         public override (CombatActionEvents.ActionType, ArmoredFrame, Vector3?, Weapon)
-            DetermineAction(ArmoredFrame activeUnit, CombatSimulatorService ctx)
+            DetermineAction(ArmoredFrame activeUnit, CombatContext context)
         {
             // ServiceLocator를 통해 TextLogger 가져오기
             var textLogger = ServiceLocator.Instance?.GetService<TextLoggerService>()?.TextLogger;
@@ -23,7 +23,7 @@ namespace AF.Combat.Behaviors
             }
 
             // === 가장 가까운 '작동 가능한' 적 계산 ===
-            var enemies = ctx.GetEnemies(activeUnit);
+            var enemies = context.Simulator.GetEnemies(activeUnit);
             if (enemies.Count == 0)
             {
                 // 작동 가능한 적이 없을 때 방어 시도 로직으로 이동
@@ -103,7 +103,7 @@ namespace AF.Combat.Behaviors
             float moveCost = CalculateMoveAPCost(activeUnit);
             bool canMove = activeUnit.HasEnoughAP(moveCost);
 
-            if (canMove && closestOperationalEnemy != null && !ctx.MovedThisActivation.Contains(activeUnit))
+            if (canMove && closestOperationalEnemy != null && !context.MovedThisActivation.Contains(activeUnit))
             {
                 Weapon referenceWeapon = fireWeapon ?? activeUnit.GetAllWeapons()
                                                         .Where(w => w.Type != WeaponType.Melee && w.IsOperational)
@@ -147,8 +147,8 @@ namespace AF.Combat.Behaviors
 
             // === 5) 방어 (기존과 동일, 조건은 이미 수정됨) ===
             if (activeUnit.HasEnoughAP(DEFEND_AP_COST) &&
-                !ctx.HasUnitDefendedThisTurn(activeUnit) &&
-                (!ctx.MovedThisActivation.Contains(activeUnit) || IsLowHealth(activeUnit)))
+                !context.Simulator.HasUnitDefendedThisTurn(activeUnit) &&
+                (!context.MovedThisActivation.Contains(activeUnit) || IsLowHealth(activeUnit)))
             {
                 return (CombatActionEvents.ActionType.Defend, null, null, null);
             }

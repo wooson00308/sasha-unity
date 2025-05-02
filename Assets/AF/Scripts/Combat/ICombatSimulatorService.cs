@@ -2,6 +2,8 @@ using AF.Models;
 using AF.Services;
 using System.Collections.Generic;
 using UnityEngine;
+using Cysharp.Threading.Tasks;
+using System.Threading;
 
 namespace AF.Combat
 {
@@ -37,6 +39,11 @@ namespace AF.Combat
         ArmoredFrame CurrentActiveUnit { get; }
         
         /// <summary>
+        /// 현재 활성화 사이클에 이동한 유닛 목록
+        /// </summary>
+        HashSet<ArmoredFrame> MovedThisActivation { get; }
+        
+        /// <summary>
         /// 전투 시작
         /// </summary>
         /// <param name="participants">전투 참가자들</param>
@@ -52,10 +59,10 @@ namespace AF.Combat
         void EndCombat(CombatSessionEvents.CombatEndEvent.ResultType? forceResult = null);
         
         /// <summary>
-        /// 다음 턴으로 진행
+        /// 다음 유닛 활성화 사이클을 비동기적으로 처리합니다.
         /// </summary>
-        /// <returns>턴이 성공적으로 진행되었는지 여부</returns>
-        bool ProcessNextTurn();
+        /// <param name="cancellationToken">작업 취소 토큰 (선택 사항)</param>
+        UniTask ProcessNextTurnAsync(CancellationToken cancellationToken = default);
         
         /// <summary>
         /// 유닛의 특정 행동을 수행합니다.
@@ -103,5 +110,12 @@ namespace AF.Combat
         /// <param name="forUnit">기준 유닛</param>
         /// <returns>적군 목록</returns>
         List<ArmoredFrame> GetEnemies(ArmoredFrame forUnit);
+        
+        /// <summary>
+        /// 해당 유닛이 이번 턴에 방어 행동을 했는지 확인합니다.
+        /// </summary>
+        /// <param name="unit">확인할 유닛</param>
+        /// <returns>방어 여부</returns>
+        bool HasUnitDefendedThisTurn(ArmoredFrame unit);
     }
 } 

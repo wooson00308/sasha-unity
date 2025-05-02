@@ -710,21 +710,19 @@ namespace AF.Tests
 
             try
             {
-                bool combatEnded = false;
-                int safetyBreak = 1000; // 무한 루프 방지
-
-                while (!combatEnded && isInCombat && combatSimulator.CurrentTurn < safetyBreak)
+                // Loop continues as long as combat is active and within safety limits
+                while (isInCombat && combatSimulator.CurrentTurn < 1000)
                 {
-                    // ProcessNextTurn() 반환값이 true면 전투 지속, false면 종료
-                    combatEnded = !combatSimulator.ProcessNextTurn(); 
+                    // Await the asynchronous processing of the next turn/cycle
+                    await combatSimulator.ProcessNextTurnAsync(); // Pass CancellationToken if needed
 
                     // UniTask.Yield 대신 Frame 단위 지연 등 다른 방식 고려 가능
                     await UniTask.Yield(PlayerLoopTiming.Update); 
                 }
 
-                if (combatSimulator.CurrentTurn >= safetyBreak)
+                if (combatSimulator.CurrentTurn >= 1000)
                 {
-                    Log($"안전 브레이크 발동! ({safetyBreak} 턴 초과)", LogLevel.Warning);
+                    Log($"안전 브레이크 발동! (1000 턴 초과)", LogLevel.Warning);
                     // 전투 강제 종료 (무승부 처리 등)
                     if (isInCombat) combatSimulator.EndCombat(CombatSessionEvents.CombatEndEvent.ResultType.Draw);
                 }

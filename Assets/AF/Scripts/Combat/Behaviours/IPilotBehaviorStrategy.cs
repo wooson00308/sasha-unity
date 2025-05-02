@@ -1,5 +1,7 @@
 using AF.Models;
 using UnityEngine;
+using Cysharp.Threading.Tasks;
+using System.Threading;
 
 namespace AF.Combat.Behaviors
 {
@@ -9,12 +11,15 @@ namespace AF.Combat.Behaviors
     public interface IPilotBehaviorStrategy
     {
         /// <summary>
-        /// 행동을 결정해 반환한다.
+        /// 행동을 비동기적으로 결정해 반환한다.
         /// </summary>
-        (CombatActionEvents.ActionType actionType,
-         ArmoredFrame targetFrame,
-         Vector3? targetPosition,
-         Weapon weapon)
-        DetermineAction(ArmoredFrame activeUnit, CombatSimulatorService context);
+        /// <param name="activeUnit">행동 주체</param>
+        /// <param name="context">전투 컨텍스트</param>
+        /// <param name="cancellationToken">작업 취소 토큰</param>
+        UniTask<(CombatActionEvents.ActionType actionType,
+                 ArmoredFrame targetFrame,
+                 Vector3? targetPosition,
+                 Weapon weapon)>
+        DetermineActionAsync(ArmoredFrame activeUnit, CombatContext context, CancellationToken cancellationToken = default);
     }
 }

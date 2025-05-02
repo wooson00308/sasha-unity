@@ -2,6 +2,8 @@ using AF.Combat;
 using AF.Services;
 using AF.Models;
 using UnityEngine;
+using Cysharp.Threading.Tasks;
+using System.Threading;
 
 namespace AF.Combat.Behaviors
 {
@@ -18,7 +20,16 @@ namespace AF.Combat.Behaviors
 
         // === 필수 구현 ===
         public abstract (CombatActionEvents.ActionType, ArmoredFrame, Vector3?, Weapon)
-            DetermineAction(ArmoredFrame activeUnit, CombatSimulatorService context);
+            DetermineAction(ArmoredFrame activeUnit, CombatContext context);
+
+        // 새로운 비동기 메서드 (virtual로 선언하여 하위 클래스에서 필요시 재정의 가능)
+        public virtual async UniTask<(CombatActionEvents.ActionType actionType, ArmoredFrame targetFrame, Vector3? targetPosition, Weapon weapon)>
+            DetermineActionAsync(ArmoredFrame activeUnit, CombatContext context, CancellationToken cancellationToken = default)
+        {
+            // 기본 구현: 기존 동기 메서드 호출
+            var result = DetermineAction(activeUnit, context);
+            return await UniTask.FromResult(result); // 결과를 UniTask로 래핑하여 반환
+        }
 
         // === 공통 유틸 ===
         protected float CalculateMoveAPCost(ArmoredFrame unit)

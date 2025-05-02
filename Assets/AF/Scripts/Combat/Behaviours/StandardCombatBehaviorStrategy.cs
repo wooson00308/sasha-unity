@@ -11,15 +11,15 @@ namespace AF.Combat.Behaviors
     public sealed class StandardCombatBehaviorStrategy : PilotBehaviorStrategyBase
     {
         public override (CombatActionEvents.ActionType, ArmoredFrame, Vector3?, Weapon)
-            DetermineAction(ArmoredFrame activeUnit, CombatSimulatorService ctx)
+            DetermineAction(ArmoredFrame activeUnit, CombatContext context)
         {
             if (activeUnit == null || !activeUnit.IsOperational)
                 return (default, null, null, null);
 
             // === 가장 가까운 적 계산 ===
-            var enemies = ctx.GetEnemies(activeUnit);
+            var enemies = context.Simulator.GetEnemies(activeUnit);
             if (enemies.Count == 0)
-                return (default, null, null, null);
+                return (CombatActionEvents.ActionType.None, null, null, null);
 
             ArmoredFrame closest = null;
             float minDist = float.MaxValue;
@@ -79,7 +79,7 @@ namespace AF.Combat.Behaviors
             float mvCost = CalculateMoveAPCost(activeUnit);
             if (activeUnit.HasEnoughAP(mvCost))
             {
-                if (ctx.MovedThisActivation.Contains(activeUnit))
+                if (context.MovedThisActivation.Contains(activeUnit))
                 {
                     // 이미 이동했다면, 다른 행동(예: 방어)을 고려하도록 이동 결정 안 함
                 }
@@ -114,8 +114,8 @@ namespace AF.Combat.Behaviors
 
             // === 4. 방어 ===
             if (activeUnit.HasEnoughAP(DEFEND_AP_COST) &&
-                !ctx.HasUnitDefendedThisTurn(activeUnit) &&
-                (!ctx.MovedThisActivation.Contains(activeUnit) || IsLowHealth(activeUnit)))
+                !context.Simulator.HasUnitDefendedThisTurn(activeUnit) &&
+                (!context.MovedThisActivation.Contains(activeUnit) || IsLowHealth(activeUnit)))
             {
                 return (CombatActionEvents.ActionType.Defend, null, null, null);
             }

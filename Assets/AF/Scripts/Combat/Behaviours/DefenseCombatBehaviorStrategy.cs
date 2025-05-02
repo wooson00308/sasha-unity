@@ -10,14 +10,14 @@ namespace AF.Combat.Behaviors
     public sealed class DefenseCombatBehaviorStrategy : PilotBehaviorStrategyBase
     {
         public override (CombatActionEvents.ActionType, ArmoredFrame, Vector3?, Weapon)
-            DetermineAction(ArmoredFrame activeUnit, CombatSimulatorService ctx)
+            DetermineAction(ArmoredFrame activeUnit, CombatContext context)
         {
             if (activeUnit == null || !activeUnit.IsOperational)
                 return (default, null, null, null);
 
             // 1) 먼저 방어 시도
             if (activeUnit.HasEnoughAP(DEFEND_AP_COST) &&
-                !ctx.HasUnitDefendedThisTurn(activeUnit))
+                !context.Simulator.HasUnitDefendedThisTurn(activeUnit))
             {
                 return (CombatActionEvents.ActionType.Defend, null, null, null);
             }
@@ -40,7 +40,7 @@ namespace AF.Combat.Behaviors
             var textLogger = ServiceLocator.Instance?.GetService<TextLoggerService>()?.TextLogger;
             string unitName = activeUnit?.Name ?? "Unknown";
             //textLogger?.Log($"[{unitName} (Defense)] 방어/재장전 외 표준 행동 시도.", LogLevel.Debug);
-            return new StandardCombatBehaviorStrategy().DetermineAction(activeUnit, ctx);
+            return new StandardCombatBehaviorStrategy().DetermineAction(activeUnit, context);
             // ============================================
         }
     }

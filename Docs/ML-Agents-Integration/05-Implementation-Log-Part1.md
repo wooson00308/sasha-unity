@@ -48,8 +48,32 @@ ML-Agents 파일럿 AI 구현 초기 단계 기록.
     *   결정된 파라미터로 `_combatSimulator.PerformAction()` 호출하여 실제 행동 실행 요청.
     *   임시 보상 로직 추가 (행동 시도/실패 시 작은 패널티).
 
+6.  **이벤트 기반 보상 로직 구현 (완료)**
+    *   **이벤트 식별:** `CombatActionEvents.cs`, `CombatSessionEvents.cs`, `DamageEvents.cs` 파일 분석하여 보상 로직에 필요한 이벤트(`DamageAppliedEvent`, `RepairAppliedEvent`, `CombatEndEvent`, `DamageAvoidedEvent`, `WeaponFiredEvent` 등) 식별. (`UnitDestroyedEvent`는 미사용 확인, `DamageAppliedEvent` 후 `IsUnitDefeated`로 처리).
+    *   **이벤트 구독:** `PilotAgent.cs`의 `OnEpisodeBegin`에서 필요한 이벤트 구독, `OnDestroy`에서 구독 해제 로직 구현.
+    *   **이벤트 핸들러:** 각 이벤트(`HandleDamageApplied`, `HandleRepairApplied` 등)를 처리하는 메서드 구현.
+    *   **보상 로직:** 이벤트 핸들러 내에서 이벤트 데이터를 분석하여 `AddReward()` 호출. 데미지 가함/받음, 적 파괴, 수리, 회피, 빗나감, 비효율적 행동, 전투 승패 등에 따라 보상/패널티 부여 (`REWARD_*` 상수 사용).
+    *   **임시 로직 제거:** `OnActionReceived` 내의 임시 보상/패널티 제거.
+    *   **오류 수정:** 구현 과정 중 발생한 다수의 린터 오류 해결.
+        *   `GetDurabilityRatio`, `AddUnitObservations` 메서드 중복 정의 오류: 파일 전체 검토 후 Helper Methods 섹션의 중복 메서드 제거.
+        *   `Pilot.Name`, `ArmoredFrame.Name`, `ArmoredFrame.Position` 등 POCO 프로퍼티 참조 오류 수정.
+
+7.  **비동기 턴 처리 구현 (UniTask) (완료)**
+    *   **문제 인식:** ML-Agent의 `RequestDecision()` 호출과 `OnActionReceived()` 결과 수신 사이의 지연 시간으로 인해, 동기 방식의 `CombatSimulatorService.ProcessNextTurn()`에서 타이밍 문제 발생 가능성 확인.
+    *   **UniTask 도입:** Coroutine 대신 UniTask를 사용하여 비동기 처리 구현 결정.
+    *   **인터페이스/기반 클래스 수정:**
+        *   `ICombatSimulatorService`: `ProcessNextTurn` -> `async UniTask ProcessNextTurnAsync(CancellationToken)`. (`MovedThisActivation` 프로퍼티, `HasUnitDefendedThisTurn` 메서드 추가).
+        *   `IPilotBehaviorStrategy`: `DetermineAction` (제거 고려) -> `async UniTask<(...)> DetermineActionAsync(CombatContext, CancellationToken)`.
+        *   `PilotBehaviorStrategyBase`: `abstract DetermineAction(CombatContext)` 유지, `virtual DetermineActionAsync` 추가 (기본 구현은 동기 호출 래핑).
+    *   **`CombatSimulatorService` 수정:** `ProcessNextTurnAsync`, `DetermineActionForUnitAsync` 메서드를 `async`/`await` 사용하여 구현. `DetermineActionForUnitAsync` 내에서 `strategy.DetermineActionAsync` 호출.
+    *   **`CombatContext` 수정:** `ICombatSimulatorService Simulator` 프로퍼티 추가 및 생성자 수정.
+    *   **기존 전략 클래스 수정:** `DetermineAction` 파라미터를 `CombatContext`로 변경, 내부 로직에서 `context.Simulator` 사용하도록 수정.
+    *   **`MLAgentBehaviorStrategy` 수정:** `PilotBehaviorStrategyBase` 상속, `DetermineActionAsync` 재정의하여 `PilotAgent.RequestDecisionAsync` 호출 및 `await`.
+    *   **`PilotAgent` 수정:** `UniTaskCompletionSource`를 사용하여 비동기 대기 구현. `RequestDecisionAsync` 메서드 추가, `OnActionReceived`에서 `TrySetResult` 호출 및 행동 실행 로직 제거.
+    *   **`CombatTestRunner` 수정:** `StartCombatTestAsync` 루프에서 `await combatSimulator.ProcessNextTurnAsync()` 호출.
+    *   **리팩토링:** 파라미터 타입(`CombatContext` vs `ICombatSimulatorService`) 및 인터페이스 멤버 누락 관련 린터 오류 해결 위해 반복 수정 진행.
+
 ## 다음 단계 구상
 
-*   **보상 로직 구체화:** 전투 이벤트 구독하여 실제 결과 기반 보상 설정.
-*   **`CombatSimulatorService` 비동기 처리 검토/수정:** AI 행동 결정 타이밍 문제 해결.
+*   **학습 환경 구성:** Unity 씬 설정, ML-Agents 컴포넌트(`DecisionRequester` 등) 구성, 학습 설정 파일(`.yaml`) 정의.
 *   학습 환경 구성 및 실제 학습 진행. 

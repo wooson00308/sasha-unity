@@ -11,7 +11,7 @@ namespace AF.Combat.Behaviors
     public sealed class MeleeCombatBehaviorStrategy : PilotBehaviorStrategyBase
     {
         public override (CombatActionEvents.ActionType, ArmoredFrame, Vector3?, Weapon)
-            DetermineAction(ArmoredFrame activeUnit, CombatSimulatorService ctx)
+            DetermineAction(ArmoredFrame activeUnit, CombatContext context)
         {
             string unitName = activeUnit?.Name ?? "Unknown";
 
@@ -22,7 +22,7 @@ namespace AF.Combat.Behaviors
 
 
             // === 가장 가까운 '작동 가능한' 적 계산 ===
-            var enemies = ctx.GetEnemies(activeUnit);
+            var enemies = context.Simulator.GetEnemies(activeUnit);
             if (enemies.Count == 0)
             {
                 // Fall through to defense / end turn
@@ -93,7 +93,7 @@ namespace AF.Combat.Behaviors
 
             if (canMove && closestOperationalEnemy != null)
             {
-                if (ctx.MovedThisActivation.Contains(activeUnit))
+                if (context.MovedThisActivation.Contains(activeUnit))
                 {
                     // 이미 이동했으면 이동 결정 안 함
                 }
@@ -117,10 +117,10 @@ namespace AF.Combat.Behaviors
 
             // === 4) 최후 방어 시도 === (Original step 6 is now step 4)
             bool canDefend = activeUnit.HasEnoughAP(DEFEND_AP_COST);
-            bool defended = ctx.HasUnitDefendedThisTurn(activeUnit);
+            bool defended = context.Simulator.HasUnitDefendedThisTurn(activeUnit);
 
             if (canDefend && !defended &&
-                (!ctx.MovedThisActivation.Contains(activeUnit) || IsLowHealth(activeUnit)))
+                (!context.MovedThisActivation.Contains(activeUnit) || IsLowHealth(activeUnit)))
             {
                 return (CombatActionEvents.ActionType.Defend, null, null, null);
             }

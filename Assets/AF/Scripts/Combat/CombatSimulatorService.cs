@@ -6,6 +6,8 @@ using AF.Models;
 using AF.Services;
 using AF.Combat.Behaviors;  // 파일럿 전략
 using UnityEngine;
+using Cysharp.Threading.Tasks; // UniTask 네임스페이스 추가
+using System.Threading; // CancellationToken 사용 위해 추가 (선택적)
 
 namespace AF.Combat
 {
@@ -181,111 +183,111 @@ namespace AF.Combat
         // ──────────────────────────────────────────────────────────────
         // 턴 진행 (사이클/활성화 로직으로 변경) -> 이름 유지, 내부 변수 변경
         // ──────────────────────────────────────────────────────────────
-        public bool ProcessNextTurn() // Method name kept as is, logic reflects turn/cycle
+        public async UniTask ProcessNextTurnAsync(CancellationToken cancellationToken = default)
         {
-            if (!_isInCombat) return false;
+            if (!_isInCombat || cancellationToken.IsCancellationRequested) return; // UniTask void return
 
-            // Publish end event for the PREVIOUSLY active unit's cycle
-            if (_currentActiveUnit != null)
+            try // 비동기 작업 중 예외 처리 고려
             {
-                _eventBus.Publish(new CombatSessionEvents.UnitActivationEndEvent(
-                    _currentTurn, _currentCycle, _currentActiveUnit, _currentBattleId)); // Pass turn and cycle
-            }
-
-            var activeParticipants = _participants.Where(p => p.IsOperational).ToList();
-            bool isNewTurn = _actedThisCycle.SetEquals(activeParticipants); // Check if all active units have acted this turn
-
-            // --- Start New Turn Logic ---
-            if (isNewTurn || _currentTurn == 0) // If it's a new turn or the very first turn
-            {
-                if (_currentTurn > 0) // Publish RoundEnd only after the first turn
+                // Publish end event for the PREVIOUSLY active unit's cycle
+                if (_currentActiveUnit != null)
                 {
-                    _eventBus.Publish(new CombatSessionEvents.RoundEndEvent(_currentTurn, _currentBattleId)); // Use _currentTurn
+                    _eventBus.Publish(new CombatSessionEvents.UnitActivationEndEvent(
+                        _currentTurn, _currentCycle, _currentActiveUnit, _currentBattleId)); // Pass turn and cycle
                 }
 
-                _currentTurn++;        // Increment the overall turn number
-                _currentCycle = 0;     // Reset the activation cycle counter for the new turn
-                _actedThisCycle.Clear(); // Clear the set of units that have acted
-                _defendedThisTurn.Clear(); // Clear defense status for the new turn
-                _movedThisActivation.Clear();
+                var activeParticipants = _participants.Where(p => p.IsOperational).ToList();
+                bool isNewTurn = _actedThisCycle.SetEquals(activeParticipants); // Check if all active units have acted this turn
 
-                List<ArmoredFrame> initiativeSequence = activeParticipants; // Use current active participants for initiative
-
-                _eventBus.Publish(new CombatSessionEvents.RoundStartEvent(
-                    _currentTurn, _currentBattleId, initiativeSequence)); // Use _currentTurn
-            }
-            // --- End New Turn Logic ---
-
-            // --- Activate Next Unit ---
-            _currentActiveUnit = GetNextActiveUnit(); // Find the next unit yet to act this turn
-
-            // +++ Clear movement set for the new activation +++
-            _movedThisActivation.Clear(); 
-            // +++ Clear movement set end +++
-
-            if (_currentActiveUnit == null) // Should only happen if battle ends or an error occurs
-            {
-                // If GetNextActiveUnit is null but it wasn't the start of a new turn, something is wrong
-                if (!isNewTurn)
+                // --- Start New Turn Logic ---
+                if (isNewTurn || _currentTurn == 0) // If it's a new turn or the very first turn
                 {
-                     Debug.LogWarning($"ProcessNextTurn: GetNextActiveUnit returned null unexpectedly. Turn: {_currentTurn}, Acted: {_actedThisCycle.Count}, Active: {activeParticipants.Count}");
+                    if (_currentTurn > 0) // Publish RoundEnd only after the first turn
+                    {
+                        _eventBus.Publish(new CombatSessionEvents.RoundEndEvent(_currentTurn, _currentBattleId)); // Use _currentTurn
+                    }
+
+                    _currentTurn++;        // Increment the overall turn number
+                    _currentCycle = 0;     // Reset the activation cycle counter for the new turn
+                    _actedThisCycle.Clear(); // Clear the set of units that have acted
+                    _defendedThisTurn.Clear(); // Clear defense status for the new turn
+                    _movedThisActivation.Clear();
+
+                    List<ArmoredFrame> initiativeSequence = activeParticipants; // Use current active participants for initiative
+
+                    _eventBus.Publish(new CombatSessionEvents.RoundStartEvent(
+                        _currentTurn, _currentBattleId, initiativeSequence)); // Use _currentTurn
                 }
-                CheckBattleEndCondition(); // Check end condition regardless
-                return !_isInCombat;       // Return false if combat has ended
-            }
+                // --- End New Turn Logic ---
 
-            // Increment the cycle counter for this unit's activation
-            _currentCycle++;
+                // --- Activate Next Unit ---
+                _currentActiveUnit = GetNextActiveUnit(); // Find the next unit yet to act this turn
 
-            // +++ AP 회복 전 값 저장 및 회복 호출 +++
-            float apBeforeRecovery = _currentActiveUnit.CurrentAP;
-            _currentActiveUnit.RecoverAPOnTurnStart(); // Recover AP 
-            // +++ AP 회복 로직 끝 +++
+                // +++ Clear movement set for the new activation +++
+                _movedThisActivation.Clear(); 
+                // +++ Clear movement set end +++
 
-            // Publish start event for the NEWLY active unit's cycle
-            _eventBus.Publish(new CombatSessionEvents.UnitActivationStartEvent(
-                 _currentTurn, _currentCycle, _currentActiveUnit, _currentBattleId, apBeforeRecovery)); // <<< Pass apBeforeRecovery
-
-            // --- Process Active Unit's Cycle ---
-
-            // Check and complete reload for the activated unit at the start of its cycle
-            foreach (var w in _currentActiveUnit.GetAllWeapons())
-            {
-                if (w.IsReloading)
+                if (_currentActiveUnit == null) // Should only happen if battle ends or an error occurs
                 {
-                    // CheckReloadCompletion now also handles FinishReload if completed
-                    w.CheckReloadCompletion(_currentTurn); // Pass the current overall turn number
-                }
-            }
-
-            _statusProcessor.Tick(MakeCtx(), _currentActiveUnit); // Apply status effect ticks
-
-            // Determine and execute actions for the unit
-            int actions=0, maxActions=30; // Safety break for action loop
-            while (_currentActiveUnit.IsOperational && actions<maxActions)
-            {
-                var (act,tp,pos,wep) = DetermineActionForUnit(_currentActiveUnit);
-                if (act==default) // No action determined
-                {
-                    _textLogger?.TextLogger?.Log($"[{_currentActiveUnit.Name}] 추가 행동 프로토콜 없음. 시스템 대기 상태로 전환.", LogLevel.Info);
-                    break;
+                    // If GetNextActiveUnit is null but it wasn't the start of a new turn, something is wrong
+                    if (!isNewTurn)
+                    {
+                         Debug.LogWarning($"ProcessNextTurn: GetNextActiveUnit returned null unexpectedly. Turn: {_currentTurn}, Acted: {_actedThisCycle.Count}, Active: {activeParticipants.Count}");
+                    }
+                    CheckBattleEndCondition(); // Check end condition regardless
+                    return; // UniTask void return
                 }
 
-                // Execute the action
-                bool ok = _actionExecutor.Execute(
-                    MakeCtx(), _currentActiveUnit, act, tp, pos, wep);
+                // Increment the cycle counter for this unit's activation
+                _currentCycle++;
 
-                actions++;
-                // Break conditions for the action loop
-                if (!ok || !_currentActiveUnit.IsOperational) break; // Stop if action failed or unit became non-operational
+                // +++ AP 회복 전 값 저장 및 회복 호출 +++
+                float apBeforeRecovery = _currentActiveUnit.CurrentAP;
+                _currentActiveUnit.RecoverAPOnTurnStart(); // Recover AP 
+                // +++ AP 회복 로직 끝 +++
+
+                // Publish start event for the NEWLY active unit's cycle
+                _eventBus.Publish(new CombatSessionEvents.UnitActivationStartEvent(
+                     _currentTurn, _currentCycle, _currentActiveUnit, _currentBattleId, apBeforeRecovery)); // <<< Pass apBeforeRecovery
+
+                // --- 행동 결정 대기 (await 사용) ---
+                (CombatActionEvents.ActionType actionType, ArmoredFrame targetFrame, Vector3? targetPosition, Weapon weapon) actionData;
+                try
+                {
+                     // 작업 취소 토큰 전달
+                    actionData = await DetermineActionForUnitAsync(_currentActiveUnit, cancellationToken);
+                }
+                catch (OperationCanceledException)
+                {
+                     Debug.Log($"ProcessNextTurnAsync for {_currentActiveUnit.Name} cancelled.");
+                     return; // 취소 시 종료
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError($"ProcessNextTurnAsync: Error determining action for {_currentActiveUnit.Name}: {ex.Message}");
+                    actionData = (CombatActionEvents.ActionType.None, null, null, null); // 오류 시 기본 행동
+                }
+
+
+                 // 작업 취소 확인
+                cancellationToken.ThrowIfCancellationRequested();
+         
+                // --- 행동 실행 ---
+                bool actionSuccess = PerformAction(_currentActiveUnit, actionData.actionType, actionData.targetFrame, actionData.targetPosition, actionData.weapon);
+         
+                // AP 소모 등 후처리
+                // ... (기존 AP 소모 로직 필요시)
+
+                // 행동 완료 유닛 등록
+                _actedThisCycle.Add(_currentActiveUnit);
+
+                // 전투 종료 조건 확인
+                CheckBattleEndCondition();
             }
-
-            _actedThisCycle.Add(_currentActiveUnit); // Mark this unit as having acted this turn
-
-            // --- End Cycle Processing ---
-
-            CheckBattleEndCondition(); // Check if the battle ended after this cycle
-            return _isInCombat;        // Return true if combat is still ongoing
+            catch (OperationCanceledException)
+            {
+                Debug.Log($"ProcessNextTurnAsync cancelled.");
+            }
         }
 
         // ──────────────────────────────────────────────────────────────
@@ -339,8 +341,16 @@ namespace AF.Combat
         // 내부 헬퍼
         // ──────────────────────────────────────────────────────────────
         private CombatContext MakeCtx() => new CombatContext(
-            _eventBus, _textLogger, _currentBattleId, _currentTurn, _currentCycle, // Pass _currentTurn and _currentCycle
-            _defendedThisTurn, _participants, _teamAssignments, _movedThisActivation);
+            _eventBus,
+            this, // Pass simulator instance
+            _textLogger,
+            _currentBattleId,
+            _currentTurn,
+            _currentCycle,
+            _defendedThisTurn,
+            _participants,
+            _teamAssignments,
+            _movedThisActivation);
 
         private void AssignTeams(IEnumerable<ArmoredFrame> parts)
         {
@@ -371,13 +381,39 @@ namespace AF.Combat
             return null;
         }
 
-        private (CombatActionEvents.ActionType,ArmoredFrame,Vector3?,Weapon)
-            DetermineActionForUnit(ArmoredFrame unit)
+        // --- 행동 결정 (UniTask Async로 변경) ---
+        private async UniTask<(CombatActionEvents.ActionType, ArmoredFrame, Vector3?, Weapon)> DetermineActionForUnitAsync(ArmoredFrame unit, CancellationToken cancellationToken = default)
         {
-            var spec = unit.Pilot?.Specialization ?? SpecializationType.StandardCombat;
-            if (!_behaviorStrategies.TryGetValue(spec,out var strat))
-                strat = _behaviorStrategies[SpecializationType.StandardCombat];
-            return strat.DetermineAction(unit, this);
+            if (unit == null || !unit.IsOperational)
+            {
+                return (CombatActionEvents.ActionType.None, null, null, null); // 유효하지 않으면 대기
+            }
+
+            IPilotBehaviorStrategy strategy = null;
+            if (unit.Pilot != null && _behaviorStrategies.TryGetValue(unit.Pilot.Specialization, out strategy))
+            {
+                try
+                {
+                    // IPilotBehaviorStrategy 인터페이스에 DetermineActionAsync 추가 필요
+                    // 작업 취소 토큰 전달
+                    return await strategy.DetermineActionAsync(unit, MakeCtx(), cancellationToken);
+                }
+                catch (OperationCanceledException)
+                {
+                     Debug.Log($"DetermineActionForUnitAsync for {unit.Name} cancelled.");
+                     throw; // 취소 예외 다시 던지기
+                }
+                catch (Exception ex)
+                {
+                     Debug.LogError($"Error in DetermineActionForUnitAsync for {unit.Name}: {ex.Message}");
+                     return (CombatActionEvents.ActionType.None, null, null, null); // 오류 시 기본 행동
+                }
+            }
+            else
+            {
+                Debug.LogWarning($"DetermineActionForUnitAsync: No behavior strategy found for {unit.Name}. Defaulting to None.");
+                return (CombatActionEvents.ActionType.None, null, null, null);
+            }
         }
 
         private void CheckBattleEndCondition()

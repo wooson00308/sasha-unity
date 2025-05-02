@@ -11,13 +11,13 @@ namespace AF.Combat.Behaviors
     public sealed class SupportCombatBehaviorStrategy : PilotBehaviorStrategyBase
     {
         public override (CombatActionEvents.ActionType, ArmoredFrame, Vector3?, Weapon)
-            DetermineAction(ArmoredFrame activeUnit, CombatSimulatorService ctx)
+            DetermineAction(ArmoredFrame activeUnit, CombatContext context)
         {
             if (activeUnit == null || !activeUnit.IsOperational)
                 return (default, null, null, null);
 
             // HP 가장 낮은 아군
-            ArmoredFrame lowest = FindLowestHPDamagedAlly(activeUnit, ctx);
+            ArmoredFrame lowest = FindLowestHPDamagedAlly(activeUnit, context);
             float repairSelfCost  = 2.0f;
             float repairAllyCost  = 2.5f;
 
@@ -34,15 +34,15 @@ namespace AF.Combat.Behaviors
 
             // 그 외엔 표준
             return new StandardCombatBehaviorStrategy()
-                   .DetermineAction(activeUnit, ctx);
+                   .DetermineAction(activeUnit, context);
         }
 
-        private ArmoredFrame FindLowestHPDamagedAlly(ArmoredFrame unit, CombatSimulatorService ctx)
+        private ArmoredFrame FindLowestHPDamagedAlly(ArmoredFrame unit, CombatContext context)
         {
             ArmoredFrame lowest = null;
             float ratio = float.MaxValue;
 
-            var allies = ctx.GetAllies(unit);
+            var allies = context.Simulator.GetAllies(unit);
             foreach (var a in allies)
             {
                 if (a == unit || a == null || !a.IsOperational) continue;

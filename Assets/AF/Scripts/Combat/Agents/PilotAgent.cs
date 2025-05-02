@@ -8,6 +8,9 @@ using System; // Needed for Func
 using AF.Combat;
 using AF.Models;
 using AF.Services; // For ServiceLocator if needed
+using AF.EventBus; // Added for EventBus
+using Cysharp.Threading.Tasks; // Added for UniTask
+using System.Threading; // Added for CancellationToken
 
 namespace AF.Combat.Agents
 {
@@ -19,6 +22,7 @@ namespace AF.Combat.Agents
         // --- Component References ---
         private ArmoredFrame _frame;
         private ICombatSimulatorService _combatSimulator;
+        private EventBus.EventBus _eventBus; // Added EventBus reference
         // private ICombatActionExecutor _actionExecutor; // Potentially needed later
 
         // --- Constants ---
@@ -26,6 +30,25 @@ namespace AF.Combat.Agents
         private const int OBSERVATION_SIZE = 12;
         // 관측 최대 거리 (정규화용, 필요에 따라 조정)
         private const float MAX_OBSERVATION_DISTANCE = 100f;
+
+        // Rewards - Define constants for better management
+        private const float REWARD_DAMAGE_DEALT_MULTIPLIER = 0.01f;
+        private const float REWARD_PART_DESTROYED = 0.2f;
+        private const float REWARD_ENEMY_KILL = 1.0f;
+        private const float REWARD_DAMAGE_TAKEN_MULTIPLIER = -0.01f;
+        private const float REWARD_REPAIR_MULTIPLIER = 0.005f;
+        private const float REWARD_DODGE = 0.1f;
+        private const float REWARD_MISS = -0.05f;
+        private const float REWARD_INEFFICIENT_ACTION = -0.1f;
+        private const float REWARD_WIN = 2.0f;
+        private const float REWARD_LOSE = -2.0f;
+        private const float REWARD_DRAW = -1.0f;
+        // Small negative reward per step/action to encourage efficiency
+        private const float REWARD_STEP = -0.001f;
+
+        // Async Decision Making
+        private UniTaskCompletionSource<(CombatActionEvents.ActionType actionType, ArmoredFrame targetFrame, Vector3? targetPosition, Weapon weapon)> _decisionCompletionSource;
+        private CancellationTokenRegistration _cancellationTokenRegistration;
 
         // --- Initialization ---
 
@@ -42,11 +65,8 @@ namespace AF.Combat.Agents
         /// </summary>
         public void SetArmoredFrameReference(ArmoredFrame frame)
         {
-            _frame = frame;
-            if (_frame != null)
-            {
-                gameObject.name = _frame.Name + "_PilotAgent"; // 게임오브젝트 이름 설정 예시
-            }
+            this._frame = frame;
+            gameObject.name = $"AgentHost_{_frame?.Pilot?.Name ?? "Unknown"}_{_frame?.Name ?? "Frame"}";
         }
 
         /// <summary>
@@ -55,6 +75,7 @@ namespace AF.Combat.Agents
         void Start()
         {
             _combatSimulator = ServiceLocator.Instance.GetService<ICombatSimulatorService>();
+            _eventBus = ServiceLocator.Instance.GetService<EventBusService>().Bus; // Get EventBus instance
             if (_combatSimulator == null)
             {
                  Debug.LogError("PilotAgent could not find ICombatSimulatorService.", this);
@@ -76,6 +97,16 @@ namespace AF.Combat.Agents
         {
             base.OnEpisodeBegin();
             Debug.Log($"{_frame?.Name ?? "Agent"} starting new episode.");
+
+            // Subscribe to events
+            SubscribeToEvents();
+        }
+
+        private void OnDestroy()
+        {
+            // Unsubscribe from events when the agent is destroyed
+            _cancellationTokenRegistration.Dispose(); // Dispose cancellation registration
+            UnsubscribeFromEvents();
         }
 
         // --- Observation ---
@@ -96,12 +127,12 @@ namespace AF.Combat.Agents
             sensor.AddObservation(GetDurabilityRatio(_frame));
             sensor.AddObservation(_frame.CombinedStats.MaxAP > 0 ? _frame.CurrentAP / _frame.CombinedStats.MaxAP : 0f);
             ArmoredFrame closestEnemy = FindClosestUnit(_combatSimulator.GetEnemies(_frame));
-            AddUnitObservations(sensor, closestEnemy);
+            AddUnitObservations(sensor, closestEnemy, _frame.Position);
             ArmoredFrame closestDamagedAlly = FindClosestUnit(
                 _combatSimulator.GetAllies(_frame),
-                unit => unit.IsOperational && GetDurabilityRatio(unit) < 1.0f
+                unit => unit != _frame && GetDurabilityRatio(unit) < 1.0f
             );
-            AddUnitObservations(sensor, closestDamagedAlly);
+            AddUnitObservations(sensor, closestDamagedAlly, _frame.Position);
             float engagementRatio = 0f;
             if (closestEnemy != null && closestEnemy.IsOperational)
             {
@@ -153,13 +184,13 @@ namespace AF.Combat.Agents
         /// </summary>
         /// <param name="sensor">관측 데이터를 추가할 센서</param>
         /// <param name="unit">관측 대상 유닛 (null 가능)</param>
-        private void AddUnitObservations(VectorSensor sensor, ArmoredFrame unit)
+        private void AddUnitObservations(VectorSensor sensor, ArmoredFrame unit, Vector3 selfPosition)
         {
             if (unit != null && unit.IsOperational)
             {
-                float distance = Vector3.Distance(_frame.Position, unit.Position);
+                float distance = Vector3.Distance(selfPosition, unit.Position);
                 sensor.AddObservation(Mathf.Clamp01(distance / MAX_OBSERVATION_DISTANCE));
-                Vector3 direction = (unit.Position - _frame.Position).normalized;
+                Vector3 direction = (unit.Position - selfPosition).normalized;
                 sensor.AddObservation(direction.x);
                 sensor.AddObservation(direction.z);
                 sensor.AddObservation(GetDurabilityRatio(unit));
@@ -178,18 +209,49 @@ namespace AF.Combat.Agents
         /// </summary>
         /// <param name="frame">대상 프레임</param>
         /// <returns>0.0 ~ 1.0 사이의 내구도 비율</returns>
-        private float GetDurabilityRatio(ArmoredFrame frame)
+        private float GetDurabilityRatio(ArmoredFrame unit)
         {
-            if (frame == null) return 0f;
-            float maxDurability = frame.CombinedStats.Durability;
+            if (unit == null) return 0f;
+            float maxDurability = unit.CombinedStats.Durability;
             if (maxDurability <= 0f) return 0f;
-            float currentTotalDurability = frame.Parts.Values
-                                                .Where(p => p != null && p.IsOperational)
-                                                .Sum(p => p.CurrentDurability);
-            return Mathf.Clamp01(currentTotalDurability / maxDurability);
+            float currentDurabilitySum = 0f;
+            float maxDurabilitySum = 0f;
+            var allParts = unit.Parts.Values;
+            if (allParts.Any())
+            {
+                currentDurabilitySum = allParts.Sum(p => p.CurrentDurability);
+                maxDurabilitySum = allParts.Sum(p => p.MaxDurability);
+            }
+            return maxDurabilitySum > 0 ? currentDurabilitySum / maxDurabilitySum : 0f;
         }
 
         // --- Action & Heuristics ---
+
+        /// <summary>
+        /// 비동기적으로 에이전트의 행동 결정을 요청하고 결과를 기다립니다.
+        /// </summary>
+        /// <param name="cancellationToken">작업 취소 토큰</param>
+        /// <returns>결정된 행동 데이터 (튜플)</returns>
+        public async UniTask<(CombatActionEvents.ActionType actionType, ArmoredFrame targetFrame, Vector3? targetPosition, Weapon weapon)> RequestDecisionAsync(CancellationToken cancellationToken = default)
+        {
+            // 이전 요청이 아직 처리 중이면 취소 또는 경고
+            if (_decisionCompletionSource != null && !_decisionCompletionSource.Task.Status.IsCompleted())
+            {
+                Debug.LogWarning($"[{_frame?.Name ?? "Agent"}] Previous decision request was still pending. Cancelling it.");
+                _decisionCompletionSource.TrySetCanceled();
+                _cancellationTokenRegistration.Dispose();
+            }
+
+            _decisionCompletionSource = new UniTaskCompletionSource<(CombatActionEvents.ActionType, ArmoredFrame, Vector3?, Weapon)>();
+            // CancellationToken 등록
+            _cancellationTokenRegistration = cancellationToken.Register(() =>
+            {
+                _decisionCompletionSource?.TrySetCanceled(cancellationToken);
+            });
+
+            RequestDecision(); // ML-Agents에게 결정 요청 (동기 호출)
+            return await _decisionCompletionSource.Task; // OnActionReceived에서 결과 설정될 때까지 비동기 대기
+        }
 
         /// <summary>
         /// 정책(또는 Heuristic)으로부터 행동 결정을 받아 처리.
@@ -202,6 +264,8 @@ namespace AF.Combat.Agents
                 // 행동을 수행할 수 없는 상태면 무시
                 return;
             }
+
+            AddReward(REWARD_STEP); // Apply step penalty
 
             // 이산 행동(Discrete Actions) 처리 예시
             int actionIndex = actions.DiscreteActions[0]; // 첫 번째 이산 행동 분기 사용 가정
@@ -224,7 +288,7 @@ namespace AF.Combat.Agents
             ArmoredFrame closestEnemy = FindClosestUnit(_combatSimulator.GetEnemies(_frame));
             ArmoredFrame closestDamagedAlly = FindClosestUnit(
                 _combatSimulator.GetAllies(_frame),
-                unit => unit.IsOperational && GetDurabilityRatio(unit) < 1.0f
+                unit => unit != _frame && GetDurabilityRatio(unit) < 1.0f
             );
 
             switch (chosenActionType)
@@ -281,6 +345,21 @@ namespace AF.Combat.Agents
                     break;
             }
 
+            // 결정된 행동 데이터를 _decisionCompletionSource를 통해 전달
+            if (_decisionCompletionSource != null && !_decisionCompletionSource.Task.Status.IsCompleted())
+            {
+                var actionData = (chosenActionType, targetFrame, targetPosition, weapon);
+                _decisionCompletionSource.TrySetResult(actionData);
+            }
+            else
+            {
+                // 이미 완료되었거나 없는 경우 (예: 타임아웃 또는 취소 후 OnActionReceived가 늦게 호출됨)
+                Debug.LogWarning($"[{_frame?.Name ?? "Agent"}] OnActionReceived called but no pending decision request found or it was already completed/cancelled.");
+            }
+             // 완료 후 리소스 정리
+            _cancellationTokenRegistration.Dispose();
+            _decisionCompletionSource = null;
+
             // --- 보상 설정 (예시) ---
             if (!actionExecuted && chosenActionType != CombatActionEvents.ActionType.None)
             {
@@ -307,5 +386,201 @@ namespace AF.Combat.Agents
         // --- Reward ---
         // AddReward(), SetReward() 등은 OnActionReceived 또는 다른 이벤트 핸들러 내에서 호출될 것임.
         // TODO: 이벤트 버스를 구독하여 보상을 설정하는 로직 추가
+
+        #region Event Handling & Rewards
+
+        private void SubscribeToEvents()
+        {
+            if (_eventBus == null) return;
+            _eventBus.Subscribe<CombatActionEvents.ActionCompletedEvent>(HandleActionCompleted);
+            _eventBus.Subscribe<DamageEvents.DamageAppliedEvent>(HandleDamageApplied);
+            _eventBus.Subscribe<CombatActionEvents.RepairAppliedEvent>(HandleRepairApplied);
+            _eventBus.Subscribe<CombatSessionEvents.CombatEndEvent>(HandleCombatEnd);
+            _eventBus.Subscribe<DamageEvents.DamageAvoidedEvent>(HandleDamageAvoided);
+            _eventBus.Subscribe<CombatActionEvents.WeaponFiredEvent>(HandleWeaponFired);
+        }
+
+        private void UnsubscribeFromEvents()
+        {
+            if (_eventBus == null) return;
+            // Check if the service locator still provides the service before unsubscribing
+             if (ServiceLocator.Instance != null && ServiceLocator.Instance.HasService<EventBusService>())
+             {
+                 _eventBus.Unsubscribe<CombatActionEvents.ActionCompletedEvent>(HandleActionCompleted);
+                 _eventBus.Unsubscribe<DamageEvents.DamageAppliedEvent>(HandleDamageApplied);
+                 _eventBus.Unsubscribe<CombatActionEvents.RepairAppliedEvent>(HandleRepairApplied);
+                 _eventBus.Unsubscribe<CombatSessionEvents.CombatEndEvent>(HandleCombatEnd);
+                 _eventBus.Unsubscribe<DamageEvents.DamageAvoidedEvent>(HandleDamageAvoided);
+                 _eventBus.Unsubscribe<CombatActionEvents.WeaponFiredEvent>(HandleWeaponFired);
+             }
+        }
+
+        private void HandleActionCompleted(CombatActionEvents.ActionCompletedEvent ev)
+        {
+            // Penalize inefficient actions (e.g., repairing a full health ally/self)
+            if (ev.Actor == _frame && ev.Success)
+            {
+                if ((ev.Action == CombatActionEvents.ActionType.RepairAlly || ev.Action == CombatActionEvents.ActionType.RepairSelf))
+                {
+                    // Need access to RepairAppliedEvent data or check target health directly *before* action
+                    // This requires more complex state tracking or event data adjustment.
+                    // Simple check for now: if *no* RepairApplied event was triggered for this action, penalize.
+                    // (This assumes RepairApplied is only sent if actual repair happens)
+                    // TODO: Improve this check - maybe check target health in ActionStartEvent?
+                }
+                else if (ev.Action == CombatActionEvents.ActionType.Reload)
+                {
+                    // Penalize reloading a full weapon
+                    // Need weapon state *before* reload.
+                    // TODO: Improve this check
+                }
+                 else if (ev.Action == CombatActionEvents.ActionType.None)
+                 {
+                     // Penalize doing nothing? Maybe already handled by step penalty.
+                 }
+            }
+        }
+
+        private void HandleDamageApplied(DamageEvents.DamageAppliedEvent ev)
+        {
+            if (ev.Target == _frame) // We took damage
+            {
+                AddReward(ev.DamageDealt * REWARD_DAMAGE_TAKEN_MULTIPLIER);
+            }
+            else if (ev.Source == _frame) // We dealt damage
+            {
+                AddReward(ev.DamageDealt * REWARD_DAMAGE_DEALT_MULTIPLIER);
+
+                // Check if the part was destroyed
+                if (ev.PartCurrentDurability <= 0)
+                {
+                    AddReward(REWARD_PART_DESTROYED);
+                }
+
+                // Check if the target unit was defeated
+                if (_combatSimulator != null && _combatSimulator.IsUnitDefeated(ev.Target))
+                {
+                    AddReward(REWARD_ENEMY_KILL);
+                }
+            }
+        }
+
+        private void HandleRepairApplied(CombatActionEvents.RepairAppliedEvent ev)
+        {
+            if (ev.Actor == _frame && ev.AmountRepaired > 0) // We performed a successful repair
+            {
+                AddReward(ev.AmountRepaired * REWARD_REPAIR_MULTIPLIER);
+            }
+             // Consider penalty if ev.AmountRepaired == 0 (means target was likely full health)?
+             else if (ev.Actor == _frame && ev.AmountRepaired <= 0)
+             {
+                 // Check if the action was RepairSelf or RepairAlly
+                 // This event might fire even if 0 repair happens if the action succeeded.
+                 // We need to know if the *intent* was repair. Check ActionCompletedEvent instead?
+                 // Or add ActionType to RepairAppliedEvent? --> Already added! Use ev.ActionType
+                 if(ev.ActionType == CombatActionEvents.ActionType.RepairAlly || ev.ActionType == CombatActionEvents.ActionType.RepairSelf)
+                 {
+                     AddReward(REWARD_INEFFICIENT_ACTION); // Penalize useless repair attempt
+                 }
+             }
+        }
+
+         private void HandleWeaponFired(CombatActionEvents.WeaponFiredEvent ev)
+         {
+             if (ev.Attacker == _frame && !ev.Hit) // We fired and missed
+             {
+                 AddReward(REWARD_MISS);
+             }
+         }
+
+
+        private void HandleDamageAvoided(DamageEvents.DamageAvoidedEvent ev)
+        {
+            if (ev.Target == _frame && ev.Type == DamageEvents.DamageAvoidedEvent.AvoidanceType.Dodge) // We dodged an attack
+            {
+                AddReward(REWARD_DODGE);
+            }
+        }
+
+        private void HandleCombatEnd(CombatSessionEvents.CombatEndEvent ev)
+        {
+            // Determine if our team won or lost
+            bool playerTeamWon = false;
+            bool enemyTeamWon = false;
+
+            var playerTeamIds = _combatSimulator.GetAllies(_frame).Select(u => u.TeamId).Distinct().ToList();
+             if(!playerTeamIds.Contains(_frame.TeamId)) playerTeamIds.Add(_frame.TeamId); // Include self team
+
+            var enemyTeamIds = _combatSimulator.GetEnemies(_frame).Select(u => u.TeamId).Distinct().ToList();
+
+            bool playerUnitsRemain = ev.Survivors.Any(s => playerTeamIds.Contains(s.TeamId));
+            bool enemyUnitsRemain = ev.Survivors.Any(s => enemyTeamIds.Contains(s.TeamId));
+
+            if (playerUnitsRemain && !enemyUnitsRemain)
+            {
+                playerTeamWon = true;
+            }
+            else if (!playerUnitsRemain && enemyUnitsRemain)
+            {
+                enemyTeamWon = true;
+            }
+            // Draw if both or neither remain (and result isn't Aborted)
+
+            if (ev.Result == CombatSessionEvents.CombatEndEvent.ResultType.Victory && playerTeamWon)
+            {
+                AddReward(REWARD_WIN);
+            }
+            else if (ev.Result == CombatSessionEvents.CombatEndEvent.ResultType.Defeat && enemyTeamWon)
+            {
+                AddReward(REWARD_LOSE);
+            }
+            else if (ev.Result == CombatSessionEvents.CombatEndEvent.ResultType.Draw)
+            {
+                AddReward(REWARD_DRAW);
+            }
+            else if (ev.Result == CombatSessionEvents.CombatEndEvent.ResultType.Aborted)
+            {
+                 // No specific reward/penalty for aborted combat unless needed
+            }
+            else // Mismatch between result and survivor check (shouldn't happen ideally)
+            {
+                 Debug.LogWarning("CombatEndEvent result mismatch with survivor check.");
+                 // Assign reward based on survivor check as fallback
+                 if(playerTeamWon) AddReward(REWARD_WIN * 0.5f); // Reduced reward for uncertainty
+                 else if(enemyTeamWon) AddReward(REWARD_LOSE * 0.5f);
+                 else AddReward(REWARD_DRAW);
+            }
+
+
+            // Ensure episode ends after processing combat end reward
+            EndEpisode();
+
+            // Unsubscribe after episode ends? Or let OnDestroy handle it?
+            // UnsubscribeFromEvents(); // Let OnDestroy handle it for now
+        }
+
+        #endregion
+
+        #region Helper Methods
+
+        // Remove duplicate definitions below. Keep the ones defined earlier in the file.
+        /*
+        private ArmoredFrame FindClosestUnit(List<ArmoredFrame> units, System.Func<ArmoredFrame, bool> filter = null)
+        {
+            // ... Implementation ...
+        }
+
+        private void AddUnitObservations(VectorSensor sensor, ArmoredFrame unit, Vector3 selfPosition)
+        {
+            // ... Implementation ...
+        }
+
+        private float GetDurabilityRatio(ArmoredFrame unit)
+        {
+            // ... Implementation ...
+        }
+        */
+
+        #endregion
     }
 } 
