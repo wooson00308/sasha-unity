@@ -30,6 +30,8 @@ Feature, release, and hotfix branches should follow a hierarchical structure usi
 
 Commit messages should follow the Conventional Commits specification. This makes the commit history more readable and enables automated changelog generation.
 
+**Important: All commit messages (summary, body, footers) MUST be written in Korean.**
+
 **Format:**
 
 ```
@@ -52,34 +54,34 @@ Commit messages should follow the Conventional Commits specification. This makes
     *   `docs`: Documentation only changes.
     *   `chore`: Other changes that don't modify `src` or `test` files (e.g., updating dependencies, project settings).
 -   **`<scope>`:** (Optional) The scope should be the name of the module/component affected (e.g., `combat`, `ui`, `core`, `excel`, `pilot-ai`). Use lowercase.
--   **`<short summary>`:**
-    *   Use the imperative, present tense: "change" not "changed" nor "changes".
+-   **`<short summary>`:** (Korean)
+    *   Use the imperative, present tense: "change" not "changed" nor "changes" (In Korean: 명령조, 현재 시제 사용. 예: "추가함" X, "추가" O).
     *   Don't capitalize the first letter.
     *   No dot (`.`) at the end.
     *   Keep it concise (max 50 characters recommended).
--   **`[optional body]`:**
+-   **`[optional body]`:** (Korean)
     *   Use the imperative, present tense.
     *   Include motivation for the change and contrast this with previous behavior.
     *   Separate subject from body with a blank line.
     *   Wrap the body at 72 characters.
--   **`[optional footer(s)]`:**
+-   **`[optional footer(s)]`:** (Korean)
     *   Reference issues or pull requests (e.g., `Closes #123`, `Refs #456`).
-    *   Include breaking change information (`BREAKING CHANGE: description`). A commit with `BREAKING CHANGE:` in the footer correlates with a major version bump.
+    *   Include breaking change information (`BREAKING CHANGE: 설명`). A commit with `BREAKING CHANGE:` in the footer correlates with a major version bump.
 
-**Examples:**
+**Examples (Korean Summary/Body):**
 
 ```
-feat(combat): add repair action for support pilots
+feat(combat): 지원 파일럿 수리 액션 추가
 
-Introduces RepairSelf and RepairAlly actions. Support pilots will now prioritize repairing damaged allies or themselves if needed.
+RepairSelf 및 RepairAlly 액션 도입. 지원 파일럿은 이제 필요 시 손상된 아군이나 자신을 우선 수리함.
 
 Refs #42
 ```
 
 ```
-fix(ui): prevent null reference in CombatTextUIService
+fix(ui): CombatTextUIService null 참조 방지
 
-The service could throw an error if combat ended before any logs were generated. Added null checks to prevent this.
+로그 생성 전 전투 종료 시 서비스 오류 발생 가능성 있었음. 이를 방지하기 위해 null 확인 추가.
 
 Closes #55
 ```
