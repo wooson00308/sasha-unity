@@ -860,7 +860,17 @@ namespace AF.Tests
             }
             if (frame == null) { return null; }
 
+            // --- ArmoredFrame POCO 생성 ---
             ArmoredFrame af = new ArmoredFrame(instanceName, frame, position, teamId);
+
+            // --- PilotAgent 게임오브젝트 및 컴포넌트 생성 --- 
+            GameObject afGo = new GameObject(af.Name + "_AgentHost");
+            afGo.transform.SetParent(this.transform); // CombatTestRunner 자식으로 설정
+            var pilotAgentComponent = afGo.AddComponent<AF.Combat.Agents.PilotAgent>(); // 네임스페이스 포함하여 명시적 호출
+
+            // --- 양방향 참조 설정 --- 
+            af.AgentComponent = pilotAgentComponent;          // AF POCO -> Agent 컴포넌트
+            pilotAgentComponent.SetArmoredFrameReference(af); // Agent 컴포넌트 -> AF POCO
 
             if (!pilotDatabase.TryGetValue(assemblyData.PilotID, out PilotSO pilotData))
             {
@@ -927,13 +937,22 @@ namespace AF.Tests
             }
             if (frame == null) { return null; } // 프레임 생성 실패
 
-            // 2. ArmoredFrame 기본 인스턴스 생성 (Use custom name if provided)
-            string instanceName = string.IsNullOrEmpty(setup.customAFName) 
-                                ? $"Custom AF {participantIndex}" 
-                                : setup.customAFName; // Use custom name here
+            // --- ArmoredFrame POCO 생성 ---
+            string instanceName = string.IsNullOrEmpty(setup.customAFName)
+                                ? $"Custom AF {participantIndex}"
+                                : setup.customAFName;
             ArmoredFrame af = new ArmoredFrame(instanceName, frame, setup.startPosition, setup.teamId);
 
-            // 3. 파일럿 할당
+            // --- PilotAgent 게임오브젝트 및 컴포넌트 생성 --- 
+            GameObject afGo = new GameObject(af.Name + "_AgentHost");
+            afGo.transform.SetParent(this.transform); // CombatTestRunner 자식으로 설정
+            var pilotAgentComponent = afGo.AddComponent<AF.Combat.Agents.PilotAgent>(); // 네임스페이스 포함하여 명시적 호출
+
+            // --- 양방향 참조 설정 ---
+            af.AgentComponent = pilotAgentComponent;          // AF POCO -> Agent 컴포넌트
+            pilotAgentComponent.SetArmoredFrameReference(af); // Agent 컴포넌트 -> AF POCO
+
+            // 4. 파일럿 할당
             if (setup.customPilot == null)
             {
                  Log($"참가자 {participantIndex}: 파일럿이 설정되지 않아 기본 파일럿을 할당합니다.", LogLevel.Warning);
@@ -950,7 +969,7 @@ namespace AF.Tests
                 af.AssignPilot(pilot);
             }
 
-            // 4. 파츠 부착 (헬퍼 메서드 사용 또는 직접 구현)
+            // 5. 파츠 부착 (헬퍼 메서드 사용 또는 직접 구현)
             AttachCustomPart(af, setup.customHead, frameData.Slot_Head);
             AttachCustomPart(af, setup.customBody, frameData.Slot_Body); // Body는 필수이므로 위에서 null 체크됨
             AttachCustomPart(af, setup.customArms, frameData.Slot_Arm_L); // 임시로 왼쪽 팔 슬롯 사용
@@ -958,7 +977,7 @@ namespace AF.Tests
             AttachCustomPart(af, setup.customLegs, frameData.Slot_Legs);
             // Backpack 등 다른 슬롯 추가 가능
 
-            // 5. 무기 부착 (헬퍼 메서드 사용 또는 직접 구현)
+            // 6. 무기 부착 (헬퍼 메서드 사용 또는 직접 구현)
             AttachCustomWeapon(af, setup.customWeaponR1);
             AttachCustomWeapon(af, setup.customWeaponL1);
 

@@ -145,7 +145,7 @@ namespace AF.UI
         private void UpdateEventTargetDetailDisplay(ArmoredFrame affectedUnit)
         {
             if (affectedUnit == null || _eventTargetDetailTextDisplay == null) { if (_eventTargetDetailTextDisplay != null) _eventTargetDetailTextDisplay.text = ""; return; }
-            _eventTargetDetailTextDisplay.text = FormatUnitDetails(affectedUnit);
+            _eventTargetDetailTextDisplay.text = FormatUnitDetails(affectedUnit); 
         }
 
         /// <summary>
@@ -640,9 +640,9 @@ namespace AF.UI
             ITextLogger textLogger = ServiceLocator.Instance.GetService<TextLoggerService>()?.TextLogger;
             if (textLogger == null) { await CreateAndAnimateLogLine("오류: 전투 로그를 불러올 수 없습니다."); return; }
 
-            List<TextLogger.LogEntry> logEntries = textLogger.GetLogEntries();
+            List<TextLogger.LogEntry> logEntries = textLogger.GetLogEntries(); 
             if (logEntries == null || logEntries.Count == 0) { Debug.LogWarning("표시할 전투 로그가 없습니다."); return; }
-
+            
             ClearLog(); // Clear UI before playback
             if (_unitDetailTextDisplay != null) _unitDetailTextDisplay.text = " ";
             if (_eventTargetDetailTextDisplay != null) _eventTargetDetailTextDisplay.text = " ";
@@ -662,9 +662,9 @@ namespace AF.UI
 
                 if (logEntry.EventType == LogEventType.UnitActivationStart || logEntry.EventType == LogEventType.RoundStart)
                 {
-                    if (logEntry.TurnStartStateSnapshot != null)
-                    {
-                        UpdateAllUnitsDetailDisplay(logEntry.TurnStartStateSnapshot);
+                if (logEntry.TurnStartStateSnapshot != null)
+                {
+                    UpdateAllUnitsDetailDisplay(logEntry.TurnStartStateSnapshot);
                         // Copy the dictionary, ensuring values are the correct AF.Models.ArmoredFrameSnapshot type
                         currentPlaybackState = new Dictionary<string, AF.Models.ArmoredFrameSnapshot>(logEntry.TurnStartStateSnapshot);
                     }
@@ -683,8 +683,8 @@ namespace AF.UI
                     // <<< 업데이트 로직 이동 끝 >>>
 
                     // 이벤트 대상 UI 업데이트 (기존 로직)
-                    if (logEntry.ShouldUpdateTargetView && logEntry.ContextUnit != null)
-                    {
+                if (logEntry.ShouldUpdateTargetView && logEntry.ContextUnit != null)
+                {
                         if (currentPlaybackState != null && currentPlaybackState.TryGetValue(logEntry.ContextUnit.Name, out var updatedContextSnapshot))
                         {
                             _eventTargetDetailTextDisplay.text = FormatUnitDetailsFromSnapshot(updatedContextSnapshot);
@@ -734,7 +734,7 @@ namespace AF.UI
                 {
                     UpdateEventTargetDetailDisplay(logEntry.ContextUnit);
                 }
-
+                
                 string messageToDisplay = logEntry.Message;
                 if (logEntry.Level == LogLevel.System || logEntry.EventType == LogEventType.RoundStart || logEntry.EventType == LogEventType.UnitActivationStart)
                 {

@@ -4,6 +4,7 @@ using System.Linq;
 using AF.EventBus; // 이벤트 버스 사용 가정
 using AF.Services; // 서비스 로케이터 사용 가정
 using AF.Combat; // 네임스페이스 추가
+using AF.Combat.Agents;
 using UnityEngine;
 
 namespace AF.Models
@@ -77,6 +78,14 @@ namespace AF.Models
 
         // 이벤트 버스 (생성자나 메서드에서 주입받거나 서비스 로케이터로 가져옴)
         private EventBus.EventBus _eventBus;
+
+        // +++ ML Agent 컴포넌트 참조 +++
+        /// <summary>
+        /// 이 ArmoredFrame을 제어하는 PilotAgent 컴포넌트 (씬의 GameObject에 존재).
+        /// CombatTestRunner 등 외부에서 설정.
+        /// </summary>
+        public PilotAgent AgentComponent { get; set; }
+        // +++ ML Agent 컴포넌트 참조 끝 +++
 
         // 공개 프로퍼티
         public string Name => _name;

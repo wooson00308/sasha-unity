@@ -949,7 +949,7 @@ namespace AF.Combat
         public List<LogEntry> GetLogEntries()
         {
             // 방어적 복사본 반환 (선택적이지만 권장)
-            return new List<LogEntry>(_logs);
+            return new List<LogEntry>(_logs); 
         }
 
         /// <summary>
