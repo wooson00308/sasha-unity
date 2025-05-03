@@ -26,24 +26,11 @@ namespace AF.AI.PilotBehavior
         public (CombatActionEvents.ActionType actionType, ArmoredFrame targetFrame, Vector3? targetPosition, Weapon weapon)
             DetermineAction(ArmoredFrame activeUnit, CombatSimulatorService context)
         {
-            // 1. CombatContext 생성 (CombatSimulatorService 로부터 정보 추출)
-            // TODO: CombatSimulatorService에 필요한 정보 접근자(Getter) 및 EventBus/Logger 전달 방식 필요.
-            CombatContext combatContext = new CombatContext(
-                null, // HACK: context.CombatEvents는 없음. EventBus를 가져올 방법 필요 -> null 임시 전달
-                null, // HACK: context.CombatLogger는 없음. Logger를 가져올 방법 필요 -> null 임시 전달
-                context.CurrentBattleId,
-                context.CurrentTurn,
-                context.CurrentCycle,
-                new HashSet<ArmoredFrame>(), // HACK: DefendedThisTurnInternal 없음 -> new HashSet<>() 임시 사용
-                context.GetParticipants(),
-                new Dictionary<ArmoredFrame, int>(), // HACK: GetTeamAssignmentsInternal 없음 -> new Dictionary<>() 임시 사용
-                context.MovedThisActivation
-            );
+            // 1. CombatContext 가져오기 (CombatSimulatorService의 public 메서드 사용)
+            CombatContext combatContext = context.GetCurrentContext();
 
             // 2. 동적 액션 목록 생성
-            // HACK 주석 제거 및 호출 활성화
             List<IUtilityAction> possibleActions = GeneratePossibleActions(activeUnit, combatContext);
-            // List<IUtilityAction> possibleActions = new List<IUtilityAction>(); // 임시 빈 리스트 제거
 
             // 3. Action Selector 및 액션 목록 유효성 검사
             if (_actionSelector == null || possibleActions == null || possibleActions.Count == 0)

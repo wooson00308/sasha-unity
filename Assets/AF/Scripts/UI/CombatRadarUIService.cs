@@ -367,7 +367,7 @@ namespace AF.UI
             var text = marker.GetComponentInChildren<TMP_Text>();
             if (text != null)
             {
-                 // text.text = unitSnapshot.Name; // Display unit name (optional)
+                // text.text = unitSnapshot.Name; // Display unit name (optional)
             }
         }
 
@@ -403,8 +403,8 @@ namespace AF.UI
             // Using try-finally to ensure color reset even if sequence is interrupted
             try
             {
-                await image.DOColor(flashColor, flashDuration / 2).SetEase(Ease.OutQuad).AsyncWaitForCompletion();
-                await image.DOColor(originalColor, flashDuration / 2).SetEase(Ease.InQuad).AsyncWaitForCompletion();
+            await image.DOColor(flashColor, flashDuration / 2).SetEase(Ease.OutQuad).AsyncWaitForCompletion();
+            await image.DOColor(originalColor, flashDuration / 2).SetEase(Ease.InQuad).AsyncWaitForCompletion();
             }
             finally
             {
@@ -422,8 +422,8 @@ namespace AF.UI
             // Using try-finally to ensure scale reset
             try
             {
-                await marker.transform.DOScale(originalScale * targetScale, duration / 2).SetEase(Ease.OutQuad).AsyncWaitForCompletion();
-                await marker.transform.DOScale(originalScale, duration / 2).SetEase(Ease.InQuad).AsyncWaitForCompletion();
+            await marker.transform.DOScale(originalScale * targetScale, duration / 2).SetEase(Ease.OutQuad).AsyncWaitForCompletion();
+            await marker.transform.DOScale(originalScale, duration / 2).SetEase(Ease.InQuad).AsyncWaitForCompletion();
             }
             finally
             {

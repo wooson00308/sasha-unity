@@ -6,6 +6,7 @@ using AF.Models;
 using AF.Services;
 using AF.Combat.Behaviors;  // 파일럿 전략
 using UnityEngine;
+using System.Collections.ObjectModel; // For ReadOnlyDictionary/Collection
 
 namespace AF.Combat
 {
@@ -27,6 +28,10 @@ namespace AF.Combat
         private EventBus.EventBus _eventBus;
         private TextLoggerService _textLogger;
 
+        // Public accessors for needed services
+        public EventBus.EventBus Bus => _eventBus;
+        public TextLoggerService Logger => _textLogger;
+
         // ──────────────────────────────────────────────────────────────
         // 전투 상태
         // ──────────────────────────────────────────────────────────────
@@ -43,6 +48,10 @@ namespace AF.Combat
         private HashSet<ArmoredFrame>                 _defendedThisTurn;
         private HashSet<ArmoredFrame>                 _actedThisCycle; // Represents units acted *this turn*
         private HashSet<ArmoredFrame>                 _movedThisActivation;
+
+        // Public accessors for needed state
+        public IReadOnlyDictionary<ArmoredFrame, int> TeamAssignments => _teamAssignments;
+        public IReadOnlyCollection<ArmoredFrame> DefendedThisTurn => _defendedThisTurn;
 
         // 파일럿 전문화 → 전략
         private Dictionary<SpecializationType, IPilotBehaviorStrategy> _behaviorStrategies;
@@ -258,7 +267,7 @@ namespace AF.Combat
                 }
             }
 
-            _statusProcessor.Tick(MakeCtx(), _currentActiveUnit); // Apply status effect ticks
+            _statusProcessor.Tick(GetCurrentContext(), _currentActiveUnit); // Apply status effect ticks
 
             // Determine and execute actions for the unit
             int actions=0, maxActions=30; // Safety break for action loop
@@ -273,7 +282,7 @@ namespace AF.Combat
 
                 // Execute the action
                 bool ok = _actionExecutor.Execute(
-                    MakeCtx(), _currentActiveUnit, act, tp, pos, wep);
+                    GetCurrentContext(), _currentActiveUnit, act, tp, pos, wep);
 
                 actions++;
                 // Break conditions for the action loop
@@ -300,7 +309,7 @@ namespace AF.Combat
             // 시뮬레이터 외부 호출 시 최소 검증
             if (!_isInCombat || actor != _currentActiveUnit) return false;
             return _actionExecutor.Execute(
-                MakeCtx(), actor, actionType, targetFrame, targetPosition, weapon);
+                GetCurrentContext(), actor, actionType, targetFrame, targetPosition, weapon);
         }
 
         public bool PerformAttack(ArmoredFrame attacker, ArmoredFrame target, Weapon weapon)
@@ -308,7 +317,7 @@ namespace AF.Combat
             if (!_isInCombat || attacker != _currentActiveUnit) return false;
             // ActionType.Attack 래퍼 호출
             return _actionExecutor.Execute(
-                MakeCtx(), attacker, CombatActionEvents.ActionType.Attack,
+                GetCurrentContext(), attacker, CombatActionEvents.ActionType.Attack,
                 target, null, weapon);
         }
 
@@ -338,9 +347,17 @@ namespace AF.Combat
         // ──────────────────────────────────────────────────────────────
         // 내부 헬퍼
         // ──────────────────────────────────────────────────────────────
-        private CombatContext MakeCtx() => new CombatContext(
-            _eventBus, _textLogger, _currentBattleId, _currentTurn, _currentCycle, // Pass _currentTurn and _currentCycle
-            _defendedThisTurn, _participants, _teamAssignments, _movedThisActivation);
+        public CombatContext GetCurrentContext() => new CombatContext(
+            _eventBus, // 직접 참조
+            _textLogger, // 직접 참조
+            _currentBattleId,
+            _currentTurn,
+            _currentCycle,
+            _defendedThisTurn, // HashSet 그대로 전달
+            _participants, // List는 IList로 암시적 변환됨
+            _teamAssignments, // Dictionary는 IDictionary로 암시적 변환됨
+            _movedThisActivation // HashSet 그대로 전달
+        );
 
         private void AssignTeams(IEnumerable<ArmoredFrame> parts)
         {

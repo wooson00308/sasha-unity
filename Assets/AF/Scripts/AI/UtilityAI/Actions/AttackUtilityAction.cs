@@ -37,14 +37,13 @@ namespace AF.AI.UtilityAI.Actions
 
             Considerations = new List<IConsideration>
             {
-                // Essential checks
+                // Essential checks (Blocking Considerations)
                 new TargetIsEnemyConsideration(_target),         // Is the target an enemy?
                 new TargetIsOperationalConsideration(_target),   // Is the target still operational?
                 new WeaponHasAmmoConsideration(_weapon),         // Does the weapon have ammo?
-                new WeaponIsOperationalConsideration(_weapon),   // Is the weapon usable (not reloading/broken)?
+                new WeaponReloadingConsideration(_weapon),     // Is the weapon reloading?
 
                 // Scoring factors
-                // new TargetDistanceConsideration(_target, _weapon.Range * 0.8f, _weapon.Range), // <<< 기존 코드 주석 처리
                 new TargetDistanceConsideration(
                     targetUnit: _target, 
                     curveType: UtilityCurveType.Polynomial, // 예: 거리가 가까울수록 점수가 제곱으로 증가 (Polynomial, invert=true)
@@ -61,6 +60,9 @@ namespace AF.AI.UtilityAI.Actions
                     steepness: 2f, // 지수 (제곱)
                     invert: true // 체력 낮을수록 점수 높음 (기본값)
                 ),
+
+                new HitChanceConsideration(_target, _weapon), // <<< 명중률 추가
+                new AmmoLevelConsideration(_weapon), // <<< 탄약 수준 추가
 
                 // --- Placeholder for other considerations ---
                 // TODO: Implement and add these considerations
@@ -115,12 +117,11 @@ namespace AF.AI.UtilityAI.Actions
                 if (consideration == null) continue;
                 float score = consideration.CalculateScore(actor, context);
 
-                // --- Check for 'Blocking' Considerations --- 
-                // If any essential check fails (returns 0), the action is impossible (utility 0).
+                // --- Check for 'Blocking' Considerations ---
                 if (consideration is TargetIsEnemyConsideration ||
                     consideration is TargetIsOperationalConsideration ||
                     consideration is WeaponHasAmmoConsideration ||
-                    consideration is WeaponIsOperationalConsideration)
+                    consideration is WeaponReloadingConsideration)
                 {
                     if (score <= 0f) return 0f; // If essential check fails, utility is 0
                 }
