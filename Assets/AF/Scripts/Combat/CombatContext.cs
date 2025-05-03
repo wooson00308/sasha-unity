@@ -41,5 +41,25 @@ namespace AF.Combat
         public HashSet<ArmoredFrame>      MovedThisActivation { get; }
         public IList<ArmoredFrame>        Participants      { get; }
         public IDictionary<ArmoredFrame,int> TeamAssignments { get; }
+
+        public List<ArmoredFrame> GetEnemies(ArmoredFrame self)
+        {
+            if (self == null || !TeamAssignments.TryGetValue(self, out int selfTeam))
+            {
+                return new List<ArmoredFrame>(); // 자신 또는 팀 정보를 찾을 수 없으면 빈 리스트 반환
+            }
+
+            var enemies = new List<ArmoredFrame>();
+            foreach (var participant in Participants)
+            {
+                if (participant != null && participant != self && participant.IsOperational &&
+                    TeamAssignments.TryGetValue(participant, out int participantTeam) &&
+                    participantTeam != selfTeam)
+                {
+                    enemies.Add(participant);
+                }
+            }
+            return enemies;
+        }
     }
 }

@@ -650,6 +650,7 @@ namespace AF.UI
 
             // Use the correct snapshot type from AF.Models
             Dictionary<string, AF.Models.ArmoredFrameSnapshot> currentPlaybackState = null;
+            ArmoredFrameSnapshot activeUnitSnapshotForRadar = default; // <<< Store active unit for radar events
 
             Debug.Log("Starting Combat Log Playback...");
 
@@ -660,6 +661,8 @@ namespace AF.UI
                 // _clearDamageTargetDisplayCts?.Dispose();
                 // _clearDamageTargetDisplayCts = null;
 
+                bool isSnapshotUpdate = false;
+
                 if (logEntry.EventType == LogEventType.UnitActivationStart || logEntry.EventType == LogEventType.RoundStart)
                 {
                     if (logEntry.TurnStartStateSnapshot != null)
@@ -667,6 +670,22 @@ namespace AF.UI
                         UpdateAllUnitsDetailDisplay(logEntry.TurnStartStateSnapshot);
                         // Copy the dictionary, ensuring values are the correct AF.Models.ArmoredFrameSnapshot type
                         currentPlaybackState = new Dictionary<string, AF.Models.ArmoredFrameSnapshot>(logEntry.TurnStartStateSnapshot);
+
+                        // <<< Determine active unit for radar event >>>
+                        if (logEntry.ContextUnit != null && currentPlaybackState.TryGetValue(logEntry.ContextUnit.Name, out var activeSnap))
+                        {
+                            activeUnitSnapshotForRadar = activeSnap;
+                        }
+                        else if (currentPlaybackState.Count > 0) // Fallback
+                        {
+                            activeUnitSnapshotForRadar = currentPlaybackState.Values.FirstOrDefault(s => s.IsOperational);
+                            if (activeUnitSnapshotForRadar.Name == null && currentPlaybackState.Count > 0) // If no operational, take first
+                                activeUnitSnapshotForRadar = currentPlaybackState.Values.First();
+                        }
+                        else { activeUnitSnapshotForRadar = default; } // No units?
+                        // <<< Active unit determination end >>>
+
+                        isSnapshotUpdate = true; // Mark that a snapshot update occurred
                     }
                 }
                 else if (currentPlaybackState != null)
@@ -740,7 +759,59 @@ namespace AF.UI
                 {
                     messageToDisplay = $"<b>{logEntry.Message}</b>";
                 }
+
+                // --- Animate Log Line --- 
                 await CreateAndAnimateLogLine(messageToDisplay);
+
+                // --- Publish Playback Event AFTER animation --- 
+                if (_eventBus != null)
+                {
+                    if (isSnapshotUpdate && currentPlaybackState != null && activeUnitSnapshotForRadar.Name != null)
+                    {
+                         _eventBus.Publish(new PlaybackEvents.PlaybackSnapshotUpdateEvent(currentPlaybackState, activeUnitSnapshotForRadar));
+                    }
+                    else // Process delta events only if not a snapshot update frame
+                    {
+                        switch(logEntry.EventType)
+                        {
+                            case LogEventType.ActionCompleted:
+                                if (logEntry.Action_Type == CombatActionEvents.ActionType.Move && logEntry.Action_IsSuccess && logEntry.Action_NewPosition.HasValue && !string.IsNullOrEmpty(logEntry.Action_ActorName))
+                                {
+                                     _eventBus.Publish(new PlaybackEvents.PlaybackUnitMoveEvent(logEntry.Action_ActorName, logEntry.Action_NewPosition.Value));
+                                }
+                                else if (logEntry.Action_IsSuccess && !string.IsNullOrEmpty(logEntry.Action_ActorName))
+                                {
+                                    _eventBus.Publish(new PlaybackEvents.PlaybackGenericActionEvent(logEntry.Action_ActorName));
+                                }
+                                break;
+                            case LogEventType.DamageApplied:
+                                if (!string.IsNullOrEmpty(logEntry.Damage_TargetUnitName))
+                                {
+                                     _eventBus.Publish(new PlaybackEvents.PlaybackDamageEvent(logEntry.Damage_TargetUnitName));
+                                }
+                                break;
+                            case LogEventType.PartDestroyed:
+                                if (!string.IsNullOrEmpty(logEntry.PartDestroyed_OwnerName))
+                                {
+                                     _eventBus.Publish(new PlaybackEvents.PlaybackPartDestroyedEvent(logEntry.PartDestroyed_OwnerName));
+                                }
+                                break;
+                            case LogEventType.RepairApplied:
+                                 if (!string.IsNullOrEmpty(logEntry.Repair_TargetName))
+                                 {
+                                     _eventBus.Publish(new PlaybackEvents.PlaybackRepairEvent(logEntry.Repair_TargetName));
+                                 }
+                                break;
+                            case LogEventType.StatusEffectApplied:
+                                 if (!string.IsNullOrEmpty(logEntry.StatusApplied_TargetName))
+                                 {
+                                     _eventBus.Publish(new PlaybackEvents.PlaybackStatusEffectEvent(logEntry.StatusApplied_TargetName));
+                                 }
+                                break;
+                             // Add other relevant event types if needed
+                        }
+                    }
+                }
             }
             Debug.Log("Combat Log Playback Finished.");
 
@@ -753,6 +824,9 @@ namespace AF.UI
             _clearDamageTargetDisplayCts?.Cancel();
             _clearDamageTargetDisplayCts?.Dispose();
             _clearDamageTargetDisplayCts = null;
+
+            // --- Publish Playback Complete Event --- 
+            _eventBus?.Publish(new PlaybackEvents.PlaybackCompleteEvent());
         }
 
         #endregion

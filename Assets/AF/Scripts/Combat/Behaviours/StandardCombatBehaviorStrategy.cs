@@ -79,9 +79,9 @@ namespace AF.Combat.Behaviors
             float mvCost = CalculateMoveAPCost(activeUnit);
             if (activeUnit.HasEnoughAP(mvCost))
             {
-                if (ctx.MovedThisActivation.Contains(activeUnit))
+                if (ctx.MovedThisActivation.Contains(activeUnit) || ctx.HasUnitDefendedThisTurn(activeUnit))
                 {
-                    // 이미 이동했다면, 다른 행동(예: 방어)을 고려하도록 이동 결정 안 함
+                    // 이미 이동했거나 방어했다면, 다른 행동(예: 방어)을 고려하도록 이동 결정 안 함
                 }
                 else
                 {
@@ -114,8 +114,7 @@ namespace AF.Combat.Behaviors
 
             // === 4. 방어 ===
             if (activeUnit.HasEnoughAP(DEFEND_AP_COST) &&
-                !ctx.HasUnitDefendedThisTurn(activeUnit) &&
-                (!ctx.MovedThisActivation.Contains(activeUnit) || IsLowHealth(activeUnit)))
+                !ctx.HasUnitDefendedThisTurn(activeUnit))
             {
                 return (CombatActionEvents.ActionType.Defend, null, null, null);
             }

@@ -4,16 +4,29 @@ using System.Linq;
 using UnityEngine;
 using AF.EventBus;
 using AF.Models;
+using AF.Services;
 
 namespace AF.Combat
 {
     /// <summary>
     /// 모든 실질 행동(공격, 이동, 방어, 재장전 등)을 수행하고 이벤트를 발행한다.
     /// </summary>
-    public sealed class CombatActionExecutor : ICombatActionExecutor
+    public sealed class CombatActionExecutor : ICombatActionExecutor // <<< 인터페이스 구현 명시 >>>
     {
         // <<< 수리량 상수 정의 >>>
         private const float BASE_REPAIR_AMOUNT = 50f;
+
+        // +++ IService 구현 +++
+        public void Initialize()
+        {
+            // 현재 초기화 로직 필요 없음
+        }
+
+        public void Shutdown()
+        {
+            // 현재 종료 로직 필요 없음
+        }
+        // +++ IService 구현 끝 +++
 
         #region Execute (PerformAction 대체) ----------------------------------
 

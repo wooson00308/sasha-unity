@@ -92,6 +92,18 @@ namespace AF.Models
         public float CurrentAP => _currentAP;
         public float TotalWeight => _totalWeight;
 
+        // +++ 추가된 프로퍼티: 전체 현재/최대 내구도 +++
+        public float TotalCurrentDurability
+        {
+            get
+            {
+                // 모든 파츠의 현재 내구도 합산
+                return _parts.Values.Sum(part => part.CurrentDurability);
+            }
+        }
+        public float TotalMaxDurability => CombinedStats.Durability; // MaxHP -> Durability로 수정
+        // +++ 프로퍼티 추가 끝 +++
+
         /// <summary>
         /// 생성자
         /// </summary>
