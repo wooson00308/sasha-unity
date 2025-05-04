@@ -22,7 +22,8 @@ namespace AF.Combat
             Overwatch,
             Reload,
             RepairSelf,
-            RepairAlly
+            RepairAlly,
+            Repair
         }
 
         /// <summary>

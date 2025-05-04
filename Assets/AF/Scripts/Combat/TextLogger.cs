@@ -30,6 +30,7 @@ namespace AF.Combat
         public bool ShowLogLevel { get; set; } = true;
         public bool ShowTurnPrefix { get; set; } = true;
         public bool UseIndentation { get; set; } = true; // TextLoggerService 핸들러에서 사용할 플래그
+        public bool LogDebugMessages { get; set; } = false; // <<< 추가: 디버그 로그 표시 여부
 
         // 내부 로그 엔트리 클래스 -> public으로 변경
         public class LogEntry
@@ -337,7 +338,7 @@ namespace AF.Combat
         }
 
         /// <summary>
-        /// Filters and formats logs based on specified include/exclude levels.
+        /// Filters and formats logs based on specified include/exclude levels and debug setting.
         /// </summary>
         /// <param name="levelsToInclude">Array of LogLevels to include. If null or empty, all levels are potentially included (unless excluded).</param>
         /// <param name="levelsToExclude">Array of LogLevels to exclude. If null, no levels are excluded.</param>
@@ -345,6 +346,19 @@ namespace AF.Combat
         public List<string> GetFormattedLogs(LogLevel[] levelsToInclude = null, LogLevel[] levelsToExclude = null)
         {
             IEnumerable<LogEntry> filteredLogs = _logs;
+
+            // <<< 추가: 디버그 로그 필터링 >>>
+            if (!LogDebugMessages) // 디버그 로그 표시 안 함 설정이면
+            {
+                // 기존 exclude 목록에 Debug 레벨 추가 (null이면 새로 생성)
+                List<LogLevel> excludes = levelsToExclude?.ToList() ?? new List<LogLevel>();
+                if (!excludes.Contains(LogLevel.Debug))
+                {
+                    excludes.Add(LogLevel.Debug);
+                }
+                levelsToExclude = excludes.ToArray();
+            }
+            // <<< 필터링 추가 끝 >>>
 
             // Apply include filter
             if (levelsToInclude != null && levelsToInclude.Length > 0)
@@ -394,6 +408,12 @@ namespace AF.Combat
 
                     foreach (var entry in _logs)
                     {
+                        // <<< 추가: 디버그 로그 필터링 >>>
+                        if (!LogDebugMessages && entry.Level == LogLevel.Debug)
+                        {
+                            continue; // 디버그 로그 표시 안 함 설정이면 건너뛰기
+                        }
+                        // <<< 필터링 추가 끝 >>>
                         writer.WriteLine(FormatLogEntryForFile(entry));
                     }
 
@@ -934,6 +954,15 @@ namespace AF.Combat
         public void SetUseIndentation(bool use)
         {
             UseIndentation = use;
+        }
+
+        /// <summary>
+        /// 디버그 레벨 로그 표시 여부를 설정합니다.
+        /// </summary>
+        /// <param name="log">True면 디버그 로그 표시, False면 숨김</param>
+        public void SetLogDebugMessages(bool log)
+        {
+            LogDebugMessages = log;
         }
 
         #endregion

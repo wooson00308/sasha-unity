@@ -79,6 +79,15 @@ namespace AF.Combat
             _useSpriteIcons = use;
         }
 
+        /// <summary>
+        /// 디버그 레벨 로그 표시 여부를 설정합니다.
+        /// </summary>
+        /// <param name="log">True면 디버그 로그 표시, False면 숨김</param>
+        public void SetLogDebugMessages(bool log)
+        {
+            _textLogger?.SetLogDebugMessages(log); // 내부 TextLogger에 설정 전달
+        }
+
         #endregion
         
         /// <summary>

@@ -1,7 +1,8 @@
 using AF.Combat;
 using AF.Models;
 using UnityEngine;
-// using AF.AI.UtilityAI; // <<< 네임스페이스 제거 시도
+using AF.Services; // <<< 추가
+// using AF.AI.UtilityAI; // <<< 네임스페이스 제거 시도 유지
 
 namespace AF.AI.UtilityAI.Considerations
 {
@@ -11,6 +12,7 @@ namespace AF.AI.UtilityAI.Considerations
     public class TargetDistanceConsideration : IConsideration
     {
         public string Name => "Target Distance";
+        public float LastScore { get; set; }
 
         private ArmoredFrame _targetUnit;
         private Vector3? _targetPosition;
@@ -71,27 +73,34 @@ namespace AF.AI.UtilityAI.Considerations
 
         public float CalculateScore(ArmoredFrame actor, CombatContext context)
         {
+            // <<< 로거 가져오기 추가 >>>
+            var logger = ServiceLocator.Instance?.GetService<TextLoggerService>();
+
             Vector3? currentTargetPos = _targetPosition ?? _targetUnit?.Position;
 
             if (actor == null || currentTargetPos == null)
             {
-                // Debug.LogWarning($"{Name}: Actor or Target Position is null.");
+                logger?.TextLogger?.Log($"{Name}: Actor or Target Position is null.", LogLevel.Warning); // <<< TextLogger 사용 및 레벨 Warning으로 변경
+                this.LastScore = 0f;
                 return 0f;
             }
 
             float distance = Vector3.Distance(actor.Position, currentTargetPos.Value);
 
             // UtilityCurveEvaluator를 사용하여 점수 계산
-            return UtilityCurveEvaluator.Evaluate(
-                distance,
-                _minDistance,
-                _maxDistance,
-                _curveType,
-                _curveSteepness,
-                _curveOffsetX,
-                _curveOffsetY,
-                _invertScore
+            float score = UtilityCurveEvaluator.Evaluate(
+                curveType: _curveType,
+                input: distance,
+                min: _minDistance,
+                max: _maxDistance,
+                steepness: _curveSteepness,
+                invert: _invertScore,
+                midpoint: _curveOffsetX
             );
+
+            logger?.TextLogger?.Log($"{Name}: Dist={distance:F1}, Score={score:F3}", LogLevel.Debug); // <<< TextLogger로 변경 및 활성화
+            this.LastScore = Mathf.Clamp(score, 0f, 1.0f); 
+            return this.LastScore;
         }
     }
 } 

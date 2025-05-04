@@ -436,9 +436,13 @@ namespace AF.Tests
         [LabelText("로그에 스프라이트 아이콘 사용")]
         public bool useSpriteIconsInLog = true;
 
-        [VerticalGroup("Logging")]
-        [LabelWidth(120)]
-        public bool logAIDecisions = true; // AI 의사결정 로그 토글 추가
+        [FoldoutGroup("전투 옵션", expanded: true)]
+        [LabelText("디버그 레벨 로그 표시")]
+        public bool logDebugMessages = false;
+
+        [FoldoutGroup("전투 옵션", expanded: true)]
+        [LabelText("AI 결정 로그 표시 (Debug)")]
+        public bool logAIDecisions = false; // 기본값은 false
 
         private ICombatSimulatorService combatSimulator;
         private TextLoggerService textLogger;
@@ -549,6 +553,7 @@ namespace AF.Tests
             textLogger.SetUseIndentation(useLogIndentation);
             textLogger.SetLogActionSummaries(logActionSummaries);
             textLogger.SetUseSpriteIcons(useSpriteIconsInLog);
+            textLogger.SetLogDebugMessages(logDebugMessages);
             // ---------------------
 
             // --- 상태 초기화 ---
@@ -711,7 +716,9 @@ namespace AF.Tests
             try
             {
                 bool combatEnded = false;
-                int safetyBreak = 1000; // 무한 루프 방지
+                // int safetyBreak = 1000; // <<< 기존 1000턴 제한 주석 처리
+                // int safetyBreak = 50; // <<< 50턴으로 제한 변경 주석 처리
+                int safetyBreak = 50; // <<< 10턴으로 제한 변경 >>>
 
                 while (!combatEnded && isInCombat && combatSimulator.CurrentTurn < safetyBreak)
                 {
@@ -1016,13 +1023,31 @@ namespace AF.Tests
             if (weaponSO == null) { return; } // 무기 SO 없으면 스킵
 
             try {
+                 // RangeData 생성 (Weapon.cs의 InitializeFromSO 로직 참고)
+                 RangeData rangeData;
+                 if (weaponSO.Range > 0)
+                 {
+                     rangeData = new RangeData(weaponSO.Range, weaponSO.Range * 0.7f); // 최적 = 최대의 70% 추정
+                 }
+                 else
+                 {
+                     rangeData = RangeData.Default; // 기본값 사용
+                 }
+
+                 // <<< AttachCustomWeapon에서는 optimalRange가 0일 경우 MaxRange의 70%로 추정 >>>
+                 if (rangeData.OptimalRange <= 0.1f && rangeData.MaxRange > 0) 
+                 {
+                     rangeData.OptimalRange = rangeData.MaxRange * 0.7f;
+                     Debug.LogWarning($"Custom Weapon '{weaponSO.WeaponName}' had invalid OptimalRange ({weaponSO.Range}). Estimating ({rangeData.OptimalRange:F1}) based on MaxRange ({rangeData.MaxRange:F1}) using 70% rule.");
+                 }
+
                  Weapon runtimeWeapon = new Weapon(
                      weaponSO.WeaponName ?? weaponSO.name,
                      weaponSO.WeaponType, 
                      weaponSO.DamageType,
                      weaponSO.BaseDamage, 
                      weaponSO.Accuracy, 
-                     weaponSO.Range,
+                     rangeData, // <<< 생성된 RangeData 전달
                      weaponSO.AttackSpeed, 
                      weaponSO.OverheatPerShot,
                      weaponSO.BaseAPCost,
@@ -1073,13 +1098,31 @@ namespace AF.Tests
             if (weaponDatabase.TryGetValue(weaponId, out WeaponSO weaponSO))
             {
                 try {
+                     // RangeData 생성 (Weapon.cs의 InitializeFromSO 로직 참고)
+                     RangeData rangeData;
+                     if (weaponSO.Range > 0)
+                     {
+                         rangeData = new RangeData(weaponSO.Range, weaponSO.Range * 0.7f); // 최적 = 최대의 70% 추정
+                     }
+                     else
+                     {
+                         rangeData = RangeData.Default; // 기본값 사용
+                     }
+
+                     // <<< AttachCustomWeapon에서는 optimalRange가 0일 경우 MaxRange의 70%로 추정 >>>
+                     if (rangeData.OptimalRange <= 0.1f && rangeData.MaxRange > 0) 
+                     {
+                         rangeData.OptimalRange = rangeData.MaxRange * 0.7f;
+                         Debug.LogWarning($"Custom Weapon '{weaponSO.WeaponName}' had invalid OptimalRange ({weaponSO.Range}). Estimating ({rangeData.OptimalRange:F1}) based on MaxRange ({rangeData.MaxRange:F1}) using 70% rule.");
+                     }
+
                      Weapon runtimeWeapon = new Weapon(
                          weaponSO.WeaponName ?? weaponSO.name,
                          weaponSO.WeaponType, 
                          weaponSO.DamageType,
                          weaponSO.BaseDamage, 
                          weaponSO.Accuracy, 
-                         weaponSO.Range,
+                         rangeData, // <<< 생성된 RangeData 전달
                          weaponSO.AttackSpeed, 
                          weaponSO.OverheatPerShot,
                          weaponSO.BaseAPCost,

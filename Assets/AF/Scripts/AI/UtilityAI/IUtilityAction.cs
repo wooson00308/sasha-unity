@@ -21,6 +21,10 @@ namespace AF.AI.UtilityAI
         Vector3? TargetPosition { get; } // 목표 위치 (이동 액션)
         // +++ 속성 추가 끝 +++
 
+        // +++ 추가: 마지막으로 계산된 유틸리티 점수 (로그 및 디버깅용) +++
+        float LastCalculatedUtility { get; set; }
+        // +++ 속성 추가 끝 +++
+
         /// <summary>
         /// Calculates the overall utility score for this action based on its considerations.
         /// </summary>

@@ -18,5 +18,9 @@ namespace AF.AI.UtilityAI
         /// <param name="context">The current combat context providing necessary information.</param>
         /// <returns>A score typically between 0 and 1.</returns>
         float CalculateScore(ArmoredFrame actor, CombatContext context);
+
+        // +++ 추가: 마지막으로 계산된 점수 (로그 및 디버깅용) +++
+        float LastScore { get; set; }
+        // +++ 속성 추가 끝 +++
     }
 } 

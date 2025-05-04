@@ -28,47 +28,47 @@ namespace AF.AI.UtilityAI.Actions
         {
             _target = target;
             _weapon = weapon;
-            // InitializeConsiderations(); // 생성자에서 호출하도록 변경 가능
+            InitializeConsiderations();
         }
 
         protected override void InitializeConsiderations()
         {
-            if (_weapon == null || _target == null) return;
+            if (Target == null || AssociatedWeapon == null)
+            {
+                Debug.LogError($"[{Name}] Target or AssociatedWeapon is null during initialization.");
+                Considerations = new List<IConsideration>();
+                return;
+            }
+
+            // --- TargetDistanceConsideration 설정 ---
+            var distanceConsideration = new TargetDistanceConsideration(
+                Target,
+                UtilityCurveType.Gaussian,
+                minDistance: 0f,
+                maxDistance: AssociatedWeapon.Range.MaxRange,
+                offsetX: AssociatedWeapon.Range.OptimalRange,
+                steepness: 3f
+            );
+
+            // --- HitChanceConsideration 설정 ---
+            var hitChanceConsideration = new HitChanceConsideration(Target, AssociatedWeapon);
+
+            // --- ActionPointCostConsideration 설정 ---
+            var apCostConsideration = new ActionPointCostConsideration(AssociatedWeapon.BaseAPCost);
+
+            // --- TargetHealthConsideration 설정 ---
+            var healthConsideration = new TargetHealthConsideration(
+                Target,
+                UtilityCurveType.Linear,
+                invert: false
+            );
 
             Considerations = new List<IConsideration>
             {
-                // Essential checks (Blocking Considerations)
-                new TargetIsEnemyConsideration(_target),         // Is the target an enemy?
-                new TargetIsOperationalConsideration(_target),   // Is the target still operational?
-                new WeaponHasAmmoConsideration(_weapon),         // Does the weapon have ammo?
-                new WeaponReloadingConsideration(_weapon),     // Is the weapon reloading?
-
-                // Scoring factors
-                new TargetDistanceConsideration(
-                    targetUnit: _target, 
-                    curveType: UtilityCurveType.Polynomial, // 예: 거리가 가까울수록 점수가 제곱으로 증가 (Polynomial, invert=true)
-                    minDistance: 0f, 
-                    maxDistance: _weapon.Range, 
-                    steepness: 2f, // 지수 (제곱)
-                    invert: true // 가까울수록 점수 높음
-                ), // Is target in optimal range?
-
-                // +++ Target Health Consideration 추가 +++
-                new TargetHealthConsideration(
-                    targetUnit: _target,
-                    curveType: UtilityCurveType.Polynomial, // 예: 체력이 낮을수록 점수가 제곱으로 증가
-                    steepness: 2f, // 지수 (제곱)
-                    invert: true // 체력 낮을수록 점수 높음 (기본값)
-                ),
-
-                new HitChanceConsideration(_target, _weapon), // <<< 명중률 추가
-                new AmmoLevelConsideration(_weapon), // <<< 탄약 수준 추가
-
-                // --- Placeholder for other considerations ---
-                // TODO: Implement and add these considerations
-                // new TargetHealthConsideration(_target, CurveType.InverseLinear), // Lower health = higher score?
-                // new HitChanceConsideration(_weapon, _target) // Estimated hit chance?
-                // ----------------------------------------
+                distanceConsideration,
+                hitChanceConsideration,
+                apCostConsideration,
+                healthConsideration
             };
         }
 
@@ -103,12 +103,12 @@ namespace AF.AI.UtilityAI.Actions
         // --- Overriding utility calculation for 'All-Or-Nothing' checks ---
         public override float CalculateUtility(ArmoredFrame actor, CombatContext context)
         {
-            float totalScore = 1f; // Start with 1, multiply by scores (0 to 1)
+            float totalScore = 0f;
             int scoringConsiderationsCount = 0;
 
             if (Considerations == null || Considerations.Count == 0)
             {
-                // Debug.LogWarning($"Action '{Name}' has no considerations. Returning 0 utility.");
+                this.LastCalculatedUtility = 0f;
                 return 0f;
             }
 
@@ -117,31 +117,45 @@ namespace AF.AI.UtilityAI.Actions
                 if (consideration == null) continue;
                 float score = consideration.CalculateScore(actor, context);
 
-                // --- Check for 'Blocking' Considerations ---
-                if (consideration is TargetIsEnemyConsideration ||
+                if (consideration is HitChanceConsideration && score <= 0.001f)
+                {
+                    this.LastCalculatedUtility = 0f;
+                    return 0f;
+                }
+
+                if (consideration is ActionPointCostConsideration ||
                     consideration is TargetIsOperationalConsideration ||
                     consideration is WeaponHasAmmoConsideration ||
+                    consideration is WeaponIsOperationalConsideration ||
                     consideration is WeaponReloadingConsideration)
                 {
-                    if (score <= 0f) return 0f; // If essential check fails, utility is 0
+                    if (score <= 0f)
+                    {
+                        this.LastCalculatedUtility = 0f;
+                        return 0f;
+                    }
                 }
                 else
                 {
-                    // --- Accumulate 'Scoring' Considerations --- 
-                    // Multiply scores together (alternative: average, weighted average etc.)
-                    totalScore *= score; 
+                    totalScore += score;
                     scoringConsiderationsCount++;
                 }
             }
 
-            // Optional: Compensation factor if multiplying scores
-            // Can prevent scores from getting too low with many considerations.
-            // float modificationFactor = 1f / scoringConsiderationsCount;
-            // float compensatedScore = Mathf.Pow(totalScore, modificationFactor);
-            // return compensatedScore;
+            float finalScore = 0f;
+            if (scoringConsiderationsCount > 0)
+            {
+                finalScore = totalScore / scoringConsiderationsCount;
+            }
+            else
+            {
+                finalScore = 1f;
+            }
             
-            // If no scoring considerations, return 1 (as all essential checks passed), else return the calculated score.
-            return scoringConsiderationsCount > 0 ? totalScore : 1f; 
+            finalScore = Mathf.Clamp01(finalScore);
+
+            this.LastCalculatedUtility = finalScore;
+            return finalScore;
         }
         // --- End Overriding utility calculation --- 
     }

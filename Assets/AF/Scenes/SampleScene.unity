@@ -2368,8 +2368,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 1158, y: -251}
-  m_SizeDelta: {x: 1080, y: 509.76}
+  m_AnchoredPosition: {x: 0, y: -1488.654}
+  m_SizeDelta: {x: 1080, y: 421.1059}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &657277239
 MonoBehaviour:
@@ -2408,7 +2408,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 657277237}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
@@ -3301,8 +3301,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 1158, y: -1396.6}
-  m_SizeDelta: {x: 1080, y: 513.16}
+  m_AnchoredPosition: {x: 1242, y: -1488.654}
+  m_SizeDelta: {x: 1080, y: 421.1059}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &980066279
 MonoBehaviour:
@@ -3341,7 +3341,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 980066277}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
@@ -5644,36 +5644,36 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerSquadSetups:
   - useCustomAssembly: 0
-    customAFName: "\uD06C\uB9BC\uC2A8 \uB370\uB4DC\uC544\uC774"
-    assembly: {fileID: 11400000, guid: 69171450ad83c1d4f9163f1aa70be07b, type: 2}
+    customAFName: "\uCF54\uBC1C\uD2B8 \uBC45\uAC00\uB4DC"
+    assembly: {fileID: 11400000, guid: 903cf094c4dc7034483f90c9ce86aae5, type: 2}
     teamId: 0
     teamColorPreview: {r: 0.9, g: 0.2, b: 0.2, a: 1}
-    startPosition: {x: 40, y: 0, z: 0}
-    customFrame: {fileID: 0}
-    customHead: {fileID: 0}
-    customBody: {fileID: 0}
-    customArms: {fileID: 0}
-    customLegs: {fileID: 0}
-    customWeaponR1: {fileID: 0}
-    customWeaponL1: {fileID: 0}
-    customPilot: {fileID: 0}
-    persistentId: Crimson_Deadeye
+    startPosition: {x: 20, y: 0, z: 0}
+    customFrame: {fileID: 11400000, guid: ae0e1f83a60977a4daeaba4d00a0247c, type: 2}
+    customHead: {fileID: 11400000, guid: 80688ab2f1942764db0d5e34cab92041, type: 2}
+    customBody: {fileID: 11400000, guid: 94c1560f515ef8c4c9ae57820ff8a608, type: 2}
+    customArms: {fileID: 11400000, guid: 2d7f95d4f61b04f48a6cada280e6736c, type: 2}
+    customLegs: {fileID: 11400000, guid: 0034c50c2583c91419dda8b22b5958d9, type: 2}
+    customWeaponR1: {fileID: 11400000, guid: 74b7090b268c6f741bba6c28f863d3f6, type: 2}
+    customWeaponL1: {fileID: 11400000, guid: f86a1e490c9ba454a9748a98815021b1, type: 2}
+    customPilot: {fileID: 11400000, guid: dacca43c482f4e347b0bae22f11d8be8, type: 2}
+    persistentId: Cobalt_Vanguard
   afSetups:
-  - useCustomAssembly: 0
-    customAFName: "\uD06C\uB9BC\uC2A8 \uC800\uAC70\uB108\uD2B8"
-    assembly: {fileID: 11400000, guid: afcb4dd15ec4bee42b1f10c7c103fd79, type: 2}
+  - useCustomAssembly: 1
+    customAFName: "\uCF54\uBC1C\uD2B8 \uBC45\uAC00\uB4DC 2"
+    assembly: {fileID: 11400000, guid: 903cf094c4dc7034483f90c9ce86aae5, type: 2}
     teamId: 1
-    teamColorPreview: {r: 0.9, g: 0.2, b: 0.2, a: 1}
-    startPosition: {x: -40, y: 0, z: 0}
-    customFrame: {fileID: 11400000, guid: 845f8a86665567b459228dfbbdd31c14, type: 2}
-    customHead: {fileID: 11400000, guid: e3f09fa668e5caa46a1fcddfca46a27d, type: 2}
-    customBody: {fileID: 11400000, guid: 179fcae7bfe86e8438f3f86d044fd502, type: 2}
-    customArms: {fileID: 11400000, guid: 37bca43549854a9449ffcda387d27d05, type: 2}
-    customLegs: {fileID: 11400000, guid: f0b1f3d91a565d6449db9fd59c3c6ea0, type: 2}
-    customWeaponR1: {fileID: 11400000, guid: d0be52f6998e8c640ae1c063bd1a562b, type: 2}
-    customWeaponL1: {fileID: 11400000, guid: 2d0595d3ba1bd064496486fcbfd16857, type: 2}
-    customPilot: {fileID: 11400000, guid: 694905c2fd5d33d4485fd9d2751ca4d5, type: 2}
-    persistentId: Crimson_Juggernaut
+    teamColorPreview: {r: 0.2, g: 0.4, b: 0.9, a: 1}
+    startPosition: {x: -20, y: 0, z: 0}
+    customFrame: {fileID: 11400000, guid: ae0e1f83a60977a4daeaba4d00a0247c, type: 2}
+    customHead: {fileID: 11400000, guid: 80688ab2f1942764db0d5e34cab92041, type: 2}
+    customBody: {fileID: 11400000, guid: 94c1560f515ef8c4c9ae57820ff8a608, type: 2}
+    customArms: {fileID: 11400000, guid: 2d7f95d4f61b04f48a6cada280e6736c, type: 2}
+    customLegs: {fileID: 11400000, guid: 0034c50c2583c91419dda8b22b5958d9, type: 2}
+    customWeaponR1: {fileID: 11400000, guid: 74b7090b268c6f741bba6c28f863d3f6, type: 2}
+    customWeaponL1: {fileID: 11400000, guid: f86a1e490c9ba454a9748a98815021b1, type: 2}
+    customPilot: {fileID: 11400000, guid: dacca43c482f4e347b0bae22f11d8be8, type: 2}
+    persistentId: "\uCF54\uBC1C\uD2B8 \uBC45\uAC00\uB4DC"
   logCombatDetails: 0
   showLogLevelPrefix: 0
   showTurnPrefix: 0
@@ -6532,7 +6532,7 @@ MonoBehaviour:
   _eventTargetDetailScrollRect: {fileID: 657277239}
   _damageTargetDetailScrollRect: {fileID: 980066279}
   _textAnimationDuration: 0.5
-  _lineDelay: 0.05
+  _lineDelay: 0.3
   _damageTargetDisplayClearDelay: 1.5
   _durationPerCharacter: 0.02
   _minTextAnimationDuration: 0.1

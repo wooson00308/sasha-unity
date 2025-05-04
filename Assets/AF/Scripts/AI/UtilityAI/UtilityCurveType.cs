@@ -27,6 +27,18 @@ namespace AF.AI.UtilityAI
         /// 역로그 (Exponential): 입력값이 클수록 변화량이 급격히 증가하는 곡선입니다.
         /// </summary>
         Exponential,
-        // TODO: 필요에 따라 추가적인 곡선 타입 정의 (예: Gaussian, Sine 등)
+        /// <summary>
+        /// 역 로지스틱: 로지스틱 곡선을 수평으로 뒤집은 형태. 특정 값 이상에서 점수가 급격히 떨어지는 경우 등에 사용.
+        /// </summary>
+        InverseLogistic,
+        /// <summary>
+        /// 계단 함수: 특정 임계값을 기준으로 점수가 0 또는 1로 결정됩니다.
+        /// </summary>
+        Step,
+        /// <summary>
+        /// 가우시안 (종 모양): 특정 중심값(평균)에서 가장 높은 점수를 갖고 양쪽으로 갈수록 점수가 감소하는 형태.
+        /// 최적의 값 범위가 있을 때 유용합니다 (예: 최적 사거리).
+        /// </summary>
+        Gaussian
     }
 } 

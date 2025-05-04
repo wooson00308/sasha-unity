@@ -49,7 +49,7 @@ namespace AF.Combat.Behaviors
                                                         w.IsOperational);
             if (meleeW != null)
             {
-                bool inRange = minDist <= meleeW.Range;
+                bool inRange = minDist <= meleeW.Range.MaxRange;
                 bool canAtk  = inRange &&
                                activeUnit.HasEnoughAP(CalculateAttackAPCost(activeUnit, meleeW)) &&
                                !meleeW.IsReloading &&
@@ -68,7 +68,7 @@ namespace AF.Combat.Behaviors
                                     .FirstOrDefault();
             if (rangedW != null)
             {
-                bool inRange = minDist <= rangedW.Range + 0.001f;
+                bool inRange = minDist <= rangedW.Range.MaxRange + 0.001f;
                 bool canAtk  = inRange &&
                                activeUnit.HasEnoughAP(CalculateAttackAPCost(activeUnit, rangedW));
                 if (canAtk)
@@ -87,7 +87,7 @@ namespace AF.Combat.Behaviors
                 {
                     if (rangedW != null) // 원거리 보유
                     {
-                        float optimal = rangedW.Range * OPTIMAL_RANGE_FACTOR;
+                        float optimal = rangedW.Range.MaxRange * OPTIMAL_RANGE_FACTOR;
 
                         if (minDist < MIN_RANGED_SAFE_DISTANCE)
                         {
@@ -106,7 +106,7 @@ namespace AF.Combat.Behaviors
                     }
                     else if (meleeW != null) // 근접 전용
                     {
-                        if (minDist > meleeW.Range)
+                        if (minDist > meleeW.Range.MaxRange)
                             return (CombatActionEvents.ActionType.Move, closest, closest.Position, null);
                     }
                 }

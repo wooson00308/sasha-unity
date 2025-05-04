@@ -7,6 +7,27 @@ using AF.Combat;
 namespace AF.Models
 {
     /// <summary>
+    /// 무기의 사거리 정보를 나타내는 구조체
+    /// </summary>
+    [Serializable]
+    public struct RangeData
+    {
+        [Tooltip("무기의 최대 유효 사거리")]
+        public float MaxRange;
+        [Tooltip("무기의 최적 교전 사거리")]
+        public float OptimalRange;
+
+        public RangeData(float maxRange, float optimalRange)
+        {
+            MaxRange = Mathf.Max(0.1f, maxRange); // 최소 사거리 보장
+            OptimalRange = Mathf.Clamp(optimalRange, 0.1f, MaxRange); // 최적 사거리는 0.1 ~ 최대 사거리 사이
+        }
+
+        // 기본값 설정 (예: 최대 5, 최적 3)
+        public static RangeData Default => new RangeData(5.0f, 3.0f);
+    }
+
+    /// <summary>
     /// ArmoredFrame에 장착 가능한 무기 클래스입니다.
     /// </summary>
     [Serializable]
@@ -38,9 +59,9 @@ namespace AF.Models
         [SerializeField] private float _accuracy;
 
         /// <summary>
-        /// 사거리 (유닛 단위)
+        /// 사거리 (유닛 단위) - 이제 RangeData 구조체 사용
         /// </summary>
-        [SerializeField] private float _range;
+        [SerializeField] private RangeData _rangeData = RangeData.Default;
 
         /// <summary>
         /// 공격 속도 (초당 공격 횟수)
@@ -118,7 +139,7 @@ namespace AF.Models
         public DamageType DamageType => _damageType;
         public float Damage => _damage;
         public float Accuracy => _accuracy;
-        public float Range => _range;
+        public RangeData Range => _rangeData;
         public float AttackSpeed => _attackSpeed;
         public float BaseAPCost => _baseAPCost;
         public float CurrentHeat => _currentHeat;
@@ -142,7 +163,7 @@ namespace AF.Models
             _damageType = DamageType.Physical;
             _damage = 10.0f;
             _accuracy = 0.7f;
-            _range = 5.0f;
+            _rangeData = RangeData.Default;
             _attackSpeed = 1.0f;
             _overheatPerShot = 0.1f;
             _baseAPCost = 2.0f; // 기본값 명시
@@ -164,14 +185,14 @@ namespace AF.Models
         /// <summary>
         /// 상세 정보를 지정하는 생성자
         /// </summary>
-        public Weapon(string name, WeaponType type, DamageType damageType, float damage, float accuracy, float range, float attackSpeed, float overheatPerShot)
+        public Weapon(string name, WeaponType type, DamageType damageType, float damage, float accuracy, RangeData rangeData, float attackSpeed, float overheatPerShot)
         {
             _name = name;
             _type = type;
             _damageType = damageType;
             _damage = damage;
             _accuracy = Mathf.Clamp01(accuracy);
-            _range = Mathf.Max(1.0f, range);
+            _rangeData = rangeData;
             _attackSpeed = Mathf.Max(0.1f, attackSpeed);
             _overheatPerShot = Mathf.Max(0.0f, overheatPerShot);
             // <<< 탄약 시스템 초기화 (기본값 사용) >>>
@@ -190,14 +211,14 @@ namespace AF.Models
         /// <summary>
         /// 상세 정보를 지정하는 생성자
         /// </summary>
-        public Weapon(string name, WeaponType type, DamageType damageType, float damage, float accuracy, float range, float attackSpeed, float overheatPerShot, float baseAPCost)
+        public Weapon(string name, WeaponType type, DamageType damageType, float damage, float accuracy, RangeData rangeData, float attackSpeed, float overheatPerShot, float baseAPCost)
         {
             _name = name;
             _type = type;
             _damageType = damageType;
             _damage = damage;
             _accuracy = Mathf.Clamp01(accuracy);
-            _range = Mathf.Max(1.0f, range);
+            _rangeData = rangeData;
             _attackSpeed = Mathf.Max(0.1f, attackSpeed);
             _overheatPerShot = Mathf.Max(0.0f, overheatPerShot);
             _baseAPCost = Mathf.Max(0.1f, baseAPCost); // 최소 AP 소모량 제한
@@ -217,7 +238,7 @@ namespace AF.Models
         /// <summary>
         /// 상세 정보를 지정하는 생성자 (탄약/재장전/FlavorKey 포함)
         /// </summary>
-        public Weapon(string name, WeaponType type, DamageType damageType, float damage, float accuracy, float range, float attackSpeed, float overheatPerShot, float baseAPCost,
+        public Weapon(string name, WeaponType type, DamageType damageType, float damage, float accuracy, RangeData rangeData, float attackSpeed, float overheatPerShot, float baseAPCost,
                       int maxAmmo, float reloadAPCost, int reloadTurns,
                       string attackFlavorKey, string reloadFlavorKey) // FlavorKey 파라미터 추가
         {
@@ -226,7 +247,7 @@ namespace AF.Models
             _damageType = damageType;
             _damage = damage;
             _accuracy = Mathf.Clamp01(accuracy);
-            _range = Mathf.Max(1.0f, range);
+            _rangeData = rangeData;
             _attackSpeed = Mathf.Max(0.1f, attackSpeed);
             _overheatPerShot = Mathf.Max(0.0f, overheatPerShot);
             _baseAPCost = Mathf.Max(0.1f, baseAPCost);
@@ -267,7 +288,25 @@ namespace AF.Models
             _damageType = weaponSO.DamageType;
             _damage = weaponSO.BaseDamage;
             _accuracy = weaponSO.Accuracy;
-            _range = weaponSO.Range;
+            // _rangeData = weaponSO.RangeData; // <<< 기존 직접 할당 주석 처리
+
+            // --- RangeData 초기화 (WeaponSO에 RangeData 필드 또는 기존 Range 필드 사용) ---
+            // TODO: WeaponSO에 RangeData 필드를 추가하는 것이 장기적으로 더 좋음.
+            // 임시 방편: WeaponSO에 RangeData 필드가 없으면 Range(float) 사용
+            if (weaponSO.Range > 0) // 기존 Range(float) 값이 유효하면 사용
+            {
+                 // RangeData가 없으므로 추정. 최적 사거리는 최대 사거리의 70%로 가정 (조정 가능)
+                 _rangeData = new RangeData(weaponSO.Range, weaponSO.Range * 0.7f); 
+                 Debug.LogWarning($"WeaponSO '{weaponSO.WeaponName}' is using legacy Range(float). Estimating OptimalRange ({_rangeData.OptimalRange:F1}) based on MaxRange ({_rangeData.MaxRange:F1}) using 70% rule. Consider adding RangeData field to WeaponSO.");
+            }
+            else
+            {
+                 // 기존 Range 값도 없으면 기본값 사용
+                 _rangeData = RangeData.Default;
+                 Debug.LogWarning($"WeaponSO '{weaponSO.WeaponName}' has no valid Range data. Using default RangeData (Max: {_rangeData.MaxRange}, Optimal: {_rangeData.OptimalRange}).");
+            }
+            // --- RangeData 초기화 끝 ---
+
             _attackSpeed = weaponSO.AttackSpeed;
             _overheatPerShot = weaponSO.OverheatPerShot;
             _baseAPCost = weaponSO.BaseAPCost;
@@ -590,7 +629,7 @@ namespace AF.Models
                 this._damageType,
                 this._damage,
                 this._accuracy,
-                this._range,
+                this._rangeData,
                 this._attackSpeed,
                 this._overheatPerShot,
                 this._baseAPCost,

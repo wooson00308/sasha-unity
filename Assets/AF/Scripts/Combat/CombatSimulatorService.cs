@@ -7,6 +7,7 @@ using AF.Services;
 using AF.Combat.Behaviors;  // 파일럿 전략
 using UnityEngine;
 using System.Collections.ObjectModel; // For ReadOnlyDictionary/Collection
+using AF.AI.PilotBehavior; // <<< Utility AI 전략 네임스페이스 추가
 
 namespace AF.Combat
 {
@@ -56,6 +57,23 @@ namespace AF.Combat
         // 파일럿 전문화 → 전략
         private Dictionary<SpecializationType, IPilotBehaviorStrategy> _behaviorStrategies;
 
+        // +++ 추가: 액션 가중치 정의 (UtilityAIPilotBehaviorStrategy에서 이동) +++
+        private static readonly Dictionary<SpecializationType, Dictionary<CombatActionEvents.ActionType, float>> _actionWeights =
+            new Dictionary<SpecializationType, Dictionary<CombatActionEvents.ActionType, float>>
+        {
+            { SpecializationType.StandardCombat, new Dictionary<CombatActionEvents.ActionType, float> {
+                { CombatActionEvents.ActionType.Attack, 1.0f }, { CombatActionEvents.ActionType.Move, 0.8f }, { CombatActionEvents.ActionType.Defend, 0.5f }, { CombatActionEvents.ActionType.Reload, 0.7f }, { CombatActionEvents.ActionType.RepairSelf, 0.6f }, { CombatActionEvents.ActionType.RepairAlly, 0.5f } } },
+            { SpecializationType.MeleeCombat,    new Dictionary<CombatActionEvents.ActionType, float> {
+                { CombatActionEvents.ActionType.Attack, 1.2f }, { CombatActionEvents.ActionType.Move, 1.0f }, { CombatActionEvents.ActionType.Defend, 0.4f }, { CombatActionEvents.ActionType.Reload, 0.5f }, { CombatActionEvents.ActionType.RepairSelf, 0.5f }, { CombatActionEvents.ActionType.RepairAlly, 0.3f } } }, // 근접 공격 및 접근 선호
+            { SpecializationType.RangedCombat,   new Dictionary<CombatActionEvents.ActionType, float> {
+                { CombatActionEvents.ActionType.Attack, 1.1f }, { CombatActionEvents.ActionType.Move, 0.7f }, { CombatActionEvents.ActionType.Defend, 0.6f }, { CombatActionEvents.ActionType.Reload, 0.9f }, { CombatActionEvents.ActionType.RepairSelf, 0.6f }, { CombatActionEvents.ActionType.RepairAlly, 0.4f } } }, // 원거리 공격 및 재장전 선호, 접근 회피
+            { SpecializationType.Defense,        new Dictionary<CombatActionEvents.ActionType, float> {
+                { CombatActionEvents.ActionType.Attack, 0.8f }, { CombatActionEvents.ActionType.Move, 0.5f }, { CombatActionEvents.ActionType.Defend, 1.2f }, { CombatActionEvents.ActionType.Reload, 0.6f }, { CombatActionEvents.ActionType.RepairSelf, 0.7f }, { CombatActionEvents.ActionType.RepairAlly, 0.6f } } }, // 방어 선호
+            { SpecializationType.Support,        new Dictionary<CombatActionEvents.ActionType, float> {
+                { CombatActionEvents.ActionType.Attack, 0.6f }, { CombatActionEvents.ActionType.Move, 0.7f }, { CombatActionEvents.ActionType.Defend, 0.7f }, { CombatActionEvents.ActionType.Reload, 0.8f }, { CombatActionEvents.ActionType.RepairSelf, 1.0f }, { CombatActionEvents.ActionType.RepairAlly, 1.2f } } }  // 수리 선호
+        };
+        // +++ 추가 끝 +++
+
         // ──────────────────────────────────────────────────────────────
         // 인터페이스 프로퍼티
         // ──────────────────────────────────────────────────────────────
@@ -87,7 +105,7 @@ namespace AF.Combat
                 { SpecializationType.RangedCombat,   new RangedCombatBehaviorStrategy()   },
                 { SpecializationType.Defense,        new DefenseCombatBehaviorStrategy()  },
                 { SpecializationType.Support,        new SupportCombatBehaviorStrategy()  },
-                { SpecializationType.StandardCombat, new StandardCombatBehaviorStrategy() }
+                { SpecializationType.StandardCombat, new UtilityAIPilotBehaviorStrategy(_actionWeights[SpecializationType.StandardCombat]) }
             };
 
             // 상태 초기화

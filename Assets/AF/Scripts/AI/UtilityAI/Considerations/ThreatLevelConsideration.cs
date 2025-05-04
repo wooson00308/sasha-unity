@@ -3,6 +3,7 @@ using AF.Models;
 using UnityEngine;
 using AF.AI.UtilityAI;
 using System.Linq; // For Count()
+using AF.Services; // <<< 추가
 
 namespace AF.AI.UtilityAI.Considerations
 {
@@ -13,6 +14,7 @@ namespace AF.AI.UtilityAI.Considerations
     public class ThreatLevelConsideration : IConsideration
     {
         public string Name => "Threat Level";
+        public float LastScore { get; set; }
 
         private float _threatRadius; // 위협 감지 반경
         private int _maxThreatCount; // 점수 계산 시 최대 위협 수 (이 수를 넘으면 점수는 0 또는 1로 고정)
@@ -44,9 +46,13 @@ namespace AF.AI.UtilityAI.Considerations
 
         public float CalculateScore(ArmoredFrame actor, CombatContext context)
         {
+            // <<< 로거 가져오기 추가 >>>
+            var logger = ServiceLocator.Instance?.GetService<TextLoggerService>();
+
             if (actor == null)
             {
-                // Debug.LogWarning($"{Name}: Actor is null.");
+                logger?.TextLogger?.Log($"{Name}: Actor is null.", LogLevel.Warning); // <<< TextLogger 사용 및 레벨 Warning으로 변경
+                this.LastScore = 0f;
                 return 0f;
             }
 
@@ -54,6 +60,7 @@ namespace AF.AI.UtilityAI.Considerations
             var enemies = context.GetEnemies(actor);
             if (enemies == null)
             {
+                this.LastScore = _invertScore ? 1f : 0f;
                 return _invertScore ? 1f : 0f; // No enemies, threat is minimal (or maximal if not inverted)
             }
 
@@ -66,16 +73,26 @@ namespace AF.AI.UtilityAI.Considerations
 
             // Evaluate using the curve based on the count
             // Input range is 0 to _maxThreatCount
-            return UtilityCurveEvaluator.Evaluate(
-                enemiesNearby,
-                0f, // minInput (min enemy count)
-                _maxThreatCount, // maxInput (max count for scaling)
-                _curveType,
-                _steepness,
-                _offsetX,
-                _offsetY,
-                _invertScore
+            float score = UtilityCurveEvaluator.Evaluate(
+                curveType: _curveType,
+                input: enemiesNearby,
+                min: 0f,
+                max: _maxThreatCount,
+                steepness: _steepness,
+                invert: _invertScore,
+                midpoint: _offsetX
             );
+
+            logger?.TextLogger?.Log($"[ThreatLevelConsideration] Actor={actor.Name}, Radius={_threatRadius:F1}, NearbyThreats={enemiesNearby}, MaxThreat={_maxThreatCount}, Score={score:F3}", LogLevel.Debug); // <<< TextLogger로 변경 및 활성화
+
+            if (enemiesNearby == 0) // <<< 0점 반환 로직은 유지
+            {
+                this.LastScore = 0f;
+                return 0f; 
+            }
+
+            this.LastScore = Mathf.Clamp(score, 0f, 1.0f);
+            return this.LastScore;
         }
     }
 } 

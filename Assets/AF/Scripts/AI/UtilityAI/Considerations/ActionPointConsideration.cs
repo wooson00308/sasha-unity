@@ -2,6 +2,7 @@ using AF.Combat;
 using AF.Models;
 using UnityEngine;
 using AF.AI.UtilityAI;
+using AF.Services;
 
 namespace AF.AI.UtilityAI.Considerations
 {
@@ -11,6 +12,7 @@ namespace AF.AI.UtilityAI.Considerations
     public class ActionPointConsideration : IConsideration
     {
         public string Name => "Action Points";
+        public float LastScore { get; set; }
 
         // Curve parameters
         private UtilityCurveType _curveType;
@@ -35,9 +37,12 @@ namespace AF.AI.UtilityAI.Considerations
 
         public float CalculateScore(ArmoredFrame actor, CombatContext context)
         {
+            var logger = ServiceLocator.Instance?.GetService<TextLoggerService>();
+
             if (actor == null || actor.CombinedStats.MaxAP <= 0)
             {
-                // Debug.LogWarning($"{Name}: Actor is null or has invalid MaxAP.");
+                // logger?.TextLogger?.Log($"{Name}: Actor is null or has invalid MaxAP.", LogLevel.Warning);
+                this.LastScore = 0f;
                 return 0f; // Cannot score invalid actor
             }
 
@@ -46,16 +51,19 @@ namespace AF.AI.UtilityAI.Considerations
 
             // Evaluate using the curve
             // Input range is 0 to 1 for AP percentage
-            return UtilityCurveEvaluator.Evaluate(
-                apPercentage,
-                0f, // minInput for percentage
-                1f, // maxInput for percentage
-                _curveType,
-                _steepness,
-                _offsetX,
-                _offsetY,
-                _invertScore
+            float score = UtilityCurveEvaluator.Evaluate(
+                curveType: _curveType,
+                input: apPercentage,
+                min: 0f,
+                max: 1f,
+                steepness: _steepness,
+                invert: _invertScore,
+                midpoint: _offsetX
             );
+
+            logger?.TextLogger?.Log($"{Name}: AP%={apPercentage:P1}, Score={score:F3}", LogLevel.Debug);
+            this.LastScore = Mathf.Clamp(score, 0f, 1.0f);
+            return this.LastScore;
         }
     }
 } 

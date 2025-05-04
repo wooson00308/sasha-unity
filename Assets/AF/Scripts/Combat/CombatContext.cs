@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using AF.EventBus;
 using AF.Services;
 using AF.Models;
+using System.Linq;
 
 namespace AF.Combat
 {
@@ -50,16 +51,46 @@ namespace AF.Combat
             }
 
             var enemies = new List<ArmoredFrame>();
-            foreach (var participant in Participants)
+            var localParticipants = Participants; 
+            var localTeamAssignments = TeamAssignments;
+            if (localParticipants != null)
             {
-                if (participant != null && participant != self && participant.IsOperational &&
-                    TeamAssignments.TryGetValue(participant, out int participantTeam) &&
-                    participantTeam != selfTeam)
+                foreach (var participant in localParticipants)
                 {
-                    enemies.Add(participant);
+                    if (participant != null && participant != self && participant.IsOperational &&
+                        localTeamAssignments.TryGetValue(participant, out int participantTeam) &&
+                        participantTeam != selfTeam)
+                    {
+                        enemies.Add(participant);
+                    }
                 }
             }
             return enemies;
+        }
+
+        public IEnumerable<ArmoredFrame> GetAllies(ArmoredFrame actor)
+        {
+            if (actor == null || !TeamAssignments.TryGetValue(actor, out int actorTeam))
+            {
+                return Enumerable.Empty<ArmoredFrame>(); // 자신 또는 팀 정보 없으면 빈 목록 반환
+            }
+
+            var allies = new List<ArmoredFrame>();
+            var localParticipants = Participants;
+            var localTeamAssignments = TeamAssignments;
+            if (localParticipants != null)
+            {
+                foreach (var participant in localParticipants)
+                {
+                    if (participant != null && participant != actor && participant.IsOperational &&
+                        localTeamAssignments.TryGetValue(participant, out int participantTeam) &&
+                        participantTeam == actorTeam)
+                    {
+                        allies.Add(participant);
+                    }
+                }
+            }
+            return allies;
         }
     }
 }

@@ -31,17 +31,17 @@
 ## 유틸리티 AI 통합 계획 (`IPilotBehaviorStrategy` 연동)
 
 1.  **새로운 전략 클래스 생성:**
-    *   기존 `IPilotBehaviorStrategy` 인터페이스를 구현하는 `UtilityAIPilotBehaviorStrategy` 클래스를 새로 생성하여 유틸리티 AI 로직을 캡슐화한다. 이는 기존 전략(`StandardCombatBehaviorStrategy` 등)과의 명확한 분리를 위함이다.
+    *   기존 `IPilotBehaviorStrategy` 인터페이스를 구현하는 `UtilityAIPilotBehaviorStrategy` 클래스를 새로 생성하여 유틸리티 AI 로직을 캡슐화한다. 이는 기존 전략(`StandardCombatBehaviorStrategy` 등)과의 명확한 분리를 위함이다. ([Task 1 완료 시 생성 완료](mdc:Assets/AF/Scripts/AI/PilotBehavior/UtilityAIPilotBehaviorStrategy.cs))
 2.  **Action/Consideration 관리:**
-    *   각 파일럿 타입 또는 개별 파일럿이 사용할 `IUtilityAction` 목록과 각 액션에 필요한 `IConsideration` 목록을 관리할 방법을 결정한다. (예: ScriptableObject 활용, 팩토리 패턴 등). 우선은 전략 클래스 내에서 하드코딩 또는 간단한 초기화 로직으로 시작할 수 있다.
+    *   각 파일럿 타입 또는 개별 파일럿이 사용할 `IUtilityAction` 목록과 각 액션에 필요한 `IConsideration` 목록을 관리할 방법을 결정한다. (예: ScriptableObject 활용, 팩토리 패턴 등). 우선은 전략 클래스 내에서 `GeneratePossibleActions` 메서드를 통해 동적으로 생성하는 방식으로 구현함.
 3.  **액션 선택 로직 (`IActionSelector` 사용):**
-    *   `UtilityAIPilotBehaviorStrategy`의 `DecideNextAction` 메서드 내에서 `IActionSelector` (예: `HighestScoreSelector`)를 사용하여 현재 사용 가능한 모든 `IUtilityAction`의 점수를 계산하고, 가장 높은 점수를 받은 액션을 최종 행동으로 선택한다.
+    *   `UtilityAIPilotBehaviorStrategy`의 `DetermineAction` 메서드 내에서 `IActionSelector` (예: `HighestScoreSelector`)를 사용하여 현재 사용 가능한 모든 `IUtilityAction`의 점수를 계산하고, 가장 높은 점수를 받은 액션을 최종 행동으로 선택한다.
 4.  **컨텍스트 활용 (`CombatContext`):**
-    *   `IConsideration`의 `CalculateScore` 메서드에 전달되는 `CombatContext`를 적극 활용하여, 각 고려사항이 판단에 필요한 게임 상태 정보(적 위치, 아군 상태, 지도 정보 등)에 접근할 수 있도록 한다.
+    *   `IConsideration`의 `CalculateScore` 메서드에 전달되는 `CombatContext`를 적극 활용하여, 각 고려사항이 판단에 필요한 게임 상태 정보(적 위치, 아군 상태, 지도 정보 등)에 접근할 수 있도록 한다. ([Task 2 완료 시 `CombatSimulatorService`에 `GetCurrentContext` 메서드 추가하여 개선](mdc:Assets/AF/Scripts/Combat/CombatSimulatorService.cs))
+5.  **결정된 액션 정보 반환:**
+    *   `IUtilityAction` 인터페이스에 `AssociatedActionType`, `Target`, `AssociatedWeapon`, `TargetPosition` 등의 속성을 추가하여, 선택된 액션으로부터 필요한 파라미터(액션 타입, 대상 유닛, 목표 위치, 사용 무기 등)를 명확하게 추출하여 `DetermineAction`의 반환값으로 사용할 수 있도록 함.
 
-## 다음 단계
-- `TargetDistanceConsideration` 등의 점수 계산 로직에 실제 반응 곡선(Response Curve) 적용 고려.
-- `AttackUtilityAction`에 필요한 나머지 Consideration 클래스들(`TargetIsEnemy`, `WeaponHasAmmo` 등) 생성 및 구현.
-- 더 많은 Action 클래스 설계 및 구현 (`MoveUtilityAction`, `DefendUtilityAction` 등).
-- `UtilityAIPilotBehaviorStrategy` 기본 틀 생성 및 `DecideNextAction` 메서드에 통합 로직 초안 구현.
-- 기존 `IPilotBehaviorStrategy`의 `DetermineAction` 메서드 내에서 유틸리티 시스템 통합 설계 구체화.
+## 다음 단계 (Task 1 완료 시점)
+- Task 2: 핵심 유틸리티 평가 시스템 구현 (반응 곡선, 다양한 Consideration)
+- Task 3: 행동 선택 로직 개발 (Selector 개선 등)
+- Task 4: MVP 액션 및 고려사항 구현 (Move, Defend 등)

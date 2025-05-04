@@ -1,6 +1,7 @@
 using AF.Combat;
 using AF.Models;
 using UnityEngine;
+using AF.Services;
 
 namespace AF.AI.UtilityAI.Considerations
 {
@@ -11,6 +12,7 @@ namespace AF.AI.UtilityAI.Considerations
     public class TargetIsOperationalConsideration : IConsideration
     {
         public string Name => "Target Is Operational";
+        public float LastScore { get; set; }
 
         private ArmoredFrame _targetUnit;
 
@@ -21,14 +23,19 @@ namespace AF.AI.UtilityAI.Considerations
 
         public float CalculateScore(ArmoredFrame actor, CombatContext context)
         {
+            var logger = ServiceLocator.Instance?.GetService<TextLoggerService>();
+
             // No need for actor context here, only target
             if (_targetUnit == null)
             {
-                // Debug.LogWarning($"{Name}: Target Unit is null.");
+                logger?.TextLogger?.Log($"{Name}: Target Unit is null.", LogLevel.Warning);
+                this.LastScore = 0f;
                 return 0f; // Cannot score a null target
             }
 
-            return _targetUnit.IsOperational ? 1f : 0f;
+            float score = _targetUnit.IsOperational ? 1f : 0f;
+            this.LastScore = Mathf.Clamp(score, 0f, 1.0f);
+            return this.LastScore;
         }
     }
 } 

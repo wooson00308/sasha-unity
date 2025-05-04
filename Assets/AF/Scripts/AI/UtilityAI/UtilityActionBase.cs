@@ -22,41 +22,55 @@ namespace AF.AI.UtilityAI
         public virtual Vector3? TargetPosition => null; // 기본적으로 위치 없음
         // +++ 속성 추가 끝 +++
 
+        // +++ 추가: 마지막 계산된 유틸리티 점수 +++
+        public float LastCalculatedUtility { get; set; } = 0f;
+        // +++ 속성 추가 끝 +++
+
         protected UtilityActionBase()
         {
-            Considerations = new List<IConsideration>();
-            InitializeConsiderations();
+            // Considerations = new List<IConsideration>(); // <<< 생성자에서 직접 초기화 제거
+            // InitializeConsiderations(); // <<< 생성자에서 호출 제거
         }
 
         /// <summary>
-        /// Method to be overridden by subclasses to add specific considerations for the action.
+        /// Initializes the list of Considerations for this action.
+        /// Should be overridden by subclasses to add specific considerations.
+        /// Called by the subclass constructor AFTER necessary fields (like target) are set.
         /// </summary>
-        protected virtual void InitializeConsiderations()
+        protected virtual void InitializeConsiderations() // <<< virtual 추가
         {
-            // Subclasses will add their specific considerations here
-            // Example: Considerations.Add(new SelfHPConsideration());
+            Considerations = new List<IConsideration>(); // <<< 여기서 초기화
         }
 
         /// <summary>
-        /// Default utility calculation: Averages the scores of all considerations.
-        /// Subclasses can override this for different scoring methods (e.g., weighted average, highest score).
+        /// Default utility calculation: Multiplies the scores of all considerations.
+        /// Subclasses can override this for different scoring methods.
         /// </summary>
         public virtual float CalculateUtility(ArmoredFrame actor, CombatContext context)
         {
             if (Considerations == null || Considerations.Count == 0)
             {
                 Debug.LogWarning($"Action '{Name}' has no considerations. Returning 0 utility.");
+                this.LastCalculatedUtility = 0f;
                 return 0f;
             }
 
-            float totalScore = 0f;
+            float finalScore = 1f;
             foreach (var consideration in Considerations)
             {
                 if (consideration == null) continue;
-                totalScore += consideration.CalculateScore(actor, context);
+                float currentScore = consideration.CalculateScore(actor, context);
+                
+                finalScore *= currentScore;
+
+                if (finalScore == 0f)
+                {
+                    break;
+                }
             }
 
-            return totalScore / Considerations.Count; // Simple average
+            this.LastCalculatedUtility = finalScore;
+            return finalScore;
         }
 
         /// <summary>

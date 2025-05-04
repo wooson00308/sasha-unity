@@ -84,12 +84,11 @@ namespace AF.Combat.Behaviors
 
 
             // === 3) 공격 시도 (수정됨: 80% ~ 100% 거리 조건) ===
-            if (fireWeapon != null && closestOperationalEnemy != null) 
+            if (fireWeapon != null && closestOperationalEnemy != null)
             {
                 float attackCost = CalculateAttackAPCost(activeUnit, fireWeapon);
-                float weaponRange = fireWeapon.Range;
-                // <<< 거리 조건 수정: 80% 이상이고 최대 사거리 내일 때 공격 >>>
-                bool isInAttackRange = minDist >= weaponRange * OPTIMAL_RANGE_FACTOR && minDist <= weaponRange + 0.001f;
+                RangeData weaponRangeData = fireWeapon.Range;
+                bool isInAttackRange = minDist >= weaponRangeData.MaxRange * OPTIMAL_RANGE_FACTOR && minDist <= weaponRangeData.MaxRange + 0.001f;
                 bool hasAP = activeUnit.HasEnoughAP(attackCost);
 
                 if (isInAttackRange && hasAP)
@@ -111,9 +110,9 @@ namespace AF.Combat.Behaviors
 
                 if (referenceWeapon != null)
                 {
-                    float weaponRange = referenceWeapon.Range;
-                    float closeThresholdDist = weaponRange * CLOSE_RANGE_THRESHOLD; // 60% 거리
-                    float optimalDist = weaponRange * OPTIMAL_RANGE_FACTOR;      // 80% 거리
+                    RangeData weaponRangeData = referenceWeapon.Range;
+                    float closeThresholdDist = weaponRangeData.MaxRange * CLOSE_RANGE_THRESHOLD; // 60% 거리
+                    float optimalDist = weaponRangeData.MaxRange * OPTIMAL_RANGE_FACTOR;      // 80% 거리
 
                     // a) 너무 가깝다 (60% 미만): 후퇴해서 60% 거리 확보 시도 (기존 유지)
                     if (minDist < closeThresholdDist)
@@ -126,16 +125,14 @@ namespace AF.Combat.Behaviors
                         return (CombatActionEvents.ActionType.Move, closestOperationalEnemy, retreatPos, null);
                     }
                     // b) 너무 멀다 (100% 초과): 최대 사거리까지만 접근 (목표 지점 수정)
-                    else if (minDist > weaponRange + 0.001f)
+                    else if (minDist > weaponRangeData.MaxRange + 0.001f)
                     {
                        Vector3 dir = (closestOperationalEnemy.Position - activeUnit.Position).normalized;
-                       // <<< 목표 지점 수정: 적 위치에서 최대 사거리만큼 떨어진 지점 >>>
-                       Vector3 targetPos = closestOperationalEnemy.Position - dir * weaponRange;
-                       // <<< 목표 지점 수정 끝 >>>
-                        Vector3 moveVec = targetPos - activeUnit.Position;
-                        float distToMove = Mathf.Min(activeUnit.CombinedStats.Speed, moveVec.magnitude);
-                        Vector3 approachPos = activeUnit.Position + moveVec.normalized * distToMove;
-                        return (CombatActionEvents.ActionType.Move, closestOperationalEnemy, approachPos, null);
+                       Vector3 targetPos = closestOperationalEnemy.Position - dir * weaponRangeData.MaxRange;
+                       Vector3 moveVec = targetPos - activeUnit.Position;
+                       float distToMove = Mathf.Min(activeUnit.CombinedStats.Speed, moveVec.magnitude);
+                       Vector3 approachPos = activeUnit.Position + moveVec.normalized * distToMove;
+                       return (CombatActionEvents.ActionType.Move, closestOperationalEnemy, approachPos, null);
                     }
                     // c) 60% ~ 100% 사이인데 공격 못했다면? -> 현재 위치 유지 (이동 안 함)
                 }

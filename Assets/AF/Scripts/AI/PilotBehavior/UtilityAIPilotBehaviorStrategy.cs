@@ -7,6 +7,8 @@ using System.Linq; // For LINQ
 using AF.AI.UtilityAI; // For IUtilityAction, IActionSelector etc.
 using AF.AI.UtilityAI.Actions; // For example actions
 using AF.AI.UtilityAI.Selectors; // For HighestScoreSelector
+using AF.Services; // For ServiceLocator
+using AF.Tests; // For CombatTestRunner
 
 namespace AF.AI.PilotBehavior
 {
@@ -16,11 +18,51 @@ namespace AF.AI.PilotBehavior
     public class UtilityAIPilotBehaviorStrategy : IPilotBehaviorStrategy
     {
         private IActionSelector _actionSelector;
+        private TextLoggerService _textLogger; // TextLoggerService reference
+        private bool _logAIDecisions = false; // AI decision logging flag
 
-        public UtilityAIPilotBehaviorStrategy()
+        // +++ 추가: 인스턴스별 액션 가중치 +++
+        private readonly Dictionary<CombatActionEvents.ActionType, float> _weights;
+        // +++ 추가 끝 +++
+
+        // +++ 생성자 수정: 가중치 딕셔너리 주입 (기존 생성자 대체) +++
+        public UtilityAIPilotBehaviorStrategy(
+            Dictionary<CombatActionEvents.ActionType, float> weights, 
+            IActionSelector actionSelector = null // ActionSelector는 선택적으로 받도록 유지
+            )
         {
-            // TODO: Action과 Selector를 외부에서 주입받거나 설정 파일 로드 방식으로 변경 (Deferred)
-            _actionSelector = new HighestScoreSelector(); // Selector는 일단 유지
+            // 가중치가 null이면 빈 딕셔너리 사용 (기본값 1.0 처리를 위해)
+            _weights = weights ?? new Dictionary<CombatActionEvents.ActionType, float>(); 
+            _actionSelector = actionSelector ?? new HighestScoreSelector();
+            InitializeLogger(); // Initialize logger
+        }
+        // +++ 생성자 수정 끝 +++
+
+        // Logger initialization method
+        private void InitializeLogger()
+        {
+            try
+            {
+                _textLogger = ServiceLocator.Instance.GetService<TextLoggerService>();
+                 // Get the initial state of the toggle from CombatTestRunner (optional, could default to false)
+                  var testRunner = Object.FindFirstObjectByType<CombatTestRunner>(); // Use FindObjectOfType carefully
+                  if (testRunner != null)
+                  {
+                      _logAIDecisions = testRunner.logAIDecisions;
+                  }
+                  else {
+                       Debug.LogWarning("CombatTestRunner instance not found. AI Decision logging will be off by default.");
+                       _logAIDecisions = false;
+                  }
+
+                 Debug.Log("Utility AI Decision Logging is forcefully enabled for debugging."); // <<< 확인용 로그 추가
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"Failed to get TextLoggerService: {e.Message}. AI decision logging will be disabled.");
+                _textLogger = null;
+                _logAIDecisions = false;
+            }
         }
 
         public (CombatActionEvents.ActionType actionType, ArmoredFrame targetFrame, Vector3? targetPosition, Weapon weapon)
@@ -39,8 +81,52 @@ namespace AF.AI.PilotBehavior
                 return (CombatActionEvents.ActionType.None, null, null, null); // Idle -> None 으로 변경
             }
 
-            // 4. 최적의 액션 선택
-            IUtilityAction bestAction = _actionSelector.SelectAction(activeUnit, possibleActions, combatContext);
+            // 4. 최적의 액션 선택 (가중치 적용 - 수정된 메서드 호출)
+            // IUtilityAction bestAction = _actionSelector.SelectAction(activeUnit, possibleActions, combatContext); // <<< 기존 선택 로직 주석 처리
+            IUtilityAction bestAction = SelectBestWeightedAction(activeUnit, possibleActions, combatContext); // <<< 가중치 적용 메서드 호출
+
+            // +++ AI Decision Logging +++
+            if (_logAIDecisions && _textLogger?.TextLogger != null)
+            {
+                var logBuilder = new System.Text.StringBuilder();
+                logBuilder.AppendLine($"--- AI Decision Log for [{activeUnit.Name}] (Turn: {combatContext.CurrentTurn}) ---");
+
+                // 액션 목록 정렬 기준 변경: 가중 점수 (Action 객체에 임시 저장 필요 or 여기서 재계산)
+                // 여기서는 간단하게 기본 유틸리티 기준 정렬 유지하고, 로그에 가중치/가중점수 추가
+                foreach (var action in possibleActions.OrderByDescending(a => a.LastCalculatedUtility * (_weights.TryGetValue(a.AssociatedActionType, out var w) ? w : 1.0f))) // <<< 가중 점수 기준으로 정렬
+                {
+                    float baseUtility = action.LastCalculatedUtility; // 이미 계산된 기본 유틸리티 사용
+                    float weight = _weights.TryGetValue(action.AssociatedActionType, out var currentWeight) ? currentWeight : 1.0f; // 인스턴스 가중치 사용
+                    float weightedScore = baseUtility * weight;
+
+                    logBuilder.Append($"  - Action: {action.Name ?? action.GetType().Name}");
+                    if (action.Target != null) logBuilder.Append($" (Target: {action.Target.Name})");
+                    if (action.AssociatedWeapon != null) logBuilder.Append($" (Weapon: {action.AssociatedWeapon.Name})");
+                    if (action.TargetPosition.HasValue) logBuilder.Append($" (Pos: {action.TargetPosition.Value})");
+                    logBuilder.AppendLine($": BaseScore={baseUtility:F3}, Weight={weight:F2}, WeightedScore={weightedScore:F3}"); // <<< 로그 형식 수정
+
+                    // 고려사항 점수 기록
+                    foreach (var consideration in action.Considerations)
+                    {
+                        logBuilder.AppendLine($"    * Consideration: {consideration.Name ?? consideration.GetType().Name}, Score: {consideration.LastScore:F3}");
+                    }
+                }
+
+                if (bestAction != null)
+                {
+                    // 선택된 액션의 최종 가중 점수 표시 (SelectBestWeightedAction에서 최고 점수를 저장해두거나 여기서 재계산)
+                    float finalWeight = _weights.TryGetValue(bestAction.AssociatedActionType, out var finalW) ? finalW : 1.0f;
+                    float finalWeightedScore = bestAction.LastCalculatedUtility * finalWeight;
+                    logBuilder.AppendLine($"--- Selected Action: {bestAction.Name ?? bestAction.GetType().Name} (BaseScore: {bestAction.LastCalculatedUtility:F3}, Weight: {finalWeight:F2}, WeightedScore: {finalWeightedScore:F3}) ---"); // <<< 로그 형식 수정
+                }
+                else
+                {
+                    logBuilder.AppendLine("--- No Action Selected (Idle/None) ---");
+                }
+                 // CombatTextUIService가 LogLevel.Debug를 표시하도록 설정되어 있다고 가정
+                _textLogger.TextLogger.Log(logBuilder.ToString(), LogLevel.Debug);
+            }
+            // +++ End AI Decision Logging +++
 
             // 5. 선택된 액션 기반으로 결과 반환
             if (bestAction != null)
@@ -59,6 +145,59 @@ namespace AF.AI.PilotBehavior
                 return (CombatActionEvents.ActionType.None, null, null, null); // Idle -> None 으로 변경
             }
         }
+
+        // +++ 가중치를 적용하여 최적 액션을 선택하는 메서드 추가 +++
+        private IUtilityAction SelectBestWeightedAction(ArmoredFrame activeUnit, List<IUtilityAction> possibleActions, CombatContext combatContext)
+        {
+             if (possibleActions == null || possibleActions.Count == 0)
+             {
+                 Debug.LogWarning($"[{activeUnit.Name}] No possible actions generated.");
+                 return null; // 또는 기본 액션 (예: Idle or Defend) 반환
+             }
+
+             IUtilityAction bestAction = null;
+             float highestWeightedScore = float.MinValue; // 최고 가중 점수
+             List<IUtilityAction> bestActions = new List<IUtilityAction>(); // 동점 액션 리스트
+
+             foreach (var action in possibleActions)
+             {
+                 float baseUtility = action.CalculateUtility(activeUnit, combatContext); // 기본 유틸리티 계산 (LastCalculatedUtility에 저장됨)
+                 
+                 // <<< 인스턴스 변수 _weights 사용 >>>
+                 float weight = _weights.TryGetValue(action.AssociatedActionType, out var w) ? w : 1.0f; 
+                 float weightedScore = baseUtility * weight; // 가중 점수 계산
+
+                 // 최고 점수 갱신 또는 동점 리스트에 추가
+                 if (weightedScore > highestWeightedScore)
+                 {
+                     highestWeightedScore = weightedScore;
+                     bestActions.Clear();
+                     bestActions.Add(action);
+                 }
+                 else if (weightedScore == highestWeightedScore)
+                 {
+                     bestActions.Add(action);
+                 }
+             }
+
+             // 최고 점수 액션 선택 (동점 시 무작위)
+             if (bestActions.Count > 0)
+             {
+                 if (bestActions.Count == 1)
+                 {
+                     bestAction = bestActions[0];
+                 }
+                 else
+                 {
+                     // 동점 액션 중 무작위 선택
+                     int randomIndex = Random.Range(0, bestActions.Count); // UnityEngine.Random 사용
+                     bestAction = bestActions[randomIndex];
+                 }
+             }
+
+             return bestAction;
+        }
+        // +++ 가중치 적용 메서드 추가 끝 +++
 
         // 동적 액션 생성 메서드
         private List<IUtilityAction> GeneratePossibleActions(ArmoredFrame activeUnit, CombatContext context)
@@ -82,18 +221,86 @@ namespace AF.AI.PilotBehavior
                 }
             }
 
-            // --- TODO: 이동 액션 생성 로직 추가 ---
-            // 예: 주변의 안전한 위치, 적과의 거리 조절 위치 등으로 이동하는 MoveUtilityAction 생성
+            // --- 이동 액션 생성 로직 추가 ---
+            ArmoredFrame closestEnemy = FindClosestEnemy(activeUnit, enemies);
+            if (closestEnemy != null)
+            {
+                // 적 방향으로 이동력의 절반만큼 이동하는 지점 계산 (단순화된 방식)
+                Vector3 directionToEnemy = (closestEnemy.Position - activeUnit.Position).normalized;
+                // TODO: 실제 이동력(AP 소모 고려) 또는 원하는 교전 거리 등을 반영하여 이동 거리 계산 필요
+                float desiredMoveDistance = activeUnit.CombinedStats.Speed * 0.5f;
+                Vector3 targetPosition = activeUnit.Position + directionToEnemy * desiredMoveDistance;
 
-            // --- TODO: 방어 액션 생성 로직 추가 ---
-            // 예: 현재 AP가 충분하고 위협적인 적이 근처에 있을 때 DefendUtilityAction 생성
-            // actions.Add(new DefendUtilityAction());
+                // TODO: 실제 이동 가능한 위치인지 검증하는 로직 필요 (경로 탐색 등)
 
-            // --- TODO: 재장전 액션 생성 로직 추가 ---
+                actions.Add(new MoveUtilityAction(targetPosition));
+            }
+            // --- 이동 액션 생성 로직 끝 ---
 
-            // --- TODO: 수리 액션 생성 로직 추가 ---
+            // --- 방어 액션 생성 로직 추가 ---
+            // 방어는 항상 가능한 액션으로 간주 (AP 소모 등은 Consideration에서 판단)
+            actions.Add(new DefendUtilityAction());
+            // --- 방어 액션 생성 로직 끝 ---
+
+            // --- 재장전 액션 생성 로직 추가 ---
+            foreach (var weapon in activeUnit.GetAllWeapons())
+            {
+                // 작동 중이고, 탄약이 최대치가 아니며, 현재 재장전 중이 아닌 경우 재장전 액션 생성
+                if (weapon.IsOperational && weapon.CurrentAmmo < weapon.MaxAmmo && !weapon.IsReloading)
+                {
+                    actions.Add(new ReloadUtilityAction(weapon));
+                }
+            }
+            // --- 재장전 액션 생성 로직 끝 ---
+
+            // --- 수리 액션 생성 로직 추가 ---
+            var allies = context.GetAllies(activeUnit); // CombatContext에 GetEnemies처럼 GetAllies 필요
+
+            // 자신 수리 액션 추가 (손상되었을 경우에만)
+            if (activeUnit.TotalCurrentDurability < activeUnit.TotalMaxDurability)
+            {
+                actions.Add(new RepairUtilityAction(activeUnit));
+            }
+
+            if (allies != null)
+            {
+                foreach (var ally in allies)
+                {
+                    // 살아있고, 손상되었으며, 자신이 아닌 아군
+                    if (ally != null && ally.IsOperational && ally != activeUnit && 
+                        ally.TotalCurrentDurability < ally.TotalMaxDurability) // <<< 손상 여부 확인 추가
+                    {
+                        actions.Add(new RepairUtilityAction(ally)); // <<< ally 변수 사용
+                    }
+                }
+            }
+            // --- 수리 액션 생성 로직 끝 ---
 
             return actions;
+        }
+
+        // 가장 가까운 적 찾는 도우미 메서드 (필요 시 별도 클래스로 분리 가능)
+        private ArmoredFrame FindClosestEnemy(ArmoredFrame activeUnit, IEnumerable<ArmoredFrame> enemies)
+        {
+            if (enemies == null || !enemies.Any())
+            {
+                return null;
+            }
+
+            ArmoredFrame closest = null;
+            float minDistanceSqr = float.MaxValue;
+
+            foreach (var enemy in enemies)
+            {
+                if (enemy == null || !enemy.IsOperational) continue;
+
+                float distSqr = (enemy.Position - activeUnit.Position).sqrMagnitude;
+                if (distSqr < minDistanceSqr)
+                {                    minDistanceSqr = distSqr;
+                    closest = enemy;
+                }
+            }
+            return closest;
         }
     }
 } 

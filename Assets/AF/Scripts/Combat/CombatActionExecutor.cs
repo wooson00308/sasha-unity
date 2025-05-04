@@ -237,7 +237,7 @@ namespace AF.Combat
                 return (false, "같은 팀 공격 불가");
 
             float distance = Vector3.Distance(attacker.Position, target.Position);
-            if (distance > weapon.Range)
+            if (distance > weapon.Range.MaxRange)
                 return (false, "사거리 밖");
 
             if (weapon.IsReloading)
@@ -255,10 +255,11 @@ namespace AF.Combat
                           + (atkAcc - 1f) * 1f
                           -  tgtEva * 0.5f;
 
-            float optRange = weapon.Range * 0.8f;
+            float optRange = weapon.Range.MaxRange * 0.8f;
             if (distance > optRange)
             {
-                float penaltyRatio = (distance - optRange) / (weapon.Range - optRange);
+                float rangeDifference = weapon.Range.MaxRange - optRange;
+                float penaltyRatio = rangeDifference > 0.01f ? (distance - optRange) / rangeDifference : 0f;
                 baseHit *= Mathf.Clamp(1f - penaltyRatio * 0.5f, 0.5f, 1f);
             }
 
@@ -448,7 +449,7 @@ namespace AF.Combat
                                 !wep.IsReloading &&
                                 wep.HasAmmo() &&
                                 Vector3.Distance(defender.Position,
-                                                    attacker.Position) <= wep.Range);
+                                                    attacker.Position) <= wep.Range.MaxRange);
             if (w == null) return;
 
             // --- Log Counter announcement BEFORE executing the counter attack ---
