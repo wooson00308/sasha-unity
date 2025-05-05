@@ -1,6 +1,7 @@
 using UnityEngine;
 using AF.Models;
 using AF.Services;
+using AF.AI.UtilityAI;
 
 namespace AF.Combat
 {
@@ -14,6 +15,7 @@ namespace AF.Combat
             ArmoredFrame targetFrame,
             Vector3? targetPosition,
             Weapon weapon,
+            IUtilityAction executedAction,
             bool isCounter = false,
             bool freeCounter = false);
     }

@@ -26,10 +26,14 @@ namespace AF.AI.UtilityAI
         public float LastCalculatedUtility { get; set; } = 0f;
         // +++ 속성 추가 끝 +++
 
-        protected UtilityActionBase()
+        // +++ Add PilotSpecialization field +++
+        protected SpecializationType PilotSpecialization { get; private set; }
+        // +++ End Add +++
+
+        protected UtilityActionBase(SpecializationType pilotSpec)
         {
-            // Considerations = new List<IConsideration>(); // <<< 생성자에서 직접 초기화 제거
-            // InitializeConsiderations(); // <<< 생성자에서 호출 제거
+            Considerations = new List<IConsideration>();
+            this.PilotSpecialization = pilotSpec;
         }
 
         /// <summary>

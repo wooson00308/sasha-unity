@@ -68,7 +68,7 @@ namespace AF.Data
         }
         #endif
 
-        public void Apply(PilotData data)
+        public void ApplyData(PilotData data)
         {
             PilotID = data.PilotID;
             PilotName = data.PilotName;
@@ -97,6 +97,7 @@ namespace AF.Data
                                            .Select(s => s.Trim())
                                            .ToList() ?? new List<string>();
             Notes = data.Notes;
+            this.name = data.PilotID;
 
             #if UNITY_EDITOR
             UpdatePreview();

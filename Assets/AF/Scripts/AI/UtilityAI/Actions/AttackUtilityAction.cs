@@ -24,7 +24,8 @@ namespace AF.AI.UtilityAI.Actions
         public override Vector3? TargetPosition => _target?.Position; // 공격 액션의 목표 위치는 대상의 현재 위치
         // +++ 속성 구현 끝 +++
 
-        public AttackUtilityAction(ArmoredFrame target, Weapon weapon)
+        public AttackUtilityAction(ArmoredFrame target, Weapon weapon, SpecializationType pilotSpec)
+            : base(pilotSpec)
         {
             _target = target;
             _weapon = weapon;
@@ -40,35 +41,80 @@ namespace AF.AI.UtilityAI.Actions
                 return;
             }
 
-            // --- TargetDistanceConsideration 설정 ---
-            var distanceConsideration = new TargetDistanceConsideration(
-                Target,
-                UtilityCurveType.Gaussian,
-                minDistance: 0f,
-                maxDistance: AssociatedWeapon.Range.MaxRange,
-                offsetX: AssociatedWeapon.Range.OptimalRange,
-                steepness: 3f
-            );
-
-            // --- HitChanceConsideration 설정 ---
-            var hitChanceConsideration = new HitChanceConsideration(Target, AssociatedWeapon);
-
-            // --- ActionPointCostConsideration 설정 ---
+            // --- Blocking Considerations (Common) ---
+            var targetOperational = new TargetIsOperationalConsideration(Target);
+            var weaponOperational = new WeaponIsOperationalConsideration(AssociatedWeapon);
+            var weaponHasAmmo = new WeaponHasAmmoConsideration(AssociatedWeapon);
+            var weaponReloading = new WeaponReloadingConsideration(AssociatedWeapon);
+            // Basic AP cost check (can be refined per spec if needed)
             var apCostConsideration = new ActionPointCostConsideration(AssociatedWeapon.BaseAPCost);
 
-            // --- TargetHealthConsideration 설정 ---
-            var healthConsideration = new TargetHealthConsideration(
-                Target,
-                UtilityCurveType.Linear,
-                invert: false
-            );
+            // --- Scoring Considerations (Vary by Specialization) ---
+            IConsideration distanceConsideration;
+            IConsideration healthConsideration;
+            IConsideration hitChanceConsideration = new HitChanceConsideration(Target, AssociatedWeapon);
+
+            float maxRange = AssociatedWeapon.Range.MaxRange;
+            float optimalRange = AssociatedWeapon.Range.OptimalRange;
+
+            switch (this.PilotSpecialization)
+            {
+                case SpecializationType.MeleeCombat:
+                    // Melee: Must be very close. Score drops sharply beyond melee range.
+                    distanceConsideration = new TargetDistanceConsideration(
+                        Target, UtilityCurveType.Polynomial, 0f, maxRange, steepness: 3f, invert: true);
+                    // Melee: Focus fire on lower health targets more aggressively.
+                    healthConsideration = new TargetHealthConsideration(
+                        Target, UtilityCurveType.Logistic, steepness: 10f, offsetX: 0.3f, invert: true);
+                    break;
+
+                case SpecializationType.RangedCombat:
+                    // Ranged: Prefer optimal range. Gaussian curve.
+                    distanceConsideration = new TargetDistanceConsideration(
+                        Target, UtilityCurveType.Gaussian, 0f, maxRange * 1.1f, // Extend max slightly for curve shape
+                        offsetX: optimalRange, steepness: 3f, invert: false);
+                    // Ranged: Less emphasis on target health, more on distance/hit chance.
+                    healthConsideration = new TargetHealthConsideration(
+                        Target, UtilityCurveType.Linear, invert: false); // Lower health = lower score (less incentive to finish off)
+                    break;
+
+                // case SpecializationType.Support:
+                //     // Support might have different attack considerations or lower priority overall (handled by weights)
+                //     distanceConsideration = ...
+                //     healthConsideration = ...
+                //     break;
+
+                // case SpecializationType.Defense:
+                //     // Defense might prioritize attacking high-threat targets regardless of health?
+                //     distanceConsideration = ...
+                //     healthConsideration = ...
+                //     break;
+
+                default: // StandardCombat or others
+                    // Standard: Balanced approach, similar to Ranged but maybe linear distance.
+                    distanceConsideration = new TargetDistanceConsideration(
+                        Target, UtilityCurveType.Linear, 0f, maxRange, invert: true); // Closer is generally better
+                    // Standard: Moderate focus on lower health targets.
+                    healthConsideration = new TargetHealthConsideration(
+                        Target, UtilityCurveType.Polynomial, steepness: 1.5f, invert: true);
+                    break;
+            }
 
             Considerations = new List<IConsideration>
             {
+                // Blocking considerations first
+                targetOperational,
+                weaponOperational,
+                weaponHasAmmo,
+                weaponReloading,
+                apCostConsideration,
+                new TargetIsEnemyConsideration(Target), // Ensure target is an enemy
+
+                // Scoring considerations
                 distanceConsideration,
                 hitChanceConsideration,
-                apCostConsideration,
                 healthConsideration
+                // Add other relevant considerations like ThreatLevel of the target?
             };
         }
 
@@ -86,7 +132,7 @@ namespace AF.AI.UtilityAI.Actions
                 var executor = ServiceLocator.Instance.GetService<ICombatActionExecutor>();
                 if (executor != null)
                 {
-                    executor.Execute(context, actor, CombatActionEvents.ActionType.Attack, _target, null, _weapon, isCounter: false, freeCounter: false);
+                    executor.Execute(context, actor, CombatActionEvents.ActionType.Attack, _target, null, _weapon, this, isCounter: false, freeCounter: false);
                     Debug.Log($"{actor.Name} executed {Name}");
                 }
                 else
@@ -132,7 +178,7 @@ namespace AF.AI.UtilityAI.Actions
                     if (score <= 0f)
                     {
                         this.LastCalculatedUtility = 0f;
-                        return 0f;
+                        return 0f; 
                     }
                 }
                 else

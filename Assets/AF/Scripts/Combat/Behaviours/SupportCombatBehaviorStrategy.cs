@@ -4,17 +4,18 @@ using AF.Services;
 using AF.Models;
 using System.Collections.Generic;
 using System.Linq;
+using AF.AI.UtilityAI;
 
 namespace AF.Combat.Behaviors
 {
     /// <summary>SpecializationType.Support 전용 전략</summary>
     public sealed class SupportCombatBehaviorStrategy : PilotBehaviorStrategyBase
     {
-        public override (CombatActionEvents.ActionType, ArmoredFrame, Vector3?, Weapon)
+        public override IUtilityAction
             DetermineAction(ArmoredFrame activeUnit, CombatSimulatorService ctx)
         {
             if (activeUnit == null || !activeUnit.IsOperational)
-                return (default, null, null, null);
+                return null;
 
             // HP 가장 낮은 아군
             ArmoredFrame lowest = FindLowestHPDamagedAlly(activeUnit, ctx);
@@ -27,14 +28,13 @@ namespace AF.Combat.Behaviors
                               activeUnit.HasEnoughAP(repairSelfCost);
 
             if (lowest != null && activeUnit.HasEnoughAP(repairAllyCost))
-                return (CombatActionEvents.ActionType.RepairAlly, lowest, null, null);
+                return null;
 
             if (selfRepair)
-                return (CombatActionEvents.ActionType.RepairSelf, activeUnit, null, null);
+                return null;
 
             // 그 외엔 표준
-            return new StandardCombatBehaviorStrategy()
-                   .DetermineAction(activeUnit, ctx);
+            return null;
         }
 
         private ArmoredFrame FindLowestHPDamagedAlly(ArmoredFrame unit, CombatSimulatorService ctx)

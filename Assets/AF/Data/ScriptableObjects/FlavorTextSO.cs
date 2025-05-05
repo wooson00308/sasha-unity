@@ -22,10 +22,11 @@ namespace AF.Data
         /// This method is typically called by the ScriptableObjectGenerator.
         /// </summary>
         /// <param name="data">The data parsed from the Excel row.</param>
-        public void Apply(FlavorTextData data)
+        public void ApplyData(FlavorTextData data)
         {
             this.templateKey = data.templateKey;
             this.templateText = data.templateText;
+            this.name = data.templateKey;
             // Note: The 'id' from FlavorTextData is used for the asset filename, not stored in the SO itself.
         }
     }

@@ -65,25 +65,26 @@ namespace AF.AI.PilotBehavior
             }
         }
 
-        public (CombatActionEvents.ActionType actionType, ArmoredFrame targetFrame, Vector3? targetPosition, Weapon weapon)
-            DetermineAction(ArmoredFrame activeUnit, CombatSimulatorService context)
+        public IUtilityAction DetermineAction(ArmoredFrame activeUnit, CombatSimulatorService context)
         {
-            // 1. CombatContext 가져오기 (CombatSimulatorService의 public 메서드 사용)
+            // 1. CombatContext 가져오기
             CombatContext combatContext = context.GetCurrentContext();
 
-            // 2. 동적 액션 목록 생성
-            List<IUtilityAction> possibleActions = GeneratePossibleActions(activeUnit, combatContext);
+            // <<< Get Pilot Specialization >>>
+            SpecializationType pilotSpec = activeUnit.Pilot?.Specialization ?? SpecializationType.StandardCombat;
+
+            // 2. 동적 액션 목록 생성 (Pass specialization)
+            List<IUtilityAction> possibleActions = GeneratePossibleActions(activeUnit, combatContext, pilotSpec);
 
             // 3. Action Selector 및 액션 목록 유효성 검사
             if (_actionSelector == null || possibleActions == null || possibleActions.Count == 0)
             {
                 Debug.LogWarning($"UtilityAIPilotBehaviorStrategy: ActionSelector not initialized or no possible actions generated for {activeUnit.Name}. Falling back to Idle.");
-                return (CombatActionEvents.ActionType.None, null, null, null); // Idle -> None 으로 변경
+                return null;
             }
 
-            // 4. 최적의 액션 선택 (가중치 적용 - 수정된 메서드 호출)
-            // IUtilityAction bestAction = _actionSelector.SelectAction(activeUnit, possibleActions, combatContext); // <<< 기존 선택 로직 주석 처리
-            IUtilityAction bestAction = SelectBestWeightedAction(activeUnit, possibleActions, combatContext); // <<< 가중치 적용 메서드 호출
+            // 4. 최적의 액션 선택
+            IUtilityAction bestAction = SelectBestWeightedAction(activeUnit, possibleActions, combatContext);
 
             // +++ AI Decision Logging +++
             if (_logAIDecisions && _textLogger?.TextLogger != null)
@@ -128,21 +129,16 @@ namespace AF.AI.PilotBehavior
             }
             // +++ End AI Decision Logging +++
 
-            // 5. 선택된 액션 기반으로 결과 반환
+            // 5. 선택된 액션 반환
             if (bestAction != null)
             {
-                // IUtilityAction 인터페이스의 속성을 사용하여 파라미터 추출 (타입 캐스팅 불필요)
                 Debug.Log($"{activeUnit.Name} decided action: {bestAction.Name} (Type: {bestAction.AssociatedActionType}) Target: {bestAction.Target?.Name ?? "None"} Weapon: {bestAction.AssociatedWeapon?.Name ?? "None"} Position: {bestAction.TargetPosition?.ToString() ?? "None"}");
-
-                return (bestAction.AssociatedActionType,
-                        bestAction.Target, // 공격, 수리 대상
-                        bestAction.TargetPosition, // 이동 목표 위치
-                        bestAction.AssociatedWeapon); // 공격, 재장전 무기
+                return bestAction;
             }
             else
             {
                 Debug.LogWarning($"{activeUnit.Name} could not determine a utility action. Falling back to Idle.");
-                return (CombatActionEvents.ActionType.None, null, null, null); // Idle -> None 으로 변경
+                return null;
             }
         }
 
@@ -200,12 +196,12 @@ namespace AF.AI.PilotBehavior
         // +++ 가중치 적용 메서드 추가 끝 +++
 
         // 동적 액션 생성 메서드
-        private List<IUtilityAction> GeneratePossibleActions(ArmoredFrame activeUnit, CombatContext context)
+        private List<IUtilityAction> GeneratePossibleActions(ArmoredFrame activeUnit, CombatContext context, SpecializationType pilotSpec)
         {
             var actions = new List<IUtilityAction>();
             var enemies = context.GetEnemies(activeUnit); // CombatContext에 GetEnemies 필요
 
-            // --- 공격 액션 생성 ---
+            // --- 공격 액션 생성 --- (Pass specialization)
             if (enemies != null)
             {
                 foreach (var enemy in enemies)
@@ -214,14 +210,13 @@ namespace AF.AI.PilotBehavior
 
                     foreach (var weapon in activeUnit.GetAllWeapons().Where(w => w.IsOperational && w.HasAmmo() && !w.IsReloading))
                     {
-                        // 사거리 체크 등 기본적인 실행 가능 여부 확인은 Consideration에 맡길 수도 있음
-                        // 여기서는 일단 모든 무기-대상 조합으로 액션 생성
-                        actions.Add(new AttackUtilityAction(enemy, weapon));
+                        // <<< Pass pilotSpec to constructor (Anticipating Step 3.3) >>>
+                        actions.Add(new AttackUtilityAction(enemy, weapon, pilotSpec));
                     }
                 }
             }
 
-            // --- 이동 액션 생성 로직 추가 ---
+            // --- 이동 액션 생성 로직 추가 --- (Pass specialization)
             ArmoredFrame closestEnemy = FindClosestEnemy(activeUnit, enemies);
             if (closestEnemy != null)
             {
@@ -231,35 +226,42 @@ namespace AF.AI.PilotBehavior
                 float desiredMoveDistance = activeUnit.CombinedStats.Speed * 0.5f;
                 Vector3 targetPosition = activeUnit.Position + directionToEnemy * desiredMoveDistance;
 
+                // <<< 추가 로그 >>>
+                _textLogger?.TextLogger?.Log($"[Move Action Gen] Actor: {activeUnit.Name}, ClosestEnemy: {closestEnemy.Name}, Direction: {directionToEnemy}, DesiredDist: {desiredMoveDistance:F1}, TargetPos: {targetPosition}", LogLevel.Debug);
+                // <<< 로그 끝 >>>
+
                 // TODO: 실제 이동 가능한 위치인지 검증하는 로직 필요 (경로 탐색 등)
 
-                actions.Add(new MoveUtilityAction(targetPosition));
+                // <<< Pass pilotSpec to constructor (Anticipating Step 3.3) >>>
+                actions.Add(new MoveUtilityAction(targetPosition, pilotSpec, closestEnemy));
             }
             // --- 이동 액션 생성 로직 끝 ---
 
-            // --- 방어 액션 생성 로직 추가 ---
-            // 방어는 항상 가능한 액션으로 간주 (AP 소모 등은 Consideration에서 판단)
-            actions.Add(new DefendUtilityAction());
+            // --- 방어 액션 생성 로직 추가 --- (Pass specialization)
+            // <<< Pass pilotSpec to constructor (Anticipating Step 3.3) >>>
+            actions.Add(new DefendUtilityAction(pilotSpec));
             // --- 방어 액션 생성 로직 끝 ---
 
-            // --- 재장전 액션 생성 로직 추가 ---
+            // --- 재장전 액션 생성 로직 추가 --- (Pass specialization)
             foreach (var weapon in activeUnit.GetAllWeapons())
             {
                 // 작동 중이고, 탄약이 최대치가 아니며, 현재 재장전 중이 아닌 경우 재장전 액션 생성
                 if (weapon.IsOperational && weapon.CurrentAmmo < weapon.MaxAmmo && !weapon.IsReloading)
                 {
-                    actions.Add(new ReloadUtilityAction(weapon));
+                    // <<< Pass pilotSpec to constructor (Anticipating Step 3.3) >>>
+                    actions.Add(new ReloadUtilityAction(weapon, pilotSpec));
                 }
             }
             // --- 재장전 액션 생성 로직 끝 ---
 
-            // --- 수리 액션 생성 로직 추가 ---
+            // --- 수리 액션 생성 로직 추가 --- (Pass specialization)
             var allies = context.GetAllies(activeUnit); // CombatContext에 GetEnemies처럼 GetAllies 필요
 
             // 자신 수리 액션 추가 (손상되었을 경우에만)
             if (activeUnit.TotalCurrentDurability < activeUnit.TotalMaxDurability)
             {
-                actions.Add(new RepairUtilityAction(activeUnit));
+                // <<< Pass pilotSpec to constructor (Anticipating Step 3.3) >>>
+                actions.Add(new RepairUtilityAction(activeUnit, pilotSpec)); // Self repair
             }
 
             if (allies != null)
@@ -270,7 +272,8 @@ namespace AF.AI.PilotBehavior
                     if (ally != null && ally.IsOperational && ally != activeUnit && 
                         ally.TotalCurrentDurability < ally.TotalMaxDurability) // <<< 손상 여부 확인 추가
                     {
-                        actions.Add(new RepairUtilityAction(ally)); // <<< ally 변수 사용
+                        // <<< Pass pilotSpec to constructor (Anticipating Step 3.3) >>>
+                        actions.Add(new RepairUtilityAction(ally, pilotSpec)); // Ally repair
                     }
                 }
             }

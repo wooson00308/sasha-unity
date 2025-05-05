@@ -153,7 +153,7 @@ namespace AF.Data
         // --- Preview Section End ---
 
 
-        public void Apply(AssemblyData data)
+        public void ApplyData(AssemblyData data)
         {
             AssemblyID = data.AssemblyID;
             AFName = data.AFName;
@@ -169,6 +169,7 @@ namespace AF.Data
             Weapon1ID = data.Weapon1ID;
             Weapon2ID = data.Weapon2ID;
             Notes = data.Notes;
+            this.name = data.AssemblyID;
             
             #if UNITY_EDITOR
             // Update previews after applying data from Excel

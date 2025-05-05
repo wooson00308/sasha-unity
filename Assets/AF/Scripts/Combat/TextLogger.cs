@@ -228,6 +228,13 @@ namespace AF.Combat
         
         public void Log(string message, LogLevel level = LogLevel.Info, LogEventType eventType = LogEventType.Unknown, ArmoredFrame contextUnit = null, bool shouldUpdateTargetView = false, Dictionary<string, ArmoredFrameSnapshot> turnStartStateSnapshot = null)
         {
+            // <<< 디버그 로그 필터링 로직 추가 >>>
+            if (level == LogLevel.Debug && !LogDebugMessages)
+            {
+                return; // 디버그 로그 레벨이고, LogDebugMessages 플래그가 false이면 로그 남기지 않음
+            }
+            // <<< 필터링 로직 끝 >>>
+
             _logs.Add(new LogEntry(message, level, _turnCounter, _cycleCounter, eventType, contextUnit, shouldUpdateTargetView, turnStartStateSnapshot));
             // 새 로그가 추가되었음을 알리는 이벤트 발생 로직 삭제
             // OnLogAdded?.Invoke(FormatLogEntry(_logs.Last()), level); 

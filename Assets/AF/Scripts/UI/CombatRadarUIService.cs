@@ -37,11 +37,12 @@ namespace AF.UI
         [SerializeField] private float flashDuration = 0.2f;
         [SerializeField] private float pulseScale = 1.8f;
         [SerializeField] private float moveAnimDuration = 0.3f;
+        [SerializeField] private float activeUnitScale = 1.5f; // <<< Add field for active unit scale >>>
 
         private Dictionary<string, GameObject> _unitMarkers = new Dictionary<string, GameObject>();
         private List<LineRenderer> _targetLines = new List<LineRenderer>(); // Currently unused
 
-        private ArmoredFrameSnapshot _currentActiveUnitSnapshot; // <<< Store active unit for position calculations
+        private ArmoredFrameSnapshot _currentActiveUnitSnapshot;
 
         #region IService Implementation
 
@@ -140,17 +141,20 @@ namespace AF.UI
         private void HandlePlaybackSnapshotUpdate(PlaybackEvents.PlaybackSnapshotUpdateEvent ev)
         {
             if (!_isInitialized) return;
-            _currentActiveUnitSnapshot = ev.ActiveUnitSnapshot; // Store active unit for centering
+            _currentActiveUnitSnapshot = ev.ActiveUnitSnapshot; // Store active unit for HIGHLIGHTING
+            // <<< Pass only snapshot dictionary, active unit needed for highlighting later >>>
             UpdateRadarDisplayFromSnapshot(ev.SnapshotDict, ev.ActiveUnitSnapshot);
         }
 
         private void HandlePlaybackUnitMove(PlaybackEvents.PlaybackUnitMoveEvent ev)
         {
-            if (!_isInitialized || _currentActiveUnitSnapshot.Name == null) return; // Need active unit for center pos
+            // <<< No longer need _currentActiveUnitSnapshot for centering >>>
+            // if (!_isInitialized || _currentActiveUnitSnapshot.Name == null) return; // Need active unit for center pos
+            if (!_isInitialized) return;
             if (_unitMarkers.TryGetValue(ev.UnitName, out GameObject targetMarker) && targetMarker != null)
             {
-                 // Use the stored _currentActiveUnitSnapshot for the center position
-                 Vector2 newRadarPos = CalculateRadarPosition(_currentActiveUnitSnapshot.Position, ev.NewPosition);
+                 // <<< Use the modified CalculateRadarPosition with world origin as center >>>
+                 Vector2 newRadarPos = CalculateRadarPosition(ev.NewPosition);
                  // Animate marker movement (async void, fire and forget)
                  AnimateMarkerMoveAsync(targetMarker, newRadarPos).Forget();
             }
@@ -242,9 +246,9 @@ namespace AF.UI
         // Renamed and modified to accept snapshot
         private void UpdateRadarDisplayFromSnapshot(Dictionary<string, ArmoredFrameSnapshot> snapshotDict, ArmoredFrameSnapshot activeUnitSnapshot)
         {
-            // Structs cannot be null, so no need to check activeUnitSnapshot for nullity
-            // <<< Added check for valid active unit name >>>
-            if (!_isInitialized || activeUnitSnapshot.Name == null) return;
+            // <<< No longer need activeUnitSnapshot for CENTERING >>>
+            // if (!_isInitialized || activeUnitSnapshot.Name == null) return;
+            if (!_isInitialized) return;
 
             // --- Marker Management (Using Snapshot Names) ---
             HashSet<string> currentOperationalUnitNames = new HashSet<string>(
@@ -276,9 +280,10 @@ namespace AF.UI
             {
                  if (!unitSnapshot.IsOperational) continue;
 
-                 // Assuming ArmoredFrameSnapshot has a Position property
-                 Vector2 radarPosition = CalculateRadarPosition(activeUnitSnapshot.Position, unitSnapshot.Position);
-                 bool isActive = unitSnapshot.Name == activeUnitSnapshot.Name;
+                 // <<< Use modified CalculateRadarPosition (center is Vector3.zero) >>>
+                 Vector2 radarPosition = CalculateRadarPosition(unitSnapshot.Position);
+                 // <<< Need activeUnitSnapshot here only for HIGHLIGHTING >>>
+                 bool isActive = activeUnitSnapshot.Name != null && unitSnapshot.Name == activeUnitSnapshot.Name;
 
                 if (_unitMarkers.TryGetValue(unitSnapshot.Name, out GameObject marker))
                 {
@@ -321,12 +326,11 @@ namespace AF.UI
              UpdateMarkerAppearanceFromSnapshot(newMarker, unitSnapshot, isActive);
         }
 
-        // CalculateRadarPosition remains the same
-        private Vector2 CalculateRadarPosition(Vector3 centerWorldPos, Vector3 targetWorldPos)
+        // <<< Modified: Calculate position relative to WORLD ORIGIN (0,0,0) >>>
+        private Vector2 CalculateRadarPosition(Vector3 targetWorldPos)
         {
-            // 월드 상의 상대 벡터 계산 (Y 무시)
-            Vector3 worldOffset = targetWorldPos - centerWorldPos;
-            Vector2 relativePos2D = new Vector2(worldOffset.x, worldOffset.z); // Z축을 UI의 Y로 사용
+            // 월드 상의 오프셋 계산 (Y 무시, 기준점은 (0,0,0))
+            Vector2 relativePos2D = new Vector2(targetWorldPos.x, targetWorldPos.z); // Z축을 UI의 Y로 사용
 
             float worldDistance = relativePos2D.magnitude;
             float scaleFactor = radarRadius / maxDetectionRange;
@@ -359,9 +363,9 @@ namespace AF.UI
                 // TODO: Use different sprites based on unit type/status from snapshot
             }
 
-            // --- Active unit highlight ---
-            // <<< Animate scale changes? Or instant? Keep instant for now >>>
-            marker.transform.localScale = isActiveUnit ? Vector3.one * 1.5f : Vector3.one;
+            // --- Active unit highlight --- (Still uses isActiveUnit)
+            // <<< Use the serialized field for scaling >>>
+            marker.transform.localScale = isActiveUnit ? Vector3.one * activeUnitScale : Vector3.one;
 
             // --- TextMeshPro component (Unit Name, etc.) ---
             var text = marker.GetComponentInChildren<TMP_Text>();

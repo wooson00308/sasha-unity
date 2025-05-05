@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a72b79ef38f668d49a600667985cb086, type: 3}
+  m_Name: Reload_Start
+  m_EditorClassIdentifier: 
+  templateKey: Reload_Start
+  templateText: "{weapon} <color=#AFEEEE>\uC7AC\uC7A5\uC804</color> \uC2DC\uD000\uC2A4
+    \uAC00\uB3D9."

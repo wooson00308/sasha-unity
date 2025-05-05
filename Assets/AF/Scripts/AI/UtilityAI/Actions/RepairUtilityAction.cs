@@ -24,28 +24,72 @@ namespace AF.AI.UtilityAI.Actions
         public override Vector3? TargetPosition => _targetToRepair?.Position; // 수리 대상의 현재 위치
         // +++ 속성 구현 끝 +++
 
-        public RepairUtilityAction(ArmoredFrame targetToRepair)
+        public RepairUtilityAction(ArmoredFrame targetToRepair, SpecializationType pilotSpec)
+            : base(pilotSpec)
         {
             _targetToRepair = targetToRepair;
-            InitializeConsiderations(); // <<< 생성자 끝에서 호출
+            InitializeConsiderations();
         }
 
-        protected override void InitializeConsiderations() // <<< override 추가
+        protected override void InitializeConsiderations()
         {
-            Considerations = new List<IConsideration> // <<< base 호출 불필요 (Base에서 이미 new List 함)
+            if (_targetToRepair == null)
             {
-                // --- 수리 관련 Consideration 추가 ---
-                new TargetDamagedConsideration(_targetToRepair),      // 대상 손상 여부 (Blocking) 추가
-                new TargetHealthConsideration(                        // <<< 수정: Logistic 사용 >>>
-                    _targetToRepair,
-                    UtilityCurveType.Logistic,   // Logistic 커브 사용
-                    steepness: 15f,           // 매우 가파르게 (점수 급변)
-                    offsetX: 0.1f,             // 중간점을 매우 낮게 (체력 10%일 때 0.5점)
-                    invert: true                 // 체력 낮을수록 점수 높음
-                ),                                                    // <<< 수정 끝 >>>
-                new IsAllyOrSelfConsideration(_targetToRepair),      // 대상이 아군/자신인지 (Blocking) 추가
-                new ActionPointCostConsideration(2.0f)         // <<< AP 비용 평가 추가 (고정값 2.0 사용)
-                // ----------------------------------------
+                Debug.LogError($"[{Name}] TargetToRepair is null during initialization.");
+                Considerations = new List<IConsideration>();
+                return;
+            }
+
+            // --- Blocking Considerations ---
+            var targetOperational = new TargetIsOperationalConsideration(_targetToRepair);
+            var targetDamaged = new TargetDamagedConsideration(_targetToRepair);      // Check if target actually needs repair
+            var isAllyOrSelf = new IsAllyOrSelfConsideration(_targetToRepair);      // Check if target is valid (self or ally)
+            // Estimate AP cost (could vary slightly if self vs ally)
+            // float estimatedApCost = (_targetToRepair == actor) ? 2.0f : 2.5f; // Requires actor context, handle differently?
+            float estimatedApCost = 2.5f; // Use a general high estimate or average for now
+            var apCostConsideration = new ActionPointCostConsideration(estimatedApCost);
+
+            // --- Scoring Considerations (Vary by Specialization) ---
+            IConsideration healthConsideration;
+
+            switch (this.PilotSpecialization)
+            {
+                case SpecializationType.Support:
+                    // Support: Highly sensitive to low health targets.
+                    healthConsideration = new TargetHealthConsideration(
+                        _targetToRepair,
+                        UtilityCurveType.Logistic,   // Logistic curve for rapid score increase at low health
+                        steepness: 15f,              // Very steep curve
+                        offsetX: 0.1f,                // Midpoint very low (10% health = 0.5 score)
+                        invert: true                  // Lower health = higher score
+                    );
+                    break;
+
+                // case SpecializationType.Defense:
+                // case SpecializationType.StandardCombat:
+                // Might have slightly different curves or lower priority (handled by weights)
+                default:
+                    // Default/Others: Linear or polynomial curve, less sensitive than Support.
+                    healthConsideration = new TargetHealthConsideration(
+                        _targetToRepair,
+                        UtilityCurveType.Linear, // Simple linear relationship
+                        invert: true             // Lower health = higher score
+                    );
+                    break;
+            }
+
+            Considerations = new List<IConsideration>
+            {
+                // Blocking considerations first
+                targetOperational,
+                targetDamaged,
+                isAllyOrSelf,
+                apCostConsideration,
+                
+                // Scoring considerations
+                healthConsideration
+                // Add others? e.g., DistanceToTarget for ally repair?
+                // e.g., IncomingThreatConsideration (less likely to repair under heavy fire?)
             };
         }
 
@@ -70,7 +114,8 @@ namespace AF.AI.UtilityAI.Actions
                 if (executor != null)
                 {
                     // <<< 수정: actualRepairType 변수 사용 >>>
-                    executor.Execute(context, actor, actualRepairType, _targetToRepair, null, null, isCounter: false, freeCounter: false);
+                    // <<< 수정: executedAction 파라미터에 'this' 전달 >>>
+                    executor.Execute(context, actor, actualRepairType, _targetToRepair, null, null, this, isCounter: false, freeCounter: false);
                     Debug.Log($"{actor.Name} executed {Name} (Type: {actualRepairType})");
                 }
                 else

@@ -2,6 +2,7 @@ using AF.Combat;
 using AF.Services;
 using AF.Models;
 using UnityEngine;
+using AF.AI.UtilityAI;
 
 namespace AF.Combat.Behaviors
 {
@@ -17,7 +18,7 @@ namespace AF.Combat.Behaviors
         protected const float CLOSE_RANGE_THRESHOLD     = 0.6f;
 
         // === 필수 구현 ===
-        public abstract (CombatActionEvents.ActionType, ArmoredFrame, Vector3?, Weapon)
+        public abstract IUtilityAction
             DetermineAction(ArmoredFrame activeUnit, CombatSimulatorService context);
 
         // === 공통 유틸 ===

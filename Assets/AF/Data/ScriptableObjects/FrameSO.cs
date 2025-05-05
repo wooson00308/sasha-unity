@@ -78,7 +78,7 @@ namespace AF.Data
         #endif
 
         // Apply method to populate fields from FrameData
-        public void Apply(FrameData data)
+        public void ApplyData(FrameData data)
         {
             FrameID = data.FrameID;
             FrameName = data.FrameName;
@@ -113,6 +113,7 @@ namespace AF.Data
             Slot_Weapon_1 = data.Slot_Weapon_1;
             Slot_Weapon_2 = data.Slot_Weapon_2;
             Notes = data.Notes;
+            this.name = data.FrameID;
 
             #if UNITY_EDITOR
             // Update preview after applying data from Excel

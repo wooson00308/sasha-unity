@@ -511,18 +511,13 @@ namespace AF.Combat
             {
                 string prefix = _textLogger.UseIndentation ? "  " : "";
                 string actorNameColored = ColorizeText($"[{ev.Actor.Name}]", "yellow");
-                string targetName = ev.MoveTarget != null ? ColorizeText($"[{ev.MoveTarget.Name}]", "lightblue") : "지정되지 않은 목표";
+                string targetName = ev.MoveTarget != null ? ColorizeText($"[{ev.MoveTarget.Name}]", "lightblue") : "(계산된 좌표)";
                 string distanceText = ev.DistanceMoved.HasValue ? $"{ev.DistanceMoved.Value:F1} 만큼" : "일정 거리만큼";
                 string targetDistanceText = "";
                 if (ev.MoveTarget != null && ev.NewPosition.HasValue)
                 {
                     float finalDistance = Vector3.Distance(ev.NewPosition.Value, ev.MoveTarget.Position);
                     targetDistanceText = $". (거리: {finalDistance:F1}m)";
-                }
-                else if (ev.MoveTarget != null)
-                {
-                    float finalDistance = Vector3.Distance(ev.Actor.Position, ev.MoveTarget.Position);
-                     targetDistanceText = $". (거리: {finalDistance:F1}m)";
                 }
                 string iconTag = _useSpriteIcons ? "<sprite index=10> " : "";
                 logMsg = $"{prefix}{iconTag}{actorNameColored}(이)가 {targetName} 방향으로 {distanceText} 이동{targetDistanceText}";

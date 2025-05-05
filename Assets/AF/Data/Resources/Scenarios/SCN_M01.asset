@@ -1,0 +1,73 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb1a9df9f4f048a47ac542c32b8fc624, type: 3}
+  m_Name: SCN_M01
+  m_EditorClassIdentifier: 
+  scenarioID: SCN_M01
+  scenarioName: Key Point Assault
+  units:
+  - unitCallsign: Cobalt_Lead_M
+    teamID: 0
+    startPosition: {x: -20, y: 0, z: 0}
+    isPlayerSquad: 0
+    buildType: Assembly
+    assemblyID: Cobalt_Vanguard
+    notes: Team 0 Attack Lead
+  - unitCallsign: Cobalt_Assault1
+    teamID: 0
+    startPosition: {x: -18, y: 0, z: 5}
+    isPlayerSquad: 0
+    buildType: Assembly
+    assemblyID: Cobalt_Striker
+    notes: Team 0 Attacker
+  - unitCallsign: Cobalt_Assault2
+    teamID: 0
+    startPosition: {x: -18, y: 0, z: -5}
+    isPlayerSquad: 0
+    buildType: Assembly
+    assemblyID: Cobalt_Striker
+    notes: Team 0 Attacker
+  - unitCallsign: Cobalt_Swift_M
+    teamID: 0
+    startPosition: {x: -22, y: 0, z: 0}
+    isPlayerSquad: 0
+    buildType: Assembly
+    assemblyID: AF_SWIFT_SABER
+    notes: Team 0 Fast Attack
+  - unitCallsign: Crimson_Anchor
+    teamID: 1
+    startPosition: {x: 0, y: 0, z: 0}
+    isPlayerSquad: 0
+    buildType: Assembly
+    assemblyID: Crimson_Juggernaut
+    notes: Team 1 Defense Anchor
+  - unitCallsign: Crimson_Warden1
+    teamID: 1
+    startPosition: {x: -2, y: 0, z: 3}
+    isPlayerSquad: 0
+    buildType: Assembly
+    assemblyID: Crimson_Warden
+    notes: Team 1 Defender
+  - unitCallsign: Crimson_Warden2
+    teamID: 1
+    startPosition: {x: -2, y: 0, z: -3}
+    isPlayerSquad: 0
+    buildType: Assembly
+    assemblyID: Crimson_Warden
+    notes: Team 1 Defender
+  - unitCallsign: Crimson_Sniper_M
+    teamID: 1
+    startPosition: {x: 5, y: 8, z: 0}
+    isPlayerSquad: 0
+    buildType: Assembly
+    assemblyID: Crimson_Deadeye
+    notes: Team 1 Defense Sniper

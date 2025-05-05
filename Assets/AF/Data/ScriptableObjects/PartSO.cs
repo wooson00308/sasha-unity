@@ -76,7 +76,7 @@ namespace AF.Data
          }
         #endif
 
-        public void Apply(PartData data)
+        public void ApplyData(PartData data)
         {
             PartID = data.PartID;
             PartName = data.PartName;
@@ -108,6 +108,7 @@ namespace AF.Data
                                      .Select(s => s.Trim())
                                      .ToList() ?? new List<string>();
             Notes = data.Notes;
+            this.name = data.PartID;
 
             #if UNITY_EDITOR
             // Update preview after applying data from Excel

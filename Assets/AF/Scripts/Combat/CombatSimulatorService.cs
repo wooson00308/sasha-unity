@@ -8,6 +8,7 @@ using AF.Combat.Behaviors;  // 파일럿 전략
 using UnityEngine;
 using System.Collections.ObjectModel; // For ReadOnlyDictionary/Collection
 using AF.AI.PilotBehavior; // <<< Utility AI 전략 네임스페이스 추가
+using AF.AI.UtilityAI; // <<< IUtilityAction 때문에 추가
 
 namespace AF.Combat
 {
@@ -70,7 +71,7 @@ namespace AF.Combat
             { SpecializationType.Defense,        new Dictionary<CombatActionEvents.ActionType, float> {
                 { CombatActionEvents.ActionType.Attack, 0.8f }, { CombatActionEvents.ActionType.Move, 0.5f }, { CombatActionEvents.ActionType.Defend, 1.2f }, { CombatActionEvents.ActionType.Reload, 0.6f }, { CombatActionEvents.ActionType.RepairSelf, 0.7f }, { CombatActionEvents.ActionType.RepairAlly, 0.6f } } }, // 방어 선호
             { SpecializationType.Support,        new Dictionary<CombatActionEvents.ActionType, float> {
-                { CombatActionEvents.ActionType.Attack, 0.6f }, { CombatActionEvents.ActionType.Move, 0.7f }, { CombatActionEvents.ActionType.Defend, 0.7f }, { CombatActionEvents.ActionType.Reload, 0.8f }, { CombatActionEvents.ActionType.RepairSelf, 1.0f }, { CombatActionEvents.ActionType.RepairAlly, 1.2f } } }  // 수리 선호
+                { CombatActionEvents.ActionType.Attack, 0.6f }, { CombatActionEvents.ActionType.Move, 0.7f }, { CombatActionEvents.ActionType.Defend, 0.7f }, { CombatActionEvents.ActionType.Reload, 0.8f }, { CombatActionEvents.ActionType.RepairSelf, 1.0f }, { CombatActionEvents.ActionType.RepairAlly, 1.2f } } },  // 수리 선호
         };
         // +++ 추가 끝 +++
 
@@ -98,15 +99,18 @@ namespace AF.Combat
             _statusProcessor = new StatusEffectProcessor();
             _resultEvaluator = new BattleResultEvaluator();
 
-            // 전략 매핑
-            _behaviorStrategies = new Dictionary<SpecializationType, IPilotBehaviorStrategy>
+            // <<< 전략 매핑 수정: 모든 전문화를 UtilityAI로 변경하고 가중치 주입 >>>
+            _behaviorStrategies = new Dictionary<SpecializationType, IPilotBehaviorStrategy>();
+            foreach (SpecializationType specType in Enum.GetValues(typeof(SpecializationType)))
             {
-                { SpecializationType.MeleeCombat,    new MeleeCombatBehaviorStrategy()    },
-                { SpecializationType.RangedCombat,   new RangedCombatBehaviorStrategy()   },
-                { SpecializationType.Defense,        new DefenseCombatBehaviorStrategy()  },
-                { SpecializationType.Support,        new SupportCombatBehaviorStrategy()  },
-                { SpecializationType.StandardCombat, new UtilityAIPilotBehaviorStrategy(_actionWeights[SpecializationType.StandardCombat]) }
-            };
+                // Get the weight dictionary for the current specialization type.
+                // Use GetValueOrDefault to fall back to StandardCombat weights if a specific entry is missing.
+                var weightsForSpec = _actionWeights.GetValueOrDefault(specType, _actionWeights[SpecializationType.StandardCombat]);
+                
+                // Create a UtilityAIPilotBehaviorStrategy instance with the specific weights.
+                _behaviorStrategies.Add(specType, new UtilityAIPilotBehaviorStrategy(weightsForSpec));
+            }
+            // <<< 전략 매핑 수정 끝 >>>
 
             // 상태 초기화
             _participants      = new List<ArmoredFrame>();
@@ -291,20 +295,31 @@ namespace AF.Combat
             int actions=0, maxActions=30; // Safety break for action loop
             while (_currentActiveUnit.IsOperational && actions<maxActions)
             {
-                var (act,tp,pos,wep) = DetermineActionForUnit(_currentActiveUnit);
-                if (act==default) // No action determined
+                IUtilityAction determinedAction = DetermineActionForUnit(_currentActiveUnit);
+
+                if (determinedAction == null)
                 {
                     _textLogger?.TextLogger?.Log($"[{_currentActiveUnit.Name}] 추가 행동 프로토콜 없음. 시스템 대기 상태로 전환.", LogLevel.Info);
                     break;
                 }
 
-                // Execute the action
+                CombatActionEvents.ActionType actionType = determinedAction.AssociatedActionType;
+                ArmoredFrame targetFrame = determinedAction.Target;
+                Vector3? targetPosition = determinedAction.TargetPosition;
+                Weapon weapon = determinedAction.AssociatedWeapon;
+
                 bool ok = _actionExecutor.Execute(
-                    GetCurrentContext(), _currentActiveUnit, act, tp, pos, wep);
+                    GetCurrentContext(), 
+                    _currentActiveUnit, 
+                    actionType,
+                    targetFrame,
+                    targetPosition,
+                    weapon,
+                    determinedAction
+                );
 
                 actions++;
-                // Break conditions for the action loop
-                if (!ok || !_currentActiveUnit.IsOperational) break; // Stop if action failed or unit became non-operational
+                if (!ok || !_currentActiveUnit.IsOperational) break;
             }
 
             _actedThisCycle.Add(_currentActiveUnit); // Mark this unit as having acted this turn
@@ -327,7 +342,9 @@ namespace AF.Combat
             // 시뮬레이터 외부 호출 시 최소 검증
             if (!_isInCombat || actor != _currentActiveUnit) return false;
             return _actionExecutor.Execute(
-                GetCurrentContext(), actor, actionType, targetFrame, targetPosition, weapon);
+                GetCurrentContext(), actor, actionType, targetFrame, targetPosition, weapon,
+                null // <<< executedAction: null 추가
+            );
         }
 
         public bool PerformAttack(ArmoredFrame attacker, ArmoredFrame target, Weapon weapon)
@@ -336,7 +353,9 @@ namespace AF.Combat
             // ActionType.Attack 래퍼 호출
             return _actionExecutor.Execute(
                 GetCurrentContext(), attacker, CombatActionEvents.ActionType.Attack,
-                target, null, weapon);
+                target, null, weapon,
+                null // <<< executedAction: null 추가
+            );
         }
 
         // ──────────────────────────────────────────────────────────────
@@ -406,13 +425,18 @@ namespace AF.Combat
             return null;
         }
 
-        private (CombatActionEvents.ActionType,ArmoredFrame,Vector3?,Weapon)
-            DetermineActionForUnit(ArmoredFrame unit)
+        private IUtilityAction DetermineActionForUnit(ArmoredFrame unit)
         {
             var spec = unit.Pilot?.Specialization ?? SpecializationType.StandardCombat;
-            if (!_behaviorStrategies.TryGetValue(spec,out var strat))
-                strat = _behaviorStrategies[SpecializationType.StandardCombat];
-            return strat.DetermineAction(unit, this);
+            if (!_behaviorStrategies.TryGetValue(spec, out var strat))
+            {
+                 // Fallback to StandardCombat strategy if specific type not found (should not happen with the new Initialize)
+                 Debug.LogWarning($"Behavior strategy not found for specialization {spec}. Falling back to StandardCombat.");
+                 strat = _behaviorStrategies[SpecializationType.StandardCombat]; 
+            }
+            
+            // strat.DetermineAction은 이제 IUtilityAction을 반환
+            return strat.DetermineAction(unit, this); 
         }
 
         private void CheckBattleEndCondition()

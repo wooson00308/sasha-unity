@@ -70,6 +70,19 @@ namespace AF.AI.UtilityAI.Considerations
             );
             
             logger?.TextLogger?.Log($"[DistanceToEnemyConsideration] Pos={_targetPosition}, ClosestEnemyDist={minDistance:F1}, MaxDist={_maxDistance:F1}, Score={score:F3}", LogLevel.Debug); // <<< TextLogger로 변경 및 활성화
+
+            // <<< 추가: 근접 거리 페널티 적용 >>>
+            const float CLOSE_DISTANCE_THRESHOLD = 5.0f;
+            const float CLOSE_DISTANCE_PENALTY_FACTOR = 0.7f; // 점수를 70%로 감소
+
+            if (minDistance <= CLOSE_DISTANCE_THRESHOLD)
+            {
+                float originalScore = score;
+                score *= CLOSE_DISTANCE_PENALTY_FACTOR;
+                logger?.TextLogger?.Log($"[DistanceToEnemyConsideration] Close distance penalty applied. Dist ({minDistance:F1}) <= Threshold ({CLOSE_DISTANCE_THRESHOLD:F1}). Score reduced: {originalScore:F3} -> {score:F3}", LogLevel.Debug);
+            }
+            // <<< 페널티 적용 끝 >>>
+
             this.LastScore = Mathf.Clamp(score, 0f, 1.0f);
             return this.LastScore;
         }

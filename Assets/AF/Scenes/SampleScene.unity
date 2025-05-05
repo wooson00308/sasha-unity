@@ -2368,7 +2368,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -1488.654}
+  m_AnchoredPosition: {x: 1239, y: -1020}
   m_SizeDelta: {x: 1080, y: 421.1059}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &657277239
@@ -2414,14 +2414,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.31038624, g: 0.56312495, b: 0.7075472, a: 0.5372549}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -2778,7 +2778,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 844015757}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
@@ -3347,14 +3347,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.31038624, g: 0.56312495, b: 0.7075472, a: 0.5372549}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -4080,7 +4080,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -215}
+  m_AnchoredPosition: {x: 0, y: -386}
   m_SizeDelta: {x: 1080, y: 251.5866}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1203827027
@@ -4126,14 +4126,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.31038624, g: 0.56312495, b: 0.7075472, a: 0.5372549}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -5350,6 +5350,7 @@ MonoBehaviour:
   flashDuration: 0.2
   pulseScale: 1.8
   moveAnimDuration: 0.3
+  activeUnitScale: 1.5
 --- !u!1 &1705643205
 GameObject:
   m_ObjectHideFlags: 0
@@ -5644,27 +5645,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerSquadSetups:
   - useCustomAssembly: 0
-    customAFName: "\uCF54\uBC1C\uD2B8 \uBC45\uAC00\uB4DC"
-    assembly: {fileID: 11400000, guid: 903cf094c4dc7034483f90c9ce86aae5, type: 2}
+    customAFName: "\uCF54\uBC1C\uD2B8 \uC2A4\uD2B8\uB77C\uC774\uCEE4"
+    assembly: {fileID: 11400000, guid: 89070a7e71225314889299faa6089b75, type: 2}
     teamId: 0
-    teamColorPreview: {r: 0.9, g: 0.2, b: 0.2, a: 1}
-    startPosition: {x: 20, y: 0, z: 0}
+    teamColorPreview: {r: 0, g: 0, b: 0, a: 0}
+    startPosition: {x: 0, y: 0, z: 0}
     customFrame: {fileID: 11400000, guid: ae0e1f83a60977a4daeaba4d00a0247c, type: 2}
-    customHead: {fileID: 11400000, guid: 80688ab2f1942764db0d5e34cab92041, type: 2}
+    customHead: {fileID: 11400000, guid: 1e5fac94e025f7644a1b5bd127a3c38d, type: 2}
     customBody: {fileID: 11400000, guid: 94c1560f515ef8c4c9ae57820ff8a608, type: 2}
     customArms: {fileID: 11400000, guid: 2d7f95d4f61b04f48a6cada280e6736c, type: 2}
     customLegs: {fileID: 11400000, guid: 0034c50c2583c91419dda8b22b5958d9, type: 2}
-    customWeaponR1: {fileID: 11400000, guid: 74b7090b268c6f741bba6c28f863d3f6, type: 2}
-    customWeaponL1: {fileID: 11400000, guid: f86a1e490c9ba454a9748a98815021b1, type: 2}
-    customPilot: {fileID: 11400000, guid: dacca43c482f4e347b0bae22f11d8be8, type: 2}
-    persistentId: Cobalt_Vanguard
+    customWeaponR1: {fileID: 11400000, guid: c08e3ceb85c8bb3469c6f4598a280083, type: 2}
+    customWeaponL1: {fileID: 11400000, guid: ef43926a272330b40aa15660935db9e1, type: 2}
+    customPilot: {fileID: 11400000, guid: 6fe1b293c2ad78b4eaa7daeb9276525d, type: 2}
+    persistentId: 
   afSetups:
-  - useCustomAssembly: 1
-    customAFName: "\uCF54\uBC1C\uD2B8 \uBC45\uAC00\uB4DC 2"
+  - useCustomAssembly: 0
+    customAFName: "\uCF54\uBC1C\uD2B8 \uBC45\uAC00\uB4DC"
     assembly: {fileID: 11400000, guid: 903cf094c4dc7034483f90c9ce86aae5, type: 2}
     teamId: 1
     teamColorPreview: {r: 0.2, g: 0.4, b: 0.9, a: 1}
-    startPosition: {x: -20, y: 0, z: 0}
+    startPosition: {x: 15, y: 5, z: 5}
     customFrame: {fileID: 11400000, guid: ae0e1f83a60977a4daeaba4d00a0247c, type: 2}
     customHead: {fileID: 11400000, guid: 80688ab2f1942764db0d5e34cab92041, type: 2}
     customBody: {fileID: 11400000, guid: 94c1560f515ef8c4c9ae57820ff8a608, type: 2}
@@ -5673,14 +5674,17 @@ MonoBehaviour:
     customWeaponR1: {fileID: 11400000, guid: 74b7090b268c6f741bba6c28f863d3f6, type: 2}
     customWeaponL1: {fileID: 11400000, guid: f86a1e490c9ba454a9748a98815021b1, type: 2}
     customPilot: {fileID: 11400000, guid: dacca43c482f4e347b0bae22f11d8be8, type: 2}
-    persistentId: "\uCF54\uBC1C\uD2B8 \uBC45\uAC00\uB4DC"
+    persistentId: 
+  scenarioToLoad: {fileID: 11400000, guid: 623c4150bdd82674cadfdd1201afee40, type: 2}
   logCombatDetails: 0
   showLogLevelPrefix: 0
   showTurnPrefix: 0
   useLogIndentation: 0
   logActionSummaries: 0
   useSpriteIconsInLog: 0
+  logDebugMessages: 0
   logAIDecisions: 0
+  maxCombatTurns: 500
   currentBattleId: 
   currentCycle: 0
   isInCombat: 0
@@ -6532,7 +6536,7 @@ MonoBehaviour:
   _eventTargetDetailScrollRect: {fileID: 657277239}
   _damageTargetDetailScrollRect: {fileID: 980066279}
   _textAnimationDuration: 0.5
-  _lineDelay: 0.3
+  _lineDelay: 0.01
   _damageTargetDisplayClearDelay: 1.5
   _durationPerCharacter: 0.02
   _minTextAnimationDuration: 0.1

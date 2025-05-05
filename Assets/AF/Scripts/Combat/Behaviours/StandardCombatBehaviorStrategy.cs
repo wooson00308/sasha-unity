@@ -4,22 +4,23 @@ using AF.Combat;
 using AF.Services;
 using AF.Models;
 using System.Collections.Generic;
+using AF.AI.UtilityAI;
 
 namespace AF.Combat.Behaviors
 {
     /// <summary>SpecializationType.StandardCombat 전용 전략</summary>
     public sealed class StandardCombatBehaviorStrategy : PilotBehaviorStrategyBase
     {
-        public override (CombatActionEvents.ActionType, ArmoredFrame, Vector3?, Weapon)
+        public override IUtilityAction
             DetermineAction(ArmoredFrame activeUnit, CombatSimulatorService ctx)
         {
             if (activeUnit == null || !activeUnit.IsOperational)
-                return (default, null, null, null);
+                return null;
 
             // === 가장 가까운 적 계산 ===
             var enemies = ctx.GetEnemies(activeUnit);
             if (enemies.Count == 0)
-                return (default, null, null, null);
+                return null;
 
             ArmoredFrame closest = null;
             float minDist = float.MaxValue;
@@ -40,7 +41,7 @@ namespace AF.Combat.Behaviors
             if (reloadW != null &&
                 activeUnit.HasEnoughAP(reloadW.ReloadAPCost))
             {
-                return (CombatActionEvents.ActionType.Reload, null, null, reloadW);
+                return null;
             }
 
             // === 1. 근접 시도 ===
@@ -55,7 +56,7 @@ namespace AF.Combat.Behaviors
                                !meleeW.IsReloading &&
                                meleeW.HasAmmo();
                 if (canAtk)
-                    return (CombatActionEvents.ActionType.Attack, closest, null, meleeW);
+                    return null;
             }
 
             // === 2. 원거리 시도 ===
@@ -72,7 +73,7 @@ namespace AF.Combat.Behaviors
                 bool canAtk  = inRange &&
                                activeUnit.HasEnoughAP(CalculateAttackAPCost(activeUnit, rangedW));
                 if (canAtk)
-                    return (CombatActionEvents.ActionType.Attack, closest, null, rangedW);
+                    return null;
             }
 
             // === 3. 이동 ===
@@ -94,20 +95,20 @@ namespace AF.Combat.Behaviors
                             Vector3 dir = (minDist < 0.01f) ? Vector3.back :
                                           (activeUnit.Position - closest.Position).normalized;
                             Vector3 retreat = activeUnit.Position + dir * activeUnit.CombinedStats.Speed;
-                            return (CombatActionEvents.ActionType.Move, closest, retreat, null);
+                            return null;
                         }
                         else if (minDist > optimal)
                         {
                             Vector3 dir = (closest.Position - activeUnit.Position).normalized;
                             float distToMove = Mathf.Min(activeUnit.CombinedStats.Speed, minDist - optimal);
                             Vector3 approach = activeUnit.Position + dir * distToMove;
-                            return (CombatActionEvents.ActionType.Move, closest, approach, null);
+                            return null;
                         }
                     }
                     else if (meleeW != null) // 근접 전용
                     {
                         if (minDist > meleeW.Range.MaxRange)
-                            return (CombatActionEvents.ActionType.Move, closest, closest.Position, null);
+                            return null;
                     }
                 }
             }
@@ -116,10 +117,10 @@ namespace AF.Combat.Behaviors
             if (activeUnit.HasEnoughAP(DEFEND_AP_COST) &&
                 !ctx.HasUnitDefendedThisTurn(activeUnit))
             {
-                return (CombatActionEvents.ActionType.Defend, null, null, null);
+                return null;
             }
 
-            return (default, null, null, null);
+            return null;
         }
     }
 }

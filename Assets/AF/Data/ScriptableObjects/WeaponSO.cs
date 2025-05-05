@@ -70,7 +70,7 @@ namespace AF.Data
          }
         #endif
 
-        public void Apply(WeaponData data)
+        public void ApplyData(WeaponData data)
         {
             WeaponID = data.WeaponID;
             WeaponName = data.WeaponName;
@@ -110,6 +110,7 @@ namespace AF.Data
             AttackFlavorKey = data.AttackFlavorKey;
             ReloadFlavorKey = data.ReloadFlavorKey;
             Notes = data.Notes;
+            this.name = data.WeaponID;
 
             #if UNITY_EDITOR
             UpdatePreview();

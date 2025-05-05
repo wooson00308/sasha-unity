@@ -4,13 +4,14 @@ using AF.Combat;
 using AF.Services;
 using AF.Models;
 using System.Collections.Generic;
+using AF.AI.UtilityAI;
 
 namespace AF.Combat.Behaviors
 {
     /// <summary>SpecializationType.RangedCombat 전용 전략</summary>
     public sealed class RangedCombatBehaviorStrategy : PilotBehaviorStrategyBase
     {
-        public override (CombatActionEvents.ActionType, ArmoredFrame, Vector3?, Weapon)
+        public override IUtilityAction
             DetermineAction(ArmoredFrame activeUnit, CombatSimulatorService ctx)
         {
             // ServiceLocator를 통해 TextLogger 가져오기
@@ -19,7 +20,7 @@ namespace AF.Combat.Behaviors
 
             if (activeUnit == null || !activeUnit.IsOperational)
             {
-                return (default, null, null, null);
+                return null;
             }
 
             // === 가장 가까운 '작동 가능한' 적 계산 ===
@@ -63,7 +64,7 @@ namespace AF.Combat.Behaviors
                 bool canReload = activeUnit.HasEnoughAP(reloadTarget.ReloadAPCost);
                 if (canReload)
                 {
-                    return (CombatActionEvents.ActionType.Reload, null, null, reloadTarget);
+                    return null;
                 }
             }
 
@@ -84,7 +85,7 @@ namespace AF.Combat.Behaviors
 
 
             // === 3) 공격 시도 (수정됨: 80% ~ 100% 거리 조건) ===
-            if (fireWeapon != null && closestOperationalEnemy != null)
+            if (fireWeapon != null && closestOperationalEnemy != null) 
             {
                 float attackCost = CalculateAttackAPCost(activeUnit, fireWeapon);
                 RangeData weaponRangeData = fireWeapon.Range;
@@ -93,7 +94,7 @@ namespace AF.Combat.Behaviors
 
                 if (isInAttackRange && hasAP)
                 {
-                    return (CombatActionEvents.ActionType.Attack, closestOperationalEnemy, null, fireWeapon);
+                    return null;
                 }
             }
 
@@ -122,17 +123,17 @@ namespace AF.Combat.Behaviors
                         Vector3 moveVec = targetPos - activeUnit.Position;
                         float distToMove = Mathf.Min(activeUnit.CombinedStats.Speed, moveVec.magnitude);
                         Vector3 retreatPos = activeUnit.Position + moveVec.normalized * distToMove;
-                        return (CombatActionEvents.ActionType.Move, closestOperationalEnemy, retreatPos, null);
+                        return null;
                     }
                     // b) 너무 멀다 (100% 초과): 최대 사거리까지만 접근 (목표 지점 수정)
                     else if (minDist > weaponRangeData.MaxRange + 0.001f)
                     {
                        Vector3 dir = (closestOperationalEnemy.Position - activeUnit.Position).normalized;
                        Vector3 targetPos = closestOperationalEnemy.Position - dir * weaponRangeData.MaxRange;
-                       Vector3 moveVec = targetPos - activeUnit.Position;
-                       float distToMove = Mathf.Min(activeUnit.CombinedStats.Speed, moveVec.magnitude);
-                       Vector3 approachPos = activeUnit.Position + moveVec.normalized * distToMove;
-                       return (CombatActionEvents.ActionType.Move, closestOperationalEnemy, approachPos, null);
+                        Vector3 moveVec = targetPos - activeUnit.Position;
+                        float distToMove = Mathf.Min(activeUnit.CombinedStats.Speed, moveVec.magnitude);
+                        Vector3 approachPos = activeUnit.Position + moveVec.normalized * distToMove;
+                       return null;
                     }
                     // c) 60% ~ 100% 사이인데 공격 못했다면? -> 현재 위치 유지 (이동 안 함)
                 }
@@ -147,10 +148,10 @@ namespace AF.Combat.Behaviors
                 !ctx.HasUnitDefendedThisTurn(activeUnit) &&
                 (!ctx.MovedThisActivation.Contains(activeUnit) || IsLowHealth(activeUnit)))
             {
-                return (CombatActionEvents.ActionType.Defend, null, null, null);
+                return null;
             }
 
-            return (default, null, null, null); // 최종적으로 할 행동 없음
+            return null; // 최종적으로 할 행동 없음
         }
     }
 }

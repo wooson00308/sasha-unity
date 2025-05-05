@@ -5,13 +5,15 @@ using UnityEngine;
 using AF.EventBus;
 using AF.Models;
 using AF.Services;
+using AF.AI.UtilityAI;
+using AF.AI.UtilityAI.Actions;
 
 namespace AF.Combat
 {
     /// <summary>
     /// 모든 실질 행동(공격, 이동, 방어, 재장전 등)을 수행하고 이벤트를 발행한다.
     /// </summary>
-    public sealed class CombatActionExecutor : ICombatActionExecutor // <<< 인터페이스 구현 명시 >>>
+    public sealed class CombatActionExecutor : ICombatActionExecutor
     {
         // <<< 수리량 상수 정의 >>>
         private const float BASE_REPAIR_AMOUNT = 50f;
@@ -37,6 +39,7 @@ namespace AF.Combat
             ArmoredFrame targetFrame,
             Vector3? targetPosition,
             Weapon weapon,
+            IUtilityAction executedAction,
             bool isCounter = false,
             bool freeCounter = false)
         {
@@ -52,11 +55,20 @@ namespace AF.Combat
                 if (ctx.MovedThisActivation.Contains(actor))
                 {
                     ctx.Bus.Publish(new CombatActionEvents.ActionCompletedEvent(
-                        actor, actionType, false, "이미 이동함", ctx.CurrentTurn, null, null, targetFrame, isCounter));
+                        actor, actionType, false, "이미 이동함", ctx.CurrentTurn, null, null, null, isCounter));
                     return false; // 이미 이동했으므로 실패 처리
                 }
             }
             // +++ 이동 횟수 제한 체크 끝 +++
+
+            // <<< Add Defend Check Here >>>
+            if (actionType == CombatActionEvents.ActionType.Defend && ctx.DefendedThisTurn.Contains(actor))
+            {
+                 ctx.Bus.Publish(new CombatActionEvents.ActionCompletedEvent(
+                     actor, actionType, false, "이미 방어함", ctx.CurrentTurn, null, null, null, isCounter));
+                 return false; // Already defended this turn
+            }
+            // +++ 이동/방어 횟수 제한 체크 끝 +++
 
             // === AP 비용 계산 ===
             float apCost = freeCounter ? 0f : actionType switch
@@ -74,7 +86,7 @@ namespace AF.Combat
             if (!actor.HasEnoughAP(apCost))
             {
                 ctx.Bus.Publish(new CombatActionEvents.ActionCompletedEvent(
-                    actor, actionType, false, "AP 부족", ctx.CurrentTurn, null, null, targetFrame));
+                    actor, actionType, false, "AP 부족", ctx.CurrentTurn, null, null, null, isCounter));
                 return false;
             }
 
@@ -86,6 +98,7 @@ namespace AF.Combat
             string resultDescription = "";
             Vector3? finalPos        = null;
             float?  distMoved        = null;
+            ArmoredFrame moveTargetUnit = null;
 
             try
             {
@@ -108,6 +121,11 @@ namespace AF.Combat
                         if(success)
                         {
                              ctx.MovedThisActivation.Add(actor);
+                        }
+
+                        if (executedAction is MoveUtilityAction moveAction)
+                        {
+                            moveTargetUnit = moveAction.TargetUnit;
                         }
                         break;
 
@@ -208,8 +226,16 @@ namespace AF.Combat
             if (success && apCost > 0f) actor.ConsumeAP(apCost);
 
             ctx.Bus.Publish(new CombatActionEvents.ActionCompletedEvent(
-                actor, actionType, success, resultDescription, ctx.CurrentTurn,
-                finalPos, distMoved, targetFrame, isCounter));
+                actor,                 // 1
+                actionType,            // 2
+                success,               // 3
+                resultDescription,     // 4
+                ctx.CurrentTurn,       // 5
+                finalPos,              // 6
+                distMoved,             // 7
+                moveTargetUnit,        // 8
+                isCounter              // 9
+            ));
 
             return success;
         }
@@ -360,6 +386,8 @@ namespace AF.Combat
         private void ApplyDefendStatus(
             ArmoredFrame actor, HashSet<ArmoredFrame> defendedSet)
         {
+            if (!defendedSet.Contains(actor)) 
+        {
             var eff = new StatusEffect(
                 "Defense Buff", // effectName
                 1, // durationTurns
@@ -368,7 +396,14 @@ namespace AF.Combat
                 ModificationType.Multiplicative, // modType
                 1.5f); // modValue
             actor.AddStatusEffect(eff);
-            defendedSet.Add(actor);
+                defendedSet.Add(actor); // Add AFTER applying the effect successfully
+            }
+            else
+            {
+                 // Should ideally not reach here due to the check in Execute,
+                 // but log warning just in case.
+                 Debug.LogWarning($"ApplyDefendStatus called for {actor.Name} who is already in the defendedSet.");
+            }
         }
 
         #endregion
@@ -461,8 +496,9 @@ namespace AF.Combat
             Execute(ctx, defender,
                     CombatActionEvents.ActionType.Attack,
                     attacker, null, w,
-                    /*isCounter*/ true,
-                    /*freeCounter*/ true);
+                    null,                  // <<< 7번째: executedAction 자리에 null 추가
+                    /*isCounter*/ true,    // <<< 8번째
+                    /*freeCounter*/ true); // <<< 9번째
         }
 
         #endregion

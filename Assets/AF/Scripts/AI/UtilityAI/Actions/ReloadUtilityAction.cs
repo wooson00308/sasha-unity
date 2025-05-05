@@ -23,7 +23,8 @@ namespace AF.AI.UtilityAI.Actions
         public override Vector3? TargetPosition => null; // 재장전은 특정 위치를 지정하지 않음
         // +++ 속성 구현 끝 +++
 
-        public ReloadUtilityAction(Weapon weaponToReload)
+        public ReloadUtilityAction(Weapon weaponToReload, SpecializationType pilotSpec)
+            : base(pilotSpec)
         {
             _weaponToReload = weaponToReload;
             InitializeConsiderations();
@@ -31,13 +32,39 @@ namespace AF.AI.UtilityAI.Actions
 
         protected override void InitializeConsiderations()
         {
+            if (_weaponToReload == null)
+            {
+                Debug.LogError($"[{Name}] WeaponToReload is null during initialization.");
+                Considerations = new List<IConsideration>();
+                return;
+            }
+
+            // --- Blocking Considerations ---
+            var weaponOperational = new WeaponIsOperationalConsideration(_weaponToReload);
+            var notReloading = new WeaponReloadingConsideration(_weaponToReload); // Score is 1 if NOT reloading, 0 if reloading.
+            var apCostConsideration = new ActionPointCostConsideration(_weaponToReload.ReloadAPCost);
+            // Add a consideration to check if ammo is already full (score 0 if full)
+            var needsReload = new AmmoLevelConsideration(_weaponToReload, UtilityCurveType.Step, offsetX: 0.99f, invert: true); // Score 1 if ammo < 99%, 0 otherwise
+
+            // --- Scoring Considerations (Vary by Specialization?) ---
+            // For now, use a standard AmmoLevel consideration. Adjust curve/invert based on general reload desire.
+            // Typically, lower ammo = higher score to reload.
+            var ammoLevel = new AmmoLevelConsideration(_weaponToReload, UtilityCurveType.Linear, invert: true); 
+
+            // Potentially add Threat Level? (Less likely to reload under high threat?)
+            // IConsideration threatConsideration = ...;
+
             Considerations = new List<IConsideration>
             {
-                // --- 재장전 관련 Consideration 추가 ---
-                new AmmoLevelConsideration(_weaponToReload, invert: true), // 탄약 수준 평가 추가 (적을수록 좋음)
-                new ActionPointCostConsideration(_weaponToReload.ReloadAPCost), // <<< AP 비용 평가 추가 (Weapon 데이터 사용)
-                // 예: new CanReloadConsideration(_weaponToReload),            // 재장전 가능한 상태인지 (이미 재장전 중이거나 탄약 최대 아님)
-                // ----------------------------------------
+                // Blocking considerations first
+                weaponOperational,
+                notReloading, // Ensure we are not already reloading (consideration returns 0 if reloading)
+                needsReload,  // Ensure ammo is not already full
+                apCostConsideration,
+                
+                // Scoring considerations
+                ammoLevel
+                // threatConsideration? 
             };
         }
 
@@ -55,7 +82,7 @@ namespace AF.AI.UtilityAI.Actions
                 if (executor != null)
                 {
                     // 재장전 액션 실행 호출 (target, position 등은 null)
-                    executor.Execute(context, actor, CombatActionEvents.ActionType.Reload, null, null, _weaponToReload, isCounter: false, freeCounter: false);
+                    executor.Execute(context, actor, CombatActionEvents.ActionType.Reload, null, null, _weaponToReload, this, isCounter: false, freeCounter: false);
                     Debug.Log($"{actor.Name} executed {Name}");
                 }
                 else

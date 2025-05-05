@@ -3,17 +3,18 @@ using UnityEngine;
 using System.IO;
 using ExcelToSO.DataModels; // Your data model classes
 using AF.Data; // Your ScriptableObject classes
+using ExcelToSO; // ScriptableObjectGenerator 네임스페이스
 
 namespace ExcelToSO.Editor
 {
-    public class DataGeneratorMenu
+    public class DataGeneratorMenu : EditorWindow
     {
         private const string ExcelFileName = "AF_Data.xlsx"; // Your Excel file name
         private const string ExcelDirectory = "Assets\\AF\\Data"; // Directory relative to Assets
         private const string OutputDirectoryRoot = "Assets\\AF\\Data\\Resources"; // Base output directory
 
-        [MenuItem("Tools/Generate AF Data from Excel")]
-        public static void GenerateData()
+        [MenuItem("AF/Generate Data/Generate All Objects (Except Scenarios)")]
+        public static void GenerateAllObjects()
         {
             // Get the project root directory
             string projectRoot = Directory.GetParent(Application.dataPath)?.FullName;
@@ -32,7 +33,7 @@ namespace ExcelToSO.Editor
                 return;
             }
 
-            Debug.Log($"Starting data generation from: {excelFilePath}");
+            Debug.Log($"Starting data generation (except scenarios) from: {excelFilePath}");
 
             // Generate for each data type, specifying the correct sheet name
             GenerateSO<FrameData, FrameSO>(excelFilePath, "Frames", "Frames");
@@ -42,7 +43,7 @@ namespace ExcelToSO.Editor
             GenerateSO<AssemblyData, AssemblySO>(excelFilePath, "AF_Assemblies", "Assemblies"); // Sheet name is AF_Assemblies
             GenerateSO<FlavorTextData, FlavorTextSO>(excelFilePath, "FlavorTexts", "FlavorTexts");
 
-            Debug.Log("Data generation complete!");
+            Debug.Log("Data generation (except scenarios) complete!");
             AssetDatabase.Refresh(); // Refresh Asset Database after all generation
         }
 
@@ -56,20 +57,12 @@ namespace ExcelToSO.Editor
             if (!Directory.Exists(fullOutputPath))
             {
                 Directory.CreateDirectory(fullOutputPath);
-                Debug.Log($"Created directory: {fullOutputPath}");
-            }
-            else
-            {
-                // Optional: Clear existing assets in the directory before generating new ones
-                // ClearDirectory(fullOutputPath);
             }
 
-            Debug.Log($"Generating {typeof(TSO).Name} assets from sheet '{sheetName}' into {fullOutputPath}...");
             try
             {
                 // Pass sheetName to the generator
                 ScriptableObjectGenerator.Generate<TModel, TSO>(excelPath, sheetName, fullOutputPath);
-                Debug.Log($"Successfully generated {typeof(TSO).Name} assets from sheet '{sheetName}'.");
             }
             catch (System.Exception e)
             {
@@ -92,6 +85,45 @@ namespace ExcelToSO.Editor
                  Debug.Log($"Deleted asset: {relativeAssetPath}");
              }
              AssetDatabase.Refresh(); // Refresh needed after deletions
+        }
+
+        // +++ 시나리오 SO 생성 메뉴 항목 +++
+        [MenuItem("AF/Generate Data/Generate Scenario Objects")]
+        public static void GenerateScenarioObjects()
+        {
+            // <<< 기존 OpenFilePanel 삭제 >>>
+            // string excelPath = EditorUtility.OpenFilePanel("Select Excel File", "", "xlsx");
+            // if (string.IsNullOrEmpty(excelPath)) { ... return; }
+
+            // <<< GenerateAllObjects와 동일하게 경로 계산 로직 추가 >>>
+            string projectRoot = Directory.GetParent(Application.dataPath)?.FullName;
+            if (string.IsNullOrEmpty(projectRoot))
+            {
+                Debug.LogError("Could not determine project root directory.");
+                return;
+            }
+            string excelFilePath = Path.Combine(projectRoot, ExcelDirectory, ExcelFileName);
+            if (!File.Exists(excelFilePath))
+            {
+                Debug.LogError($"Excel file not found at: {excelFilePath}");
+                return;
+            }
+            // <<< 경로 계산 끝 >>>
+
+            string outputBasePath = Path.Combine("Assets", "AF", "Data", "Resources");
+
+            try
+            {
+                 // <<< 계산된 excelFilePath 사용 >>>
+                 ScriptableObjectGenerator.GenerateScenarioScriptableObjects(excelFilePath, outputBasePath);
+            }
+            catch (System.Exception ex)
+            {
+                 Debug.LogError($"Exception occurred during GenerateScenarioScriptableObjects call: {ex.Message}\n{ex.StackTrace}");
+            }
+            // 시나리오 생성 완료 로그 추가 (필요하다면)
+            Debug.Log("Scenario SO generation request completed."); 
+            AssetDatabase.Refresh(); // 시나리오 생성 후에도 리프레시
         }
     }
 } 

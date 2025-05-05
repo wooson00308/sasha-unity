@@ -4,20 +4,21 @@ using AF.Combat;
 using AF.Services;
 using AF.Models;
 using System.Collections.Generic;
+using AF.AI.UtilityAI;
 
 namespace AF.Combat.Behaviors
 {
     /// <summary>SpecializationType.MeleeCombat 전용 전략</summary>
     public sealed class MeleeCombatBehaviorStrategy : PilotBehaviorStrategyBase
     {
-        public override (CombatActionEvents.ActionType, ArmoredFrame, Vector3?, Weapon)
+        public override IUtilityAction
             DetermineAction(ArmoredFrame activeUnit, CombatSimulatorService ctx)
         {
             string unitName = activeUnit?.Name ?? "Unknown";
 
             if (activeUnit == null || !activeUnit.IsOperational)
             {
-                return (default, null, null, null);
+                return null;
             }
 
 
@@ -57,7 +58,7 @@ namespace AF.Combat.Behaviors
                                                               !w.IsReloading);
             if (reloadTarget != null && activeUnit.HasEnoughAP(reloadTarget.ReloadAPCost))
             {
-                return (CombatActionEvents.ActionType.Reload, null, null, reloadTarget);
+                return null;
             }
 
 
@@ -77,7 +78,7 @@ namespace AF.Combat.Behaviors
 
                     if (canAttack)
                     {
-                        return (CombatActionEvents.ActionType.Attack, closestOperationalEnemy, null, meleeWeapon);
+                        return null;
                     }
                     else
                     {
@@ -109,7 +110,7 @@ namespace AF.Combat.Behaviors
                         // 목표를 향해 이동
                         Vector3 direction = (closestOperationalEnemy.Position - activeUnit.Position).normalized;
                         Vector3 targetPos = activeUnit.Position + direction * activeUnit.CombinedStats.Speed;
-                        return (CombatActionEvents.ActionType.Move, closestOperationalEnemy, targetPos, null);
+                        return null;
                     }
                 }
             }
@@ -122,10 +123,10 @@ namespace AF.Combat.Behaviors
             if (canDefend && !defended &&
                 (!ctx.MovedThisActivation.Contains(activeUnit) || IsLowHealth(activeUnit)))
             {
-                return (CombatActionEvents.ActionType.Defend, null, null, null);
+                return null;
             }
 
-            return (default, null, null, null); // 모든 조건 불만족
+            return null; // 모든 조건 불만족
         }
     }
 }
