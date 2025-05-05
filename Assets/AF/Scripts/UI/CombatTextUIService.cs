@@ -12,6 +12,7 @@ using System; // TimeSpan 사용 위해 추가
 using System.Linq;
 using System.Text;
 using System.Threading; // <<< CancellationTokenSource 사용 위해 추가
+using AF.EventBus; // <<< 이벤트 버스 네임스페이스 추가
 
 namespace AF.UI
 {
@@ -650,6 +651,7 @@ namespace AF.UI
 
             // Use the correct snapshot type from AF.Models
             Dictionary<string, AF.Models.ArmoredFrameSnapshot> currentPlaybackState = null;
+            string activeUnitNameForHighlighting = null; // <<< 하이라이트용 변수 추가
 
             Debug.Log("Starting Combat Log Playback...");
 
@@ -667,6 +669,7 @@ namespace AF.UI
                         UpdateAllUnitsDetailDisplay(logEntry.TurnStartStateSnapshot);
                         // Copy the dictionary, ensuring values are the correct AF.Models.ArmoredFrameSnapshot type
                         currentPlaybackState = new Dictionary<string, AF.Models.ArmoredFrameSnapshot>(logEntry.TurnStartStateSnapshot);
+                        activeUnitNameForHighlighting = logEntry.ContextUnit?.Name; // <<< 스냅샷 기준 활성 유닛 이름 설정
                     }
                 }
                 else if (currentPlaybackState != null)
@@ -679,6 +682,7 @@ namespace AF.UI
                         UpdateAllUnitsDetailDisplay(currentPlaybackState);
                         // <<< 전체 유닛 상세 뷰 스크롤 맨 위로 >>>
                         if (_unitDetailScrollRect != null) _unitDetailScrollRect.verticalNormalizedPosition = 1f;
+                        activeUnitNameForHighlighting = logEntry.ContextUnit?.Name ?? activeUnitNameForHighlighting; // <<< 델타 로그 컨텍스트 유닛으로 하이라이트 갱신
                     }
                     // <<< 업데이트 로직 이동 끝 >>>
 
@@ -741,6 +745,17 @@ namespace AF.UI
                     messageToDisplay = $"<b>{logEntry.Message}</b>";
                 }
                 await CreateAndAnimateLogLine(messageToDisplay);
+
+                // +++ Publish Playback Update Event +++
+                if (_eventBus != null && currentPlaybackState != null)
+                {
+                    _eventBus.Publish(new CombatLogPlaybackUpdateEvent(
+                        new Dictionary<string, ArmoredFrameSnapshot>(currentPlaybackState), // Pass a copy of the current state
+                        activeUnitNameForHighlighting, // Pass the determined active unit name
+                        logEntry // Pass the current log entry
+                    ));
+                }
+                // +++ End Publish Event +++
             }
             Debug.Log("Combat Log Playback Finished.");
 

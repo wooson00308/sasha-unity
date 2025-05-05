@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: c9b64bfed909ae948aa0861ca7e03b25
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 203129
+  packageName: HUD-SCI-FI radar circles
+  packageVersion: 1.0
+  assetPath: Assets/ScifiRadar/Animation/01.controller
+  uploadId: 453146

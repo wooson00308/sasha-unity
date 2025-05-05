@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: fe057135245c3fd4b886000b2ec34237
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 203129
+  packageName: HUD-SCI-FI radar circles
+  packageVersion: 1.0
+  assetPath: Assets/ScifiRadar/Prefabs/01.prefab
+  uploadId: 453146

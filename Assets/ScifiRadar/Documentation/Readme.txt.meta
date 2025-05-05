@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: c5095cee55320b14081b5ecafb1ca94b
+TextScriptImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 203129
+  packageName: HUD-SCI-FI radar circles
+  packageVersion: 1.0
+  assetPath: Assets/ScifiRadar/Documentation/Readme.txt
+  uploadId: 453146

@@ -24,7 +24,6 @@ namespace AF.UI
         [SerializeField] private LineRenderer targetLinePrefab; // 타겟 연결선 프리팹 (선택적)
 
         private EventBus.EventBus _eventBus;
-        private ICombatSimulatorService _combatSimulator;
         private bool _isInitialized = false;
 
         // 레이더 표시 관련 설정값 (예시)
@@ -42,6 +41,9 @@ namespace AF.UI
         private Dictionary<string, GameObject> _unitMarkers = new Dictionary<string, GameObject>();
         private List<LineRenderer> _targetLines = new List<LineRenderer>();
 
+        // +++ Add field to store the battle center +++
+        private Vector3 _battleCenterWorldPosition = Vector3.zero;
+
         #region IService Implementation
 
         public void Initialize()
@@ -49,11 +51,12 @@ namespace AF.UI
             if (_isInitialized) return;
 
             _eventBus = ServiceLocator.Instance.GetService<EventBusService>()?.Bus;
-            _combatSimulator = ServiceLocator.Instance.GetService<ICombatSimulatorService>();
+            // _combatSimulator = ServiceLocator.Instance.GetService<ICombatSimulatorService>(); // No longer directly needed
 
-            if (_eventBus == null || _combatSimulator == null || radarContainer == null || unitMarkerPrefab == null)
+            // CombatSimulator is removed, adjust null check if necessary
+            if (_eventBus == null || radarContainer == null || unitMarkerPrefab == null)
             {
-                Debug.LogError("CombatRadarUIService 초기화 실패: 필수 참조(EventBus, CombatSimulator, UI 요소)가 없습니다.");
+                Debug.LogError("CombatRadarUIService 초기화 실패: 필수 참조(EventBus, UI 요소)가 없습니다.");
                 enabled = false; // 초기화 실패 시 비활성화
                 return;
             }
@@ -70,7 +73,7 @@ namespace AF.UI
             UnsubscribeFromEvents();
             ClearRadar(); // 정리
             _eventBus = null;
-            _combatSimulator = null;
+            // _combatSimulator = null; // No longer needed
             _isInitialized = false;
             Debug.Log("CombatRadarUIService Shutdown.");
         }
@@ -83,190 +86,142 @@ namespace AF.UI
         {
             if (_eventBus == null) return;
             _eventBus.Subscribe<CombatSessionEvents.CombatStartEvent>(HandleCombatStart); // Keep for initial clear
-            _eventBus.Subscribe<CombatSessionEvents.CombatEndEvent>(HandleCombatEnd);     // Keep for starting playback
+            // _eventBus.Subscribe<CombatSessionEvents.CombatEndEvent>(HandleCombatEnd);     // No longer starts playback here
+            _eventBus.Subscribe<CombatLogPlaybackUpdateEvent>(HandleLogPlaybackUpdate); // Subscribe to the new event
             // Removed real-time event subscriptions
-            //_eventBus.Subscribe<CombatSessionEvents.UnitActivationStartEvent>(HandleUnitActivationStart);
-            //_eventBus.Subscribe<CombatActionEvents.ActionCompletedEvent>(HandleActionCompleted);
-            //_eventBus.Subscribe<PartEvents.PartDestroyedEvent>(HandleUnitStatusChange);
         }
 
         private void UnsubscribeFromEvents()
         {
             if (_eventBus == null) return;
             _eventBus.Unsubscribe<CombatSessionEvents.CombatStartEvent>(HandleCombatStart);
-            _eventBus.Unsubscribe<CombatSessionEvents.CombatEndEvent>(HandleCombatEnd);
+            // _eventBus.Unsubscribe<CombatSessionEvents.CombatEndEvent>(HandleCombatEnd);
+            _eventBus.Unsubscribe<CombatLogPlaybackUpdateEvent>(HandleLogPlaybackUpdate); // Unsubscribe from the new event
             // Removed real-time event unsubscriptions
-            //_eventBus.Unsubscribe<CombatSessionEvents.UnitActivationStartEvent>(HandleUnitActivationStart);
-            //_eventBus.Unsubscribe<CombatActionEvents.ActionCompletedEvent>(HandleActionCompleted);
-            //_eventBus.Unsubscribe<PartEvents.PartDestroyedEvent>(HandleUnitStatusChange);
         }
 
         private void HandleCombatStart(CombatSessionEvents.CombatStartEvent ev)
         {
             ClearRadar();
-            // Don't update radar display here in playback mode
+            _battleCenterWorldPosition = Vector3.zero; // Reset battle center on new combat start
+            // Calculate battle center immediately if possible (using start event participants)
+            if (ev.Participants != null && ev.Participants.Length > 0)
+            {
+                Vector3 sumPositions = Vector3.zero;
+                foreach(var unit in ev.Participants)
+                {
+                    sumPositions += unit.Position;
+                }
+                _battleCenterWorldPosition = sumPositions / ev.Participants.Length;
+                 Debug.Log($"CombatRadarUIService: Battle Center calculated at combat start: {_battleCenterWorldPosition}");
+            }
+            else { Debug.LogWarning("CombatRadarUIService: No participants in CombatStartEvent to calculate initial battle center."); }
         }
 
+        // Commented out: Playback is no longer initiated here
+        /*
         private void HandleCombatEnd(CombatSessionEvents.CombatEndEvent ev)
         {
             // Start the log playback process
-            ProcessRadarPlaybackAsync(ev).Forget();
-        }
-
-        // Removed real-time event handlers
-        /*
-        private void HandleUnitActivationStart(CombatSessionEvents.UnitActivationStartEvent ev)
-        {
-            UpdateRadarDisplay();
-        }
-
-        private void HandleActionCompleted(CombatActionEvents.ActionCompletedEvent ev)
-        {
-            if (ev.Action == CombatActionEvents.ActionType.Move && ev.Success)
-            {
-                 UpdateRadarDisplay();
-            }
-        }
-
-        private void HandleUnitStatusChange(PartEvents.PartDestroyedEvent ev)
-        {
-             Invoke(nameof(UpdateRadarDisplay), 0.1f);
+            // ProcessRadarPlaybackAsync(ev).Forget();
         }
         */
+
+        // +++ New Handler for CombatLogPlaybackUpdateEvent +++
+        private async void HandleLogPlaybackUpdate(CombatLogPlaybackUpdateEvent ev)
+        {
+            if (!_isInitialized || ev.CurrentSnapshot == null || ev.CurrentLogEntry == null)
+            {
+                return; // Don't process if not initialized or event data is missing
+            }
+
+            // 1. Update the base radar display (marker positions and appearances)
+            // This uses the CURRENT state from the snapshot
+            UpdateRadarDisplayFromSnapshot(ev.CurrentSnapshot, ev.ActiveUnitName);
+
+            // --- Small delay to allow UI to update positions before playing effects ---            
+            await UniTask.Yield(PlayerLoopTiming.LastUpdate);
+            await UniTask.Delay(TimeSpan.FromSeconds(0.01f)); // Tiny delay 
+
+            // 2. Play visual effects based on the SPECIFIC log entry that just occurred
+            TextLogger.LogEntry logEntry = ev.CurrentLogEntry;
+            GameObject targetMarker = null;
+            string targetUnitName = null;
+
+            switch (logEntry.EventType)
+            {
+                case LogEventType.ActionCompleted:
+                    targetUnitName = logEntry.Action_ActorName;
+                    if (!string.IsNullOrEmpty(targetUnitName) && _unitMarkers.TryGetValue(targetUnitName, out targetMarker))
+                    {
+                        if (logEntry.Action_Type == CombatActionEvents.ActionType.Move && logEntry.Action_IsSuccess && logEntry.Action_NewPosition.HasValue)
+                        {
+                            // Animate movement - CalculateRadarPosition now takes only the target position
+                            Vector2 newRadarPos = CalculateRadarPosition(logEntry.Action_NewPosition.Value);
+                            // Don't await here if we want effects to potentially overlap slightly
+                            targetMarker?.GetComponent<RectTransform>()?.DOAnchorPos(newRadarPos, moveAnimDuration).SetEase(Ease.OutQuad);
+                        }
+                        else if (logEntry.Action_IsSuccess && logEntry.Action_Type != CombatActionEvents.ActionType.Move) // Play pulse for other successful non-move actions
+                        {
+                            await PlayPulseEffect(targetMarker);
+                        }
+                    }
+                    break;
+
+                case LogEventType.DamageApplied:
+                    targetUnitName = logEntry.Damage_TargetUnitName;
+                    if (!string.IsNullOrEmpty(targetUnitName) && _unitMarkers.TryGetValue(targetUnitName, out targetMarker))
+                    {
+                        await PlayFlashEffect(targetMarker, damageFlashColor);
+                    }
+                    break;
+
+                case LogEventType.PartDestroyed:
+                    targetUnitName = logEntry.PartDestroyed_OwnerName;
+                    if (!string.IsNullOrEmpty(targetUnitName) && _unitMarkers.TryGetValue(targetUnitName, out targetMarker))
+                    {
+                        await PlayFlashEffect(targetMarker, Color.black);
+                        // Marker appearance was already updated by UpdateRadarDisplayFromSnapshot based on the IsOperational flag in the snapshot
+                    }
+                    break;
+
+                case LogEventType.StatusEffectApplied:
+                    targetUnitName = logEntry.StatusApplied_TargetName;
+                    if (!string.IsNullOrEmpty(targetUnitName) && _unitMarkers.TryGetValue(targetUnitName, out targetMarker))
+                    {
+                        await PlayPulseEffect(targetMarker, 1.2f, 0.15f);
+                    }
+                    break;
+
+                case LogEventType.RepairApplied:
+                    targetUnitName = logEntry.Repair_TargetName;
+                    if (!string.IsNullOrEmpty(targetUnitName) && _unitMarkers.TryGetValue(targetUnitName, out targetMarker))
+                    {
+                        await PlayFlashEffect(targetMarker, Color.green);
+                    }
+                    break;
+
+                // Add cases for other EventTypes if visual feedback is desired
+                // case LogEventType.DamageAvoided: ...
+                // case LogEventType.WeaponFired: ...
+
+                default:
+                    // No specific visual effect for this log type
+                    break;
+            }
+        }
+        // +++ End New Handler +++
 
         /// <summary>
         /// Processes the combat log asynchronously to playback radar states.
         /// </summary>
+        // Commented out - No longer used
+        /*
         private async UniTaskVoid ProcessRadarPlaybackAsync(CombatSessionEvents.CombatEndEvent endEvent) // Accept end event if needed
         {
-            ITextLogger textLogger = ServiceLocator.Instance.GetService<TextLoggerService>()?.TextLogger;
-            if (textLogger == null)
-            {
-                Debug.LogError("CombatRadarUIService: TextLogger 참조를 가져올 수 없습니다.");
-                // Optionally display an error message on the radar UI
-                return;
-            }
-
-            List<TextLogger.LogEntry> logEntries = textLogger.GetLogEntries();
-            if (logEntries == null || logEntries.Count == 0)
-            {
-                Debug.LogWarning("표시할 전투 로그가 없습니다.");
-                return;
-            }
-
-            ClearRadar(); // Ensure radar is clear before playback
-            Debug.Log("Starting Radar Playback...");
-
-            Dictionary<string, ArmoredFrameSnapshot> currentPlaybackState = null; // <<< 상태 저장용
-            ArmoredFrameSnapshot? activeUnitSnapshotForPositioning = null; // <<< 중심점 계산용
-
-            foreach (var logEntry in logEntries)
-            {
-                // --- Full Snapshot Processing --- (Turn Start / Activation Start)
-                if (logEntry.EventType == LogEventType.UnitActivationStart || logEntry.EventType == LogEventType.RoundStart)
-                {
-                    if (logEntry.TurnStartStateSnapshot != null)
-                    {
-                        currentPlaybackState = new Dictionary<string, ArmoredFrameSnapshot>(logEntry.TurnStartStateSnapshot); // Copy snapshot
-
-                        // Determine the active unit for radar centering
-                        if (logEntry.ContextUnit != null && currentPlaybackState.TryGetValue(logEntry.ContextUnit.Name, out var activeSnap))
-                        {
-                            activeUnitSnapshotForPositioning = activeSnap;
-                        }
-                        else if (currentPlaybackState.Count > 0) // Fallback if context unit is weird
-                        {
-                            activeUnitSnapshotForPositioning = currentPlaybackState.Values.FirstOrDefault(s => s.IsOperational);
-                            if(activeUnitSnapshotForPositioning == null && currentPlaybackState.Count > 0) // If no operational, take first
-                                activeUnitSnapshotForPositioning = currentPlaybackState.Values.First();
-                        }
-                        else { activeUnitSnapshotForPositioning = null; } // No units in snapshot?
-
-                        // Update the entire radar display based on this snapshot
-                        if(activeUnitSnapshotForPositioning != null)
-                             UpdateRadarDisplayFromSnapshot(currentPlaybackState, activeUnitSnapshotForPositioning.Value);
-
-                        await UniTask.Delay(TimeSpan.FromSeconds(0.2f)); // Delay after full update
-                        continue; // Proceed to next log entry
-                    }
-                }
-
-                // --- Delta Log Processing --- Apply effects/animations --- //
-                if (currentPlaybackState == null || activeUnitSnapshotForPositioning == null)
-                {
-                    await UniTask.Yield(); // Skip delta processing if we don't have a base state
-                    continue;
-                }
-
-                GameObject targetMarker = null;
-                string targetUnitName = null;
-
-                // Get the relevant marker based on the event type
-                switch (logEntry.EventType)
-                {
-                    case LogEventType.ActionCompleted:
-                        targetUnitName = logEntry.Action_ActorName;
-                        if (!string.IsNullOrEmpty(targetUnitName) && _unitMarkers.TryGetValue(targetUnitName, out targetMarker))
-                        {
-                            if (logEntry.Action_Type == CombatActionEvents.ActionType.Move && logEntry.Action_IsSuccess && logEntry.Action_NewPosition.HasValue)
-                            {
-                                Vector2 newRadarPos = CalculateRadarPosition(activeUnitSnapshotForPositioning.Value.Position, logEntry.Action_NewPosition.Value);
-                                await targetMarker.GetComponent<RectTransform>().DOAnchorPos(newRadarPos, moveAnimDuration).SetEase(Ease.OutQuad).AsyncWaitForCompletion();
-                            }
-                            else if (logEntry.Action_IsSuccess) // Play effect for other successful actions
-                            {
-                                await PlayPulseEffect(targetMarker);
-                            }
-                        }
-                        break;
-
-                    case LogEventType.DamageApplied:
-                        targetUnitName = logEntry.Damage_TargetUnitName;
-                        if (!string.IsNullOrEmpty(targetUnitName) && _unitMarkers.TryGetValue(targetUnitName, out targetMarker))
-                        {
-                            await PlayFlashEffect(targetMarker, damageFlashColor);
-                        }
-                        break;
-
-                    case LogEventType.PartDestroyed:
-                        targetUnitName = logEntry.PartDestroyed_OwnerName;
-                        if (!string.IsNullOrEmpty(targetUnitName) && _unitMarkers.TryGetValue(targetUnitName, out targetMarker))
-                        {
-                            await PlayFlashEffect(targetMarker, Color.black);
-                            // Potentially update marker appearance more drastically here
-                            if(currentPlaybackState.TryGetValue(targetUnitName, out var ownerSnap)) // Requires snapshot update logic first
-                                UpdateMarkerAppearanceFromSnapshot(targetMarker, ownerSnap, targetUnitName == activeUnitSnapshotForPositioning.Value.Name);
-                        }
-                        break;
-
-                    case LogEventType.StatusEffectApplied:
-                        targetUnitName = logEntry.StatusApplied_TargetName;
-                        if (!string.IsNullOrEmpty(targetUnitName) && _unitMarkers.TryGetValue(targetUnitName, out targetMarker))
-                        {
-                            await PlayPulseEffect(targetMarker, 1.2f, 0.15f);
-                        }
-                        break;
-
-                    case LogEventType.RepairApplied:
-                        targetUnitName = logEntry.Repair_TargetName;
-                        if (!string.IsNullOrEmpty(targetUnitName) && _unitMarkers.TryGetValue(targetUnitName, out targetMarker))
-                        {
-                            await PlayFlashEffect(targetMarker, Color.green);
-                        }
-                        break;
-
-                    // Add cases for other EventTypes like WeaponFired (draw temporary line?), DamageAvoided (different flash?) etc.
-
-                    default:
-                        await UniTask.Yield(); // Yield briefly for unhandled event types
-                        break;
-                }
-                 // Minimal delay between delta effects/updates
-                 await UniTask.Delay(TimeSpan.FromSeconds(0.05f));
-            }
-
-            Debug.Log("Radar Playback Finished.");
+            // ... (Original method content removed or commented out) ...
         }
+        */
 
         #endregion
 
@@ -288,10 +243,9 @@ namespace AF.UI
              _targetLines.Clear();
         }
 
-        // Renamed and modified to accept snapshot
-        private void UpdateRadarDisplayFromSnapshot(Dictionary<string, ArmoredFrameSnapshot> snapshotDict, ArmoredFrameSnapshot activeUnitSnapshot)
+        // Renamed and modified to accept snapshot and active unit name for highlight
+        private void UpdateRadarDisplayFromSnapshot(Dictionary<string, ArmoredFrameSnapshot> snapshotDict, string activeUnitName)
         {
-            // Structs cannot be null, so no need to check activeUnitSnapshot for nullity
             if (!_isInitialized) return;
 
             // --- Marker Management (Using Snapshot Names) ---
@@ -325,8 +279,9 @@ namespace AF.UI
                  if (!unitSnapshot.IsOperational) continue;
 
                  // Assuming ArmoredFrameSnapshot has a Position property
-                 Vector2 radarPosition = CalculateRadarPosition(activeUnitSnapshot.Position, unitSnapshot.Position);
-                 bool isActive = unitSnapshot.Name == activeUnitSnapshot.Name;
+                 // Use the modified CalculateRadarPosition
+                 Vector2 radarPosition = CalculateRadarPosition(unitSnapshot.Position);
+                 bool isActive = unitSnapshot.Name == activeUnitName; // Compare with active unit name
 
                 if (_unitMarkers.TryGetValue(unitSnapshot.Name, out GameObject marker))
                 {
@@ -368,11 +323,11 @@ namespace AF.UI
              UpdateMarkerAppearanceFromSnapshot(newMarker, unitSnapshot, isActive);
         }
 
-        // CalculateRadarPosition remains the same
-        private Vector2 CalculateRadarPosition(Vector3 centerWorldPos, Vector3 targetWorldPos)
+        // Modified to accept only targetWorldPos, uses _battleCenterWorldPosition internally
+        private Vector2 CalculateRadarPosition(Vector3 targetWorldPos)
         {
-            // 월드 상의 상대 벡터 계산 (Y 무시)
-            Vector3 worldOffset = targetWorldPos - centerWorldPos;
+            // 월드 상의 상대 벡터 계산 (Y 무시) - 기준점은 _battleCenterWorldPosition
+            Vector3 worldOffset = targetWorldPos - _battleCenterWorldPosition;
             Vector2 relativePos2D = new Vector2(worldOffset.x, worldOffset.z); // Z축을 UI의 Y로 사용
 
             float worldDistance = relativePos2D.magnitude;
