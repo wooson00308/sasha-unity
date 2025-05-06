@@ -70,7 +70,7 @@ namespace AF.Combat.Behaviors
                 if (meleeWeapon != null)
                 {
                     float attackCost = CalculateAttackAPCost(activeUnit, meleeWeapon);
-                    bool canAttack = minDist <= meleeWeapon.Range + 0.001f && // 이미 사거리 내인가? (약간의 오차 허용)
+                    bool canAttack = minDist <= meleeWeapon.MaxRange + 0.001f && // 이미 사거리 내인가? (약간의 오차 허용)
                                      activeUnit.HasEnoughAP(attackCost) &&
                                      !meleeWeapon.IsReloading &&
                                      meleeWeapon.HasAmmo();
@@ -100,7 +100,7 @@ namespace AF.Combat.Behaviors
                 else // 아직 이동 안 했으면 이동 로직 실행
                 {
                     var meleeWeaponForRange = activeUnit.EquippedWeapons.FirstOrDefault(w => w.Type == WeaponType.Melee && w.IsOperational);
-                    float targetDistance = meleeWeaponForRange?.Range * 0.5f ?? 0.1f; // 무기 사거리의 절반 또는 최소 거리 목표
+                    float targetDistance = meleeWeaponForRange?.MaxRange * 0.5f ?? 0.1f; // 무기 사거리의 절반 또는 최소 거리 목표
 
                     // 이미 목표 거리보다 가까우면 이동 불필요
                     if (minDist <= targetDistance + 0.01f) {

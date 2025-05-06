@@ -8,6 +8,8 @@ using System;
 using AF.Data;
 using System.Linq;
 using Cysharp.Threading.Tasks;
+using AF.AI.BehaviorTree;
+using AF.AI.BehaviorTree.PilotBTs;
 
 #if UNITY_EDITOR
 using UnityEditor; // Needed for AssetDatabase
@@ -583,7 +585,8 @@ namespace AF.Tests
                         Log($"기존 플레이어 유닛 '{playerSetup.persistentId}' 재사용.", LogLevel.Info);
                         playerAf = existingAf;
                         // 위치 업데이트 (새 전투 배치 위치 적용)
-                        playerAf.Position = playerSetup.startPosition; 
+                        playerAf.SetPosition(playerSetup.startPosition); // SetPosition 메서드 사용
+                        playerAf.AICtxBlackboard.ClearAllData(); // <<< 블랙보드 초기화 추가
                         // TODO: 필요하다면 다른 상태(예: AP)도 초기화/업데이트
                     }
                     else // 저장된 상태가 없으면 새로 생성
@@ -892,7 +895,13 @@ namespace AF.Tests
             AttachWeaponFromSO(af, assemblyData.Weapon1ID);
             AttachWeaponFromSO(af, assemblyData.Weapon2ID);
 
-            //Log($"--- AF 생성 완료: [{af.Name}] ({assemblyId}) ---", LogLevel.System);
+            // +++ BT 할당 및 블랙보드 초기화 +++
+            if (af != null)
+            {
+                af.BehaviorTreeRoot = BasicAttackBT.Create(); 
+                af.AICtxBlackboard.ClearAllData(); 
+            }
+            // +++ BT 할당 및 블랙보드 초기화 끝 +++
 
             return af;
         }
@@ -962,6 +971,14 @@ namespace AF.Tests
             AttachCustomWeapon(af, setup.customWeaponR1);
             AttachCustomWeapon(af, setup.customWeaponL1);
 
+            // +++ BT 할당 및 블랙보드 초기화 +++
+            if (af != null)
+            {
+                af.BehaviorTreeRoot = BasicAttackBT.Create(); 
+                af.AICtxBlackboard.ClearAllData(); 
+            }
+            // +++ BT 할당 및 블랙보드 초기화 끝 +++
+
             Log($"--- 커스텀 AF 생성 완료: [{af.Name}] (팀: {af.TeamId}) ---", LogLevel.System);
 
             return af;
@@ -1022,7 +1039,8 @@ namespace AF.Tests
                      weaponSO.DamageType,
                      weaponSO.BaseDamage, 
                      weaponSO.Accuracy, 
-                     weaponSO.Range,
+                     weaponSO.MinRange, // MinRange 인자 추가
+                     weaponSO.Range, // Range는 MaxRange로 사용
                      weaponSO.AttackSpeed, 
                      weaponSO.OverheatPerShot,
                      weaponSO.BaseAPCost,
@@ -1030,7 +1048,7 @@ namespace AF.Tests
                      weaponSO.ReloadAPCost,
                      weaponSO.ReloadTurns,
                      weaponSO.AttackFlavorKey,
-                     weaponSO.ReloadFlavorKey 
+                     weaponSO.ReloadFlavorKey // ReloadFlavorKey 인자 추가
                  );
                 af.AttachWeapon(runtimeWeapon);
             } catch (Exception e) { Log($"커스텀 무기 생성/부착 오류 ({weaponSO.name}): {e.Message}", LogLevel.Error); }
@@ -1079,7 +1097,8 @@ namespace AF.Tests
                          weaponSO.DamageType,
                          weaponSO.BaseDamage, 
                          weaponSO.Accuracy, 
-                         weaponSO.Range,
+                         weaponSO.MinRange, // MinRange 인자 추가
+                         weaponSO.Range, // Range는 MaxRange로 사용
                          weaponSO.AttackSpeed, 
                          weaponSO.OverheatPerShot,
                          weaponSO.BaseAPCost,
@@ -1087,7 +1106,7 @@ namespace AF.Tests
                          weaponSO.ReloadAPCost,
                          weaponSO.ReloadTurns,
                          weaponSO.AttackFlavorKey,
-                         weaponSO.ReloadFlavorKey
+                         weaponSO.ReloadFlavorKey // ReloadFlavorKey 인자 추가
                      );
                     af.AttachWeapon(runtimeWeapon);
                 } catch (Exception e) { Debug.LogError($"Weapon instantiation/attach error for {weaponId}: {e.Message}"); }

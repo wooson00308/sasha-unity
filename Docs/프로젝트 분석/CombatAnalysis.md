@@ -30,6 +30,7 @@
         -   **수리 (아군/자가)**: 가장 손상된 파츠 탐색 -> 수리량 적용(`target.ApplyRepair`) -> `RepairAppliedEvent` 발행 -> `ActionCompletedEvent` 발행.
     -   **이벤트 발행**: 행동 시작(`ActionStartEvent`), 행동 완료(`ActionCompletedEvent`), 무기 발사(`WeaponFiredEvent`), 데미지/회피/파츠 파괴/수리 관련 이벤트 등을 적절한 시점에 발행합니다.
     -   **AP 소모**: 행동 성공 시 계산된 AP 비용만큼 소모(`actor.ConsumeAP`).
+-   **[추가] 행동 트리 연동 고려사항**: 행동 트리 기반 시스템에서는 `CombatActionExecutor`가 행동 노드(`AttackTargetNode`, `MoveToTargetNode` 등)의 실행 결과(`Success`, `Failure`)와 상태 변경(`ArmoredFrame`의 `IntendedMovePosition` 설정 등)을 해석하여 실제 게임 액션(공격 애니메이션, 경로 탐색 및 이동 실행, AP 소모)으로 변환하는 역할이 추가로 필요합니다. 이 부분은 향후 구현될 예정입니다.
 -   **특징**: 구체적인 전투 액션의 성공/실패 판정, 상태 변화 적용, 결과 이벤트 발행을 담당하는 핵심 로직입니다.
 
 ### 3. 텍스트 로깅 (`ITextLogger.cs`, `TextLogger.cs`, `TextLoggerService.cs`)
@@ -78,14 +79,13 @@
 -   **`PilotBehaviorStrategyBase.cs`**: 모든 전략 클래스의 기본 클래스 역할을 할 수 있는 추상 클래스입니다. 공통 상수(AP 비용, 거리 계수 등)와 유틸리티 메서드(AP 비용 계산, 체력 확인 등)를 제공합니다.
 -   **구체적인 전략 클래스들** (`MeleeCombatBehaviorStrategy`, `RangedCombatBehaviorStrategy`, `DefenseCombatBehaviorStrategy`, `SupportCombatBehaviorStrategy`, `StandardCombatBehaviorStrategy`):
     -   각각 파일럿의 특정 `SpecializationType`에 맞는 행동 로직을 구현합니다.
-    -   일반적으로 다음과 같은 우선순위에 따라 행동을 결정합니다:
-        1.  자신 또는 아군 상태 확인 (수리 필요 여부 - `Support`, `Standard` 등)
-        2.  재장전 필요 여부 확인
-        3.  가장 효과적인 공격(또는 현재 전략에 맞는 행동) 가능 여부 확인 (사거리, AP, 탄약 등)
-        4.  공격/행동이 불가능할 경우, 최적의 위치로 이동 가능 여부 확인 (적과의 거리 조절 등)
-        5.  이동도 불가능하거나 필요 없을 경우, 방어 가능 여부 확인
-        6.  모든 조건 불만족 시 행동 포기 (턴 종료)
-    -   각 전략은 자신의 전문화에 맞는 행동(예: 근접 공격, 원거리 공격, 수리, 방어)을 우선시하고, 이동 로직도 해당 전략에 맞게 구현됩니다 (예: 근접 유닛은 접근, 원거리 유닛은 거리 유지).
+    -   일반적으로 특정 우선순위에 따라 행동을 결정합니다 (예: 수리 -> 재장전 -> 공격 -> 이동 -> 방어 -> 대기).
+
+**[수정] 현재 리팩토링 진행 중:**
+-   기존 `IPilotBehaviorStrategy` 기반 시스템은 현재 **행동 트리(Behavior Tree)** 기반 시스템으로 점진적으로 리팩토링되고 있습니다 (`Assets/AF/Scripts/AI/BehaviorTree/`).
+-   새로운 시스템에서는 `BTNode`를 상속하는 다양한 조건 노드(`IsTargetInRangeNode`, `HasEnoughAPNode` 등)와 액션 노드(`AttackTargetNode`, `MoveToTargetNode`, `SelectTargetNode` 등)를 조합하여 파일럿의 행동 로직을 구성합니다.
+-   각 파일럿 타입이나 숙련도에 따라 다른 구조의 행동 트리를 할당하여 더 유연하고 복잡한 AI 행동 패턴을 구현하는 것을 목표로 합니다.
+-   이 리팩토링이 완료되면, `DetermineAction` 메서드는 해당 파일럿의 행동 트리를 실행(`Execute`)하는 방식으로 변경될 가능성이 높습니다.
 
 ## 이벤트 (`*Events.cs`, `ICombatEvent.cs`)
 

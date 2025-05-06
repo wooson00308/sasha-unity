@@ -14,7 +14,8 @@ namespace ExcelToSO.DataModels
         public string DamageType { get; private set; } // Enum 파싱 필요
         public float BaseDamage { get; private set; }
         public float Accuracy { get; private set; }
-        public float Range { get; private set; }
+        public float Range { get; private set; } // MaxRange로 사용될 예정
+        public float MinRange { get; private set; } // 새로 추가
         public float AttackSpeed { get; private set; }
         public float OverheatPerShot { get; private set; }
         public int AmmoCapacity { get; private set; }
@@ -34,17 +35,18 @@ namespace ExcelToSO.DataModels
             DamageType = row.GetCell(3)?.ToString() ?? ""; // TODO: Enum.Parse 필요
             BaseDamage = GetFloatValue(row, 4);
             Accuracy = GetFloatValue(row, 5);
-            Range = GetFloatValue(row, 6);
-            AttackSpeed = GetFloatValue(row, 7);
-            OverheatPerShot = GetFloatValue(row, 8);
-            AmmoCapacity = GetIntValue(row, 9);
-            BaseAPCost = GetFloatValue(row, 10);
-            ReloadAPCost = GetFloatValue(row, 11);
-            ReloadTurns = GetIntValue(row, 12);
-            SpecialEffects = row.GetCell(13)?.ToString() ?? "";
-            AttackFlavorKey = row.GetCell(14)?.ToString() ?? ""; // 14번 셀에서 읽기
-            ReloadFlavorKey = row.GetCell(15)?.ToString() ?? ""; // 15번 셀에서 읽기
-            Notes = row.GetCell(16)?.ToString() ?? ""; // Notes는 16번 셀로 이동
+            Range = GetFloatValue(row, 6); // 기존 Range는 MaxRange로 사용
+            MinRange = GetFloatValue(row, 7); // MinRange는 7번 셀에서 읽기 (새 컬럼 가정)
+            AttackSpeed = GetFloatValue(row, 8); // 이후 셀 인덱스 1씩 밀림
+            OverheatPerShot = GetFloatValue(row, 9);
+            AmmoCapacity = GetIntValue(row, 10);
+            BaseAPCost = GetFloatValue(row, 11);
+            ReloadAPCost = GetFloatValue(row, 12);
+            ReloadTurns = GetIntValue(row, 13);
+            SpecialEffects = row.GetCell(14)?.ToString() ?? "";
+            AttackFlavorKey = row.GetCell(15)?.ToString() ?? ""; // 15번 셀에서 읽기
+            ReloadFlavorKey = row.GetCell(16)?.ToString() ?? ""; // 16번 셀에서 읽기
+            Notes = row.GetCell(17)?.ToString() ?? ""; // Notes는 17번 셀로 이동
         }
 
         private float GetFloatValue(IRow row, int cellIndex, float defaultValue = 0f)

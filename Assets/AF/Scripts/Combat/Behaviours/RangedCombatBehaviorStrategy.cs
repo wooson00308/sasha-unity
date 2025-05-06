@@ -87,7 +87,7 @@ namespace AF.Combat.Behaviors
             if (fireWeapon != null && closestOperationalEnemy != null) 
             {
                 float attackCost = CalculateAttackAPCost(activeUnit, fireWeapon);
-                float weaponRange = fireWeapon.Range;
+                float weaponRange = fireWeapon.MaxRange;
                 // <<< 거리 조건 수정: 80% 이상이고 최대 사거리 내일 때 공격 >>>
                 bool isInAttackRange = minDist >= weaponRange * OPTIMAL_RANGE_FACTOR && minDist <= weaponRange + 0.001f;
                 bool hasAP = activeUnit.HasEnoughAP(attackCost);
@@ -107,11 +107,11 @@ namespace AF.Combat.Behaviors
             {
                 Weapon referenceWeapon = fireWeapon ?? activeUnit.GetAllWeapons()
                                                         .Where(w => w.Type != WeaponType.Melee && w.IsOperational)
-                                                        .OrderByDescending(w => w.Range).FirstOrDefault();
+                                                        .OrderByDescending(w => w.MaxRange).FirstOrDefault();
 
                 if (referenceWeapon != null)
                 {
-                    float weaponRange = referenceWeapon.Range;
+                    float weaponRange = referenceWeapon.MaxRange;
                     float closeThresholdDist = weaponRange * CLOSE_RANGE_THRESHOLD; // 60% 거리
                     float optimalDist = weaponRange * OPTIMAL_RANGE_FACTOR;      // 80% 거리
 

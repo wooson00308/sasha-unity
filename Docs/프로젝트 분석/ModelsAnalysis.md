@@ -13,22 +13,25 @@
     -   `_parts`: 장착된 파츠 목록 (`Dictionary<string, Part>`, 슬롯 식별자 키)
     -   `_pilot`: 기체를 조종하는 파일럿 (`Pilot` 객체)
     -   `_equippedWeapons`: 장착된 무기 목록 (`List<Weapon>`)
-    -   `_combinedStats`: 프레임, 모든 파츠, 파일럿의 스탯을 합산한 최종 스탯 (`Stats` 객체)
+    -   `_combinedStats`: 프레임, 모든 파츠, 파일럿의 스탯을 합산한 최종 스탯 (`Stats` 객체). **`CombinedStats.Durability`는 기체의 최대 총 내구도를 나타냅니다.**
     -   `_currentAP`: 현재 행동력 (Action Points)
     -   `_totalWeight`: 기체 총 무게 (프레임 + 모든 파츠)
     -   `_activeStatusEffects`: 현재 적용 중인 상태 효과 목록 (`List<StatusEffect>`)
-    -   `_isOperational`: 기체 작동 가능 여부 (주요 파츠 파괴 시 false)
+    -   `_isOperational`: 기체 작동 가능 여부 (주요 파츠 파괴 시 false). `IsDestroyed` 프로퍼티는 이 플래그를 통해 결정됩니다 (`public bool IsDestroyed => !_isOperational;`).
     -   `_position`, `_teamId`: 위치 및 소속 팀 정보
+    -   `CurrentTarget` (행동 트리용): 현재 AI가 목표로 삼고 있는 `ArmoredFrame`.
+    -   `IntendedMovePosition` (행동 트리용): 이동 노드가 설정하는 목표 이동 위치 (`Vector3?`).
 -   **주요 기능**:
     -   파츠 및 무기 장착/해제 (`AttachPart`, `DetachPart`, `AttachWeapon`, `DetachWeapon`)
     -   파일럿 할당 (`AssignPilot`)
-    -   스탯 재계산 (`RecalculateStats`): 프레임, 파츠, 파일럿 스탯 및 상태 효과에 따른 보너스를 합산하여 `_combinedStats` 업데이트
-    -   작동 상태 확인 (`CheckOperationalStatus`): 필수 파츠(예: 바디)의 상태에 따라 기체 작동 여부 판단
-    -   데미지 및 수리 적용 (`ApplyDamage`, `ApplyRepair`): 특정 파츠 슬롯에 데미지/수리 적용 및 결과 반환
+    -   스탯 재계산 (`RecalculateStats`): 프레임, 파츠, 파일럿 스탯 및 상태 효과에 따른 보너스를 합산하여 `_combinedStats` 업데이트.
+    -   작동 상태 확인 (`CheckOperationalStatus`): 필수 파츠(예: 바디)의 상태에 따라 `_isOperational` 플래그 업데이트.
+    -   데미지 및 수리 적용 (`ApplyDamage`, `ApplyRepair`): 특정 파츠 슬롯에 데미지/수리 적용 및 결과 반환. **이 메서드들은 파츠의 `CurrentDurability`만 변경하며, `ArmoredFrame` 레벨의 "현재 총 체력" 필드를 직접 업데이트하지는 않습니다.**
     -   AP 관리 (`RecoverAPOnTurnStart`, `ConsumeAP`, `HasEnoughAP`)
     -   상태 효과 관리 (`AddStatusEffect`, `RemoveStatusEffect`, `TickStatusEffects`)
+    -   **현재 총 체력 조회 (`GetCurrentAggregatedHP`)**: 현재 장착된 모든 파츠의 `CurrentDurability` 합계를 반환합니다. 행동 트리 노드(`IsHealthLowNode` 등)에서 현재 체력 비율을 계산하는 데 사용됩니다.
     -   상태 스냅샷 생성 (전투 로그용, `ArmoredFrameSnapshot` 구조체 사용)
--   **특징**: 기체의 모든 구성 요소와 상태를 관리하며, 관련 로직(스탯 계산, 데미지 처리 등)을 포함하는 중심적인 클래스입니다.
+-   **특징**: 기체의 모든 구성 요소와 상태를 관리하며, 관련 로직(스탯 계산, 데미지 처리 등)을 포함하는 중심적인 클래스입니다. **"현재 총 체력"을 직접 관리하는 필드는 없으며, 파츠별 내구도와 `GetCurrentAggregatedHP()` 메서드를 통해 간접적으로 관리됩니다.**
 
 ### 2. `Part.cs` (추상 클래스, `Models/Parts/` 하위에 구체 클래스 존재 예상)
 
@@ -82,11 +85,12 @@
 -   **역할**: AF에 장착 가능한 무기를 나타내는 클래스입니다.
 -   **주요 속성**:
     -   `_name`, `_type`, `_damageType`: 무기 이름, 타입(`WeaponType`), 데미지 타입(`DamageType`)
-    -   `_damage`, `_accuracy`, `_range`, `_attackSpeed`: 기본 데미지, 정확도, 사거리, 공격 속도
+    -   `_damage`, `_accuracy`, `_minRange`, `_maxRange`, `_attackSpeed`: 기본 데미지, 정확도, 최소 사거리, 최대 사거리, 공격 속도
     -   `_overheatPerShot`, `_currentHeat`: 발사 당 과열 증가량, 현재 과열도
     -   `_baseAPCost`: 기본 공격 AP 소모량
-    -   `_maxAmmo`, `_currentAmmo`: 최대/현재 탄약 수 (0 이하는 무한)
-    -   `_reloadAPCost`, `_reloadTurns`: 재장전 AP 소모량 및 필요 턴 수
+    -   `_maxAmmo`, `_currentAmmo`: 최대/현재 탄약 수 (`CurrentAmmo` 프로퍼티로 접근). 0 이하는 무한 탄약.
+    -   `_reloadAPCost`: 재장전 AP 소모량 (`ReloadAPCost` 프로퍼티로 접근).
+    -   `_reloadTurns`: 재장전 필요 턴 수
     -   `_isReloading`, `_reloadStartTurn`: 재장전 상태 및 시작 턴
     -   `_attackFlavorKey`, `_reloadFlavorKey`: 공격/재장전 시 사용할 Flavor Text 키
     -   `_isOperational`: 무기 작동 가능 여부
@@ -120,14 +124,14 @@
 ### 6. `Stats.cs`
 
 -   **역할**: AF, 파츠, 파일럿 등이 공유하는 기본 스탯 세트를 정의하는 클래스입니다.
--   **주요 속성**: `AttackPower`, `Defense`, `Speed`, `Accuracy`, `Evasion`, `Durability`, `EnergyEfficiency`, `MaxAP`, `APRecovery`
+-   **주요 속성**: `AttackPower`, `Defense`, `Speed`, `Accuracy`, `Evasion`, `Durability`, `EnergyEfficiency`, `MaxAP`, `APRecovery`. **`Durability`는 주로 최대 총 내구도(Max HP)의 개념으로 사용됩니다.**
 -   **주요 기능**:
     -   스탯 덧셈 (`operator+`)
     -   스탯 곱셈 (`operator*`, AP 관련 제외)
     -   스탯 수정 적용 (`ApplyModifier`: 덧셈 또는 곱셈 방식 지원)
     -   음수 스탯 방지
     -   문자열 변환 (`ToString`)
--   **특징**: 게임 내 대부분의 객체가 가질 수 있는 핵심 능력치를 구조화하고 관련 연산을 제공합니다.
+-   **특징**: 게임 내 대부분의 객체가 가질 수 있는 핵심 능력치를 구조화하고 관련 연산을 제공합니다. **현재 총 내구도(Current HP)는 이 클래스에서 직접 관리하지 않고, `ArmoredFrame` 레벨에서 파츠들의 `CurrentDurability`를 합산하여 계산합니다.**
 
 ## 보조 모델 및 열거형
 

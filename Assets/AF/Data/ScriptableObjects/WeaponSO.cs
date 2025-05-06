@@ -29,6 +29,7 @@ namespace AF.Data
         public float BaseDamage;
         public float Accuracy;
         public float Range;
+        public float MinRange;
         public float AttackSpeed;
         public float OverheatPerShot;
         public int AmmoCapacity;
@@ -98,6 +99,7 @@ namespace AF.Data
             BaseDamage = data.BaseDamage;
             Accuracy = data.Accuracy;
             Range = data.Range;
+            MinRange = data.MinRange;
             AttackSpeed = data.AttackSpeed;
             OverheatPerShot = data.OverheatPerShot;
             AmmoCapacity = data.AmmoCapacity;

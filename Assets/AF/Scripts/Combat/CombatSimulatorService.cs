@@ -4,7 +4,9 @@ using System.Linq;
 using AF.EventBus;
 using AF.Models;
 using AF.Services;
-using AF.Combat.Behaviors;  // 파일럿 전략
+// using AF.Combat.Behaviors;  // 기존 파일럿 전략 네임스페이스 주석 처리
+using AF.AI.BehaviorTree;      // 새로운 행동 트리 네임스페이스 추가
+using AF.AI.BehaviorTree.PilotBTs; // BasicAttackBT 사용을 위해 추가
 using UnityEngine;
 
 namespace AF.Combat
@@ -45,7 +47,7 @@ namespace AF.Combat
         private HashSet<ArmoredFrame>                 _movedThisActivation;
 
         // 파일럿 전문화 → 전략
-        private Dictionary<SpecializationType, IPilotBehaviorStrategy> _behaviorStrategies;
+        // private Dictionary<SpecializationType, IPilotBehaviorStrategy> _behaviorStrategies; // 주석 처리
 
         // ──────────────────────────────────────────────────────────────
         // 인터페이스 프로퍼티
@@ -71,7 +73,8 @@ namespace AF.Combat
             _statusProcessor = new StatusEffectProcessor();
             _resultEvaluator = new BattleResultEvaluator();
 
-            // 전략 매핑
+            // 전략 매핑 주석 처리
+            /*
             _behaviorStrategies = new Dictionary<SpecializationType, IPilotBehaviorStrategy>
             {
                 { SpecializationType.MeleeCombat,    new MeleeCombatBehaviorStrategy()    },
@@ -80,6 +83,7 @@ namespace AF.Combat
                 { SpecializationType.Support,        new SupportCombatBehaviorStrategy()  },
                 { SpecializationType.StandardCombat, new StandardCombatBehaviorStrategy() }
             };
+            */
 
             // 상태 초기화
             _participants      = new List<ArmoredFrame>();
@@ -118,14 +122,27 @@ namespace AF.Combat
             if (_isInCombat) EndCombat();
 
             _isInCombat       = true;
-            _currentTurn      = 0; // Start at turn 0 (will increment to 1 on first ProcessNextTurn)
-            _currentCycle     = 0; // Start at cycle 0
+            _currentTurn      = 0; 
+            _currentCycle     = 0; 
             _battleName       = battleName;
             _currentBattleId  = $"BATTLE_{DateTime.Now:yyyyMMdd_HHmmss}_{UnityEngine.Random.Range(1000,9999)}";
             _combatStartTime  = Time.time;
 
             _participants     = participants.ToList();
             AssignTeams(participants);
+
+            // +++ 각 참가자에게 행동 트리 할당 +++
+            foreach (var unit in _participants)
+            {
+                if (unit != null)
+                {
+                    // 기본적으로 BasicAttackBT를 할당. 추후 파일럿 특성 등에 따라 다른 BT 할당 가능
+                    unit.BehaviorTreeRoot = BasicAttackBT.Create();
+                    unit.AICtxBlackboard.ClearAllData(); // 새 전투 시작 시 블랙보드 초기화
+                }
+            }
+            // +++ 행동 트리 할당 끝 +++
+
             _defendedThisTurn.Clear();
             _actedThisCycle.Clear();
             _movedThisActivation.Clear();
@@ -189,103 +206,103 @@ namespace AF.Combat
             if (_currentActiveUnit != null)
             {
                 _eventBus.Publish(new CombatSessionEvents.UnitActivationEndEvent(
-                    _currentTurn, _currentCycle, _currentActiveUnit, _currentBattleId)); // Pass turn and cycle
+                    _currentTurn, _currentCycle, _currentActiveUnit, _currentBattleId));
             }
 
             var activeParticipants = _participants.Where(p => p.IsOperational).ToList();
-            bool isNewTurn = _actedThisCycle.SetEquals(activeParticipants); // Check if all active units have acted this turn
+            bool isNewTurn = _actedThisCycle.SetEquals(activeParticipants);
 
-            // --- Start New Turn Logic ---
-            if (isNewTurn || _currentTurn == 0) // If it's a new turn or the very first turn
+            if (isNewTurn || _currentTurn == 0) 
             {
-                if (_currentTurn > 0) // Publish RoundEnd only after the first turn
+                if (_currentTurn > 0) 
                 {
-                    _eventBus.Publish(new CombatSessionEvents.RoundEndEvent(_currentTurn, _currentBattleId)); // Use _currentTurn
+                    _eventBus.Publish(new CombatSessionEvents.RoundEndEvent(_currentTurn, _currentBattleId));
                 }
-
-                _currentTurn++;        // Increment the overall turn number
-                _currentCycle = 0;     // Reset the activation cycle counter for the new turn
-                _actedThisCycle.Clear(); // Clear the set of units that have acted
+                _currentTurn++;
+                _currentCycle = 0;
+                _actedThisCycle.Clear();
                 _defendedThisTurn.Clear(); // Clear defense status for the new turn
-                _movedThisActivation.Clear();
+                // _movedThisActivation.Clear(); // Cleared below before new unit activation
 
-                List<ArmoredFrame> initiativeSequence = activeParticipants; // Use current active participants for initiative
-
+                List<ArmoredFrame> initiativeSequence = activeParticipants; 
                 _eventBus.Publish(new CombatSessionEvents.RoundStartEvent(
-                    _currentTurn, _currentBattleId, initiativeSequence)); // Use _currentTurn
+                    _currentTurn, _currentBattleId, initiativeSequence));
             }
-            // --- End New Turn Logic ---
 
-            // --- Activate Next Unit ---
-            _currentActiveUnit = GetNextActiveUnit(); // Find the next unit yet to act this turn
-
-            // +++ Clear movement set for the new activation +++
+            _currentActiveUnit = GetNextActiveUnit();
             _movedThisActivation.Clear(); 
-            // +++ Clear movement set end +++
 
-            if (_currentActiveUnit == null) // Should only happen if battle ends or an error occurs
+            if (_currentActiveUnit == null) 
             {
-                // If GetNextActiveUnit is null but it wasn't the start of a new turn, something is wrong
                 if (!isNewTurn)
                 {
                      Debug.LogWarning($"ProcessNextTurn: GetNextActiveUnit returned null unexpectedly. Turn: {_currentTurn}, Acted: {_actedThisCycle.Count}, Active: {activeParticipants.Count}");
                 }
-                CheckBattleEndCondition(); // Check end condition regardless
-                return !_isInCombat;       // Return false if combat has ended
+                CheckBattleEndCondition(); 
+                return !_isInCombat;       
             }
 
-            // Increment the cycle counter for this unit's activation
             _currentCycle++;
-
-            // +++ AP 회복 전 값 저장 및 회복 호출 +++
             float apBeforeRecovery = _currentActiveUnit.CurrentAP;
-            _currentActiveUnit.RecoverAPOnTurnStart(); // Recover AP 
-            // +++ AP 회복 로직 끝 +++
-
-            // Publish start event for the NEWLY active unit's cycle
+            _currentActiveUnit.RecoverAPOnTurnStart();
             _eventBus.Publish(new CombatSessionEvents.UnitActivationStartEvent(
-                 _currentTurn, _currentCycle, _currentActiveUnit, _currentBattleId, apBeforeRecovery)); // <<< Pass apBeforeRecovery
+                 _currentTurn, _currentCycle, _currentActiveUnit, _currentBattleId, apBeforeRecovery));
 
-            // --- Process Active Unit's Cycle ---
-
-            // Check and complete reload for the activated unit at the start of its cycle
             foreach (var w in _currentActiveUnit.GetAllWeapons())
             {
-                if (w.IsReloading)
-                {
-                    // CheckReloadCompletion now also handles FinishReload if completed
-                    w.CheckReloadCompletion(_currentTurn); // Pass the current overall turn number
-                }
+                if (w.IsReloading) { w.CheckReloadCompletion(_currentTurn); }
             }
+            _statusProcessor.Tick(MakeCtx(), _currentActiveUnit);
 
-            _statusProcessor.Tick(MakeCtx(), _currentActiveUnit); // Apply status effect ticks
+            // --- 행동 트리 실행 로직 시작 ---
+            _currentActiveUnit.AICtxBlackboard.ClearAllData(); // 각 유닛 활성화 시작 시 블랙보드 초기화
 
-            // Determine and execute actions for the unit
-            int actions=0, maxActions=30; // Safety break for action loop
-            while (_currentActiveUnit.IsOperational && actions<maxActions)
+            NodeStatus btStatus = NodeStatus.Failure; // BT 실행 결과 기본값
+            if (_currentActiveUnit.BehaviorTreeRoot != null)
             {
-                var (act,tp,pos,wep) = DetermineActionForUnit(_currentActiveUnit);
-                if (act==default) // No action determined
-                {
-                    _textLogger?.TextLogger?.Log($"[{_currentActiveUnit.Name}] 추가 행동 프로토콜 없음. 시스템 대기 상태로 전환.", LogLevel.Info);
-                    break;
-                }
-
-                // Execute the action
-                bool ok = _actionExecutor.Execute(
-                    MakeCtx(), _currentActiveUnit, act, tp, pos, wep);
-
-                actions++;
-                // Break conditions for the action loop
-                if (!ok || !_currentActiveUnit.IsOperational) break; // Stop if action failed or unit became non-operational
+                // 한 유닛의 활성화 동안 BT는 여러 번 Tick 될 수 있음 (예: AP가 다 떨어질 때까지)
+                // 여기서는 일단 한 번의 Tick으로 행동을 결정한다고 가정.
+                // 반복 실행 로직은 추후 개선 가능 (예: while 루프와 BT_RUNNING 상태 활용)
+                btStatus = _currentActiveUnit.BehaviorTreeRoot.Tick(_currentActiveUnit, _currentActiveUnit.AICtxBlackboard, MakeCtx());
+            }
+            else
+            {
+                _textLogger?.TextLogger?.Log($"[{_currentActiveUnit.Name}]에게 할당된 행동 트리가 없습니다. 대기합니다.", LogLevel.Warning);
             }
 
-            _actedThisCycle.Add(_currentActiveUnit); // Mark this unit as having acted this turn
+            var decidedActionType = _currentActiveUnit.AICtxBlackboard.DecidedActionType;
+            if (decidedActionType.HasValue)
+            {
+                var targetFrame = _currentActiveUnit.AICtxBlackboard.CurrentTarget;
+                var targetPosition = _currentActiveUnit.AICtxBlackboard.IntendedMovePosition;
+                var selectedWeapon = _currentActiveUnit.AICtxBlackboard.SelectedWeapon;
 
-            // --- End Cycle Processing ---
+                bool actionSuccess = _actionExecutor.Execute(
+                    MakeCtx(), 
+                    _currentActiveUnit, 
+                    decidedActionType.Value, 
+                    targetFrame, 
+                    targetPosition, 
+                    selectedWeapon);
 
-            CheckBattleEndCondition(); // Check if the battle ended after this cycle
-            return _isInCombat;        // Return true if combat is still ongoing
+                if (!actionSuccess)
+                {
+                    _textLogger?.TextLogger?.Log($"[{_currentActiveUnit.Name}]의 행동 {decidedActionType.Value} 실행 실패.", LogLevel.Warning);
+                    // 행동 실패 시 추가적인 BT Tick 또는 다른 로직 고려 가능
+                }
+                // 성공하든 실패하든, 일단 행동을 시도했으므로 루프를 빠져나감 (이전 로직과 유사하게)
+            }
+            else if (btStatus == NodeStatus.Failure || _currentActiveUnit.BehaviorTreeRoot == null)
+            {
+                _textLogger?.TextLogger?.Log($"[{_currentActiveUnit.Name}]이(가) 행동을 결정하지 못하고 대기합니다. (BT Status: {btStatus})", LogLevel.Info);
+                // 명시적인 '대기' 액션 실행은 선택 사항. CombatActionExecutor.Execute에 Wait 타입 추가 필요 시.
+                // _actionExecutor.Execute(MakeCtx(), _currentActiveUnit, CombatActionEvents.ActionType.Wait, null, null, null);
+            }
+            // --- 행동 트리 실행 로직 끝 ---
+            
+            _actedThisCycle.Add(_currentActiveUnit);
+            CheckBattleEndCondition();
+            return _isInCombat;
         }
 
         // ──────────────────────────────────────────────────────────────
@@ -339,7 +356,7 @@ namespace AF.Combat
         // 내부 헬퍼
         // ──────────────────────────────────────────────────────────────
         private CombatContext MakeCtx() => new CombatContext(
-            _eventBus, _textLogger, _currentBattleId, _currentTurn, _currentCycle, // Pass _currentTurn and _currentCycle
+            _eventBus, _textLogger, _currentBattleId, _currentTurn, _currentCycle,
             _defendedThisTurn, _participants, _teamAssignments, _movedThisActivation);
 
         private void AssignTeams(IEnumerable<ArmoredFrame> parts)
@@ -353,31 +370,16 @@ namespace AF.Combat
             var operationalUnits = _participants.Where(p => p.IsOperational).ToList();
             if (!operationalUnits.Any()) return null;
 
-            // Find the index of the current unit to start the search from
             int startIndex = _currentActiveUnit != null ? operationalUnits.IndexOf(_currentActiveUnit) : -1;
-
-            // Iterate through units in sequence, wrapping around
             for (int i = 1; i <= operationalUnits.Count; i++)
             {
                 var nextUnit = operationalUnits[(startIndex + i) % operationalUnits.Count];
-                // Return the first unit found that hasn't acted yet in this turn
                 if (!_actedThisCycle.Contains(nextUnit))
                 {
                     return nextUnit;
                 }
             }
-
-            // If all operational units have acted, return null
             return null;
-        }
-
-        private (CombatActionEvents.ActionType,ArmoredFrame,Vector3?,Weapon)
-            DetermineActionForUnit(ArmoredFrame unit)
-        {
-            var spec = unit.Pilot?.Specialization ?? SpecializationType.StandardCombat;
-            if (!_behaviorStrategies.TryGetValue(spec,out var strat))
-                strat = _behaviorStrategies[SpecializationType.StandardCombat];
-            return strat.DetermineAction(unit, this);
         }
 
         private void CheckBattleEndCondition()

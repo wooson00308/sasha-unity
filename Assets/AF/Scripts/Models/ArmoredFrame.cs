@@ -5,6 +5,7 @@ using AF.EventBus; // 이벤트 버스 사용 가정
 using AF.Services; // 서비스 로케이터 사용 가정
 using AF.Combat; // 네임스페이스 추가
 using UnityEngine;
+using AF.AI.BehaviorTree; // <<< 행동 트리 네임스페이스 추가
 
 namespace AF.Models
 {
@@ -78,11 +79,28 @@ namespace AF.Models
         // 이벤트 버스 (생성자나 메서드에서 주입받거나 서비스 로케이터로 가져옴)
         private EventBus.EventBus _eventBus;
 
+        // AI Behavior Tree를 위한 현재 타겟
+        public ArmoredFrame CurrentTarget { get; set; }
+
+        // +++ 행동 트리 및 블랙보드 참조 +++
+        public BTNode BehaviorTreeRoot { get; set; } // BTNode 정의 후 주석 해제. AF.AI.BehaviorTree.BTNode로 사용 예정
+        public Blackboard AICtxBlackboard { get; private set; }
+        // +++ 행동 트리 및 블랙보드 참조 끝 +++
+
+        /// <summary>
+        /// 기체가 파괴되었는지 여부를 반환합니다.
+        /// </summary>
+        public bool IsDestroyed => !_isOperational;
+
+        /// <summary>
+        /// 기체의 현재 위치입니다.
+        /// </summary>
+        public Vector3 Position => _position;
+
         // 공개 프로퍼티
         public string Name => _name;
         public Frame FrameBase => _frameBase;
         public Pilot Pilot => _pilot;
-        public Vector3 Position { get => _position; set => _position = value; }
         public int TeamId => _teamId;
         public IReadOnlyDictionary<string, Part> Parts => _parts;
         public IReadOnlyList<Weapon> EquippedWeapons => _equippedWeapons.AsReadOnly();
@@ -91,6 +109,7 @@ namespace AF.Models
         public IReadOnlyList<StatusEffect> ActiveStatusEffects => _activeStatusEffects.AsReadOnly();
         public float CurrentAP => _currentAP;
         public float TotalWeight => _totalWeight;
+        public Vector3? IntendedMovePosition { get; set; }
 
         /// <summary>
         /// 생성자
@@ -101,6 +120,10 @@ namespace AF.Models
             _frameBase = frameBase ?? throw new ArgumentNullException(nameof(frameBase));
             _position = initialPosition;
             _teamId = teamId;
+
+            // +++ 블랙보드 초기화 +++
+            AICtxBlackboard = new Blackboard();
+            // +++ 블랙보드 초기화 끝 +++
 
             // 이벤트 버스 인스턴스 가져오기 (서비스 로케이터 사용 예시)
             if (ServiceLocator.Instance != null && ServiceLocator.Instance.HasService<EventBusService>())
@@ -681,5 +704,51 @@ namespace AF.Models
         // TODO: 수리 메서드 (Repair)도 슬롯 기반으로 수정 필요
         // public void RepairPart(string slotIdentifier, float amount) { ... } // ApplyRepair로 대체 가능
         // public void RepairAllParts(float amount) { ... } // 필요하다면 구현
+
+        /// <summary>
+        /// 기체의 위치를 설정합니다. (CombatTestRunner 등 외부 설정용)
+        /// </summary>
+        public void SetPosition(Vector3 newPosition)
+        {
+            _position = newPosition;
+        }
+
+        public void EndTurn()
+        {
+            // 현재 턴 종료 로직 (예: AP 초기화 등)
+        }
+
+        public Weapon GetPrimaryWeapon()
+        {
+            if (EquippedWeapons == null || EquippedWeapons.Count == 0)
+            {
+                return null;
+            }
+
+            // Return the first operational weapon found in the list.
+            // More sophisticated logic (e.g., designated primary slot, highest damage) could be added later.
+            return EquippedWeapons.FirstOrDefault(weapon => weapon != null && weapon.IsOperational);
+        }
+
+        /// <summary>
+        /// 현재 장착된 모든 파츠의 현재 내구도 총합을 반환합니다.
+        /// </summary>
+        /// <returns>모든 파츠의 현재 내구도 합계</returns>
+        public float GetCurrentAggregatedHP()
+        {
+            float currentHP = 0f;
+            if (_parts != null) // _parts는 Dictionary<string, Part>
+            {
+                foreach (var partKvp in _parts)
+                {
+                    Part part = partKvp.Value;
+                    if (part != null)
+                    {
+                        currentHP += part.CurrentDurability;
+                    }
+                }
+            }
+            return currentHP;
+        }
     }
 } 

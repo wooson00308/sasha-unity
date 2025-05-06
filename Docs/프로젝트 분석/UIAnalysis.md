@@ -6,15 +6,13 @@
 
 ### 1. `CombatTextUIService.cs`
 
--   **역할**: 전투 중 발생하는 다양한 이벤트(공격, 피격, 회피, 상태 이상, 파괴 등)에 대한 텍스트 로그를 화면에 표시하는 서비스입니다.
+-   **역할**: 전투 중 발생하는 다양한 이벤트(공격, 피격, 회피, 상태 이상, 파괴 등)에 대한 텍스트 로그를 화면에 표시하는 서비스입니다. **전투 종료 시 로그 데이터를 처리하여 한 번에 애니메이션으로 보여주는 방식으로 작동합니다.**
 -   **주요 기능**:
     -   `EventBus`를 통해 전투 관련 이벤트들(`CombatActionEvent`, `DamageDealtEvent`, `EvasionEvent`, `StatusEffectAppliedEvent`, `PartDestroyedEvent`, `ArmoredFrameDestroyedEvent` 등)을 구독합니다.
-    -   구독한 이벤트가 발생하면, 해당 이벤트 정보를 바탕으로 `FlavorTextSO`를 참조하여 적절한 로그 메시지 템플릿을 가져옵니다.
-    -   템플릿 내의 플레이스홀더 (`{AttackerName}`, `{TargetName}`, `{DamageAmount}`, `{PartName}` 등)를 실제 이벤트 데이터로 채워서 최종 로그 문자열을 생성합니다.
-    -   생성된 로그 문자열을 연결된 UI Text 요소(아마도 TextMeshPro)에 추가하여 화면에 표시합니다. 로그가 너무 길어지면 오래된 로그를 제거하는 로직을 포함할 수 있습니다.
-    -   스크롤 가능한 UI 영역과 연동되어 로그를 위아래로 살펴볼 수 있는 기능을 제공할 수 있습니다.
--   **의존성**: `EventBusService`, `IService`, `FlavorTextSO` 에셋, Unity UI (TextMeshPro 가능성 높음).
--   **비고**: 전투 상황을 텍스트로 상세히 전달하여 플레이어가 전투 흐름을 이해하는 데 중요한 역할을 합니다.
+    -   **로그 처리 및 재생**: 전투 종료(`CombatEndEvent`) 시, `TextLoggerService`로부터 전체 로그(`List<LogEntry>`)를 가져옵니다. 각 로그 항목을 순회하며 상태 스냅샷과 델타 정보를 사용하여 특정 시점의 게임 상태를 복원(`UpdateSnapshotWithDelta`)하고, 이를 바탕으로 유닛 상세 정보 UI(`_unitDetailTextDisplay` 등)를 업데이트합니다. 로그 메시지는 `FlavorTextSO`를 참조하여 가공된 후, UI 텍스트 요소(`_logLinePrefab` 인스턴스)에 타이핑 애니메이션 효과와 함께 순차적으로 표시됩니다.
+    -   **상세 정보 표시**: 로그 재생 중, 특정 시점의 전체 유닛 상태 스냅샷(`ArmoredFrameSnapshot`)을 사용하여 `_unitDetailTextDisplay`에 모든 유닛의 정보를 표시합니다. 또한 이벤트 대상(`_eventTargetDetailTextDisplay`)이나 피격 대상(`_damageTargetDetailTextDisplay`)의 스냅샷 정보를 별도로 표시하여 특정 유닛의 상태 변화를 강조합니다. **이때 표시되는 유닛의 내구도(DUR)는 스냅샷에 저장된 `CurrentTotalDurability`(모든 파츠의 현재 내구도 합계)와 `MaxTotalDurability`(모든 파츠의 최대 내구도 합계) 값을 사용합니다.**
+-   **의존성**: `EventBusService`, `TextLoggerService`, `IService`, `FlavorTextSO` 에셋, Unity UI (TextMeshPro, ScrollRect, Prefab 등), DG.Tweening.
+-   **비고**: 전투 상황을 텍스트 로그 애니메이션과 함께 상세히 전달하여 플레이어가 전투 흐름을 이해하고 분석하는 데 중요한 역할을 합니다.
 
 ### 2. `CombatRadarUIService.cs`
 

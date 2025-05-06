@@ -40,7 +40,12 @@ namespace AF.Models
         /// <summary>
         /// 사거리 (유닛 단위)
         /// </summary>
-        [SerializeField] private float _range;
+        [SerializeField] private float _maxRange;
+
+        /// <summary>
+        /// 사거리 (유닛 단위)
+        /// </summary>
+        [SerializeField] private float _minRange;
 
         /// <summary>
         /// 공격 속도 (초당 공격 횟수)
@@ -118,7 +123,8 @@ namespace AF.Models
         public DamageType DamageType => _damageType;
         public float Damage => _damage;
         public float Accuracy => _accuracy;
-        public float Range => _range;
+        public float MaxRange => _maxRange;
+        public float MinRange => _minRange;
         public float AttackSpeed => _attackSpeed;
         public float BaseAPCost => _baseAPCost;
         public float CurrentHeat => _currentHeat;
@@ -133,91 +139,9 @@ namespace AF.Models
         public bool IsReloading => _isReloading;
 
         /// <summary>
-        /// 기본 생성자
-        /// </summary>
-        public Weapon()
-        {
-            _name = "Default Weapon";
-            _type = WeaponType.MidRange;
-            _damageType = DamageType.Physical;
-            _damage = 10.0f;
-            _accuracy = 0.7f;
-            _range = 5.0f;
-            _attackSpeed = 1.0f;
-            _overheatPerShot = 0.1f;
-            _baseAPCost = 2.0f; // 기본값 명시
-
-            // <<< 탄약 시스템 초기화 추가 >>>
-            _maxAmmo = 0; // 기본 무한 탄약
-            _currentAmmo = _maxAmmo > 0 ? _maxAmmo : 999; // 무한 탄약 시 큰 값 할당 (내부 로직 단순화 위해)
-            _reloadAPCost = 1.5f;
-            _reloadTurns = 0;
-            _isReloading = false;
-            _reloadStartTurn = -1;
-            // <<< 탄약 시스템 초기화 추가 끝 >>>
-
-            _currentHeat = 0.0f;
-            _specialEffects = new List<string>();
-            _isOperational = true;
-        }
-
-        /// <summary>
-        /// 상세 정보를 지정하는 생성자
-        /// </summary>
-        public Weapon(string name, WeaponType type, DamageType damageType, float damage, float accuracy, float range, float attackSpeed, float overheatPerShot)
-        {
-            _name = name;
-            _type = type;
-            _damageType = damageType;
-            _damage = damage;
-            _accuracy = Mathf.Clamp01(accuracy);
-            _range = Mathf.Max(1.0f, range);
-            _attackSpeed = Mathf.Max(0.1f, attackSpeed);
-            _overheatPerShot = Mathf.Max(0.0f, overheatPerShot);
-            // <<< 탄약 시스템 초기화 (기본값 사용) >>>
-            _maxAmmo = 0;
-            _currentAmmo = 999;
-            _reloadAPCost = 1.5f;
-            _reloadTurns = 0;
-            _isReloading = false;
-            _reloadStartTurn = -1;
-            // <<< 탄약 시스템 초기화 끝 >>>
-            _currentHeat = 0.0f;
-            _specialEffects = new List<string>();
-            _isOperational = true;
-        }
-
-        /// <summary>
-        /// 상세 정보를 지정하는 생성자
-        /// </summary>
-        public Weapon(string name, WeaponType type, DamageType damageType, float damage, float accuracy, float range, float attackSpeed, float overheatPerShot, float baseAPCost)
-        {
-            _name = name;
-            _type = type;
-            _damageType = damageType;
-            _damage = damage;
-            _accuracy = Mathf.Clamp01(accuracy);
-            _range = Mathf.Max(1.0f, range);
-            _attackSpeed = Mathf.Max(0.1f, attackSpeed);
-            _overheatPerShot = Mathf.Max(0.0f, overheatPerShot);
-            _baseAPCost = Mathf.Max(0.1f, baseAPCost); // 최소 AP 소모량 제한
-            // <<< 탄약 시스템 초기화 (기본값 사용) >>>
-            _maxAmmo = 0;
-            _currentAmmo = 999;
-            _reloadAPCost = 1.5f;
-            _reloadTurns = 0;
-            _isReloading = false;
-            _reloadStartTurn = -1;
-            // <<< 탄약 시스템 초기화 끝 >>>
-            _currentHeat = 0.0f;
-            _specialEffects = new List<string>();
-            _isOperational = true;
-        }
-
-        /// <summary>
         /// 상세 정보를 지정하는 생성자 (탄약/재장전/FlavorKey 포함)
         /// </summary>
-        public Weapon(string name, WeaponType type, DamageType damageType, float damage, float accuracy, float range, float attackSpeed, float overheatPerShot, float baseAPCost,
+        public Weapon(string name, WeaponType type, DamageType damageType, float damage, float accuracy, float minRange, float maxRange, float attackSpeed, float overheatPerShot, float baseAPCost,
                       int maxAmmo, float reloadAPCost, int reloadTurns,
                       string attackFlavorKey, string reloadFlavorKey) // FlavorKey 파라미터 추가
         {
@@ -226,7 +150,8 @@ namespace AF.Models
             _damageType = damageType;
             _damage = damage;
             _accuracy = Mathf.Clamp01(accuracy);
-            _range = Mathf.Max(1.0f, range);
+            _minRange = Mathf.Max(0f, minRange);
+            _maxRange = Mathf.Max(_minRange, maxRange);
             _attackSpeed = Mathf.Max(0.1f, attackSpeed);
             _overheatPerShot = Mathf.Max(0.0f, overheatPerShot);
             _baseAPCost = Mathf.Max(0.1f, baseAPCost);
@@ -267,7 +192,8 @@ namespace AF.Models
             _damageType = weaponSO.DamageType;
             _damage = weaponSO.BaseDamage;
             _accuracy = weaponSO.Accuracy;
-            _range = weaponSO.Range;
+            _minRange = Mathf.Max(0f, weaponSO.MinRange);
+            _maxRange = Mathf.Max(_minRange, weaponSO.Range);
             _attackSpeed = weaponSO.AttackSpeed;
             _overheatPerShot = weaponSO.OverheatPerShot;
             _baseAPCost = weaponSO.BaseAPCost;
@@ -284,81 +210,6 @@ namespace AF.Models
             _reloadStartTurn = -1;
             _currentHeat = 0.0f;
             _isOperational = true; 
-        }
-
-        /// <summary>
-        /// 무기를 발사합니다.
-        /// </summary>
-        /// <returns>과열로 인한 발사 실패시 false, 성공시 true</returns>
-        public bool Fire()
-        {
-            if (!_isOperational)
-                return false;
-
-            // 과열 체크
-            if (_currentHeat >= 1.0f)
-                return false;
-
-            // 과열도 증가
-            _currentHeat += _overheatPerShot;
-            if (_currentHeat > 1.0f)
-                _currentHeat = 1.0f;
-
-            return true;
-        }
-
-        /// <summary>
-        /// 무기의 과열도를 냉각합니다.
-        /// </summary>
-        /// <param name="cooldownAmount">냉각량</param>
-        public void Cooldown(float cooldownAmount)
-        {
-            _currentHeat = Mathf.Max(0.0f, _currentHeat - cooldownAmount);
-        }
-
-        /// <summary>
-        /// 특수 효과를 추가합니다.
-        /// </summary>
-        public void AddSpecialEffect(string effect)
-        {
-            if (!_specialEffects.Contains(effect))
-            {
-                _specialEffects.Add(effect);
-            }
-        }
-
-        /// <summary>
-        /// 무기를 수리합니다.
-        /// </summary>
-        public void Repair()
-        {
-            _isOperational = true;
-            _currentHeat = 0.0f;
-        }
-
-        /// <summary>
-        /// 무기를 손상시킵니다.
-        /// </summary>
-        public void DamageWeapon()
-        {
-            _isOperational = false;
-        }
-
-        /// <summary>
-        /// 실제 데미지를 계산합니다. (명중률 고려)
-        /// </summary>
-        /// <returns>명중 시 데미지 값, 빗나갈 경우 0</returns>
-        public float CalculateDamage(float attackerAccuracyMod, float targetEvasionMod)
-        {
-            // 실제 명중률 계산 (무기 정확도 + 공격자 정확도 보정 - 타겟 회피 보정)
-            float finalAccuracy = Mathf.Clamp01(_accuracy + attackerAccuracyMod - targetEvasionMod);
-            
-            // 명중 여부 판정
-            if (UnityEngine.Random.value <= finalAccuracy)
-            {
-                return _damage;
-            }
-            return 0.0f; // 빗나감
         }
 
         /// <summary>
@@ -590,7 +441,8 @@ namespace AF.Models
                 this._damageType,
                 this._damage,
                 this._accuracy,
-                this._range,
+                this._minRange,
+                this._maxRange,
                 this._attackSpeed,
                 this._overheatPerShot,
                 this._baseAPCost,
