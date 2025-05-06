@@ -271,7 +271,10 @@ namespace AF.Combat
             }
 
             var decidedActionType = _currentActiveUnit.AICtxBlackboard.DecidedActionType;
-            if (decidedActionType.HasValue)
+
+            // ActionType.None도 유효한 값으로 취급될 수 있으므로, null 체크와 함께 decidedActionType.Value == ActionType.None 인 경우도 고려해야 함.
+            // 하지만 현재 WaitNode는 DecidedActionType을 null로 남기므로, HasValue로만 체크해도 의도대로 동작할 것.
+            if (decidedActionType.HasValue && decidedActionType.Value != CombatActionEvents.ActionType.None)
             {
                 var targetFrame = _currentActiveUnit.AICtxBlackboard.CurrentTarget;
                 var targetPosition = _currentActiveUnit.AICtxBlackboard.IntendedMovePosition;
@@ -292,11 +295,20 @@ namespace AF.Combat
                 }
                 // 성공하든 실패하든, 일단 행동을 시도했으므로 루프를 빠져나감 (이전 로직과 유사하게)
             }
-            else if (btStatus == NodeStatus.Failure || _currentActiveUnit.BehaviorTreeRoot == null)
+            else // decidedActionType이 null이거나 ActionType.None인 경우
             {
-                _textLogger?.TextLogger?.Log($"[{_currentActiveUnit.Name}]이(가) 행동을 결정하지 못하고 대기합니다. (BT Status: {btStatus})", LogLevel.Info);
-                // 명시적인 '대기' 액션 실행은 선택 사항. CombatActionExecutor.Execute에 Wait 타입 추가 필요 시.
-                // _actionExecutor.Execute(MakeCtx(), _currentActiveUnit, CombatActionEvents.ActionType.Wait, null, null, null);
+                if (btStatus == NodeStatus.Success) // BT는 성공했으나, 결정된 행동이 없거나 'None'인 경우 (예: WaitNode)
+                {
+                    _textLogger?.TextLogger?.Log($"[{_currentActiveUnit.Name}]이(가) 명시적으로 대기합니다. (BT Status: {btStatus}, DecidedAction: {decidedActionType?.ToString() ?? "null"})", LogLevel.Info);
+                    // 여기에 실제 'Wait' 액션 실행 로직을 넣거나 AP 소모 등을 처리할 수 있음.
+                    // 예를 들어, _actionExecutor.Execute(MakeCtx(), _currentActiveUnit, CombatActionEvents.ActionType.None, null, null, null);
+                    // 만약 ActionType.None을 Executor가 처리한다면. 현재는 그럴 필요 없어 보임.
+                }
+                else if (btStatus == NodeStatus.Failure || _currentActiveUnit.BehaviorTreeRoot == null) // BT 자체가 실패한 경우
+                {
+                    _textLogger?.TextLogger?.Log($"[{_currentActiveUnit.Name}]이(가) 행동을 결정하지 못하고 대기합니다. (BT Status: {btStatus})", LogLevel.Info);
+                }
+                // btStatus가 Running인 경우는 현재 로직에서 특별히 처리하지 않음.
             }
             // --- 행동 트리 실행 로직 끝 ---
             

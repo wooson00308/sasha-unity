@@ -1,6 +1,7 @@
 using AF.Combat;
 using AF.Models;
 using UnityEngine; // Debug.Log 용
+using AF.Services;
 
 namespace AF.AI.BehaviorTree
 {
@@ -23,17 +24,16 @@ namespace AF.AI.BehaviorTree
 
         public override NodeStatus Tick(ArmoredFrame agent, Blackboard blackboard, CombatContext context)
         {
-            // ArmoredFrame에 CurrentAP 프로퍼티와 HasEnoughAP 메서드가 있다고 가정
-            if (agent.HasEnoughAP(requiredAP))
-            {
-                // Debug.Log($"[{this.GetType().Name}] {agent.name}: Has enough AP ({agent.CurrentAP} >= {requiredAP}). Success.");
-                return NodeStatus.Success;
-            }
-            else
-            {
-                // Debug.Log($"[{this.GetType().Name}] {agent.name}: Not enough AP ({agent.CurrentAP} < {requiredAP}). Failure.");
-                return NodeStatus.Failure;
-            }
+            bool hasEnough = agent.HasEnoughAP(requiredAP);
+
+            var logger = ServiceLocator.Instance?.GetService<TextLoggerService>()?.TextLogger; // AF.Services 네임스페이스 필요
+            logger?.Log(
+                $"[{GetType().Name}] {agent.Name}: RequiredAP={requiredAP:F1}, CurrentAP={agent.CurrentAP:F1}, HasEnough={hasEnough}. " +
+                $"Result: {(hasEnough ? NodeStatus.Success : NodeStatus.Failure)}",
+                LogLevel.Debug
+            );
+
+            return hasEnough ? NodeStatus.Success : NodeStatus.Failure;
         }
     }
 } 

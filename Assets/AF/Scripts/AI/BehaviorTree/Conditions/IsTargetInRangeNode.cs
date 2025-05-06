@@ -1,6 +1,7 @@
 using AF.Combat;
 using AF.Models;
 using UnityEngine; // Vector3.Distance 때문에 추가
+using AF.Services;
 
 namespace AF.AI.BehaviorTree
 {
@@ -25,19 +26,24 @@ namespace AF.AI.BehaviorTree
             Weapon weaponToUse = blackboard.SelectedWeapon ?? agent.GetPrimaryWeapon();
             if (weaponToUse == null || !weaponToUse.IsOperational)
             {
+                var textLogger = ServiceLocator.Instance?.GetService<TextLoggerService>()?.TextLogger;
+                textLogger?.Log($"[{GetType().Name}] {agent.Name}: No usable weapon found (Selected: {blackboard.SelectedWeapon?.Name ?? "null"}, Primary: {agent.GetPrimaryWeapon()?.Name ?? "null"}). Failure.", LogLevel.Debug);
                 return NodeStatus.Failure;
             }
 
             float distanceToTarget = Vector3.Distance(agent.Position, currentTarget.Position);
+            bool isInRange = distanceToTarget >= weaponToUse.MinRange && distanceToTarget <= weaponToUse.MaxRange;
 
-            if (distanceToTarget >= weaponToUse.MinRange && distanceToTarget <= weaponToUse.MaxRange)
-            {
-                return NodeStatus.Success;
-            }
-            else
-            {
-                return NodeStatus.Failure;
-            }
+            var logger = ServiceLocator.Instance?.GetService<TextLoggerService>()?.TextLogger;
+            logger?.Log(
+                $"[{GetType().Name}] {agent.Name} to {currentTarget.Name}: " +
+                $"Weapon='{weaponToUse.Name}', Dist={distanceToTarget:F1}, " +
+                $"Range=({weaponToUse.MinRange:F1}-{weaponToUse.MaxRange:F1}), InRange={isInRange}. " +
+                $"Result: {(isInRange ? NodeStatus.Success : NodeStatus.Failure)}",
+                LogLevel.Debug
+            );
+
+            return isInRange ? NodeStatus.Success : NodeStatus.Failure;
         }
     }
 } 

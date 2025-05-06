@@ -3,6 +3,7 @@ using System.Linq;
 using AF.Combat;
 using AF.Models;
 using UnityEngine; // Debug.Log 및 Vector3.sqrMagnitude 용
+using AF.Services;
 
 namespace AF.AI.BehaviorTree
 {
@@ -60,8 +61,87 @@ namespace AF.AI.BehaviorTree
             if (closestTarget != null)
             {
                 blackboard.CurrentTarget = closestTarget;
-                // Debug.Log($"[{this.GetType().Name}] {agent.Pilot?.PilotName ?? agent.name}: Selected target: {closestTarget.Pilot?.PilotName ?? closestTarget.name} (Distance: {Mathf.Sqrt(minDistanceSqr):F1}). Success.");
-                return NodeStatus.Success;
+                float distanceToTargetSqr = (closestTarget.Position - agent.Position).sqrMagnitude;
+
+                Weapon weaponToUse = null;
+                Weapon primaryWeapon = agent.GetPrimaryWeapon();
+
+                // Filter for generally usable weapons
+                var usableWeapons = agent.EquippedWeapons
+                    .Where(w => w != null && w.IsOperational && w.HasAmmo() && !w.IsReloading)
+                    .ToList();
+
+                // 1. Check primary weapon if it's usable and in range
+                if (primaryWeapon != null && usableWeapons.Contains(primaryWeapon))
+                {
+                    bool primaryInRange = distanceToTargetSqr >= (primaryWeapon.MinRange * primaryWeapon.MinRange) &&
+                                          distanceToTargetSqr <= (primaryWeapon.MaxRange * primaryWeapon.MaxRange);
+                    if (primaryInRange)
+                    {
+                        weaponToUse = primaryWeapon;
+                    }
+                }
+
+                // 2. If primary not suitable or not in range, check other usable weapons in range
+                if (weaponToUse == null)
+                {
+                    weaponToUse = usableWeapons
+                        .Where(w => w != primaryWeapon && // Exclude primary if already checked or not usable
+                                    distanceToTargetSqr >= (w.MinRange * w.MinRange) &&
+                                    distanceToTargetSqr <= (w.MaxRange * w.MaxRange))
+                        .FirstOrDefault(); // Or some other ordering like highest damage, etc.
+                }
+
+                // 3. If still no weapon, check primary weapon if usable (regardless of range)
+                if (weaponToUse == null && primaryWeapon != null && usableWeapons.Contains(primaryWeapon))
+                {
+                    weaponToUse = primaryWeapon;
+                }
+                
+                // 4. If still no weapon, check other usable weapons (regardless of range)
+                if (weaponToUse == null)
+                {
+                    weaponToUse = usableWeapons
+                        .Where(w => w != primaryWeapon) // Exclude primary if already checked or not usable
+                        .FirstOrDefault();
+                }
+                
+                // If after all checks, weaponToUse is still null, it means no operational, loaded weapon is available at all.
+
+                if (weaponToUse != null)
+                {
+                    blackboard.SelectedWeapon = weaponToUse;
+                    var textLogger = ServiceLocator.Instance?.GetService<TextLoggerService>()?.TextLogger;
+                    textLogger?.Log($"[{this.GetType().Name}] {agent.Name}: Selected target: {closestTarget.Name}. Selected weapon: {weaponToUse.Name}. Success.", LogLevel.Debug);
+                    return NodeStatus.Success;
+                }
+                else
+                {
+                    string reason = "No operational, loaded weapon available after all checks.";
+                    var primaryStatus = primaryWeapon == null ? "null" : 
+                                        usableWeapons.Contains(primaryWeapon) ? "usable" : "not usable (no ammo/reloading)";
+                    var usableWeaponCount = usableWeapons.Count(w => w != primaryWeapon);
+
+                    reason = $"Primary weapon ({primaryWeapon?.Name ?? "N/A"}) status: {primaryStatus}. Other usable weapons count: {usableWeaponCount}.";
+                    
+                    if (primaryWeapon != null && !usableWeapons.Contains(primaryWeapon))
+                    {
+                        reason += $" Primary reason for no weapon: Primary '{primaryWeapon.Name}' is not usable (e.g., no ammo, reloading).";
+                    }
+                    else if (usableWeapons.All(w => w == primaryWeapon && weaponToUse == null)) // Only primary was usable, but it wasn't chosen (e.g. out of range and no other option)
+                    {
+                        reason += " Only primary was usable but potentially out of range, and no other options.";
+                    }
+                    else if (!usableWeapons.Any())
+                    {
+                        reason += " No weapons are currently usable (e.g., all reloading or out of ammo).";
+                    }
+
+                    var textLoggerWarning = ServiceLocator.Instance?.GetService<TextLoggerService>()?.TextLogger;
+                    textLoggerWarning?.Log($"[{this.GetType().Name}] {agent.Name}: Selected target: {closestTarget.Name}. BUT no suitable weapon found. Detailed Reason: {reason}. Setting SelectedWeapon to null.", LogLevel.Warning);
+                    blackboard.SelectedWeapon = null; 
+                    return NodeStatus.Failure;
+                }
             }
             else
             {

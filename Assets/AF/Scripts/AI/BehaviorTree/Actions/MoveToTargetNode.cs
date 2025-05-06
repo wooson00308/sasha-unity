@@ -1,6 +1,7 @@
 using AF.Combat;
 using AF.Models;
 using UnityEngine;
+using AF.Services;
 
 namespace AF.AI.BehaviorTree.Actions
 {
@@ -25,9 +26,13 @@ namespace AF.AI.BehaviorTree.Actions
 
         public override NodeStatus Tick(ArmoredFrame agent, Blackboard blackboard, CombatContext context)
         {
+            var textLogger = ServiceLocator.Instance?.GetService<TextLoggerService>()?.TextLogger;
+
             if (blackboard.CurrentTarget == null || blackboard.CurrentTarget.IsDestroyed)
             {
+                textLogger?.Log($"[{GetType().Name}] {agent.Name}: CurrentTarget is null or destroyed. Failure.", LogLevel.Debug);
                 blackboard.IntendedMovePosition = null;
+                blackboard.DecidedActionType = null;
                 return NodeStatus.Failure;
             }
 
@@ -36,7 +41,9 @@ namespace AF.AI.BehaviorTree.Actions
 
             if (weaponToConsider == null || !weaponToConsider.IsOperational)
             {
+                textLogger?.Log($"[{GetType().Name}] {agent.Name}: No usable weapon to consider for move range check (Selected: {blackboard.SelectedWeapon?.Name ?? "null"}, Primary: {agent.GetPrimaryWeapon()?.Name ?? "null"}). Failure.", LogLevel.Debug);
                 blackboard.IntendedMovePosition = null;
+                blackboard.DecidedActionType = null;
                 return NodeStatus.Failure;
             }
 
@@ -56,9 +63,9 @@ namespace AF.AI.BehaviorTree.Actions
 
             if (isInRange)
             {
-                // Already in optimal range for the primary weapon.
-                blackboard.IntendedMovePosition = null; // Clear any prior move intention.
-                // Debug.Log($"[MoveToTargetNode] {unit.Pilot.PilotName} is already in range of {unit.CurrentTarget.Pilot.PilotName}. SUCCESS.");
+                textLogger?.Log($"[{GetType().Name}] {agent.Name} is already in range of {blackboard.CurrentTarget.Name} with {weaponToConsider.Name}. No move needed. Success (but no action decided by this node).", LogLevel.Debug);
+                blackboard.IntendedMovePosition = null; 
+                blackboard.DecidedActionType = null;
                 return NodeStatus.Success;
             }
             else
@@ -66,9 +73,9 @@ namespace AF.AI.BehaviorTree.Actions
                 // Not in range, needs to move.
                 if (agent.CurrentAP < MIN_AP_TO_INITIATE_MOVE)
                 {
-                    // Not enough AP to even consider initiating a move.
+                    textLogger?.Log($"[{GetType().Name}] {agent.Name}: Not enough AP ({agent.CurrentAP}) to initiate move towards {blackboard.CurrentTarget.Name}. Required: {MIN_AP_TO_INITIATE_MOVE}. Failure.", LogLevel.Debug);
                     blackboard.IntendedMovePosition = null;
-                    // Debug.Log($"[MoveToTargetNode] {unit.Pilot.PilotName} has not enough AP ({unit.CurrentAP}) to initiate move. FAILURE.");
+                    blackboard.DecidedActionType = null;
                     return NodeStatus.Failure;
                 }
 
@@ -76,7 +83,9 @@ namespace AF.AI.BehaviorTree.Actions
                 // The CombatActionExecutor will be responsible for pathfinding,
                 // calculating the exact destination (e.g., closest attackable tile), and AP cost.
                 blackboard.IntendedMovePosition = blackboard.CurrentTarget.Position;
-                // Debug.Log($"[MoveToTargetNode] {unit.Pilot.PilotName} needs to move towards {unit.CurrentTarget.Pilot.PilotName}. Setting IntendedMovePosition. SUCCESS.");
+                blackboard.DecidedActionType = CombatActionEvents.ActionType.Move; 
+                
+                textLogger?.Log($"[{GetType().Name}] {agent.Name} needs to move towards {blackboard.CurrentTarget.Name}. Set IntendedMovePosition. Set DecidedActionType=Move. Success.", LogLevel.Debug);
                 return NodeStatus.Success;
             }
         }

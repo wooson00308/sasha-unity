@@ -714,7 +714,7 @@ namespace AF.Tests
             try
             {
                 bool combatEnded = false;
-                int safetyBreak = 1000; // 무한 루프 방지
+                int safetyBreak = 10; // 무한 루프 방지
 
                 while (!combatEnded && isInCombat && combatSimulator.CurrentTurn < safetyBreak)
                 {

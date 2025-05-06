@@ -30,50 +30,57 @@ namespace AF.AI.BehaviorTree.PilotBTs
         {
             return new SelectorNode(new List<BTNode>
             {
-                // 1. 재장전 시퀀스
+                // 1. 즉시 공격 시퀀스 (최우선)
                 new SequenceNode(new List<BTNode>
                 {
-                    new NeedsReloadNode(),       // 파라미터 없이 생성
-                    new HasEnoughAPNode(RELOAD_AP_COST),
-                    new ReloadWeaponNode()       // 파라미터 없이 생성
-                }),
-                // 2. 즉시 공격 시퀀스
-                new SequenceNode(new List<BTNode>
-                {
-                    new HasValidTargetNode(),     // 파라미터 없이 생성
-                    new IsTargetInRangeNode(),   // 파라미터 없이 생성
+                    new HasValidTargetNode(),     
+                    new IsTargetInRangeNode(),   
                     new HasEnoughAPNode(ATTACK_AP_COST),
-                    new AttackTargetNode()       // 파라미터 없이 생성
+                    new AttackTargetNode()       
                 }),
-                // 3. 타겟팅 및 교전 시퀀스 (이동 또는 공격)
+                // 2. 타겟팅 및 교전 시퀀스 (이동 또는 공격)
                 new SequenceNode(new List<BTNode>
                 {
-                    new SelectTargetNode(),       // 파라미터 없이 생성
+                    new SelectTargetNode(),       
                     new SelectorNode(new List<BTNode> 
                     {
-                        // 3a. 사거리 내면 바로 공격
+                        // 2a. 사거리 내면 바로 공격
                         new SequenceNode(new List<BTNode>
                         {
                             new IsTargetInRangeNode(),
                             new HasEnoughAPNode(ATTACK_AP_COST),
                             new AttackTargetNode()
                         }),
-                        // 3b. 사거리 밖이면 이동
+                        // 2b. 사거리 밖이면 이동
                         new SequenceNode(new List<BTNode>
                         {
                             new HasEnoughAPNode(MIN_MOVE_AP),
-                            new MoveToTargetNode() // 파라미터 없이 생성
+                            new MoveToTargetNode() 
                         })
                     })
+                }),
+                // 3. 필수 재장전 시퀀스 (탄약 없음) - 공격/이동 불가 시
+                new SequenceNode(new List<BTNode>
+                {
+                    new NeedsReloadNode(ReloadCondition.OutOfAmmo), // 탄약 없음 조건 사용
+                    new HasEnoughAPNode(RELOAD_AP_COST),
+                    new ReloadWeaponNode()       
                 }),
                 // 4. 방어 시퀀스
                 new SequenceNode(new List<BTNode>
                 {
                     new HasEnoughAPNode(DEFEND_AP_COST),
-                    new DefendNode()            // 파라미터 없이 생성
+                    new DefendNode()            
                 }),
-                // 5. 대기 노드 (위 모든 행동 실패 시)
-                new WaitNode() // 파라미터 없이 생성
+                 // 5. 낮은 탄약 재장전 시퀀스 - 다른 할 일 없을 때 최후의 수단
+                new SequenceNode(new List<BTNode>
+                {
+                    new NeedsReloadNode(ReloadCondition.LowAmmo, 0.1f), // 낮은 탄약(10%) 비율 조건 사용
+                    new HasEnoughAPNode(RELOAD_AP_COST),
+                    new ReloadWeaponNode()
+                }),
+                // 6. 대기 노드 (최후)
+                new WaitNode() 
             });
         }
 
