@@ -63,7 +63,7 @@
 -   **`MoveToTargetNode`**: `blackboard.CurrentTarget`이 `blackboard.SelectedWeapon`(또는 주무기)의 사거리 밖에 있고 `agent`가 최소 이동 AP를 가졌다면, `blackboard.IntendedMovePosition`에 타겟 위치 설정 후 `Success` 반환.
 -   **`ReloadWeaponNode`**: `blackboard.SelectedWeapon`(또는 주무기)가 재장전 필요하고 `agent`가 충분한 AP를 가졌다면, `blackboard.DecidedActionType = Reload`, `blackboard.SelectedWeapon` 설정 후 `Success` 반환.
 -   **`DefendNode`**: `agent`가 방어에 필요한 AP를 가졌다면, `blackboard.DecidedActionType = Defend` 설정 후 `Success` 반환.
--   **`SelectTargetNode`**: 유효한 적 중 가장 가까운 대상을 찾아 `blackboard.CurrentTarget`에 설정 후 `Success` 반환. 적합한 대상이 없으면 `Failure` 반환.
+-   **`SelectTargetNode`**: 유효한 적 중 가장 가까운 대상을 찾아 `blackboard.CurrentTarget`에 설정한다. 해당 타겟에 사용할 수 있는 무기가 있다면 `blackboard.SelectedWeapon`을 설정하고 `Success`를 반환한다. 적합한 타겟이 없거나, 타겟이 있어도 사용할 무기가 없다면 `Failure`를 반환한다.
 -   **`WaitNode`**: 항상 `Success` 반환 (특별한 행동 없음).
 
 ## 4. `Blackboard.cs` 정의 (`AF.AI.BehaviorTree` 네임스페이스)
