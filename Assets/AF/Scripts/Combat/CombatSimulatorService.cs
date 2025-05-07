@@ -136,8 +136,15 @@ namespace AF.Combat
             {
                 if (unit != null)
                 {
-                    // 기본적으로 BasicAttackBT를 할당. 추후 파일럿 특성 등에 따라 다른 BT 할당 가능
-                    unit.BehaviorTreeRoot = BasicAttackBT.Create();
+                    // 파일럿 전문화에 따라 BT 할당
+                    if (unit.Pilot != null && unit.Pilot.Specialization == SpecializationType.RangedCombat)
+                    {
+                        unit.BehaviorTreeRoot = RangedCombatBT.Create(unit);
+                    }
+                    else
+                    {
+                        unit.BehaviorTreeRoot = BasicAttackBT.Create(); 
+                    }
                     unit.AICtxBlackboard.ClearAllData(); // 새 전투 시작 시 블랙보드 초기화
                 }
             }
@@ -255,62 +262,101 @@ namespace AF.Combat
             _statusProcessor.Tick(MakeCtx(), _currentActiveUnit);
 
             // --- 행동 트리 실행 로직 시작 ---
-            _currentActiveUnit.AICtxBlackboard.ClearAllData(); // 각 유닛 활성화 시작 시 블랙보드 초기화
+            _currentActiveUnit.AICtxBlackboard.ClearAllData(); 
 
-            NodeStatus btStatus = NodeStatus.Failure; // BT 실행 결과 기본값
-            if (_currentActiveUnit.BehaviorTreeRoot != null)
+            bool canContinueActing = true;
+            int actionsThisActivation = 0;
+            const int MAX_ACTIONS_PER_ACTIVATION = 5; 
+
+            CombatContext currentActionContext = MakeCtx(); // 컨텍스트를 루프 전에 생성
+
+            while (canContinueActing && 
+                   _currentActiveUnit.IsOperational && 
+                   _currentActiveUnit.CurrentAP > 0.001f && 
+                   actionsThisActivation < MAX_ACTIONS_PER_ACTIVATION)
             {
-                // 한 유닛의 활성화 동안 BT는 여러 번 Tick 될 수 있음 (예: AP가 다 떨어질 때까지)
-                // 여기서는 일단 한 번의 Tick으로 행동을 결정한다고 가정.
-                // 반복 실행 로직은 추후 개선 가능 (예: while 루프와 BT_RUNNING 상태 활용)
-                btStatus = _currentActiveUnit.BehaviorTreeRoot.Tick(_currentActiveUnit, _currentActiveUnit.AICtxBlackboard, MakeCtx());
-            }
-            else
-            {
-                _textLogger?.TextLogger?.Log($"[{_currentActiveUnit.Name}]에게 할당된 행동 트리가 없습니다. 대기합니다.", LogLevel.Warning);
-            }
+                _currentActiveUnit.AICtxBlackboard.DecidedActionType = null;
 
-            var decidedActionType = _currentActiveUnit.AICtxBlackboard.DecidedActionType;
-
-            // ActionType.None도 유효한 값으로 취급될 수 있으므로, null 체크와 함께 decidedActionType.Value == ActionType.None 인 경우도 고려해야 함.
-            // 하지만 현재 WaitNode는 DecidedActionType을 null로 남기므로, HasValue로만 체크해도 의도대로 동작할 것.
-            if (decidedActionType.HasValue && decidedActionType.Value != CombatActionEvents.ActionType.None)
-            {
-                var targetFrame = _currentActiveUnit.AICtxBlackboard.CurrentTarget;
-                var targetPosition = _currentActiveUnit.AICtxBlackboard.IntendedMovePosition;
-                var selectedWeapon = _currentActiveUnit.AICtxBlackboard.SelectedWeapon;
-
-                bool actionSuccess = _actionExecutor.Execute(
-                    MakeCtx(), 
-                    _currentActiveUnit, 
-                    decidedActionType.Value, 
-                    targetFrame, 
-                    targetPosition, 
-                    selectedWeapon);
-
-                if (!actionSuccess)
+                NodeStatus btStatus = NodeStatus.Failure;
+                if (_currentActiveUnit.BehaviorTreeRoot != null)
                 {
-                    _textLogger?.TextLogger?.Log($"[{_currentActiveUnit.Name}]의 행동 {decidedActionType.Value} 실행 실패.", LogLevel.Warning);
-                    // 행동 실패 시 추가적인 BT Tick 또는 다른 로직 고려 가능
+                    btStatus = _currentActiveUnit.BehaviorTreeRoot.Tick(_currentActiveUnit, _currentActiveUnit.AICtxBlackboard, currentActionContext); // 수정된 컨텍스트 사용
                 }
-                // 성공하든 실패하든, 일단 행동을 시도했으므로 루프를 빠져나감 (이전 로직과 유사하게)
-            }
-            else // decidedActionType이 null이거나 ActionType.None인 경우
-            {
-                if (btStatus == NodeStatus.Success) // BT는 성공했으나, 결정된 행동이 없거나 'None'인 경우 (예: WaitNode)
+                else
                 {
-                    _textLogger?.TextLogger?.Log($"[{_currentActiveUnit.Name}]이(가) 명시적으로 대기합니다. (BT Status: {btStatus}, DecidedAction: {decidedActionType?.ToString() ?? "null"})", LogLevel.Info);
-                    // 여기에 실제 'Wait' 액션 실행 로직을 넣거나 AP 소모 등을 처리할 수 있음.
-                    // 예를 들어, _actionExecutor.Execute(MakeCtx(), _currentActiveUnit, CombatActionEvents.ActionType.None, null, null, null);
-                    // 만약 ActionType.None을 Executor가 처리한다면. 현재는 그럴 필요 없어 보임.
+                    _textLogger?.TextLogger?.Log($"[{_currentActiveUnit.Name}]에게 할당된 행동 트리가 없습니다. 활성화 종료.", LogLevel.Warning);
+                    canContinueActing = false; 
+                    break;
                 }
-                else if (btStatus == NodeStatus.Failure || _currentActiveUnit.BehaviorTreeRoot == null) // BT 자체가 실패한 경우
+
+                var decidedActionType = _currentActiveUnit.AICtxBlackboard.DecidedActionType;
+
+                if (decidedActionType.HasValue && decidedActionType.Value != CombatActionEvents.ActionType.None)
                 {
-                    _textLogger?.TextLogger?.Log($"[{_currentActiveUnit.Name}]이(가) 행동을 결정하지 못하고 대기합니다. (BT Status: {btStatus})", LogLevel.Info);
+                    float apCost = _actionExecutor.GetActionAPCost(
+                        decidedActionType.Value, 
+                        _currentActiveUnit, 
+                        _currentActiveUnit.AICtxBlackboard.SelectedWeapon);
+
+                    if (!_currentActiveUnit.HasEnoughAP(apCost))
+                    {
+                        _textLogger?.TextLogger?.Log($"[{_currentActiveUnit.Name}]이(가) {decidedActionType.Value} 행동을 위한 AP 부족 (필요: {apCost:F1}, 현재: {_currentActiveUnit.CurrentAP:F1}). 다음 행동 시도 중단.", LogLevel.Info);
+                        _currentActiveUnit.AICtxBlackboard.DecidedActionType = null; 
+                        actionsThisActivation++; 
+                        continue; 
+                    }
+                    
+                    if (decidedActionType.Value == CombatActionEvents.ActionType.Move && currentActionContext.MovedThisActivation.Contains(_currentActiveUnit)) // 수정된 컨텍스트 사용
+                    {
+                        _textLogger?.TextLogger?.Log($"[{_currentActiveUnit.Name}]은(는) 이번 활성화에 이미 이동했습니다. 다른 행동을 시도합니다.", LogLevel.Info);
+                        _currentActiveUnit.AICtxBlackboard.DecidedActionType = null; 
+                        actionsThisActivation++; 
+                        continue;
+                    }
+
+                    var targetFrame = _currentActiveUnit.AICtxBlackboard.CurrentTarget;
+                    var targetPosition = _currentActiveUnit.AICtxBlackboard.IntendedMovePosition;
+                    var selectedWeapon = _currentActiveUnit.AICtxBlackboard.SelectedWeapon;
+
+                    bool actionSuccess = _actionExecutor.Execute(
+                        currentActionContext, // 수정된 컨텍스트 사용
+                        _currentActiveUnit, 
+                        decidedActionType.Value, 
+                        targetFrame, 
+                        targetPosition, 
+                        selectedWeapon);
+
+                    actionsThisActivation++;
+
+                    if (!actionSuccess)
+                    {
+                        _textLogger?.TextLogger?.Log($"[{_currentActiveUnit.Name}]의 행동 {decidedActionType.Value} 실행 실패.", LogLevel.Warning);
+                    }
+                    if (_currentActiveUnit.CurrentAP <= 0.001f)
+                    {
+                        _textLogger?.TextLogger?.Log($"[{_currentActiveUnit.Name}]이(가) AP를 모두 소모. 활성화 종료.", LogLevel.Info);
+                        canContinueActing = false;
+                    }
                 }
-                // btStatus가 Running인 경우는 현재 로직에서 특별히 처리하지 않음.
-            }
-            // --- 행동 트리 실행 로직 끝 ---
+                else 
+                {
+                    if (btStatus == NodeStatus.Success) 
+                    {
+                        _textLogger?.TextLogger?.Log($"[{_currentActiveUnit.Name}]이(가) BT 성공으로 명시적 대기 또는 행동 없음 결정. 활성화 종료. (Decided: {decidedActionType?.ToString() ?? "null"})", LogLevel.Info);
+                    }
+                    else 
+                    {
+                        _textLogger?.TextLogger?.Log($"[{_currentActiveUnit.Name}]이(가) BT 상태 {btStatus}로 행동 결정 실패. 활성화 종료.", LogLevel.Info);
+                    }
+                    canContinueActing = false; 
+                }
+                
+                if (!_currentActiveUnit.IsOperational) 
+                {
+                    _textLogger?.TextLogger?.Log($"[{_currentActiveUnit.Name}] 파괴됨. 활성화 즉시 종료.", LogLevel.Info);
+                    canContinueActing = false;
+                }
+            } 
             
             _actedThisCycle.Add(_currentActiveUnit);
             CheckBattleEndCondition();

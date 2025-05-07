@@ -50,7 +50,11 @@
 -   **`NeedsReloadNode`**: 에이전트가 장착한 무기 중 설정된 조건(`OutOfAmmo` 또는 `LowAmmo`)에 따라 재장전이 가장 필요한 무기를 찾아 `blackboard.WeaponToReload`에 설정하고, `blackboard.SelectedWeapon`을 `null`로 설정한다. 적합한 무기가 없으면 `Failure`를 반환.
 -   **`IsHealthLowNode`**: `agent`의 현재 체력 비율이 생성 시 지정된 `healthThresholdPercentage` 이하인지 검사.
 -   **`HasValidTargetNode`**: `blackboard.CurrentTarget`이 유효하고 파괴되지 않았는지 검사 (`IsTargetAliveNode`와 동일 로직).
--   **`IsTargetTooCloseNode`**: `blackboard.CurrentTarget`과의 거리가 `blackboard.SelectedWeapon`의 최소 사거리(`MinRange`)보다 가까운지 검사한다. `MinRange`가 1.0f 미만이면 항상 `Failure`를 반환.
+-   **`IsTargetTooCloseNode`**: `blackboard.CurrentTarget`과의 거리가 너무 가까운지 검사한다.
+    *   생성자에 `explicitKitingDistance`를 전달하여 명시적인 카이팅 거리를 설정할 수 있다.
+    *   명시적인 거리가 없으면, `blackboard.SelectedWeapon`의 `MinRange`에 `DefaultKitingBuffer` (기본 2.0f)를 더한 값을 기준으로 판단한다. 만약 무기의 `MinRange`가 `MaxRange`의 80% 이상이거나 (근접 무기로 간주), `MinRange`가 매우 작으면, `MaxRange`의 일정 비율(예: 10%)과 최소 절대값(예: 1.0f) 중 큰 값을 안전 마진으로 사용하여 동적으로 후퇴 거리를 결정한다.
+    *   대상이나 선택된 무기가 없으면 `Failure`를 반환.
+-   **`CanMoveThisActivationNode` (신규)**: 현재 유닛 활성화 주기 동안 이미 이동 행동을 했는지 `CombatContext.MovedThisActivation`을 통해 검사한다. 아직 이동하지 않았으면 `Success`, 이미 이동했으면 `Failure`를 반환한다.
 
 ### 3.2. `ActionNode` (액션 노드 기반 클래스)
 
@@ -76,9 +80,9 @@
 -   제네릭 `SetData<T>`, `GetData<T>` 메서드로 유연한 데이터 저장/검색 지원.
 -   각 `ArmoredFrame` 인스턴스는 자신만의 `Blackboard` 인스턴스(`AICtxBlackboard` 속성)를 소유하며, 전투 시작 또는 유닛 활성화 시점에 초기화될 수 있다.
 
-## 5. 행동 트리 통합 및 실행 과정 (구현 완료)
+## 5. 행동 트리 통합 및 실행 과정 (구현 완료 및 개선)
 
-기존 시스템에 행동 트리를 통합하고 실행하는 과정은 다음과 같이 구현되었다:
+기존 시스템에 행동 트리를 통합하고 실행하는 과정은 다음과 같이 구현 및 개선되었다:
 
 1.  **`ArmoredFrame` 모델 수정 완료**:
     *   `public BTNode BehaviorTreeRoot { get; set; }` 속성 추가.
@@ -89,22 +93,29 @@
 3.  **BT 노드 시그니처 변경 완료**:
     *   모든 BT 관련 노드의 핵심 실행 메서드는 `Tick(ArmoredFrame agent, Blackboard blackboard, CombatContext context)` 시그니처를 사용하도록 수정됨.
 
-4.  **`CombatSimulatorService` 수정 완료**:
+4.  **`CombatSimulatorService` 수정 완료 및 개선**:
     *   기존 `IPilotBehaviorStrategy` 관련 필드 및 초기화 로직 제거.
-    *   `StartCombat` 메서드: 참가하는 각 `ArmoredFrame`의 `BehaviorTreeRoot`에 `BasicAttackBT.Create()`로 생성된 트리를 할당하고 `AICtxBlackboard`를 초기화.
-    *   `ProcessNextTurn` 메서드:
-        *   현재 활성화된 유닛(`_currentActiveUnit`)의 블랙보드를 초기화.
-        *   `_currentActiveUnit.BehaviorTreeRoot.Tick(...)` 호출.
-        *   `Tick` 후, `_currentActiveUnit.AICtxBlackboard`를 확인하여 `DecidedActionType` 및 관련 데이터(타겟, 무기 등)를 읽음.
-        *   읽어온 정보를 바탕으로 `_actionExecutor.Execute(...)` 호출.
+    *   `StartCombat` 메서드: 참가하는 각 `ArmoredFrame`의 `BehaviorTreeRoot`에 전문화 타입에 따라 적절한 BT (`RangedCombatBT.Create(unit)` 또는 `BasicAttackBT.Create()`)를 할당하고 `AICtxBlackboard`를 초기화.
+    *   `ProcessNextTurn` 메서드 개선:
+        *   현재 활성화된 유닛(`_currentActiveUnit`)의 블랙보드는 유닛 활성화 시작 시 한 번 초기화.
+        *   **여러 행동 실행 로직 추가**: `while` 루프를 사용하여 유닛이 AP를 소모하고, 최대 행동 횟수 제한 내에서 여러 행동을 시도할 수 있도록 변경.
+            *   각 행동 시도 전에 블랙보드의 `DecidedActionType` 등을 초기화하여 이전 행동 결정이 다음 결정에 영향을 주지 않도록 함.
+            *   행동 트리 `_currentActiveUnit.BehaviorTreeRoot.Tick(...)` 호출.
+            *   `Tick` 후, `_currentActiveUnit.AICtxBlackboard`를 확인하여 `DecidedActionType` 및 관련 데이터(타겟, 무기 등)를 읽음.
+            *   읽어온 정보를 바탕으로 `_actionExecutor.Execute(...)` 호출.
+            *   `Execute` 후 `CombatContext`의 `MovedThisActivation` 등을 업데이트.
+            *   AP가 부족하거나, 유닛이 비활성화되거나, 최대 행동 횟수에 도달하면 루프 종료.
         *   `DetermineActionForUnit` 메서드 제거.
 
 5.  **`CombatTestRunner` 수정 완료**:
     *   `CreateTestArmoredFrame`, `CreateCustomArmoredFrame` 메서드: `ArmoredFrame` 생성 시 `BehaviorTreeRoot` 할당 및 `AICtxBlackboard` 초기화 로직 추가.
     *   `StartCombatTestAsync` 메서드: 재사용되는 플레이어 스쿼드 유닛(`existingAf`)의 `AICtxBlackboard` 초기화 로직 추가.
 
-**신규 노드 활용 방안:**
-`IsTargetTooCloseNode`, `MoveAwayFromTargetNode` 등은 특정 상황(예: 원거리 유닛의 근접 위협 대응)을 위한 행동 블록으로 조합하여 사용될 수 있다. 이러한 모듈식 접근은 행동 트리 조립 시 필요한 블록을 선택적으로 포함하거나 파라미터를 조절하여 AI 행동의 다양성과 유연성을 높이는 데 기여한다.
+**신규 노드 활용 방안 및 BT 설계 예시:**
+-   `IsTargetTooCloseNode`, `MoveAwayFromTargetNode`, `CanMoveThisActivationNode` 등은 특정 상황(예: 원거리 유닛의 근접 위협 대응, 한 활성화 주기 내 이동 제한)을 위한 행동 블록으로 조합하여 사용될 수 있다.
+-   `RangedCombatBT.cs`에서는 `agent.GetPrimaryWeapon()`을 통해 주무기 정보를 가져와 `MaxRange`의 일정 비율을 동적 카이팅 거리로 설정하고, 이를 `IsTargetTooCloseNode` 생성자에 전달하여 특정 유닛/무기에 최적화된 카이팅 행동을 구현했다.
+-   `BasicAttackBT.cs`와 `RangedCombatBT.cs` 모두 `CanMoveThisActivationNode`를 이동 관련 시퀀스에 추가하여, 한 번 이동한 후에는 다른 행동(예: 공격)을 우선하도록 유도하여 불필요한 반복 이동을 방지했다.
+-   이러한 모듈식 접근은 행동 트리 조립 시 필요한 블록을 선택적으로 포함하거나 파라미터를 조절하여 AI 행동의 다양성과 유연성을 높이는 데 기여한다.
 
 ---
 (향후 개선 사항: 파일럿 특성별 BT 할당, 더 다양한 노드 추가, BT 실행 로직 개선 등)

@@ -393,8 +393,8 @@ namespace AF.Combat
         {
             if (unit == null) return float.MaxValue;
             float baseCost  = 1f;
-            float weightPen = unit.TotalWeight * 0.01f;
-            float speedBon  = unit.CombinedStats.Speed * 0.05f;
+            float weightPen = unit.TotalWeight * 0.005f;
+            float speedBon  = unit.CombinedStats.Speed * 0.075f;
             return Mathf.Max(0.5f, baseCost + weightPen - speedBon);
         }
 

@@ -15,13 +15,6 @@ namespace AF.AI.BehaviorTree.PilotBTs
         // 이 클래스는 더 이상 ArmoredFrame 인스턴스를 직접 참조하지 않음
         // public BTNode rootNode; // 인스턴스 필드 제거
 
-        // 각 노드에 필요한 AP 비용 등은 임시값 또는 기본값을 사용합니다.
-        // 실제 비용은 Weapon, Unit Stats 등에서 가져와야 하거나, 노드 생성 시 파라미터로 동적으로 주입될 수 있습니다.
-        private const float ATTACK_AP_COST = 2f; 
-        private const float RELOAD_AP_COST = 1.5f;
-        private const float DEFEND_AP_COST = 1f;  
-        private const float MIN_MOVE_AP = 1f;   
-
         /// <summary>
         /// 기본적인 공격형 행동 트리를 생성하여 반환합니다.
         /// </summary>
@@ -35,7 +28,8 @@ namespace AF.AI.BehaviorTree.PilotBTs
                 {
                     // 예시 임계값, 실제 값은 밸런싱 필요
                     new IsTargetTooCloseNode(), 
-                    // 예시 이동 거리, 실제 값은 밸런싱 필요
+                    new CanMoveThisActivationNode(),
+                    // MoveAway 액션은 AP 비용 확인이 필요할 수 있음 (HasEnoughAPNode 추가 고려)
                     new MoveAwayFromTargetNode() 
                 }),
                 // 1. 즉시 공격 시퀀스 (최우선)
@@ -62,6 +56,7 @@ namespace AF.AI.BehaviorTree.PilotBTs
                         // 2b. 사거리 밖이면 이동
                         new SequenceNode(new List<BTNode>
                         {
+                            new CanMoveThisActivationNode(),
                             new HasEnoughAPNode(CombatActionEvents.ActionType.Move),
                             new MoveToTargetNode() 
                         })
