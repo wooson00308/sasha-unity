@@ -5571,7 +5571,7 @@ MonoBehaviour:
   useLogIndentation: 0
   logActionSummaries: 0
   useSpriteIconsInLog: 0
-  logLevelsToExclude: 0
+  logLevelsToExclude: 1
   currentBattleId: 
   currentCycle: 0
   isInCombat: 0
