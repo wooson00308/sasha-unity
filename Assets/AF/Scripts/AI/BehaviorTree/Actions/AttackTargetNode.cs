@@ -1,7 +1,8 @@
 using AF.Combat;
 using AF.Models;
-using UnityEngine; // Debug.Log 용
+// using UnityEngine; // Debug.Log 용 - 이제 TextLoggerService 사용
 using System.Linq; // Contains 확장 메서드를 사용하기 위해 추가
+using AF.Services; // TextLoggerService 사용을 위해 추가 (CombatContext가 직접 로거를 제공한다면 필요 없을 수도 있음)
 
 namespace AF.AI.BehaviorTree
 {
@@ -11,40 +12,46 @@ namespace AF.AI.BehaviorTree
     /// </summary>
     public class AttackTargetNode : ActionNode
     {
+        // _textLoggerService 필드 제거
+
         // 생성자에서 특정 무기 슬롯을 받지 않음.
         // 사용할 무기는 사전에 Blackboard에 SelectedWeapon으로 설정되어 있어야 함.
         public AttackTargetNode() {}
 
         public override NodeStatus Tick(ArmoredFrame agent, Blackboard blackboard, CombatContext context)
         {
+            // CombatContext에서 직접 TextLoggerService 인스턴스를 Logger로 가지고 있다고 가정
+            var textLoggerService = context.Logger; 
+            var actualLogger = textLoggerService?.TextLogger; // TextLoggerService 내의 TextLogger 인스턴스 사용
+
             ArmoredFrame currentTarget = blackboard.CurrentTarget;
             Weapon selectedWeapon = blackboard.SelectedWeapon;
 
             // 1. 타겟 유효성 확인
             if (currentTarget == null || currentTarget.IsDestroyed)
             {
-                //Debug.Log($"[{this.GetType().Name}] {agent.name}: Attack failed - No valid target on blackboard.");
+                actualLogger?.Log($"[{this.GetType().Name}] {agent.Name}: Attack failed - No valid target on blackboard.", LogLevel.Debug);
                 return NodeStatus.Failure;
             }
 
             // 2. 무기 유효성 확인
             if (selectedWeapon == null)
             {
-                //Debug.Log($"[{this.GetType().Name}] {agent.name}: Attack failed - No selected weapon on blackboard.");
+                actualLogger?.Log($"[{this.GetType().Name}] {agent.Name}: Attack failed - No selected weapon on blackboard.", LogLevel.Debug);
                 return NodeStatus.Failure;
             }
 
             // 3. 선택된 무기가 실제로 agent가 장착한 무기인지 확인 (선택적이지만 안전함)
             if (!agent.EquippedWeapons.Contains(selectedWeapon))
             {
-                //Debug.LogWarning($"[{this.GetType().Name}] {agent.name}: Attack failed - Selected weapon '{selectedWeapon.WeaponName}' is not equipped by the agent.");
+                actualLogger?.Log($"[{this.GetType().Name}] {agent.Name}: Attack failed - Selected weapon '{selectedWeapon.Name}' is not equipped by the agent.", LogLevel.Warning);
                 return NodeStatus.Failure;
             }
 
             // 4. 무기 준비 상태 확인 (탄약, 재장전 등)
             if (!selectedWeapon.IsOperational || selectedWeapon.IsReloading || !selectedWeapon.HasAmmo())
             {
-                // Debug.Log($"[{this.GetType().Name}] {agent.name}: Attack failed - Weapon '{selectedWeapon.WeaponName}' is not ready (Operational: {selectedWeapon.IsOperational}, Reloading: {selectedWeapon.IsReloading}, Ammo: {selectedWeapon.HasAmmo()}).");
+                actualLogger?.Log($"[{this.GetType().Name}] {agent.Name}: Attack failed - Weapon '{selectedWeapon.Name}' is not ready (Operational: {selectedWeapon.IsOperational}, Reloading: {selectedWeapon.IsReloading}, Ammo: {selectedWeapon.HasAmmo()}).", LogLevel.Debug);
                 return NodeStatus.Failure;
             }
 
@@ -57,7 +64,7 @@ namespace AF.AI.BehaviorTree
             // 모든 조건 만족: 공격 의사를 블랙보드에 기록
             blackboard.DecidedActionType = CombatActionEvents.ActionType.Attack;
             // blackboard.SelectedWeapon은 이미 설정되어 있다고 가정 (이 노드에서 바꾸지 않음)
-            // Debug.Log($"[{this.GetType().Name}] {agent.name}: Decided to attack {currentTarget.name} with {selectedWeapon.WeaponName}. Success.");
+            actualLogger?.Log($"[{this.GetType().Name}] {agent.Name}: Decided to attack {currentTarget.Name} with {selectedWeapon.Name}. Success.", LogLevel.Debug);
             return NodeStatus.Success;
         }
     }

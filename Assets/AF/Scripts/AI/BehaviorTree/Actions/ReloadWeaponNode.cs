@@ -15,36 +15,43 @@ namespace AF.AI.BehaviorTree.Actions
 
         public override NodeStatus Tick(ArmoredFrame agent, Blackboard blackboard, CombatContext context)
         {
-            // 재장전할 무기 결정: Blackboard에 SelectedWeapon이 있으면 그것을 사용, 없으면 주무기 사용
-            Weapon weaponToReload = blackboard.SelectedWeapon ?? agent.GetPrimaryWeapon();
+            var actualLogger = context?.Logger?.TextLogger;
+            Weapon weaponToReload = blackboard.WeaponToReload; // 블랙보드에서 재장전할 무기 가져오기
 
-            if (weaponToReload == null || !weaponToReload.IsOperational)
+            if (weaponToReload == null)
             {
-                // Debug.Log($"[{GetType().Name}] {agent.name}: No valid weapon to reload.");
+                actualLogger?.Log($"[{this.GetType().Name}] {agent.Name}: No weapon specified in blackboard.WeaponToReload. Failure.", LogLevel.Warning);
                 return NodeStatus.Failure;
             }
 
-            bool needsReload = weaponToReload.MaxAmmo > 0 && weaponToReload.CurrentAmmo < weaponToReload.MaxAmmo && !weaponToReload.IsReloading;
-            float reloadAPCost = weaponToReload.ReloadAPCost;
+            // AP 비용은 HasEnoughAPNode에서 이미 확인했다고 가정.
+            // 여기서는 실제 재장전 로직만 수행.
 
-            if (!needsReload)
+            // CombatActionExecutor를 통해 재장전 실행 요청
+            // Execute 메서드가 Reload 액션에 대해 weapon 파라미터를 사용하도록 수정되었다고 가정
+            bool success = context.ActionExecutor.Execute(
+                context, 
+                agent, 
+                CombatActionEvents.ActionType.Reload, 
+                null, // targetFrame for Reload is null
+                null, // targetPosition for Reload is null
+                weaponToReload); // 재장전할 무기 전달
+
+            if (success)
             {
-                // Debug.Log($"[{GetType().Name}] {agent.name}: {weaponToReload.WeaponName} does not need reload.");
-                return NodeStatus.Failure; // 재장전 필요 없음
+                actualLogger?.Log($"[{this.GetType().Name}] {agent.Name}: Reload action for '{weaponToReload.Name}' initiated/completed. Success.", LogLevel.Debug);
+                blackboard.WeaponToReload = null; // 재장전 작업 시작/완료 후 블랙보드에서 해당 정보 제거
+                // blackboard.SelectedWeapon은 NeedsReloadNode에서 이미 null로 설정했을 것이므로 여기서 다시 할 필요는 없음
+                return NodeStatus.Success;
             }
-
-            // AP 체크는 agent의 현재 AP를 사용
-            if (agent.CurrentAP < reloadAPCost)
+            else
             {
-                // Debug.Log($"[{GetType().Name}] {agent.name}: Not enough AP ({agent.CurrentAP}) to reload {weaponToReload.WeaponName} (needs {reloadAPCost} AP).");
-                return NodeStatus.Failure; // AP 부족
+                actualLogger?.Log($"[{this.GetType().Name}] {agent.Name}: Reload action for '{weaponToReload.Name}' failed to execute. Failure.", LogLevel.Warning);
+                // 실패 시 WeaponToReload를 null로 할지는 정책에 따라 결정 (예: 다음 틱에 재시도 가능하게 둘 수도 있음)
+                // 여기서는 일단 그대로 둠. 하지만 보통은 실패하면 다음 턴에 다시 시도할 것이므로 null로 해도 무방.
+                // blackboard.WeaponToReload = null; 
+                return NodeStatus.Failure;
             }
-
-            // 재장전 의사를 블랙보드에 기록
-            blackboard.DecidedActionType = CombatActionEvents.ActionType.Reload;
-            blackboard.SelectedWeapon = weaponToReload; // 어떤 무기를 재장전할지 명시
-            // Debug.Log($"[{GetType().Name}] {agent.name}: Decided to reload {weaponToReload.WeaponName}. Success.");
-            return NodeStatus.Success;
         }
     }
 } 

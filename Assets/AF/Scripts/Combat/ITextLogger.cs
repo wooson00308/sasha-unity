@@ -48,12 +48,12 @@ namespace AF.Combat
         List<string> SearchLogs(string searchTerm);
 
         /// <summary>
-        /// Filters and formats logs based on specified include/exclude levels.
+        /// Filters and formats logs based on specified include/exclude flags.
         /// </summary>
-        /// <param name="levelsToInclude">Array of LogLevels to include. If null or empty, all levels are potentially included (unless excluded).</param>
-        /// <param name="levelsToExclude">Array of LogLevels to exclude. If null, no levels are excluded.</param>
+        /// <param name="flagsToInclude">Array of LogLevelFlags to include. If null or empty, all levels are potentially included (unless excluded).</param>
+        /// <param name="flagsToExclude">Array of LogLevelFlags to exclude. If null, no levels are excluded.</param>
         /// <returns>A list of formatted log strings matching the criteria.</returns>
-        List<string> GetFormattedLogs(LogLevel[] levelsToInclude = null, LogLevel[] levelsToExclude = null);
+        List<string> GetFormattedLogs(LogLevelFlags? flagsToInclude = null, LogLevelFlags? flagsToExclude = null);
 
         /// <summary>
         /// Gets the raw list of LogEntry objects.

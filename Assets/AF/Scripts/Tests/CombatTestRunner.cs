@@ -10,6 +10,7 @@ using System.Linq;
 using Cysharp.Threading.Tasks;
 using AF.AI.BehaviorTree;
 using AF.AI.BehaviorTree.PilotBTs;
+using System.IO;
 
 #if UNITY_EDITOR
 using UnityEditor; // Needed for AssetDatabase
@@ -438,9 +439,9 @@ namespace AF.Tests
         [LabelText("로그에 스프라이트 아이콘 사용")]
         public bool useSpriteIconsInLog = true;
 
-        [VerticalGroup("Logging")]
-        [LabelWidth(120)]
-        public bool logAIDecisions = true; // AI 의사결정 로그 토글 추가
+        [FoldoutGroup("전투 옵션", expanded: true)]
+        [LabelText("로그 필터링 (제외)")]
+        public LogLevelFlags logLevelsToExclude = LogLevelFlags.Nothing;
 
         private ICombatSimulatorService combatSimulator;
         private TextLoggerService textLogger;
@@ -747,8 +748,8 @@ namespace AF.Tests
                 isInCombat = false; // 상태 확실히 업데이트
                 Log("전투 프로세스 정리 완료.", LogLevel.System);
 
-                // 로그 파일 자동 저장 (옵션)
-                textLogger?.ConcreteLogger?.SaveToFile($"BattleLog_{currentBattleId}");
+                // 로그 파일 자동 저장 (필터링 적용)
+                SaveFilteredLogToFile($"BattleLog_{currentBattleId}", logLevelsToExclude);
             }
         }
         
@@ -1186,5 +1187,55 @@ namespace AF.Tests
             }
         }
         // +++ End Reset Button +++
+
+        // +++ Filtered Log Saving Method +++
+        private void SaveFilteredLogToFile(string filename, LogLevelFlags flagsToExclude)
+        {
+            if (textLogger?.ConcreteLogger == null)
+            {
+                Log("Filtered log saving failed: TextLogger not available.", LogLevel.Error);
+                return;
+            }
+
+            try
+            {
+                List<string> filteredLogLines = textLogger.ConcreteLogger.GetFormattedLogs(null, flagsToExclude);
+
+                string directory = Path.Combine(Application.persistentDataPath, "Logs");
+                if (!Directory.Exists(directory))
+                {
+                    Directory.CreateDirectory(directory);
+                }
+
+                string fullFilename = Path.Combine(directory, 
+                    $"{filename}_{DateTime.Now:yyyyMMdd_HHmmss}.txt");
+
+                using (StreamWriter writer = new StreamWriter(fullFilename))
+                {
+                    writer.WriteLine($"=== 전투 로그 (필터링됨): {filename} ===");
+                    writer.WriteLine($"생성 시간: {DateTime.Now}");
+                    writer.WriteLine($"제외 레벨: {flagsToExclude}"); 
+                    writer.WriteLine(new string('=', 50));
+                    writer.WriteLine(); // 빈 줄 (헤더와 로그 내용 구분)
+
+                    foreach (var line in filteredLogLines)
+                    {
+                        writer.WriteLine(line);
+                    }
+
+                    writer.WriteLine(); // 빈 줄 (로그 내용과 요약 정보 구분)
+                    writer.WriteLine(new string('=', 50));
+                    writer.WriteLine($"필터링된 로그 항목 수: {filteredLogLines.Count}");
+                    writer.WriteLine("=== 전투 로그 종료 ===");
+                }
+                Log($"필터링된 전투 로그가 '{fullFilename}'(으)로 저장되었습니다.", LogLevel.System);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"필터링된 로그 파일 저장 실패: {ex.Message}");
+                 Log($"필터링된 로그 파일 저장 실패: {ex.Message}", LogLevel.Error);
+            }
+        }
+        // +++ End Filtered Log Saving Method +++
     }
 } 

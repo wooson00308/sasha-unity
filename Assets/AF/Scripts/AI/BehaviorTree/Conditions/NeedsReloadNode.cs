@@ -28,72 +28,91 @@ namespace AF.AI.BehaviorTree
         public NeedsReloadNode(ReloadCondition condition, float thresholdValue = 0.1f)
         {
             _condition = condition;
-            // 기준값 유효성 검사 (0보다 커야 함)
-            _thresholdValue = Mathf.Max(0.0001f, thresholdValue); // 0 또는 음수 방지
+            _thresholdValue = Mathf.Max(0.0001f, thresholdValue); 
         }
 
         public override NodeStatus Tick(ArmoredFrame agent, Blackboard blackboard, CombatContext context)
         {
-            // 검사할 무기 결정: Blackboard에 SelectedWeapon이 있으면 그것을 사용, 없으면 agent의 주무기 사용
-            Weapon weaponToCheck = blackboard.SelectedWeapon ?? agent.GetPrimaryWeapon();
-            var logger = ServiceLocator.Instance?.GetService<TextLoggerService>()?.TextLogger;
+            var actualLogger = context?.Logger?.TextLogger; 
+            Weapon weaponToReloadCandidate = null;
+            bool foundOutOfAmmoWeapon = false;
 
-            // 무기가 없거나, 작동 불능이거나, 무한 탄창이거나, 이미 재장전 중이면 재장전 불필요/불가
-            if (weaponToCheck == null || !weaponToCheck.IsOperational || weaponToCheck.MaxAmmo <= 0 || weaponToCheck.IsReloading)
+            // 모든 장착된 무기를 순회하며 재장전 대상 탐색
+            foreach (var weapon in agent.EquippedWeapons)
             {
-                string reason = weaponToCheck == null ? "No weapon" : 
-                                !weaponToCheck.IsOperational ? "Not operational" : 
-                                weaponToCheck.MaxAmmo <= 0 ? "Infinite ammo" : "Already reloading";
-                // 무한 탄창이거나 재장전 중이면 LowAmmo/OutOfAmmo 검사 자체가 무의미하므로 로그 레벨 변경 가능 (예: Verbose)
-                logger?.Log($"[{GetType().Name}({_condition})] {agent.Name}: Weapon='{weaponToCheck?.Name ?? "N/A"}' cannot reload ({reason}). Failure.", LogLevel.Debug);
-                return NodeStatus.Failure;
-            }
+                if (weapon == null || !weapon.IsOperational || weapon.MaxAmmo <= 0 || weapon.IsReloading)
+                {
+                    continue; // 유효하지 않거나, 무한 탄창이거나, 이미 재장전 중인 무기는 건너뜀
+                }
 
-            bool checkResult = false;
-            int actualThreshold = 1; // 기본값 (비율 계산 실패 대비)
-            string conditionDesc = "Unknown";
+                // 1. 탄약이 완전히 없는 무기 (OutOfAmmo)
+                if (weapon.CurrentAmmo <= 0)
+                {
+                    weaponToReloadCandidate = weapon; // 가장 시급한 케이스
+                    foundOutOfAmmoWeapon = true;
+                    break; // OutOfAmmo 무기를 찾으면 더 이상 탐색할 필요 없음
+                }
 
-            switch (_condition)
-            {
-                case ReloadCondition.OutOfAmmo:
-                    checkResult = weaponToCheck.CurrentAmmo <= 0;
-                    conditionDesc = "OutOfAmmo";
-                    break;
-                case ReloadCondition.LowAmmo:
+                // 2. 낮은 탄약 상태의 무기 (LowAmmo) - OutOfAmmo가 아닌 경우에만 고려
+                if (_condition == ReloadCondition.LowAmmo && !foundOutOfAmmoWeapon)
+                {
+                    int lowAmmoLimit = 1;
                     if (_thresholdValue > 0f && _thresholdValue < 1f) // 비율 기준
                     {
-                        // MaxAmmo가 0보다 클 때만 비율 계산 의미 있음
-                        if (weaponToCheck.MaxAmmo > 0)
-                        {   
-                            // 올림 계산으로 최소 1발 이상 기준값 보장 (예: 10발 탄창 10%면 1발, 15발 탄창 10%면 2발)
-                            actualThreshold = Mathf.CeilToInt(weaponToCheck.MaxAmmo * _thresholdValue);
-                             // 비율 계산 결과가 0이 되는 극단적인 경우 방지 (예: MaxAmmo=5, Threshold=0.1 -> 0.5 -> CeilToInt=1)
-                            actualThreshold = Mathf.Max(1, actualThreshold); 
-                            conditionDesc = $"LowAmmo (<= {_thresholdValue * 100:F0}% ≈ {actualThreshold} rounds)";
-                        }
-                        else 
-                        { 
-                            // MaxAmmo가 0인데 비율 기준 LowAmmo 체크는 모순. 실패 처리.
-                             logger?.Log($"[{GetType().Name}(LowAmmo)] {agent.Name}: Weapon='{weaponToCheck.Name}' has MaxAmmo=0, cannot use percentage threshold. Failure.", LogLevel.Debug);
-                             return NodeStatus.Failure; 
-                        }
+                        lowAmmoLimit = Mathf.CeilToInt(weapon.MaxAmmo * _thresholdValue);
+                        lowAmmoLimit = Mathf.Max(1, lowAmmoLimit);
                     }
-                    else // 절대값 기준 (1.0 이상)
+                    else // 절대값 기준
                     {
-                        actualThreshold = (int)_thresholdValue;
-                        conditionDesc = $"LowAmmo (<= {actualThreshold} rounds)";
+                        lowAmmoLimit = (int)_thresholdValue;
                     }
-                    checkResult = weaponToCheck.CurrentAmmo > 0 && weaponToCheck.CurrentAmmo <= actualThreshold; 
-                    break;
+
+                    if (weapon.CurrentAmmo > 0 && weapon.CurrentAmmo <= lowAmmoLimit)
+                    {
+                        // 아직 후보가 없거나, 현재 후보보다 더 적합하면 (예: 더 낮은 탄약 비율) 교체 가능
+                        // 여기서는 일단 처음 발견된 LowAmmo 무기를 후보로 지정
+                        if (weaponToReloadCandidate == null) 
+                        {
+                            weaponToReloadCandidate = weapon;
+                        }
+                    }
+                }
+            }
+
+            // 최종 결정된 재장전 대상이 있는지 확인
+            if (weaponToReloadCandidate != null)
+            {
+                // OutOfAmmo 조건인데 찾은 게 LowAmmo 상태면 안됨 (위 로직에서 이미 처리됨)
+                // LowAmmo 조건일 때는 OutOfAmmo를 우선했으므로 괜찮음.
+                bool conditionMet = false;
+                if (foundOutOfAmmoWeapon) // 탄약 없는 무기를 찾았다면 어떤 조건이든 OK
+                { 
+                    conditionMet = true;
+                }
+                else if (_condition == ReloadCondition.LowAmmo && weaponToReloadCandidate != null) // 낮은 탄약 조건이고, 후보가 있을 때 (OutOfAmmo는 아니었음)
+                { 
+                    conditionMet = true; // 위에서 LowAmmo 조건 만족하는 후보를 찾았음
+                }
+                else if (_condition == ReloadCondition.OutOfAmmo && !foundOutOfAmmoWeapon)
+                { 
+                     // OutOfAmmo 조건인데, 탄약 없는 무기를 못 찾음 (모두 탄약이 있거나 LowAmmo 상태임)
+                    conditionMet = false;
+                }
+
+
+                if (conditionMet)
+                {
+                    actualLogger?.Log($"[{GetType().Name}({_condition})] {agent.Name}: Needs reload for '{weaponToReloadCandidate.Name}' (Ammo: {weaponToReloadCandidate.CurrentAmmo}/{weaponToReloadCandidate.MaxAmmo}). Success.", LogLevel.Debug);
+                    blackboard.WeaponToReload = weaponToReloadCandidate;
+                    blackboard.SelectedWeapon = null; // 재장전 시에는 선택된 공격 무기 없음
+                    return NodeStatus.Success;
+                }
             }
             
-            logger?.Log(
-                $"[{GetType().Name}({conditionDesc})] {agent.Name}: Weapon='{weaponToCheck.Name}', Ammo={weaponToCheck.CurrentAmmo}/{weaponToCheck.MaxAmmo}. CheckResult={checkResult}. " +
-                $"Result: {(checkResult ? NodeStatus.Success : NodeStatus.Failure)}",
-                LogLevel.Debug
-            );
-
-            return checkResult ? NodeStatus.Success : NodeStatus.Failure;
+            // 여기까지 왔다면 재장전할 무기를 찾지 못했거나 조건에 맞지 않음
+            actualLogger?.Log($"[{GetType().Name}({_condition})] {agent.Name}: No weapon needs reload under current condition. Failure.", LogLevel.Debug);
+            blackboard.WeaponToReload = null; // 재장전할 무기 없음 확실히 명시
+            return NodeStatus.Failure;
         }
     }
 } 

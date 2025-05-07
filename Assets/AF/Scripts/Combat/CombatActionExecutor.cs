@@ -12,8 +12,11 @@ namespace AF.Combat
     /// </summary>
     public sealed class CombatActionExecutor : ICombatActionExecutor
     {
-        // <<< 수리량 상수 정의 >>>
-        private const float BASE_REPAIR_AMOUNT = 50f;
+        // <<< AP 비용 상수들을 public const로 변경 또는 신규 정의 >>>
+        public const float BASE_REPAIR_AMOUNT = 50f; // 이건 수리량 상수이므로 그대로 둬도 무방
+        public const float DEFEND_AP_COST = 1f;
+        public const float REPAIR_ALLY_AP_COST = 2.5f;
+        public const float REPAIR_SELF_AP_COST = 2.0f;
 
         #region Execute (PerformAction 대체) ----------------------------------
 
@@ -52,8 +55,8 @@ namespace AF.Combat
                 CombatActionEvents.ActionType.Move       => CalculateMoveAPCost(actor),
                 CombatActionEvents.ActionType.Defend     => DEFEND_AP_COST,
                 CombatActionEvents.ActionType.Reload     => weapon != null ? weapon.ReloadAPCost : float.MaxValue,
-                CombatActionEvents.ActionType.RepairAlly => 2.5f,
-                CombatActionEvents.ActionType.RepairSelf => 2.0f,
+                CombatActionEvents.ActionType.RepairAlly => REPAIR_ALLY_AP_COST,
+                CombatActionEvents.ActionType.RepairSelf => REPAIR_SELF_AP_COST,
                 _                                        => float.MaxValue
             };
 
@@ -361,9 +364,32 @@ namespace AF.Combat
 
         #region AP 계산 & 기타 -----------------------------------------------
 
-        private const float DEFEND_AP_COST = 1f;
+        public float GetActionAPCost(
+            CombatActionEvents.ActionType actionType,
+            ArmoredFrame actor,
+            Weapon weapon = null)
+        {
+            switch (actionType)
+            {
+                case CombatActionEvents.ActionType.Attack:
+                    return weapon != null ? CalculateAttackAPCost(actor, weapon) : float.MaxValue;
+                case CombatActionEvents.ActionType.Move:
+                    return CalculateMoveAPCost(actor);
+                case CombatActionEvents.ActionType.Defend:
+                    return DEFEND_AP_COST;
+                case CombatActionEvents.ActionType.Reload:
+                    return weapon != null ? weapon.ReloadAPCost : float.MaxValue;
+                case CombatActionEvents.ActionType.RepairAlly:
+                    return REPAIR_ALLY_AP_COST;
+                case CombatActionEvents.ActionType.RepairSelf:
+                    return REPAIR_SELF_AP_COST;
+                default:
+                    Debug.LogWarning($"[CombatActionExecutor] GetActionAPCost: Unknown action type '{actionType}'");
+                    return float.MaxValue;
+            }
+        }
 
-        private float CalculateMoveAPCost(ArmoredFrame unit)
+        public float CalculateMoveAPCost(ArmoredFrame unit)
         {
             if (unit == null) return float.MaxValue;
             float baseCost  = 1f;
@@ -372,7 +398,7 @@ namespace AF.Combat
             return Mathf.Max(0.5f, baseCost + weightPen - speedBon);
         }
 
-        private float CalculateAttackAPCost(ArmoredFrame unit, Weapon weapon)
+        public float CalculateAttackAPCost(ArmoredFrame unit, Weapon weapon)
         {
             if (unit == null || weapon == null) return 999f;
             float eff = Mathf.Max(0.1f, unit.CombinedStats.EnergyEfficiency);

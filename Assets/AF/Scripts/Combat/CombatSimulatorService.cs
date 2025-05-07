@@ -368,8 +368,16 @@ namespace AF.Combat
         // 내부 헬퍼
         // ──────────────────────────────────────────────────────────────
         private CombatContext MakeCtx() => new CombatContext(
-            _eventBus, _textLogger, _currentBattleId, _currentTurn, _currentCycle,
-            _defendedThisTurn, _participants, _teamAssignments, _movedThisActivation);
+            _eventBus, 
+            _textLogger, 
+            _actionExecutor,
+            _currentBattleId, 
+            _currentTurn, 
+            _currentCycle,
+            _defendedThisTurn, 
+            _participants, 
+            _teamAssignments, 
+            _movedThisActivation);
 
         private void AssignTeams(IEnumerable<ArmoredFrame> parts)
         {

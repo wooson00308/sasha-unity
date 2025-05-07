@@ -31,7 +31,7 @@
 -   **역할**: Unity `MonoBehaviour` 컴포넌트로, 게임 시작 시 필요한 서비스들을 `ServiceLocator`에 자동으로 등록하고 관리하는 역할을 합니다.
 -   **주요 기능**:
     -   **자동 서비스 등록**: `Awake()` 시점에 `RegisterServices()`를 호출하여 핵심 서비스 및 인스펙터에 설정된 서비스 객체들을 `ServiceLocator`에 등록합니다.
-        -   **핵심 서비스 등록 (`RegisterCoreServices`)**: `EventBusService`, `TextLoggerService`, `CombatSimulatorService`와 같은 필수적인 서비스들을 코드에서 직접 등록합니다.
+        -   **핵심 서비스 등록 (`RegisterCoreServices`)**: `EventBusService`, `TextLoggerService`, 그리고 **행동 트리 기반 AI를 사용하는** `CombatSimulatorService`와 같은 필수적인 서비스들을 코드에서 직접 등록합니다. (각 서비스의 상세 역할은 해당 서비스 분석 문서, 예를 들어 `Docs/프로젝트 분석/CombatAnalysis.md`의 `CombatSimulatorService` 항목 등을 참조하십시오.)
         -   **인스펙터 기반 등록**: `_serviceObjects` 리스트에 할당된 `MonoBehaviour` 객체 중 `IService`를 구현한 객체들을 리플렉션을 사용하여 적절한 인터페이스 타입으로 `ServiceLocator`에 등록합니다.
     -   **종료 순서 관리**: `_useShutdownOrder` 플래그가 활성화된 경우, `_shutdownOrder` 리스트에 정의된 순서(`ShutdownOrderItem`)에 따라 `OnDestroy()` 시점에 서비스를 순차적으로 종료(`RemoveService<T>`)합니다. 순서가 지정되지 않으면 `ClearAllServices()`를 호출하여 한 번에 모든 서비스를 종료합니다.
     -   **DontDestroyOnLoad**: `_dontDestroyOnLoad` 옵션을 통해 씬 전환 시 파괴되지 않도록 설정할 수 있습니다.

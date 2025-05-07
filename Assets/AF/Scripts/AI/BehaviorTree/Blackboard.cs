@@ -16,9 +16,11 @@ namespace AF.AI.BehaviorTree
 
         // 자주 사용될 것으로 예상되는 데이터에 대한 명시적 속성
         public ArmoredFrame CurrentTarget { get; set; }
+        public Vector3? AttackPosition { get; set; }
         public Vector3? IntendedMovePosition { get; set; }
         public CombatActionEvents.ActionType? DecidedActionType { get; set; }
         public Weapon SelectedWeapon { get; set; }
+        public Weapon WeaponToReload { get; set; }
 
         // 향후 AI가 특정 상태나 플래그를 기억해야 할 때 사용할 수 있는 일반적인 값들
         public bool HasReachedTarget { get; set; } = false;
@@ -58,9 +60,11 @@ namespace AF.AI.BehaviorTree
         {
             _data.Clear();
             CurrentTarget = null;
+            AttackPosition = null;
             IntendedMovePosition = null;
             DecidedActionType = null;
             SelectedWeapon = null;
+            WeaponToReload = null;
             HasReachedTarget = false;
             IsAlerted = false;
         }

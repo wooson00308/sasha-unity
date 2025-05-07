@@ -41,7 +41,7 @@ namespace AF.AI.BehaviorTree.Actions
 
             if (weaponToConsider == null || !weaponToConsider.IsOperational)
             {
-                textLogger?.Log($"[{GetType().Name}] {agent.Name}: No usable weapon to consider for move range check (Selected: {blackboard.SelectedWeapon?.Name ?? "null"}, Primary: {agent.GetPrimaryWeapon()?.Name ?? "null"}). Failure.", LogLevel.Debug);
+                textLogger?.Log($"[{GetType().Name}] {agent.Name}: No usable weapon to consider for move range check. Failure.", LogLevel.Debug);
                 blackboard.IntendedMovePosition = null;
                 blackboard.DecidedActionType = null;
                 return NodeStatus.Failure;
@@ -63,29 +63,54 @@ namespace AF.AI.BehaviorTree.Actions
 
             if (isInRange)
             {
-                textLogger?.Log($"[{GetType().Name}] {agent.Name} is already in range of {blackboard.CurrentTarget.Name} with {weaponToConsider.Name}. No move needed. Success (but no action decided by this node).", LogLevel.Debug);
+                textLogger?.Log($"[{GetType().Name}] {agent.Name} is already in optimal range of {blackboard.CurrentTarget.Name} with {weaponToConsider.Name}. No move needed.", LogLevel.Debug);
                 blackboard.IntendedMovePosition = null; 
                 blackboard.DecidedActionType = null;
-                return NodeStatus.Success;
+                return NodeStatus.Success; // Already in optimal range, no action decided by this node
             }
             else
             {
                 // Not in range, needs to move.
                 if (agent.CurrentAP < MIN_AP_TO_INITIATE_MOVE)
                 {
-                    textLogger?.Log($"[{GetType().Name}] {agent.Name}: Not enough AP ({agent.CurrentAP}) to initiate move towards {blackboard.CurrentTarget.Name}. Required: {MIN_AP_TO_INITIATE_MOVE}. Failure.", LogLevel.Debug);
+                    textLogger?.Log($"[{GetType().Name}] {agent.Name}: Not enough AP ({agent.CurrentAP}) to move towards {blackboard.CurrentTarget.Name}. Required: {MIN_AP_TO_INITIATE_MOVE}. Failure.", LogLevel.Debug);
                     blackboard.IntendedMovePosition = null;
                     blackboard.DecidedActionType = null;
                     return NodeStatus.Failure;
                 }
 
-                // Set the intention to move towards the target.
-                // The CombatActionExecutor will be responsible for pathfinding,
-                // calculating the exact destination (e.g., closest attackable tile), and AP cost.
-                blackboard.IntendedMovePosition = blackboard.CurrentTarget.Position;
+                Vector3 directionToTarget = (blackboard.CurrentTarget.Position - agent.Position).normalized;
+                if (directionToTarget == Vector3.zero) // Failsafe if agent and target are at the same exact position
+                {
+                    directionToTarget = (Random.insideUnitSphere).normalized;
+                    directionToTarget.y = 0; 
+                    if (directionToTarget == Vector3.zero) directionToTarget = Vector3.forward;
+                    directionToTarget.Normalize();
+                }
+
+                Vector3 calculatedIntendedPosition;
+
+                if (distanceSqr > maxRangeSqr) // Too far, move to just inside MaxRange
+                {
+                    float targetDist = Mathf.Max(0f, maxRange * 0.9f); // Aim for 90% of maxRange
+                    calculatedIntendedPosition = blackboard.CurrentTarget.Position - directionToTarget * targetDist;
+                    textLogger?.Log($"[{GetType().Name}] {agent.Name} is too far. Moving towards {blackboard.CurrentTarget.Name} to engage at ~{targetDist}m (MaxRange: {maxRange}m).", LogLevel.Debug);
+                }
+                else if (distanceSqr < minRangeSqr && minRange > 0.1f) // Too close for a ranged weapon, move to just outside MinRange
+                {
+                    float targetDist = minRange * 1.05f; // Aim for 105% of minRange (or just minRange)
+                    calculatedIntendedPosition = blackboard.CurrentTarget.Position - directionToTarget * targetDist;
+                    textLogger?.Log($"[{GetType().Name}] {agent.Name} is too close. Adjusting position relative to {blackboard.CurrentTarget.Name} to ~{targetDist}m (MinRange: {minRange}m).", LogLevel.Debug);
+                }
+                else // Default: Melee (minRange is 0 or very small) or other unhandled cases when !isInRange
+                {
+                    calculatedIntendedPosition = blackboard.CurrentTarget.Position;
+                    textLogger?.Log($"[{GetType().Name}] {agent.Name} moving to target {blackboard.CurrentTarget.Name} default position (MinRange: {minRange}m, MaxRange: {maxRange}m).", LogLevel.Debug);
+                }
+                
+                blackboard.IntendedMovePosition = calculatedIntendedPosition;
                 blackboard.DecidedActionType = CombatActionEvents.ActionType.Move; 
                 
-                textLogger?.Log($"[{GetType().Name}] {agent.Name} needs to move towards {blackboard.CurrentTarget.Name}. Set IntendedMovePosition. Set DecidedActionType=Move. Success.", LogLevel.Debug);
                 return NodeStatus.Success;
             }
         }

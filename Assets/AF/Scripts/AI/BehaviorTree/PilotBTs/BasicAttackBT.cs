@@ -30,12 +30,20 @@ namespace AF.AI.BehaviorTree.PilotBTs
         {
             return new SelectorNode(new List<BTNode>
             {
+                // 0. 거리 벌리기 시퀀스 (신규)
+                new SequenceNode(new List<BTNode>
+                {
+                    // 예시 임계값, 실제 값은 밸런싱 필요
+                    new IsTargetTooCloseNode(), 
+                    // 예시 이동 거리, 실제 값은 밸런싱 필요
+                    new MoveAwayFromTargetNode() 
+                }),
                 // 1. 즉시 공격 시퀀스 (최우선)
                 new SequenceNode(new List<BTNode>
                 {
                     new HasValidTargetNode(),     
                     new IsTargetInRangeNode(),   
-                    new HasEnoughAPNode(ATTACK_AP_COST),
+                    new HasEnoughAPNode(CombatActionEvents.ActionType.Attack),
                     new AttackTargetNode()       
                 }),
                 // 2. 타겟팅 및 교전 시퀀스 (이동 또는 공격)
@@ -48,13 +56,13 @@ namespace AF.AI.BehaviorTree.PilotBTs
                         new SequenceNode(new List<BTNode>
                         {
                             new IsTargetInRangeNode(),
-                            new HasEnoughAPNode(ATTACK_AP_COST),
+                            new HasEnoughAPNode(CombatActionEvents.ActionType.Attack),
                             new AttackTargetNode()
                         }),
                         // 2b. 사거리 밖이면 이동
                         new SequenceNode(new List<BTNode>
                         {
-                            new HasEnoughAPNode(MIN_MOVE_AP),
+                            new HasEnoughAPNode(CombatActionEvents.ActionType.Move),
                             new MoveToTargetNode() 
                         })
                     })
@@ -63,20 +71,20 @@ namespace AF.AI.BehaviorTree.PilotBTs
                 new SequenceNode(new List<BTNode>
                 {
                     new NeedsReloadNode(ReloadCondition.OutOfAmmo), // 탄약 없음 조건 사용
-                    new HasEnoughAPNode(RELOAD_AP_COST),
+                    new HasEnoughAPNode(CombatActionEvents.ActionType.Reload), // RELOAD_AP_COST 대신 ActionType.Reload
                     new ReloadWeaponNode()       
                 }),
                 // 4. 방어 시퀀스
                 new SequenceNode(new List<BTNode>
                 {
-                    new HasEnoughAPNode(DEFEND_AP_COST),
+                    new HasEnoughAPNode(CombatActionEvents.ActionType.Defend), // DEFEND_AP_COST 대신 ActionType.Defend
                     new DefendNode()            
                 }),
                  // 5. 낮은 탄약 재장전 시퀀스 - 다른 할 일 없을 때 최후의 수단
                 new SequenceNode(new List<BTNode>
                 {
                     new NeedsReloadNode(ReloadCondition.LowAmmo, 0.1f), // 낮은 탄약(10%) 비율 조건 사용
-                    new HasEnoughAPNode(RELOAD_AP_COST),
+                    new HasEnoughAPNode(CombatActionEvents.ActionType.Reload), // RELOAD_AP_COST 대신 ActionType.Reload
                     new ReloadWeaponNode()
                 }),
                 // 6. 대기 노드 (최후)

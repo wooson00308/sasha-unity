@@ -8,11 +8,12 @@ namespace AF.Combat
     /// <summary>
     /// 전투 공용 데이터 묶음. 모든 하위 서비스가 읽는다.
     /// </summary>
-    public readonly struct CombatContext
+    public class CombatContext
     {
         public CombatContext(
             EventBus.EventBus bus,
             TextLoggerService logger,
+            ICombatActionExecutor actionExecutor,
             string battleId,
             int currentTurn,
             int currentCycle,
@@ -23,6 +24,7 @@ namespace AF.Combat
         {
             Bus              = bus;
             Logger           = logger;
+            ActionExecutor   = actionExecutor;
             BattleId         = battleId;
             CurrentTurn      = currentTurn;
             CurrentCycle     = currentCycle;
@@ -34,6 +36,7 @@ namespace AF.Combat
 
         public EventBus.EventBus          Bus               { get; }
         public TextLoggerService          Logger            { get; }
+        public ICombatActionExecutor      ActionExecutor    { get; }
         public string                     BattleId          { get; }
         public int                        CurrentTurn       { get; }
         public int                        CurrentCycle      { get; }

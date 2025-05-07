@@ -337,26 +337,32 @@ namespace AF.Combat
         }
 
         /// <summary>
-        /// Filters and formats logs based on specified include/exclude levels.
+        /// Filters and formats logs based on specified include/exclude flags.
         /// </summary>
-        /// <param name="levelsToInclude">Array of LogLevels to include. If null or empty, all levels are potentially included (unless excluded).</param>
-        /// <param name="levelsToExclude">Array of LogLevels to exclude. If null, no levels are excluded.</param>
+        /// <param name="flagsToInclude">LogLevelFlags to include. If null, all are potentially included (unless excluded).</param>
+        /// <param name="flagsToExclude">LogLevelFlags to exclude. If null, no levels are excluded.</param>
         /// <returns>A list of formatted log strings matching the criteria.</returns>
-        public List<string> GetFormattedLogs(LogLevel[] levelsToInclude = null, LogLevel[] levelsToExclude = null)
+        public List<string> GetFormattedLogs(LogLevelFlags? flagsToInclude = null, LogLevelFlags? flagsToExclude = null)
         {
             IEnumerable<LogEntry> filteredLogs = _logs;
 
             // Apply include filter
-            if (levelsToInclude != null && levelsToInclude.Length > 0)
+            if (flagsToInclude.HasValue && flagsToInclude.Value != LogLevelFlags.Everything && flagsToInclude.Value != LogLevelFlags.Nothing)
             {
-                filteredLogs = filteredLogs.Where(entry => levelsToInclude.Contains(entry.Level));
+                filteredLogs = filteredLogs.Where(entry => flagsToInclude.Value.HasFlag(ConvertLogLevelToFlag(entry.Level)));
             }
+            else if (flagsToInclude.HasValue && flagsToInclude.Value == LogLevelFlags.Nothing)
+            {
+                return new List<string>(); // Nothing included means empty list
+            }
+            // If Everything or null, all are initially included, proceed to exclude filter
 
             // Apply exclude filter
-            if (levelsToExclude != null && levelsToExclude.Length > 0)
+            if (flagsToExclude.HasValue && flagsToExclude.Value != LogLevelFlags.Nothing)
             {
-                filteredLogs = filteredLogs.Where(entry => !levelsToExclude.Contains(entry.Level));
+                filteredLogs = filteredLogs.Where(entry => !flagsToExclude.Value.HasFlag(ConvertLogLevelToFlag(entry.Level)));
             }
+            // If Nothing to exclude, no further filtering on exclusion
 
             return filteredLogs.Select(entry => FormatLogEntry(entry)).ToList();
         }
@@ -985,6 +991,24 @@ namespace AF.Combat
         {
              return _cycleCounter;
         }
+
+        // +++ Helper method to convert LogLevel to LogLevelFlags +++
+        private LogLevelFlags ConvertLogLevelToFlag(LogLevel level)
+        {
+            switch (level)
+            {
+                case LogLevel.Debug: return LogLevelFlags.Debug;
+                case LogLevel.Info: return LogLevelFlags.Info;
+                case LogLevel.Success: return LogLevelFlags.Success;
+                case LogLevel.Warning: return LogLevelFlags.Warning;
+                case LogLevel.Error: return LogLevelFlags.Error;
+                case LogLevel.Danger: return LogLevelFlags.Danger;
+                case LogLevel.Critical: return LogLevelFlags.Critical;
+                case LogLevel.System: return LogLevelFlags.System;
+                default: return LogLevelFlags.Nothing; // Should not happen
+            }
+        }
+        // +++ End Helper method +++
 
         #endregion
     }

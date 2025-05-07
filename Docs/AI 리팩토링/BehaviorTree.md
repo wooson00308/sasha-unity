@@ -45,32 +45,34 @@
 **구현된 조건 노드 예시:**
 
 -   **`IsTargetInRangeNode`**: `blackboard.CurrentTarget`이 `blackboard.SelectedWeapon` (또는 주무기)의 유효 사거리 내에 있는지 검사.
--   **`HasEnoughAPNode`**: 생성 시 지정된 `requiredAP`를 `agent`가 가지고 있는지 검사.
+-   **`HasEnoughAPNode`**: 생성 시 지정된 `actionType`에 따라 필요한 AP를 `CombatActionExecutor`를 통해 동적으로 계산하여 `agent`가 가지고 있는지 검사.
 -   **`IsTargetAliveNode`**: `blackboard.CurrentTarget`이 유효하고 파괴되지 않았는지 검사.
--   **`NeedsReloadNode`**: `blackboard.SelectedWeapon` (또는 주무기)가 재장전을 필요로 하는지 검사.
+-   **`NeedsReloadNode`**: 에이전트가 장착한 무기 중 설정된 조건(`OutOfAmmo` 또는 `LowAmmo`)에 따라 재장전이 가장 필요한 무기를 찾아 `blackboard.WeaponToReload`에 설정하고, `blackboard.SelectedWeapon`을 `null`로 설정한다. 적합한 무기가 없으면 `Failure`를 반환.
 -   **`IsHealthLowNode`**: `agent`의 현재 체력 비율이 생성 시 지정된 `healthThresholdPercentage` 이하인지 검사.
 -   **`HasValidTargetNode`**: `blackboard.CurrentTarget`이 유효하고 파괴되지 않았는지 검사 (`IsTargetAliveNode`와 동일 로직).
+-   **`IsTargetTooCloseNode`**: `blackboard.CurrentTarget`과의 거리가 `blackboard.SelectedWeapon`의 최소 사거리(`MinRange`)보다 가까운지 검사한다. `MinRange`가 1.0f 미만이면 항상 `Failure`를 반환.
 
 ### 3.2. `ActionNode` (액션 노드 기반 클래스)
 
 -   `Tick` 추상 메서드를 상속받음.
 -   행동 "결정" 또는 "의사 표시" 후 `Success` 또는 `Failure`를 반환. 일부 액션은 진행 중 상태(`Running`)를 가질 수 있음 (현재 구현된 노드에는 없음).
--   **주의**: 대부분의 액션 노드는 실제 행동을 실행하지 않고, 결정된 내용을 `Blackboard`에 기록하는 역할을 한다.
+-   **주의**: 대부분의 액션 노드는 실제 행동을 실행하지 않고, 결정된 내용을 `Blackboard`에 기록하는 역할을 한다. 일부 노드(예: `ReloadWeaponNode`)는 직접 `CombatActionExecutor`를 호출하여 행동을 실행할 수도 있다.
 
 **구현된 액션 노드 예시:**
 
 -   **`AttackTargetNode`**: `blackboard.CurrentTarget`과 `blackboard.SelectedWeapon`이 유효하고 공격 가능한 상태이면, `blackboard.DecidedActionType = Attack` 설정 후 `Success` 반환.
--   **`MoveToTargetNode`**: `blackboard.CurrentTarget`이 `blackboard.SelectedWeapon`(또는 주무기)의 사거리 밖에 있고 `agent`가 최소 이동 AP를 가졌다면, `blackboard.IntendedMovePosition`에 타겟 위치 설정 후 `Success` 반환.
--   **`ReloadWeaponNode`**: `blackboard.SelectedWeapon`(또는 주무기)가 재장전 필요하고 `agent`가 충분한 AP를 가졌다면, `blackboard.DecidedActionType = Reload`, `blackboard.SelectedWeapon` 설정 후 `Success` 반환.
+-   **`MoveToTargetNode`**: `blackboard.CurrentTarget`이 `blackboard.SelectedWeapon`(또는 주무기)의 유효 교전 거리(최소/최대 사거리 기반)에 있지 않고 `agent`가 최소 이동 AP를 가졌다면, 적절한 교전 위치로 `blackboard.IntendedMovePosition`을 설정하고 `blackboard.DecidedActionType = Move`로 지정 후 `Success` 반환. 이미 최적 거리라면 `Success`를 반환하되 이동은 수행하지 않음 (DecidedActionType은 설정하지 않거나, 별도 로직 필요).
+-   **`ReloadWeaponNode`**: `blackboard.WeaponToReload`에 지정된 무기가 있고, `CombatActionExecutor`를 통해 해당 무기의 재장전을 성공적으로 실행(또는 시작)하면 `Success`를 반환하고 `blackboard.WeaponToReload`를 `null`로 설정한다. AP 체크는 `HasEnoughAPNode`에서 이미 수행했다고 가정한다.
 -   **`DefendNode`**: `agent`가 방어에 필요한 AP를 가졌다면, `blackboard.DecidedActionType = Defend` 설정 후 `Success` 반환.
 -   **`SelectTargetNode`**: 유효한 적 중 가장 가까운 대상을 찾아 `blackboard.CurrentTarget`에 설정한다. 해당 타겟에 사용할 수 있는 무기가 있다면 `blackboard.SelectedWeapon`을 설정하고 `Success`를 반환한다. 적합한 타겟이 없거나, 타겟이 있어도 사용할 무기가 없다면 `Failure`를 반환한다.
 -   **`WaitNode`**: 항상 `Success` 반환 (특별한 행동 없음).
+-   **`MoveAwayFromTargetNode`**: `blackboard.CurrentTarget`으로부터 `blackboard.SelectedWeapon`의 최소 사거리(`MinRange`)와 `DEFAULT_SEPARATION_BUFFER`를 더한 거리만큼 또는 이동 가능한 최대치만큼 멀어지는 방향으로 `blackboard.IntendedMovePosition`을 설정하고, `blackboard.DecidedActionType = Move`로 지정 후 `Success`를 반환한다. 유효한 무기 정보가 없거나 `MinRange`가 1.0f 미만이면 `FALLBACK_SEPARATION_DISTANCE`를 사용.
 
 ## 4. `Blackboard.cs` 정의 (`AF.AI.BehaviorTree` 네임스페이스)
 
 행동 트리 노드 간 데이터 공유 및 최종 행동 결정을 저장하기 위한 클래스.
 
--   주요 데이터 필드 (`CurrentTarget`, `IntendedMovePosition`, `DecidedActionType`, `SelectedWeapon` 등) 제공.
+-   주요 데이터 필드 (`CurrentTarget`, `IntendedMovePosition`, `DecidedActionType`, `SelectedWeapon`, `WeaponToReload` 등) 제공.
 -   제네릭 `SetData<T>`, `GetData<T>` 메서드로 유연한 데이터 저장/검색 지원.
 -   각 `ArmoredFrame` 인스턴스는 자신만의 `Blackboard` 인스턴스(`AICtxBlackboard` 속성)를 소유하며, 전투 시작 또는 유닛 활성화 시점에 초기화될 수 있다.
 
@@ -101,5 +103,8 @@
     *   `CreateTestArmoredFrame`, `CreateCustomArmoredFrame` 메서드: `ArmoredFrame` 생성 시 `BehaviorTreeRoot` 할당 및 `AICtxBlackboard` 초기화 로직 추가.
     *   `StartCombatTestAsync` 메서드: 재사용되는 플레이어 스쿼드 유닛(`existingAf`)의 `AICtxBlackboard` 초기화 로직 추가.
 
+**신규 노드 활용 방안:**
+`IsTargetTooCloseNode`, `MoveAwayFromTargetNode` 등은 특정 상황(예: 원거리 유닛의 근접 위협 대응)을 위한 행동 블록으로 조합하여 사용될 수 있다. 이러한 모듈식 접근은 행동 트리 조립 시 필요한 블록을 선택적으로 포함하거나 파라미터를 조절하여 AI 행동의 다양성과 유연성을 높이는 데 기여한다.
+
 ---
-(향후 개선 사항: 파일럿 특성별 BT 할당, 더 다양한 노드 추가, BT 실행 로직 개선 등) 
+(향후 개선 사항: 파일럿 특성별 BT 할당, 더 다양한 노드 추가, BT 실행 로직 개선 등)

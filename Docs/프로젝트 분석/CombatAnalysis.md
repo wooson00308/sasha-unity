@@ -1,6 +1,6 @@
 # Combat 디렉토리 분석 (`Assets/AF/Scripts/Combat`)
 
-이 문서는 `Assets/AF/Scripts/Combat` 디렉토리 및 그 하위 디렉토리(`Behaviours`)에 포함된 스크립트들의 역할과 구조를 분석합니다. 이 디렉토리는 게임의 턴 기반 전투 시스템의 핵심 로직, 로그 기록, AI 행동 전략 등을 포함합니다.
+이 문서는 `Assets/AF/Scripts/Combat` 디렉토리 및 그 하위 디렉토리(`Behaviours` - 현재는 사용되지 않음)에 포함된 스크립트들의 역할과 구조를 분석합니다. 이 디렉토리는 게임의 턴 기반 전투 시스템의 핵심 로직, 로그 기록 등을 포함합니다.
 
 ## 핵심 서비스 및 컴포넌트
 
@@ -8,29 +8,29 @@
 
 -   **역할**: 전체 전투의 흐름을 관리하고 조정하는 핵심 서비스입니다. `IService`를 구현하여 `ServiceLocator`를 통해 접근합니다.
 -   **주요 기능**:
-    -   **전투 시작/종료 (`StartCombat`, `EndCombat`)**: 전투 세션을 초기화하고 참가자 정보를 설정하며, 전투 종료 시 결과를 판정하고 관련 이벤트를 발행합니다.
+    -   **전투 시작/종료 (`StartCombat`, `EndCombat`)**: 전투 세션을 초기화하고 참가자 정보를 설정하며, 전투 종료 시 결과를 판정하고 관련 이벤트를 발행합니다. 각 AI 유닛에 행동 트리(`BasicAttackBT`)를 할당하고 블랙보드를 초기화합니다.
     -   **턴 및 사이클 관리 (`ProcessNextTurn`, `CurrentTurn`, `CurrentCycle`)**: 전투는 **턴(Round)**으로 구성되며, 각 턴은 모든 유닛이 한 번씩 활성화되는 **사이클(Cycle)**로 나뉩니다. `ProcessNextTurn`은 다음 유닛을 활성화하고, 모든 유닛이 활성화되면 다음 턴으로 넘어가는 로직을 관리합니다.
-    -   **유닛 활성화**: 턴마다 정해진 순서(현재는 참여 순서, 향후 속도 기반 등 변경 가능)에 따라 유닛을 활성화(`_currentActiveUnit`)하고 관련 이벤트(`UnitActivationStart/EndEvent`)를 발행합니다.
-    -   **행동 결정 및 위임**: 활성화된 유닛이 AI 유닛일 경우, 파일럿의 전문화 타입(`SpecializationType`)에 맞는 `IPilotBehaviorStrategy`를 사용하여 행동을 결정합니다. 결정된 행동(공격, 이동, 방어 등)은 `ICombatActionExecutor`에게 실행을 위임합니다.
+    -   **유닛 활성화**: 턴마다 정해진 순서에 따라 유닛을 활성화(`_currentActiveUnit`)하고 관련 이벤트(`UnitActivationStart/EndEvent`)를 발행합니다.
+    -   **행동 결정 및 위임 (행동 트리 기반)**: 활성화된 AI 유닛의 `ArmoredFrame.BehaviorTreeRoot`에 할당된 행동 트리를 `Tick()`하여 행동을 결정합니다. `Tick()` 실행 후 유닛의 `ArmoredFrame.AICtxBlackboard`에 기록된 `DecidedActionType` 및 관련 정보(대상, 무기, 목표 위치 등)를 바탕으로 `ICombatActionExecutor`에게 실행을 위임합니다.
     -   **상태 관리**: 전투 참가자 목록, 팀 정보, 유닛 상태(방어 여부, 행동 완료 여부 등)를 추적합니다.
     -   **유틸리티**: 참가자, 아군, 적군 목록 조회, 유닛 격파 여부 확인 등의 기능을 제공합니다.
--   **의존성**: `EventBus`, `TextLoggerService`, `ICombatActionExecutor`, `IStatusEffectProcessor`, `IBattleResultEvaluator`, `IPilotBehaviorStrategy` 구현체들.
+-   **의존성**: `EventBus`, `TextLoggerService`, `ICombatActionExecutor`, `IStatusEffectProcessor`, `IBattleResultEvaluator`, `BehaviorTree` 관련 클래스들.
 -   **특징**: 전투의 전체적인 오케스트레이션을 담당하며, 실제 액션 실행, 상태 효과 처리, 결과 판정 등은 하위 컴포넌트/서비스에 위임합니다.
 
 ### 2. 전투 액션 실행 (`ICombatActionExecutor.cs`, `CombatActionExecutor.cs`)
 
 -   **역할**: `CombatSimulatorService`로부터 위임받아 실제 전투 액션(공격, 이동, 방어, 재장전, 수리 등)을 수행하고 결과를 반환하며, 관련 이벤트를 발행합니다.
 -   **주요 기능 (`Execute` 메서드)**:
-    -   **AP 비용 계산 및 확인**: 행동 타입에 따라 필요한 AP를 계산하고, 행동 주체의 현재 AP가 충분한지 확인합니다.
+    -   **AP 비용 계산 및 확인**: 행동 타입에 따라 필요한 AP를 계산하고 (`GetActionAPCost` 인터페이스 메서드 활용), 행동 주체의 현재 AP가 충분한지 확인합니다.
     -   **액션별 로직 수행**:
-        -   **공격**: 사거리, 탄약, 재장전 상태 확인 -> 명중 판정(정확도, 회피율, 거리 보정) -> 데미지 계산(기본 데미지, 공격력, 방어력, 치명타) -> `DamageAppliedEvent` 또는 `DamageAvoidedEvent` 발행 -> 피격 파츠 결정 -> 파츠 데미지 적용 (`Part.ApplyDamage`) -> 파츠 파괴 시 `PartDestroyedEvent` 발행 -> 반격 시도(`TryCounterAttack`).
-        -   **이동**: 이동 가능 거리 내에서 목표 위치로 이동(`actor.Position` 업데이트) -> `ActionCompletedEvent` 발행 (이동 거리, 최종 위치 포함).
-        -   **방어**: 방어 상태 플래그 설정(`ctx.DefendedThisTurn`) 및 관련 상태 효과 적용 -> `ActionCompletedEvent` 발행.
-        -   **재장전**: 무기의 재장전 시작(`weapon.StartReload`) -> `ActionCompletedEvent` 발행 (재장전 시작 명시).
-        -   **수리 (아군/자가)**: 가장 손상된 파츠 탐색 -> 수리량 적용(`target.ApplyRepair`) -> `RepairAppliedEvent` 발행 -> `ActionCompletedEvent` 발행.
-    -   **이벤트 발행**: 행동 시작(`ActionStartEvent`), 행동 완료(`ActionCompletedEvent`), 무기 발사(`WeaponFiredEvent`), 데미지/회피/파츠 파괴/수리 관련 이벤트 등을 적절한 시점에 발행합니다.
-    -   **AP 소모**: 행동 성공 시 계산된 AP 비용만큼 소모(`actor.ConsumeAP`).
--   **[추가] 행동 트리 연동 고려사항**: 행동 트리 기반 시스템에서는 `CombatActionExecutor`가 행동 노드(`AttackTargetNode`, `MoveToTargetNode` 등)의 실행 결과(`Success`, `Failure`)와 상태 변경(`ArmoredFrame`의 `IntendedMovePosition` 설정 등)을 해석하여 실제 게임 액션(공격 애니메이션, 경로 탐색 및 이동 실행, AP 소모)으로 변환하는 역할이 추가로 필요합니다. 이 부분은 향후 구현될 예정입니다.
+        -   **공격**: 사거리, 탄약, 재장전 상태 확인 -> 명중 판정 -> 데미지 계산 -> 이벤트 발행 -> 파츠 데미지 적용 -> 반격 시도.
+        -   **이동**: 이동 가능 거리 내에서 목표 위치로 이동 -> 이벤트 발행.
+        -   **방어**: 방어 상태 플래그 설정 및 상태 효과 적용 -> 이벤트 발행.
+        -   **재장전**: 무기의 재장전 시작 -> 이벤트 발행.
+        -   **수리 (아군/자가)**: 가장 손상된 파츠 탐색 -> 수리량 적용 -> 이벤트 발행.
+    -   **이벤트 발행**: 행동 시작/완료, 무기 발사, 데미지/회피/파츠 파괴/수리 관련 이벤트 등을 적절한 시점에 발행합니다.
+    -   **AP 소모**: 행동 성공 시 계산된 AP 비용만큼 소모.
+-   **행동 트리 연동 방식**: `CombatSimulatorService`는 각 유닛의 행동 트리(`BehaviorTreeRoot.Tick()`)를 실행한 후, 유닛의 `AICtxBlackboard`에 기록된 `DecidedActionType`과 관련 정보를 읽어옵니다. 이 정보를 바탕으로 `CombatActionExecutor.Execute()`를 호출하여 실제 게임 액션을 수행하고 AP를 소모하며, 관련된 전투 이벤트를 발행합니다. 대부분의 행동 트리 액션 노드(예: `AttackTargetNode`, `MoveToTargetNode`)는 행동을 '결정'하고 블랙보드에 필요한 정보를 기록하는 역할을 하며, 실제 실행은 `CombatSimulatorService`에 의해 중앙에서 관리됩니다. 단, `ReloadWeaponNode`와 같이 일부 액션 노드는 `Execute` 메서드 내에서 직접 `CombatActionExecutor`를 호출하여 행동을 실행하기도 합니다.
 -   **특징**: 구체적인 전투 액션의 성공/실패 판정, 상태 변화 적용, 결과 이벤트 발행을 담당하는 핵심 로직입니다.
 
 ### 3. 텍스트 로깅 (`ITextLogger.cs`, `TextLogger.cs`, `TextLoggerService.cs`)
@@ -52,8 +52,8 @@
 
 ### 4. 전투 컨텍스트 (`CombatContext.cs`)
 
--   **역할**: 전투 관련 서비스 및 상태 정보를 하나로 묶어 액션 실행기(`CombatActionExecutor`), AI 전략(`IPilotBehaviorStrategy`) 등에 전달하는 읽기 전용 구조체입니다.
--   **포함 정보**: `EventBus`, `TextLoggerService`, 전투 ID, 현재 턴/사이클 번호, 방어 유닛 목록, 전체 참가자 목록, 팀 정보, 이번 활성화에 이동한 유닛 목록.
+-   **역할**: 전투 관련 서비스 및 상태 정보를 하나로 묶어 전달하는 **클래스**입니다 (기존 `readonly struct`에서 변경됨). `ICombatActionExecutor`, 행동 트리 노드 등에 전달됩니다.
+-   **포함 정보**: `EventBus`, `TextLoggerService`, `ICombatActionExecutor`, 전투 ID, 현재 턴/사이클 번호, 방어 유닛 목록, 전체 참가자 목록, 팀 정보, 이번 활성화에 이동한 유닛 목록.
 -   **목적**: 메서드 호출 시 필요한 다양한 정보들을 개별적으로 전달하는 대신, 하나의 컨텍스트 객체로 묶어 전달하여 코드 가독성과 유지보수성을 높입니다.
 
 ### 5. 상태 효과 처리 (`StatusEffectProcessor.cs`, `IStatusEffectProcessor`)
@@ -73,19 +73,16 @@
     -   살아남은 팀의 수에 따라 결과를 결정합니다 (0팀: 무승부, 1팀: 승리/패배 판정, 2팀 이상: 무승부).
 -   **사용**: `CombatSimulatorService.EndCombat` 메서드 내에서 호출됩니다.
 
-## 파일럿 행동 전략 (`Behaviours/`)
+## 파일럿 행동 결정 방식의 변화 (행동 트리 시스템)
 
--   **`IPilotBehaviorStrategy.cs`**: 모든 파일럿 AI 행동 전략 클래스가 구현해야 하는 인터페이스입니다. `DetermineAction` 메서드를 정의하여 현재 상황(`CombatContext`)에서 수행할 최적의 행동(액션 타입, 대상, 목표 위치, 사용할 무기)을 결정하도록 요구합니다.
--   **`PilotBehaviorStrategyBase.cs`**: 모든 전략 클래스의 기본 클래스 역할을 할 수 있는 추상 클래스입니다. 공통 상수(AP 비용, 거리 계수 등)와 유틸리티 메서드(AP 비용 계산, 체력 확인 등)를 제공합니다.
--   **구체적인 전략 클래스들** (`MeleeCombatBehaviorStrategy`, `RangedCombatBehaviorStrategy`, `DefenseCombatBehaviorStrategy`, `SupportCombatBehaviorStrategy`, `StandardCombatBehaviorStrategy`):
-    -   각각 파일럿의 특정 `SpecializationType`에 맞는 행동 로직을 구현합니다.
-    -   일반적으로 특정 우선순위에 따라 행동을 결정합니다 (예: 수리 -> 재장전 -> 공격 -> 이동 -> 방어 -> 대기).
-
-**[수정] 현재 리팩토링 진행 중:**
--   기존 `IPilotBehaviorStrategy` 기반 시스템은 현재 **행동 트리(Behavior Tree)** 기반 시스템으로 점진적으로 리팩토링되고 있습니다 (`Assets/AF/Scripts/AI/BehaviorTree/`).
--   새로운 시스템에서는 `BTNode`를 상속하는 다양한 조건 노드(`IsTargetInRangeNode`, `HasEnoughAPNode` 등)와 액션 노드(`AttackTargetNode`, `MoveToTargetNode`, `SelectTargetNode` 등)를 조합하여 파일럿의 행동 로직을 구성합니다.
--   각 파일럿 타입이나 숙련도에 따라 다른 구조의 행동 트리를 할당하여 더 유연하고 복잡한 AI 행동 패턴을 구현하는 것을 목표로 합니다.
--   이 리팩토링이 완료되면, `DetermineAction` 메서드는 해당 파일럿의 행동 트리를 실행(`Execute`)하는 방식으로 변경될 가능성이 높습니다.
+-   **기존 시스템 (레거시)**: 과거에는 `IPilotBehaviorStrategy` 인터페이스와 그 구현체들(`MeleeCombatBehaviorStrategy` 등)을 사용하여 파일럿의 전문화 타입에 따라 행동 로직을 분리했습니다. 각 전략은 `DetermineAction` 메서드를 통해 행동을 결정했습니다.
+-   **현재 시스템 (행동 트리)**: 현재는 `IPilotBehaviorStrategy` 시스템 대신 **행동 트리(Behavior Tree)** 기반 시스템으로 완전히 전환되었습니다. 이 시스템은 `Assets/AF/Scripts/AI/BehaviorTree/` 경로에 구현되어 있습니다.
+    -   **핵심 구성요소**: `BTNode` (기본), `SelectorNode` (OR), `SequenceNode` (AND) 같은 복합 노드와, 실제 조건 검사 및 행동 결정을 담당하는 다양한 잎새 노드(`ConditionNode`, `ActionNode`의 파생 클래스들)로 구성됩니다.
+    -   **주요 노드**: `IsTargetInRangeNode`, `HasEnoughAPNode` (동적 AP 계산), `NeedsReloadNode` (`WeaponToReload` 설정), `AttackTargetNode` (공격 결정), `MoveToTargetNode` (이동 결정), `ReloadWeaponNode` (재장전 실행), `SelectTargetNode` 등 다양한 노드가 구현되어 사용됩니다.
+    -   **데이터 공유**: `Blackboard` 클래스 인스턴스(`ArmoredFrame.AICtxBlackboard`)를 통해 노드 간 데이터 공유 및 최종 행동 결정 사항(예: `DecidedActionType`, `CurrentTarget`, `WeaponToReload`)을 기록합니다.
+    -   **실행**: `CombatSimulatorService`가 각 AI 유닛의 `BehaviorTreeRoot.Tick()`을 호출하여 행동을 결정하고, 그 결과를 바탕으로 실제 액션을 실행합니다.
+    -   **문서 참조**: 행동 트리의 상세한 구조 및 노드 설명은 `Docs/AI 리팩토링/BehaviorTree.md` 문서를 참조하십시오.
+-   **장점**: 행동 트리를 사용함으로써 AI 행동 패턴의 유연성과 확장성이 향상되었으며, 파일럿 특성이나 숙련도에 따른 다양한 AI를 보다 쉽게 구현할 수 있는 기반이 마련되었습니다.
 
 ## 이벤트 (`*Events.cs`, `ICombatEvent.cs`)
 
@@ -106,16 +103,16 @@
 
 ## 시스템 흐름 요약
 
-1.  `CombatSimulatorService.StartCombat` 호출로 전투가 시작됩니다.
+1.  `CombatSimulatorService.StartCombat` 호출로 전투가 시작되며, 각 AI 유닛에 행동 트리(`BasicAttackBT`)가 할당되고 블랙보드가 초기화됩니다.
 2.  `CombatSimulatorService.ProcessNextTurn`이 호출될 때마다 다음 유닛이 활성화됩니다.
-3.  활성화된 유닛이 AI인 경우, `SpecializationType`에 맞는 `IPilotBehaviorStrategy`가 `DetermineAction`을 통해 행동을 결정합니다.
-4.  결정된 행동은 `CombatSimulatorService`를 통해 `CombatActionExecutor.Execute`로 전달됩니다.
-5.  `CombatActionExecutor`는 AP 확인, 액션별 로직 수행(명중/데미지 계산, 이동 처리, 상태 변경 등), 결과 반환 및 관련 이벤트(ActionCompleted, DamageApplied 등)를 `EventBus`에 발행합니다.
-6.  `TextLoggerService`는 `EventBus`를 구독하고 있다가 관련 전투 이벤트가 발생하면 자동으로 `TextLogger`를 통해 로그를 기록합니다. 이 때 스냅샷 또는 델타 정보가 함께 저장될 수 있습니다.
-7.  `CombatSimulatorService`는 활성화된 유닛의 행동이 끝나면 다시 `ProcessNextTurn`을 호출하여 다음 유닛을 활성화하거나, 모든 유닛이 행동했으면 다음 턴으로 넘어갑니다.
+3.  활성화된 AI 유닛의 `BehaviorTreeRoot.Tick()`이 호출되어 블랙보드에 행동 결정 사항을 기록합니다.
+4.  `CombatSimulatorService`는 블랙보드의 `DecidedActionType` 및 관련 정보를 읽어 `CombatActionExecutor.Execute`로 전달하여 실제 행동을 실행합니다.
+5.  `CombatActionExecutor`는 AP 확인, 액션별 로직 수행, 결과 반환 및 관련 이벤트를 `EventBus`에 발행합니다.
+6.  `TextLoggerService`는 `EventBus`를 구독하여 전투 이벤트를 자동으로 로그로 기록합니다.
+7.  `CombatSimulatorService`는 활성화된 유닛의 행동이 끝나면 다시 `ProcessNextTurn`을 호출합니다.
 8.  턴 시작 시 `StatusEffectProcessor.Tick`이 각 유닛에 대해 호출되어 상태 효과를 처리합니다.
-9.  `CombatSimulatorService`는 매 사이클마다 전투 종료 조건(`CheckBattleEndCondition`)을 확인하고, 조건 만족 시 `EndCombat`을 호출하여 결과를 판정하고 전투를 종료합니다.
+9.  `CombatSimulatorService`는 매 사이클마다 전투 종료 조건을 확인하고, 조건 만족 시 `EndCombat`을 호출합니다.
 
 ## 결론
 
-`Assets/AF/Scripts/Combat` 디렉토리는 복잡한 턴 기반 전투 시스템을 체계적으로 구현하고 있습니다. `CombatSimulatorService`가 전체 흐름을 조율하고, `CombatActionExecutor`가 실제 행동을 처리하며, `TextLogger` 시스템은 상세한 로그 기록을 담당합니다. 파일럿 AI는 `IPilotBehaviorStrategy` 패턴을 통해 모듈식으로 구현되어 있으며, `EventBus`를 이용한 이벤트 기반 통신으로 각 컴포넌트 간의 결합도를 낮추고 있습니다. `CombatContext`는 필요한 정보를 효율적으로 전달하는 역할을 합니다. 이 구조는 전투 로직의 확장과 유지보수를 용이하게 만들 것으로 보입니다. 
+`Assets/AF/Scripts/Combat` 디렉토리는 복잡한 턴 기반 전투 시스템을 체계적으로 구현하고 있습니다. `CombatSimulatorService`가 전체 흐름을 조율하고, `CombatActionExecutor`가 실제 행동을 처리하며, `TextLogger` 시스템은 상세한 로그 기록을 담당합니다. 파일럿 AI는 이제 **행동 트리**를 통해 모듈식으로 구현되어 있으며, `EventBus`를 이용한 이벤트 기반 통신으로 각 컴포넌트 간의 결합도를 낮추고 있습니다. `CombatContext`는 필요한 정보를 효율적으로 전달하는 역할을 합니다. 이 구조는 전투 로직의 확장과 유지보수를 용이하게 만들 것으로 보입니다. 
