@@ -86,6 +86,13 @@ namespace AF.AI.BehaviorTree.PilotBTs
                             new NeedsReloadNode(ReloadCondition.LowAmmo),
                             new HasEnoughAPNode(CombatActionEvents.ActionType.Reload),
                             new ReloadWeaponNode()
+                        }),
+                        // 2e. 방어 (신규)
+                        new SequenceNode(new List<BTNode>
+                        {
+                            new CanDefendThisActivationNode(),
+                            new HasEnoughAPNode(CombatActionEvents.ActionType.Defend),
+                            new DefendNode()
                         })
                     })
                 }),

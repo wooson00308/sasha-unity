@@ -42,9 +42,10 @@ namespace AF.Combat
         private List<ArmoredFrame>                    _participants;
         private Dictionary<ArmoredFrame,int>          _teamAssignments;
         private ArmoredFrame                          _currentActiveUnit;
-        private HashSet<ArmoredFrame>                 _defendedThisTurn;
+        private HashSet<ArmoredFrame>                 _defendedThisTurn; // 턴 당 방어 여부
         private HashSet<ArmoredFrame>                 _actedThisCycle; // Represents units acted *this turn*
-        private HashSet<ArmoredFrame>                 _movedThisActivation;
+        private HashSet<ArmoredFrame>                 _movedThisActivation; // 현재 활성화 주기 이동 여부
+        private HashSet<ArmoredFrame>                 _defendedThisActivation; // 현재 활성화 주기 방어 여부 (신규)
 
         // 파일럿 전문화 → 전략
         // private Dictionary<SpecializationType, IPilotBehaviorStrategy> _behaviorStrategies; // 주석 처리
@@ -58,6 +59,7 @@ namespace AF.Combat
         public int          CurrentCycle      => _currentCycle; // <<< 구현 추가
         public ArmoredFrame CurrentActiveUnit => _currentActiveUnit;
         public HashSet<ArmoredFrame> MovedThisActivation => _movedThisActivation;
+        public HashSet<ArmoredFrame> DefendedThisActivation => _defendedThisActivation; // 신규 프로퍼티
 
         // ──────────────────────────────────────────────────────────────
         // IService 기본
@@ -91,6 +93,7 @@ namespace AF.Combat
             _defendedThisTurn  = new HashSet<ArmoredFrame>();
             _actedThisCycle    = new HashSet<ArmoredFrame>();
             _movedThisActivation = new HashSet<ArmoredFrame>();
+            _defendedThisActivation = new HashSet<ArmoredFrame>(); // 신규 초기화
             _isInCombat        = false;
             _currentTurn       = 0; // Initialize turn
             _currentCycle      = 0; // Initialize cycle
@@ -108,6 +111,7 @@ namespace AF.Combat
             _defendedThisTurn = null;
             _actedThisCycle   = null;
             _movedThisActivation = null;
+            _defendedThisActivation = null; // 신규 초기화
             _isInCombat        = false;
             _currentTurn       = 0; // Reset turn
             _currentCycle      = 0; // Reset cycle
@@ -153,6 +157,7 @@ namespace AF.Combat
             _defendedThisTurn.Clear();
             _actedThisCycle.Clear();
             _movedThisActivation.Clear();
+            _defendedThisActivation.Clear(); // 신규 초기화
 
             _eventBus.Publish(new CombatSessionEvents.CombatStartEvent(
                 participants, _currentBattleId, battleName, Vector3.zero));
@@ -195,6 +200,7 @@ namespace AF.Combat
             _defendedThisTurn?.Clear();
             _actedThisCycle?.Clear();
             _movedThisActivation?.Clear();
+            _defendedThisActivation?.Clear(); // 신규 초기화
 
             _currentBattleId = null;
             _battleName      = null;
@@ -238,6 +244,7 @@ namespace AF.Combat
 
             _currentActiveUnit = GetNextActiveUnit();
             _movedThisActivation.Clear(); 
+            _defendedThisActivation.Clear(); // ★ 유닛 활성화 시 방어 기록 초기화
 
             if (_currentActiveUnit == null) 
             {
@@ -319,7 +326,7 @@ namespace AF.Combat
                     var selectedWeapon = _currentActiveUnit.AICtxBlackboard.SelectedWeapon;
 
                     bool actionSuccess = _actionExecutor.Execute(
-                        currentActionContext, // 수정된 컨텍스트 사용
+                        currentActionContext, 
                         _currentActiveUnit, 
                         decidedActionType.Value, 
                         targetFrame, 
@@ -328,10 +335,32 @@ namespace AF.Combat
 
                     actionsThisActivation++;
 
-                    if (!actionSuccess)
+                    // ★★★ 핵심 수정: 행동 성공 시 MovedThisActivation 및 DefendedThisActivation 업데이트 ★★★
+                    if (actionSuccess)
+                    {
+                        if (decidedActionType.Value == CombatActionEvents.ActionType.Move)
+                        {
+                            if (!currentActionContext.MovedThisActivation.Contains(_currentActiveUnit)) // 컨텍스트에서 확인
+                            {
+                                currentActionContext.MovedThisActivation.Add(_currentActiveUnit); // 컨텍스트에 추가
+                            }
+                        }
+                        else if (decidedActionType.Value == CombatActionEvents.ActionType.Defend)
+                        {
+                            if (!currentActionContext.DefendedThisActivation.Contains(_currentActiveUnit)) // 컨텍스트에서 확인
+                            {
+                                currentActionContext.DefendedThisActivation.Add(_currentActiveUnit); // 컨텍스트에 추가
+                                _defendedThisTurn.Add(_currentActiveUnit); // 턴 당 방어 기록도 유지
+                            }
+                        }
+                    }
+                    // ★★★ 수정 끝 ★★★
+                    else 
                     {
                         _textLogger?.TextLogger?.Log($"[{_currentActiveUnit.Name}]의 행동 {decidedActionType.Value} 실행 실패.", LogLevel.Warning);
+                        // 실패 시에도 AP가 소모되었을 수 있으므로 AP 체크는 아래에서 공통으로 수행
                     }
+
                     if (_currentActiveUnit.CurrentAP <= 0.001f)
                     {
                         _textLogger?.TextLogger?.Log($"[{_currentActiveUnit.Name}]이(가) AP를 모두 소모. 활성화 종료.", LogLevel.Info);
@@ -423,7 +452,9 @@ namespace AF.Combat
             _defendedThisTurn, 
             _participants, 
             _teamAssignments, 
-            _movedThisActivation);
+            _movedThisActivation,
+            _defendedThisActivation // ★ 신규 컨텍스트 필드 전달
+        );
 
         private void AssignTeams(IEnumerable<ArmoredFrame> parts)
         {

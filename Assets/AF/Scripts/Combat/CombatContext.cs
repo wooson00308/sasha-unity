@@ -17,32 +17,36 @@ namespace AF.Combat
             string battleId,
             int currentTurn,
             int currentCycle,
-            HashSet<ArmoredFrame> defended,
+            HashSet<ArmoredFrame> defendedThisTurn,
             IList<ArmoredFrame> participants,
             IDictionary<ArmoredFrame, int> teamAssignments,
-            HashSet<ArmoredFrame> movedThisActivation)
+            HashSet<ArmoredFrame> movedThisActivation,
+            HashSet<ArmoredFrame> defendedThisActivation
+            )
         {
-            Bus              = bus;
-            Logger           = logger;
-            ActionExecutor   = actionExecutor;
-            BattleId         = battleId;
-            CurrentTurn      = currentTurn;
-            CurrentCycle     = currentCycle;
-            DefendedThisTurn = defended;
-            Participants     = participants;
-            TeamAssignments  = teamAssignments;
+            Bus                 = bus;
+            Logger              = logger;
+            ActionExecutor      = actionExecutor;
+            BattleId            = battleId;
+            CurrentTurn         = currentTurn;
+            CurrentCycle        = currentCycle;
+            DefendedThisTurn    = defendedThisTurn;
+            Participants        = participants;
+            TeamAssignments     = teamAssignments;
             MovedThisActivation = movedThisActivation;
+            DefendedThisActivation = defendedThisActivation;
         }
 
-        public EventBus.EventBus          Bus               { get; }
-        public TextLoggerService          Logger            { get; }
-        public ICombatActionExecutor      ActionExecutor    { get; }
-        public string                     BattleId          { get; }
-        public int                        CurrentTurn       { get; }
-        public int                        CurrentCycle      { get; }
-        public HashSet<ArmoredFrame>      DefendedThisTurn  { get; }
-        public HashSet<ArmoredFrame>      MovedThisActivation { get; }
-        public IList<ArmoredFrame>        Participants      { get; }
-        public IDictionary<ArmoredFrame,int> TeamAssignments { get; }
+        public EventBus.EventBus          Bus                     { get; }
+        public TextLoggerService          Logger                  { get; }
+        public ICombatActionExecutor      ActionExecutor          { get; }
+        public string                     BattleId                { get; }
+        public int                        CurrentTurn             { get; }
+        public int                        CurrentCycle            { get; }
+        public HashSet<ArmoredFrame>      DefendedThisTurn        { get; }
+        public HashSet<ArmoredFrame>      MovedThisActivation     { get; }
+        public HashSet<ArmoredFrame>      DefendedThisActivation  { get; }
+        public IList<ArmoredFrame>        Participants            { get; }
+        public IDictionary<ArmoredFrame,int> TeamAssignments       { get; }
     }
 }

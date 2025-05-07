@@ -72,6 +72,7 @@ namespace AF.AI.BehaviorTree.PilotBTs
                 // 4. 방어 시퀀스
                 new SequenceNode(new List<BTNode>
                 {
+                    new CanDefendThisActivationNode(),
                     new HasEnoughAPNode(CombatActionEvents.ActionType.Defend), // DEFEND_AP_COST 대신 ActionType.Defend
                     new DefendNode()            
                 }),
