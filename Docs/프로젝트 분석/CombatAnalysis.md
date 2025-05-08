@@ -8,7 +8,7 @@
 
 -   **역할**: 전체 전투의 흐름을 관리하고 조정하는 핵심 서비스입니다. `IService`를 구현하여 `ServiceLocator`를 통해 접근합니다.
 -   **주요 기능**:
-    -   **전투 시작/종료 (`StartCombat`, `EndCombat`)**: 전투 세션을 초기화하고 참가자 정보를 설정하며, 전투 종료 시 결과를 판정하고 관련 이벤트를 발행합니다. 각 AI 유닛의 파일럿 전문화 타입(`SpecializationType`)에 따라 적절한 행동 트리(예: `RangedCombatBT`, `BasicAttackBT`)를 할당하고 블랙보드를 초기화합니다.
+    -   **전투 시작/종료 (`StartCombat`, `EndCombat`)**: 전투 세션을 초기화하고 참가자 정보를 설정하며, 전투 종료 시 결과를 판정하고 관련 이벤트를 발행합니다. 각 AI 유닛의 파일럿 전문화 타입(`SpecializationType`)에 따라 적절한 행동 트리(예: `RangedCombatBT`, `MeleeCombatBT`, `BasicAttackBT`)를 할당하고 블랙보드를 초기화합니다.
     -   **턴 및 사이클 관리 (`ProcessNextTurn`, `CurrentTurn`, `CurrentCycle`)**: 전투는 **턴(Round)**으로 구성되며, 각 턴은 모든 유닛이 한 번씩 활성화되는 **사이클(Cycle)**로 나뉩니다. `ProcessNextTurn`은 다음 유닛을 활성화하고, 모든 유닛이 활성화되면 다음 턴으로 넘어가는 로직을 관리합니다.
     -   **유닛 활성화**: 턴마다 정해진 순서에 따라 유닛을 활성화(`_currentActiveUnit`)하고 관련 이벤트(`UnitActivationStart/EndEvent`)를 발행합니다.
     -   **행동 결정 및 위임 (행동 트리 기반)**: 활성화된 AI 유닛의 `ArmoredFrame.BehaviorTreeRoot`에 할당된 행동 트리를 `Tick()`합니다. **유닛은 AP가 허용하고 최대 행동 횟수 제한 내에서 여러 행동을 시도할 수 있습니다.** 각 행동 시도 후 유닛의 `ArmoredFrame.AICtxBlackboard`에 기록된 `DecidedActionType` 및 관련 정보(대상, 무기, 목표 위치 등)를 바탕으로 `ICombatActionExecutor`에게 실행을 위임합니다.
@@ -37,17 +37,17 @@
 
 -   **역할**: 전투 중 발생하는 모든 주요 이벤트와 상태 변화를 상세한 텍스트 로그로 기록하고 관리합니다.
 -   **`TextLogger` 주요 기능**:
-    -   **로그 기록 (`Log`, `LogEvent`)**: 메시지, 로그 레벨(`LogLevel`), 이벤트 타입(`LogEventType`), 턴/사이클 정보, 관련 유닛, 스냅샷/델타 정보 등을 포함하는 `LogEntry` 객체를 생성하여 내부 리스트(`_logs`)에 저장합니다.
+    -   **로그 기록 (`Log`, `LogEvent`)**: 메시지, 로그 레벨(`LogLevel`), 이벤트 타입(`LogEventType`), 턴/사이클 정보, 관련 유닛, 스냅샷/델타 정보 등을 포함하는 `LogEntry` 객체를 생성하여 내부 리스트(`_logs`)에 저장합니다. **기록 시점 필터링**: `AllowedLogLevels` 프로퍼티에 설정된 플래그에 따라, 허용된 레벨의 로그만 내부 리스트에 기록합니다.
     -   **`LogEntry` 구조**: 각 로그 항목은 기본 정보 외에, 특정 `LogEventType`에 따라 관련된 상세 데이터(델타 정보)를 저장합니다 (예: `DamageAppliedEvent`의 경우 공격자, 피격자, 데미지량, 파츠 슬롯 등).
     -   **스냅샷 저장**: `RoundStart`, `UnitActivationStart` 등 특정 시점에는 모든 유닛의 전체 상태 스냅샷(`Dictionary<string, ArmoredFrameSnapshot>`)을 함께 기록하여, 로그 재생 시 특정 시점의 상태를 복원할 수 있도록 합니다.
     -   **포맷팅 및 조회**: 로그 레벨, 턴 번호, 들여쓰기 등을 적용하여 로그를 가독성 있게 포맷팅하고(`FormatLogEntry`), 다양한 조건(로그 레벨, 검색어)으로 로그를 필터링하여 조회하는 기능을 제공합니다.
-    -   **파일 저장 (`SaveToFile`)**: 기록된 로그를 파일로 저장합니다.
+    -   **파일 저장 (`SaveToFile`, `GetFormattedLogsForFileSaving`)**: 기록된 로그를 파일로 저장합니다. 파일 저장 시에는 Unity 에디터 콘솔과 달리 색상 태그(`<color=...>`)는 제거되고, 스프라이트 태그(`<sprite index=...>`)는 텍스트 마커(`[HIT]`, `[MISS]` 등)로 변환되어 가독성을 높입니다.
     -   **전투 요약 (`GenerateBattleSummary`)**: 전투 결과, 턴 수, 피해량 등을 요약하여 제공합니다.
 -   **`TextLoggerService` 주요 기능**:
     -   `TextLogger` 인스턴스를 생성하고 `IService`로 래핑하여 `ServiceLocator`를 통해 관리합니다.
     -   **이벤트 자동 구독**: `EventBus`를 구독하여 전투 관련 이벤트(세션 시작/종료, 턴/활성화 시작/종료, 액션 완료, 데미지 발생 등)가 발생하면 자동으로 `TextLogger.LogEvent`를 호출하여 해당 이벤트를 로그로 기록합니다.
     -   **Flavor Text 관리**: `FlavorTextSO` 에셋을 로드하여 이벤트 로그에 무작위 Flavor Text를 삽입하는 기능을 제공합니다 (`GetRandomFlavorText`, `FormatFlavorText`).
-    -   **포맷팅 제어**: `TextLogger`의 로그 포맷팅 옵션(로그 레벨 표시, 턴 접두사 표시 등)을 외부에서 제어할 수 있는 메서드를 제공합니다.
+    -   **포맷팅 제어**: `TextLogger`의 로그 포맷팅 옵션(로그 레벨 표시, 턴 접두사 표시 등)을 외부에서 제어할 수 있는 메서드를 제공합니다. (필요시, `TextLogger`의 `AllowedLogLevels`를 설정하여 기록될 로그 레벨을 제어하는 기능도 포함 가능)
 -   **특징**: 이벤트 기반 자동 로깅과 상세한 델타/스냅샷 정보를 통해 전투 과정을 정밀하게 기록하고 분석/재생할 수 있는 기반을 제공합니다.
 
 ### 4. 전투 컨텍스트 (`CombatContext.cs`)
@@ -103,7 +103,7 @@
 
 ## 시스템 흐름 요약
 
-1.  `CombatSimulatorService.StartCombat` 호출로 전투가 시작되며, 각 AI 유닛의 전문화 타입에 따라 적절한 행동 트리(예: `RangedCombatBT`, `BasicAttackBT`)가 할당되고 블랙보드가 초기화됩니다.
+1.  `CombatSimulatorService.StartCombat` 호출로 전투가 시작되며, 각 AI 유닛의 전문화 타입에 따라 적절한 행동 트리(예: `RangedCombatBT`, `MeleeCombatBT`, `BasicAttackBT`)가 할당되고 블랙보드가 초기화됩니다.
 2.  `CombatSimulatorService.ProcessNextTurn`이 호출될 때마다 다음 유닛이 활성화됩니다.
 3.  활성화된 AI 유닛은 AP와 최대 행동 횟수 제한 내에서 `BehaviorTreeRoot.Tick()`을 반복적으로 호출하여 블랙보드에 행동 결정 사항을 기록하고, `CombatSimulatorService`는 이 정보를 바탕으로 `CombatActionExecutor.Execute`를 호출하여 실제 행동을 실행합니다. 각 행동 실행 후에는 컨텍스트(예: `MovedThisActivation`)가 업데이트됩니다.
 4.  행동 실행 시 AP가 부족하거나, 유닛이 비활성화되거나, 최대 행동 횟수에 도달하면 해당 유닛의 활성화가 종료됩니다.

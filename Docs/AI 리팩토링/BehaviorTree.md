@@ -95,7 +95,7 @@
 
 4.  **`CombatSimulatorService` 수정 완료 및 개선**:
     *   기존 `IPilotBehaviorStrategy` 관련 필드 및 초기화 로직 제거.
-    *   `StartCombat` 메서드: 참가하는 각 `ArmoredFrame`의 `BehaviorTreeRoot`에 전문화 타입에 따라 적절한 BT (`RangedCombatBT.Create(unit)` 또는 `BasicAttackBT.Create()`)를 할당하고 `AICtxBlackboard`를 초기화.
+    *   `StartCombat` 메서드: 참가하는 각 `ArmoredFrame`의 `BehaviorTreeRoot`에 전문화 타입에 따라 적절한 BT (`RangedCombatBT.Create(unit)`, `MeleeCombatBT.Create(unit)` 또는 `BasicAttackBT.Create()`)를 할당하고 `AICtxBlackboard`를 초기화.
     *   `ProcessNextTurn` 메서드 개선:
         *   현재 활성화된 유닛(`_currentActiveUnit`)의 블랙보드는 유닛 활성화 시작 시 한 번 초기화.
         *   **여러 행동 실행 로직 추가**: `while` 루프를 사용하여 유닛이 AP를 소모하고, 최대 행동 횟수 제한 내에서 여러 행동을 시도할 수 있도록 변경.
@@ -115,6 +115,11 @@
 -   `IsTargetTooCloseNode`, `MoveAwayFromTargetNode`, `CanMoveThisActivationNode` 등은 특정 상황(예: 원거리 유닛의 근접 위협 대응, 한 활성화 주기 내 이동 제한)을 위한 행동 블록으로 조합하여 사용될 수 있다.
 -   `RangedCombatBT.cs`에서는 `agent.GetPrimaryWeapon()`을 통해 주무기 정보를 가져와 `MaxRange`의 일정 비율을 동적 카이팅 거리로 설정하고, 이를 `IsTargetTooCloseNode` 생성자에 전달하여 특정 유닛/무기에 최적화된 카이팅 행동을 구현했다.
 -   `BasicAttackBT.cs`와 `RangedCombatBT.cs` 모두 `CanMoveThisActivationNode`를 이동 관련 시퀀스에 추가하여, 한 번 이동한 후에는 다른 행동(예: 공격)을 우선하도록 유도하여 불필요한 반복 이동을 방지했다.
+-   `MeleeCombatBT.cs`는 근접 전투 전문화 유닛을 위한 행동 트리로, 주로 타겟에게 접근하여 근접 공격을 시도하는 로직으로 구성된다.
+    -   타겟 선택 (`SelectTargetNode`) 후, 이동 가능 여부(`CanMoveThisActivationNode`) 및 AP(`HasEnoughAPNode`)를 확인한다.
+    -   타겟과의 거리를 좁히기 위해 이동(`MoveToTargetNode`)하고, 사거리 내에 들어오면 공격(`AttackTargetNode`)을 시도한다.
+    -   공격 후에는 AP가 남으면 방어(`DefendNode`)를 시도하여 생존성을 높인다.
+    -   만약 교전이 불가능하거나 AP가 부족하면 방어 또는 대기 행동을 선택한다.
 -   이러한 모듈식 접근은 행동 트리 조립 시 필요한 블록을 선택적으로 포함하거나 파라미터를 조절하여 AI 행동의 다양성과 유연성을 높이는 데 기여한다.
 
 ---
