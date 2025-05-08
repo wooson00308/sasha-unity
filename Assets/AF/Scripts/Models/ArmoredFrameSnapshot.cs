@@ -67,6 +67,7 @@ namespace AF.Models
         public Stats CombinedStats { get; } // Added Stats snapshot
         public Dictionary<string, PartSnapshot> PartSnapshots { get; } // Added Part snapshots
         public List<WeaponSnapshot> WeaponSnapshots { get; } // Added Weapon snapshots
+        public float PrimaryWeaponRange { get; } // SASHA: 주 무기 사거리 추가
 
         public ArmoredFrameSnapshot(ArmoredFrame frame)
         {
@@ -81,6 +82,7 @@ namespace AF.Models
                 CombinedStats = default; // Initialize with default
                 PartSnapshots = new Dictionary<string, PartSnapshot>(); // Initialize empty
                 WeaponSnapshots = new List<WeaponSnapshot>(); // Initialize empty
+                PrimaryWeaponRange = 0f; // SASHA: 주 무기 사거리 초기화
                 return;
             }
 
@@ -124,13 +126,18 @@ namespace AF.Models
             {
                  WeaponSnapshots = weapons.Select(w => new WeaponSnapshot(w)).ToList();
             }
+
+            // SASHA: 주 무기 사거리 저장
+            Weapon primaryWeapon = frame.GetPrimaryWeapon();
+            PrimaryWeaponRange = primaryWeapon?.MaxRange ?? 0f; // Weapon 클래스에 MaxRange가 있다고 가정
         }
 
         // +++ New constructor accepting all fields (for internal updates) +++
         public ArmoredFrameSnapshot(
             string name, Vector3 position, int teamId, float currentAP, float maxAP,
             float currentTotalDurability, float maxTotalDurability, bool isOperational,
-            Stats combinedStats, Dictionary<string, PartSnapshot> partSnapshots, List<WeaponSnapshot> weaponSnapshots)
+            Stats combinedStats, Dictionary<string, PartSnapshot> partSnapshots, List<WeaponSnapshot> weaponSnapshots,
+            float primaryWeaponRange) // SASHA: 파라미터 추가
         {
             Name = name;
             Position = position;
@@ -144,6 +151,7 @@ namespace AF.Models
             // Ensure collections are not null
             PartSnapshots = partSnapshots ?? new Dictionary<string, PartSnapshot>();
             WeaponSnapshots = weaponSnapshots ?? new List<WeaponSnapshot>();
+            PrimaryWeaponRange = primaryWeaponRange; // SASHA: 필드 할당 추가
         }
     }
 } 

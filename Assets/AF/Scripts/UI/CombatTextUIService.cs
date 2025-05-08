@@ -12,7 +12,6 @@ using System; // TimeSpan 사용 위해 추가
 using System.Linq;
 using System.Text;
 using System.Threading; // <<< CancellationTokenSource 사용 위해 추가
-using AF.EventBus; // <<< 이벤트 버스 네임스페이스 추가
 
 namespace AF.UI
 {
@@ -520,7 +519,8 @@ namespace AF.UI
                 isOperational,        // Use recalculated value
                 original.CombinedStats, // Assuming stats don't change mid-combat from these deltas
                 partsToUse ?? new Dictionary<string, PartSnapshot>(),
-                original.WeaponSnapshots ?? new List<WeaponSnapshot>() // Assuming weapons don't change from these deltas
+                original.WeaponSnapshots ?? new List<WeaponSnapshot>(), // Assuming weapons don't change from these deltas
+                original.PrimaryWeaponRange // SASHA: 누락된 primaryWeaponRange 파라미터 전달 추가
             );
         }
 

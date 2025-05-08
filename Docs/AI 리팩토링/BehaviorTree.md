@@ -52,7 +52,7 @@
 -   **`HasValidTargetNode`**: `blackboard.CurrentTarget`이 유효하고 파괴되지 않았는지 검사 (`IsTargetAliveNode`와 동일 로직).
 -   **`IsTargetTooCloseNode`**: `blackboard.CurrentTarget`과의 거리가 너무 가까운지 검사한다.
     *   생성자에 `explicitKitingDistance`를 전달하여 명시적인 카이팅 거리를 설정할 수 있다.
-    *   명시적인 거리가 없으면, `blackboard.SelectedWeapon`의 `MinRange`에 `DefaultKitingBuffer` (기본 2.0f)를 더한 값을 기준으로 판단한다. 만약 무기의 `MinRange`가 `MaxRange`의 80% 이상이거나 (근접 무기로 간주), `MinRange`가 매우 작으면, `MaxRange`의 일정 비율(예: 10%)과 최소 절대값(예: 1.0f) 중 큰 값을 안전 마진으로 사용하여 동적으로 후퇴 거리를 결정한다.
+    *   명시적인 거리가 없으면, `blackboard.SelectedWeapon`의 `MinRange`에 동적으로 계산된 `safetyMargin`을 더한 값을 기준으로 판단한다. 이 `safetyMargin`은 (무기 `MaxRange`의 10% 또는 `DefaultMaxRangeRatioForSafetyMargin` 값)과 (최소 절대값 1.0f 또는 `MinimalSafetyMarginAbsolute` 값) 중 더 큰 값으로 결정된다.
     *   대상이나 선택된 무기가 없으면 `Failure`를 반환.
 -   **`CanMoveThisActivationNode` (신규)**: 현재 유닛 활성화 주기 동안 이미 이동 행동을 했는지 `CombatContext.MovedThisActivation`을 통해 검사한다. 아직 이동하지 않았으면 `Success`, 이미 이동했으면 `Failure`를 반환한다.
 
@@ -103,24 +103,4 @@
             *   행동 트리 `_currentActiveUnit.BehaviorTreeRoot.Tick(...)` 호출.
             *   `Tick` 후, `_currentActiveUnit.AICtxBlackboard`를 확인하여 `DecidedActionType` 및 관련 데이터(타겟, 무기 등)를 읽음.
             *   읽어온 정보를 바탕으로 `_actionExecutor.Execute(...)` 호출.
-            *   `Execute` 후 `CombatContext`의 `MovedThisActivation` 등을 업데이트.
-            *   AP가 부족하거나, 유닛이 비활성화되거나, 최대 행동 횟수에 도달하면 루프 종료.
-        *   `DetermineActionForUnit` 메서드 제거.
-
-5.  **`CombatTestRunner` 수정 완료**:
-    *   `CreateTestArmoredFrame`, `CreateCustomArmoredFrame` 메서드: `ArmoredFrame` 생성 시 `BehaviorTreeRoot` 할당 및 `AICtxBlackboard` 초기화 로직 추가.
-    *   `StartCombatTestAsync` 메서드: 재사용되는 플레이어 스쿼드 유닛(`existingAf`)의 `AICtxBlackboard` 초기화 로직 추가.
-
-**신규 노드 활용 방안 및 BT 설계 예시:**
--   `IsTargetTooCloseNode`, `MoveAwayFromTargetNode`, `CanMoveThisActivationNode` 등은 특정 상황(예: 원거리 유닛의 근접 위협 대응, 한 활성화 주기 내 이동 제한)을 위한 행동 블록으로 조합하여 사용될 수 있다.
--   `RangedCombatBT.cs`에서는 `agent.GetPrimaryWeapon()`을 통해 주무기 정보를 가져와 `MaxRange`의 일정 비율을 동적 카이팅 거리로 설정하고, 이를 `IsTargetTooCloseNode` 생성자에 전달하여 특정 유닛/무기에 최적화된 카이팅 행동을 구현했다.
--   `BasicAttackBT.cs`와 `RangedCombatBT.cs` 모두 `CanMoveThisActivationNode`를 이동 관련 시퀀스에 추가하여, 한 번 이동한 후에는 다른 행동(예: 공격)을 우선하도록 유도하여 불필요한 반복 이동을 방지했다.
--   `MeleeCombatBT.cs`는 근접 전투 전문화 유닛을 위한 행동 트리로, 주로 타겟에게 접근하여 근접 공격을 시도하는 로직으로 구성된다.
-    -   타겟 선택 (`SelectTargetNode`) 후, 이동 가능 여부(`CanMoveThisActivationNode`) 및 AP(`HasEnoughAPNode`)를 확인한다.
-    -   타겟과의 거리를 좁히기 위해 이동(`MoveToTargetNode`)하고, 사거리 내에 들어오면 공격(`AttackTargetNode`)을 시도한다.
-    -   공격 후에는 AP가 남으면 방어(`DefendNode`)를 시도하여 생존성을 높인다.
-    -   만약 교전이 불가능하거나 AP가 부족하면 방어 또는 대기 행동을 선택한다.
--   이러한 모듈식 접근은 행동 트리 조립 시 필요한 블록을 선택적으로 포함하거나 파라미터를 조절하여 AI 행동의 다양성과 유연성을 높이는 데 기여한다.
-
----
-(향후 개선 사항: 파일럿 특성별 BT 할당, 더 다양한 노드 추가, BT 실행 로직 개선 등)
+            *   `Execute` 후 `

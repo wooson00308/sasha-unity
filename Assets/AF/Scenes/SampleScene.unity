@@ -399,6 +399,11 @@ MonoBehaviour:
   flashDuration: 0.2
   pulseScale: 1.8
   moveAnimDuration: 0.3
+  materialTransitionFadeDuration: 0.25
+  radarScanTransform: {fileID: 1885636001073493839}
+  scanArcWidthDegrees: 100
+  scanFadeRangeDegrees: 5
+  markersMaterial: {fileID: 2100000, guid: a86abbff25b8f6e42960462b07076d24, type: 2}
 --- !u!1 &45755662
 GameObject:
   m_ObjectHideFlags: 0
@@ -1335,6 +1340,7 @@ MonoBehaviour:
   _serviceObjects:
   - {fileID: 2012339888}
   - {fileID: 19313496}
+  - {fileID: 1776037131}
   _useShutdownOrder: 0
   _shutdownOrder: []
 --- !u!1 &510718089
@@ -5533,7 +5539,7 @@ MonoBehaviour:
     customWeaponR1: {fileID: 11400000, guid: 2c441138c51bce44ebeaa40cfe3bb82c, type: 2}
     customWeaponL1: {fileID: 0}
     customPilot: {fileID: 11400000, guid: 5a606a1b12582644bb00669016dec86a, type: 2}
-    persistentId: Crimson_Deadeye
+    callsign: "\uC6B0\uCC3D"
   afSetups:
   - useCustomAssembly: 0
     customAFName: "\uCF54\uBC1C\uD2B8 \uBC45\uAC00\uB4DC"
@@ -5549,7 +5555,7 @@ MonoBehaviour:
     customWeaponR1: {fileID: 11400000, guid: 74b7090b268c6f741bba6c28f863d3f6, type: 2}
     customWeaponL1: {fileID: 11400000, guid: f86a1e490c9ba454a9748a98815021b1, type: 2}
     customPilot: {fileID: 11400000, guid: dacca43c482f4e347b0bae22f11d8be8, type: 2}
-    persistentId: Cobalt_Vanguard
+    callsign: "\uBC45\uAC00\uB4DC"
   - useCustomAssembly: 0
     customAFName: "\uCF54\uBC1C\uD2B8 \uC2A4\uD2B8\uB77C\uC774\uCEE4"
     assembly: {fileID: 11400000, guid: 89070a7e71225314889299faa6089b75, type: 2}
@@ -5564,14 +5570,14 @@ MonoBehaviour:
     customWeaponR1: {fileID: 11400000, guid: c08e3ceb85c8bb3469c6f4598a280083, type: 2}
     customWeaponL1: {fileID: 11400000, guid: ef43926a272330b40aa15660935db9e1, type: 2}
     customPilot: {fileID: 11400000, guid: 6fe1b293c2ad78b4eaa7daeb9276525d, type: 2}
-    persistentId: Cobalt_Striker
+    callsign: "\uC2A4\uD2B8\uB77C\uC774\uCEE4"
   logCombatDetails: 0
   showLogLevelPrefix: 0
   showTurnPrefix: 0
   useLogIndentation: 0
   logActionSummaries: 0
   useSpriteIconsInLog: 0
-  logLevelsToRecord: 0
+  logLevelsToRecord: 1
   currentBattleId: 
   currentCycle: 0
   isInCombat: 0

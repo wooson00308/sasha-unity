@@ -749,16 +749,8 @@ namespace AF.Combat
             // <<< 스프라이트 태그를 텍스트 마커로 변환 >>>
             messageContent = ConvertSpriteTagToTextMarker(messageContent);
 
-            // --- SASHA: 임시 디버그 로그 추가 (제거 전) ---
-            Debug.Log($"[TextLogger] Before RemoveRichTextTags: {messageContent}");
-            // --- SASHA: 추가 끝 ---
-
             // 실제 로그 메시지 추가 (리치 텍스트 제거)
             messageContent = RemoveRichTextTags(messageContent); // 변환된 메시지 사용
-
-            // --- SASHA: 임시 디버그 로그 추가 (제거 후) ---
-            Debug.Log($"[TextLogger] After RemoveRichTextTags: {messageContent}");
-            // --- SASHA: 추가 끝 ---
 
             // 턴 넘버 접두사 (플래그 확인)
             if (ShowTurnPrefix && entry.TurnNumber > 0)
