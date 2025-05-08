@@ -441,7 +441,7 @@ namespace AF.Tests
 
         [FoldoutGroup("전투 옵션", expanded: true)]
         [LabelText("로그 필터링 (제외)")]
-        public LogLevelFlags logLevelsToExclude = LogLevelFlags.Nothing;
+        public LogLevelFlags logLevelsToRecord = LogLevelFlags.Nothing;
 
         private ICombatSimulatorService combatSimulator;
         private TextLoggerService textLogger;
@@ -546,12 +546,17 @@ namespace AF.Tests
                 return;
             }
             
-            // --- 로그 포맷 설정 --- 
+            // --- 로그 포맷 및 기록 레벨 설정 --- 
             textLogger.SetShowLogLevel(showLogLevelPrefix);
             textLogger.SetShowTurnPrefix(showTurnPrefix);
             textLogger.SetUseIndentation(useLogIndentation);
             textLogger.SetLogActionSummaries(logActionSummaries);
             textLogger.SetUseSpriteIcons(useSpriteIconsInLog);
+            // --- SASHA: 기록할 로그 레벨 설정 추가 ---
+            // logLevelsToRecord는 "제외할" 플래그이므로, 실제로 허용할 플래그는 전체에서 제외 플래그를 뺀 것.
+            LogLevelFlags flagsToActuallyAllow = LogLevelFlags.Everything & ~logLevelsToRecord;
+            textLogger.SetAllowedLogLevels(flagsToActuallyAllow);
+            // --- SASHA: 추가 끝 ---
             // ---------------------
 
             // --- 상태 초기화 ---
@@ -749,7 +754,7 @@ namespace AF.Tests
                 Log("전투 프로세스 정리 완료.", LogLevel.System);
 
                 // 로그 파일 자동 저장 (필터링 적용)
-                SaveFilteredLogToFile($"BattleLog_{currentBattleId}", logLevelsToExclude);
+                SaveFilteredLogToFile($"BattleLog_{currentBattleId}", logLevelsToRecord);
             }
         }
         
@@ -1199,7 +1204,9 @@ namespace AF.Tests
 
             try
             {
-                List<string> filteredLogLines = textLogger.ConcreteLogger.GetFormattedLogs(null, flagsToExclude);
+                // --- SASHA: 파일 저장용 포맷팅 메서드 호출로 변경 ---
+                List<string> filteredLogLines = textLogger.ConcreteLogger.GetFormattedLogsForFileSaving(flagsToExclude);
+                // --- SASHA: 변경 끝 ---
 
                 string directory = Path.Combine(Application.persistentDataPath, "Logs");
                 if (!Directory.Exists(directory))

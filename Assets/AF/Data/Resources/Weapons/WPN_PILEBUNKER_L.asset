@@ -16,13 +16,14 @@ MonoBehaviour:
   WeaponName: "\uD30C\uC77C\uBC99\uCEE4 (\uC88C)"
   WeaponType: 0
   DamageType: 0
-  BaseDamage: 180
-  Accuracy: 0.5
+  BaseDamage: 170
+  Accuracy: 0.55
   Range: 1
+  MinRange: 0
   AttackSpeed: 0.5
   OverheatPerShot: 0
   AmmoCapacity: 0
-  BaseAPCost: 10
+  BaseAPCost: 9
   ReloadAPCost: 0
   ReloadTurns: 0
   SpecialEffects: []

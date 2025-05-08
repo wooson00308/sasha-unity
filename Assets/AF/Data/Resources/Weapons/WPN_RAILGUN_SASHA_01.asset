@@ -16,13 +16,14 @@ MonoBehaviour:
   WeaponName: "\uC0AC\uC0E4 \uCEE4\uC2A4\uD140 \uB808\uC77C\uAC74"
   WeaponType: 2
   DamageType: 1
-  BaseDamage: 160
+  BaseDamage: 150
   Accuracy: 0.92
-  Range: 25
+  Range: 28
+  MinRange: 9
   AttackSpeed: 0.3
-  OverheatPerShot: 0.3
+  OverheatPerShot: 0
   AmmoCapacity: 0
-  BaseAPCost: 12
+  BaseAPCost: 10
   ReloadAPCost: 0
   ReloadTurns: 0
   SpecialEffects: []

@@ -145,6 +145,10 @@ namespace AF.Combat
                     {
                         unit.BehaviorTreeRoot = RangedCombatBT.Create(unit);
                     }
+                    else if (unit.Pilot != null && unit.Pilot.Specialization == SpecializationType.MeleeCombat)
+                    {
+                        unit.BehaviorTreeRoot = MeleeCombatBT.Create(unit); 
+                    }
                     else
                     {
                         unit.BehaviorTreeRoot = BasicAttackBT.Create(); 

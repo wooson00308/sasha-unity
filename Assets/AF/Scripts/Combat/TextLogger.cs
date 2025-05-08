@@ -26,6 +26,10 @@ namespace AF.Combat
         private string _currentBattleId;
         private bool _isInitialized = false;
 
+        // --- SASHA: 허용 로그 레벨 플래그 추가 ---
+        public LogLevelFlags AllowedLogLevels { get; set; } = LogLevelFlags.Everything;
+        // --- SASHA: 추가 끝 ---
+
         // 포맷팅 제어 플래그
         public bool ShowLogLevel { get; set; } = true;
         public bool ShowTurnPrefix { get; set; } = true;
@@ -227,9 +231,15 @@ namespace AF.Combat
         
         public void Log(string message, LogLevel level = LogLevel.Info, LogEventType eventType = LogEventType.Unknown, ArmoredFrame contextUnit = null, bool shouldUpdateTargetView = false, Dictionary<string, ArmoredFrameSnapshot> turnStartStateSnapshot = null)
         {
+            // --- SASHA: 기록 시점 필터링 추가 ---
+            LogLevelFlags flag = ConvertLogLevelToFlag(level);
+            if (!AllowedLogLevels.HasFlag(flag))
+            {
+                return; // 허용되지 않은 레벨은 기록하지 않음
+            }
+            // --- SASHA: 추가 끝 ---
+
             _logs.Add(new LogEntry(message, level, _turnCounter, _cycleCounter, eventType, contextUnit, shouldUpdateTargetView, turnStartStateSnapshot));
-            // 새 로그가 추가되었음을 알리는 이벤트 발생 로직 삭제
-            // OnLogAdded?.Invoke(FormatLogEntry(_logs.Last()), level); 
         }
 
         public void LogEvent(ICombatEvent combatEvent)
@@ -251,24 +261,9 @@ namespace AF.Combat
             {
                 LogUnitActivationEnd(unitActivationEndEvent);
             }
-            else if (combatEvent is CombatActionEvents.ActionStartEvent actionStartEvent)
-            {
-                // ActionStart는 너무 상세할 수 있으므로 간략화 또는 제거 고려
-                // LogActionStart(actionStartEvent); 
-            }
             else if (combatEvent is CombatActionEvents.ActionCompletedEvent actionCompletedEvent)
             {
                 LogActionCompleted(actionCompletedEvent);
-            }
-            else if (combatEvent is CombatActionEvents.WeaponFiredEvent weaponFiredEvent)
-            {
-                // WeaponFired는 ActionCompleted에서 통합 처리 가능성 있음 (필요시 유지)
-                // LogWeaponFired(weaponFiredEvent);
-            }
-            else if (combatEvent is DamageEvents.DamageCalculatedEvent damageCalculatedEvent)
-            {
-                // DamageCalculated는 너무 상세할 수 있으므로 제거 고려
-                // LogDamageCalculated(damageCalculatedEvent);
             }
             else if (combatEvent is DamageEvents.DamageAppliedEvent damageAppliedEvent)
             {
@@ -282,16 +277,10 @@ namespace AF.Combat
             {
                 LogPartDestroyed(partDestroyedEvent);
             }
-            else if (combatEvent is PartEvents.PartStatusChangedEvent partStatusEvent)
-            {
-                // PartStatusChanged는 너무 상세할 수 있으므로 간략화 또는 제거 고려
-                // LogPartStatusChanged(partStatusEvent);
-            }
             else if (combatEvent is PartEvents.SystemCriticalFailureEvent systemFailureEvent)
             {
                 LogSystemCriticalFailure(systemFailureEvent);
             }
-            // <<< 상태 효과 로깅 추가 >>>
             else if (combatEvent is StatusEffectEvents.StatusEffectAppliedEvent effectAppliedEvent)
             {
                 LogStatusEffectApplied(effectAppliedEvent);
@@ -304,11 +293,15 @@ namespace AF.Combat
             {
                 LogStatusEffectTicked(effectTickedEvent);
             }
-            // <<< 상태 효과 로깅 끝 >>>
             else
             {
-                // 처리되지 않은 이벤트 타입에 대한 기본 로깅
-                Log($"[T{_turnCounter}] 알 수 없는 이벤트 발생: {combatEvent.GetType().Name}", LogLevel.Warning);
+                // 알 수 없는 이벤트는 Warning 레벨로 기록 시도
+                const LogLevel unknownEventLevel = LogLevel.Warning;
+                LogLevelFlags unknownFlag = ConvertLogLevelToFlag(unknownEventLevel);
+                if (AllowedLogLevels.HasFlag(unknownFlag))
+                {
+                    Log($"[T{_turnCounter}] 알 수 없는 이벤트 발생: {combatEvent.GetType().Name}", unknownEventLevel);
+                }
             }
         }
 
@@ -336,36 +329,37 @@ namespace AF.Combat
                 .ToList();
         }
 
-        /// <summary>
-        /// Filters and formats logs based on specified include/exclude flags.
-        /// </summary>
-        /// <param name="flagsToInclude">LogLevelFlags to include. If null, all are potentially included (unless excluded).</param>
-        /// <param name="flagsToExclude">LogLevelFlags to exclude. If null, no levels are excluded.</param>
-        /// <returns>A list of formatted log strings matching the criteria.</returns>
         public List<string> GetFormattedLogs(LogLevelFlags? flagsToInclude = null, LogLevelFlags? flagsToExclude = null)
         {
-            IEnumerable<LogEntry> filteredLogs = _logs;
-
-            // Apply include filter
-            if (flagsToInclude.HasValue && flagsToInclude.Value != LogLevelFlags.Everything && flagsToInclude.Value != LogLevelFlags.Nothing)
-            {
-                filteredLogs = filteredLogs.Where(entry => flagsToInclude.Value.HasFlag(ConvertLogLevelToFlag(entry.Level)));
-            }
-            else if (flagsToInclude.HasValue && flagsToInclude.Value == LogLevelFlags.Nothing)
-            {
-                return new List<string>(); // Nothing included means empty list
-            }
-            // If Everything or null, all are initially included, proceed to exclude filter
-
-            // Apply exclude filter
-            if (flagsToExclude.HasValue && flagsToExclude.Value != LogLevelFlags.Nothing)
-            {
-                filteredLogs = filteredLogs.Where(entry => !flagsToExclude.Value.HasFlag(ConvertLogLevelToFlag(entry.Level)));
-            }
-            // If Nothing to exclude, no further filtering on exclusion
-
-            return filteredLogs.Select(entry => FormatLogEntry(entry)).ToList();
+            // --- SASHA: 필터링 로직 제거 ---
+            // 이제 이 메서드는 단순히 저장된 모든 로그를 포맷팅하여 반환합니다.
+            // 기존의 flagsToInclude, flagsToExclude 파라미터는 하위 호환성 또는
+            // 다른 용도(예: UI 필터링)를 위해 남겨둘 수 있으나, 여기서 사용하지 않습니다.
+            IEnumerable<LogEntry> logsToFormat = _logs; 
+            return logsToFormat.Select(entry => FormatLogEntry(entry)).ToList();
+            // --- SASHA: 제거 끝 ---
         }
+
+        // --- SASHA: 파일 저장용으로 포맷팅된 로그를 가져오는 새 메서드 ---
+        public List<string> GetFormattedLogsForFileSaving(LogLevelFlags? flagsToExclude = null)
+        {
+            // 현재 AllowedLogLevels에 의해 이미 필터링된 _logs를 사용합니다.
+            // flagsToExclude 파라미터는 CombatTestRunner와의 호환성을 위해 남겨두지만,
+            // 추가적인 파일 저장 시점 필터링이 필요 없다면 여기서 사용하지 않아도 됩니다.
+            // 만약 여기서 flagsToExclude를 사용한 추가 필터링을 원한다면,
+            // GetFormattedLogs 내부의 필터링 로직을 참고하여 여기에 구현할 수 있습니다.
+            IEnumerable<LogEntry> logsToFormat = _logs;
+
+            // 예시: 만약 flagsToExclude를 사용한 추가 필터링을 적용한다면 아래와 같이 할 수 있음 (현재는 사용 안함)
+            // if (flagsToExclude.HasValue && flagsToExclude.Value != LogLevelFlags.Nothing)
+            // {
+            //     LogLevelFlags excludeFlags = flagsToExclude.Value;
+            //     logsToFormat = logsToFormat.Where(entry => !excludeFlags.HasFlag(ConvertLogLevelToFlag(entry.Level)));
+            // }
+
+            return logsToFormat.Select(entry => FormatLogEntryForFile(entry)).ToList();
+        }
+        // --- SASHA: 추가 끝 ---
 
         public void Clear()
         {
@@ -472,6 +466,11 @@ namespace AF.Combat
 
         private void LogCombatStart(CombatSessionEvents.CombatStartEvent evt)
         {
+            // --- SASHA: 플래그 검사 추가 ---
+            const LogLevel level = LogLevel.System;
+            if (!AllowedLogLevels.HasFlag(ConvertLogLevelToFlag(level))) return;
+            // --- SASHA: 추가 끝 ---
+
             Clear(); // 전투 시작 시 이전 로그 삭제
             _currentBattleId = evt.BattleId;
             _turnCounter = 0;
@@ -488,11 +487,16 @@ namespace AF.Combat
                 sb.AppendLine($"- {ColorizeText($"[{participant.Name}]", "blue")} ({participant.FrameBase.Type})");
             }
 
-            Log(sb.ToString(), LogLevel.System);
+            Log(sb.ToString(), level);
         }
 
         private void LogCombatEnd(CombatSessionEvents.CombatEndEvent evt)
         {
+            // --- SASHA: 플래그 검사 추가 ---
+            const LogLevel level = LogLevel.System;
+            if (!AllowedLogLevels.HasFlag(ConvertLogLevelToFlag(level))) return;
+            // --- SASHA: 추가 끝 ---
+
             StringBuilder sb = new StringBuilder();
             sb.Append("<sprite index=12> "); // BATTLE END 아이콘
             
@@ -519,7 +523,7 @@ namespace AF.Combat
                 sb.AppendLine($"- {ColorizeText($"[{survivor.Name}]", "blue")}");
             }
 
-            Log(sb.ToString(), LogLevel.System);
+            Log(sb.ToString(), level);
             
             // 전투 종료 시 상세 유닛 상태 로그 추가
             LogUnitStatusSummary(evt.BattleId); 
@@ -527,31 +531,27 @@ namespace AF.Combat
 
         private void LogUnitActivationStart(CombatSessionEvents.UnitActivationStartEvent evt)
         {
-            // _turnCounter = evt.TurnNumber; // 턴 카운터 업데이트 - CombatSimulatorService의 Cycle을 참조해야 할 수도 있음. 일단 LogEvent 호출부에서 관리.
-            string apInfo = $"AP: {evt.ActiveUnit.CurrentAP:F1} / {evt.ActiveUnit.CombinedStats.MaxAP:F1}";
-            // AP 회복량 정보는 CombatSimulatorService의 Debug.Log에 있으므로 여기선 생략하거나, 필요시 이벤트에 추가
-            // Log($"<sprite index=13> ===== Turn {evt.TurnNumber}: [{evt.ActiveUnit.Name}] 행동 시작 ({apInfo}) =====", LogLevel.Info); // TURN START 아이콘
-            // TextLoggerService에서 이미 포맷된 로그를 전달하므로, 여기서는 상세 로깅 불필요. 필요하다면 추가.
-            // Log($"Unit Activation Start: {evt.ActiveUnit.Name}", LogLevel.Debug); // 예시
+            // 현재 주석 처리된 상세 로그 부분. 만약 활성화한다면 플래그 검사 추가 필요.
+            // const LogLevel level = LogLevel.Debug; // 예시 레벨
+            // if (!AllowedLogLevels.HasFlag(ConvertLogLevelToFlag(level))) return;
+            // Log($"Unit Activation Start: {evt.ActiveUnit.Name}", level); 
         }
 
         private void LogUnitActivationEnd(CombatSessionEvents.UnitActivationEndEvent evt)
         {
-            // 턴 종료 구분 로그
-            string apInfo = $"AP: {evt.ActiveUnit.CurrentAP:F1} / {evt.ActiveUnit.CombinedStats.MaxAP:F1}";
-            // Log($"<sprite index=14> ===== Turn {evt.TurnNumber}: [{evt.ActiveUnit.Name}] 행동 종료 ({apInfo}) =====", LogLevel.Info); // TURN END 아이콘
-            // TextLoggerService에서 이미 포맷된 로그를 전달하므로, 여기서는 상세 로깅 불필요. 필요하다면 추가.
-            // Log($"Unit Activation End: {evt.ActiveUnit.Name}", LogLevel.Debug); // 예시
+            // 현재 주석 처리된 상세 로그 부분. 만약 활성화한다면 플래그 검사 추가 필요.
+            // const LogLevel level = LogLevel.Debug; // 예시 레벨
+            // if (!AllowedLogLevels.HasFlag(ConvertLogLevelToFlag(level))) return;
+            // Log($"Unit Activation End: {evt.ActiveUnit.Name}", level);
         }
-
-        // ActionStart는 간략화 또는 제거 고려 (현재 주석 처리)
-        // private void LogActionStart(CombatActionEvents.ActionStartEvent evt)
-        // {
-        //     Log($"[T{_turnCounter}] {evt.Actor.Name}: 행동 시작 - {GetActionDescription(evt.Action)}", LogLevel.Debug);
-        // }
 
         private void LogActionCompleted(CombatActionEvents.ActionCompletedEvent evt)
         {
+            // --- SASHA: 플래그 검사 추가 ---
+            const LogLevel level = LogLevel.Info; // 액션 완료는 Info 레벨로 유지
+            if (!AllowedLogLevels.HasFlag(ConvertLogLevelToFlag(level))) return;
+            // --- SASHA: 추가 끝 ---
+
             string apInfo = $"| AP: {evt.Actor.CurrentAP:F1} / {evt.Actor.CombinedStats.MaxAP:F1}"; 
             string resultDetails = string.IsNullOrEmpty(evt.ResultDescription) ? "" : $"- {evt.ResultDescription}";
             
@@ -576,24 +576,16 @@ namespace AF.Combat
             // <<< 인덱스 태그 추가 >>>
             // Log($"{prefix}<sprite index=0> <color=red>-></color> {actionSpriteTag} [{GetActionDescription(evt.Action)}] {resultDetails} {apInfo}", LogLevel.Info);
             // Actor 이름 색상 추가
-            Log($"{prefix}<sprite index=0> <color=red>-></color> {actionSpriteTag} [{ColorizeText(evt.Actor.Name, "yellow")}] [{GetActionDescription(evt.Action)}] {resultDetails} {apInfo}", LogLevel.Info);
+            Log($"{prefix}<sprite index=0> <color=red>-></color> {actionSpriteTag} [{ColorizeText(evt.Actor.Name, "yellow")}] [{GetActionDescription(evt.Action)}] {resultDetails} {apInfo}", level);
         }
         
-        // WeaponFired는 ActionCompleted에서 통합 처리 가능 (현재 주석 처리)
-        // private void LogWeaponFired(CombatActionEvents.WeaponFiredEvent evt)
-        // {
-        //     // Attacker(yellow), Target(lightblue) 색상 적용 예시
-        //     Log($"  -> [무기 발사] {ColorizeText(evt.Attacker.Name, "yellow")}의 {evt.Weapon.Name} (대상: {ColorizeText(evt.Target.Name, "lightblue")})", LogLevel.Debug);
-        // }
-
-        // DamageCalculated는 너무 상세하여 제거 고려 (현재 주석 처리)
-        // private void LogDamageCalculated(DamageEvents.DamageCalculatedEvent evt)
-        // {
-        //     Log($"    * 데미지 계산: {evt.DamageSource} -> {evt.Target.Name} ({evt.TargetPartSlot}), 기본 {evt.BaseDamage:F1}, 최종 {evt.FinalDamage:F1}", LogLevel.Debug);
-        // }
-
         private void LogDamageApplied(DamageEvents.DamageAppliedEvent evt)
         {
+            // --- SASHA: 플래그 검사 추가 ---
+            const LogLevel level = LogLevel.Info; // 데미지 적용은 Info 레벨
+            if (!AllowedLogLevels.HasFlag(ConvertLogLevelToFlag(level))) return;
+            // --- SASHA: 추가 끝 ---
+
             // Wrap source and target names in brackets and apply colors
             string attackerName = ColorizeText($"[{evt.Source.Name}]", "yellow"); 
             string targetName = ColorizeText($"[{evt.Target.Name}]", "lightblue");
@@ -603,11 +595,16 @@ namespace AF.Combat
             // UseIndentation 플래그 확인하여 들여쓰기 적용
             string prefix = UseIndentation ? "    " : "";
             // <<< 인덱스 태그 추가 & 색상 적용된 이름 사용 >>>
-            Log($"{prefix}<sprite index=0> <color=red>-></color> {attackerName}의 공격! {targetName}의 {partName}{durabilityInfo}에 {evt.DamageDealt:F1} 데미지!", LogLevel.Info); // HIT 아이콘
+            Log($"{prefix}<sprite index=0> <color=red>-></color> {attackerName}의 공격! {targetName}의 {partName}{durabilityInfo}에 {evt.DamageDealt:F1} 데미지!", level); // HIT 아이콘
         }
 
         private void LogDamageAvoided(DamageEvents.DamageAvoidedEvent evt)
         {
+            // --- SASHA: 플래그 검사 추가 ---
+            const LogLevel level = LogLevel.Info; // 회피도 Info 레벨
+            if (!AllowedLogLevels.HasFlag(ConvertLogLevelToFlag(level))) return;
+            // --- SASHA: 추가 끝 ---
+
             // Wrap source and target names in brackets and apply colors
             string attackerName = ColorizeText($"[{evt.Source.Name}]", "yellow");
             string targetName = ColorizeText($"[{evt.Target.Name}]", "lightblue");
@@ -615,11 +612,16 @@ namespace AF.Combat
             // UseIndentation 플래그 확인하여 들여쓰기 적용
             string prefix = UseIndentation ? "    " : "";
             // <<< 인덱스 태그 추가 & 색상 적용된 이름 사용 >>>
-            Log($"{prefix}<sprite index=1> <color=lightblue> << </color> {targetName}이(가) {attackerName}의 공격을 회피! ({evt.Type})", LogLevel.Info); // MISS 아이콘
+            Log($"{prefix}<sprite index=1> <color=lightblue> << </color> {targetName}이(가) {attackerName}의 공격을 회피! ({evt.Type})", level); // MISS 아이콘
         }
 
         private void LogPartDestroyed(PartEvents.PartDestroyedEvent evt)
         {
+            // --- SASHA: 플래그 검사 추가 ---
+            const LogLevel level = LogLevel.Warning; // 파츠 파괴는 Warning 레벨
+            if (!AllowedLogLevels.HasFlag(ConvertLogLevelToFlag(level))) return;
+            // --- SASHA: 추가 끝 ---
+
             // Wrap owner name in brackets and apply color (owner is the affected one)
             string ownerName = ColorizeText($"[{evt.Frame.Name}]", "yellow"); // Owner as yellow (actor context)
             string partName = evt.DestroyedPartType.ToString();
@@ -628,18 +630,16 @@ namespace AF.Combat
             // UseIndentation 플래그 확인하여 들여쓰기 적용
             string prefix = UseIndentation ? "  " : "";
             // <<< 인덱스 태그 추가 & 색상 적용된 이름 사용 >>>
-            Log($"{prefix}<sprite index=2> <color=orange>!!! {ownerName}의 {partName} 파괴됨!</color>{effectsInfo}", LogLevel.Warning); // DESTROYED 아이콘
+            Log($"{prefix}<sprite index=2> <color=orange>!!! {ownerName}의 {partName} 파괴됨!</color>{effectsInfo}", level); // DESTROYED 아이콘
         }
         
-        // PartStatusChanged는 너무 상세하여 제거 고려 (현재 주석 처리)
-        // private void LogPartStatusChanged(PartEvents.PartStatusChangedEvent evt)
-        // {
-        //     string partName = evt.ChangedPart?.Name ?? evt.SlotIdentifier;
-        //     Log($"[T{_turnCounter}] {ColorizeText(evt.Owner.Name, "yellow")}의 {partName} 상태 변경: {evt.NewStatus}", LogLevel.Debug);
-        // }
-
         private void LogSystemCriticalFailure(PartEvents.SystemCriticalFailureEvent evt)
         {
+            // --- SASHA: 플래그 검사 추가 ---
+            const LogLevel level = LogLevel.Critical; // 시스템 실패는 Critical 레벨
+            if (!AllowedLogLevels.HasFlag(ConvertLogLevelToFlag(level))) return;
+            // --- SASHA: 추가 끝 ---
+            
             // Wrap owner name in brackets and apply color (owner is the affected one)
             string ownerName = ColorizeText($"[{evt.Frame.Name}]", "yellow"); // Owner as yellow (actor context)
             // evt.Reason 속성이 없으므로 기본 메시지 사용 또는 다른 속성 확인 필요
@@ -648,12 +648,16 @@ namespace AF.Combat
             // UseIndentation 플래그 확인하여 들여쓰기 적용
             string prefix = UseIndentation ? "  " : "";
             // <<< 인덱스 태그 추가 & 색상 적용된 이름 사용 >>>
-            Log($"{prefix}<sprite index=3> <color=purple>*** {ownerName}: {reason} ***</color>", LogLevel.Critical); // SYS FAIL 아이콘
+            Log($"{prefix}<sprite index=3> <color=purple>*** {ownerName}: {reason} ***</color>", level); // SYS FAIL 아이콘
         }
         
-        // <<< 상태 효과 로깅 추가 >>>
         private void LogStatusEffectApplied(StatusEffectEvents.StatusEffectAppliedEvent evt)
         {
+            // --- SASHA: 플래그 검사 추가 ---
+            const LogLevel level = LogLevel.Info; // 상태 효과 적용/종료/틱은 Info 레벨
+            if (!AllowedLogLevels.HasFlag(ConvertLogLevelToFlag(level))) return;
+            // --- SASHA: 추가 끝 ---
+
             // Wrap target name in brackets and apply color
             string targetName = ColorizeText($"[{evt.Target.Name}]", "lightblue");
             // Colorize source name if it exists
@@ -662,11 +666,16 @@ namespace AF.Combat
             // UseIndentation 플래그 확인하여 들여쓰기 적용
             string prefix = UseIndentation ? "  >> " : ">> "; 
             // <<< 인덱스 태그 추가 & 색상 적용된 이름 사용 >>>
-            Log($"{prefix}<sprite index=4> {targetName}: 상태 효과 '{evt.EffectType}' 적용됨 {sourceInfo}({evt.Duration}턴)", LogLevel.Info); // EFFECT+ 아이콘
+            Log($"{prefix}<sprite index=4> {targetName}: 상태 효과 '{evt.EffectType}' 적용됨 {sourceInfo}({evt.Duration}턴)", level); // EFFECT+ 아이콘
         }
 
         private void LogStatusEffectExpired(StatusEffectEvents.StatusEffectExpiredEvent evt)
         {
+            // --- SASHA: 플래그 검사 추가 ---
+            const LogLevel level = LogLevel.Info; 
+            if (!AllowedLogLevels.HasFlag(ConvertLogLevelToFlag(level))) return;
+            // --- SASHA: 추가 끝 ---
+
             // Wrap target name in brackets and apply color
             string targetName = ColorizeText($"[{evt.Target.Name}]", "lightblue");
             string reason = evt.WasDispelled ? "(해제됨)" : "(만료됨)";
@@ -674,11 +683,16 @@ namespace AF.Combat
             // UseIndentation 플래그 확인하여 들여쓰기 적용
             string prefix = UseIndentation ? "  << " : "<< ";
             // <<< 인덱스 태그 추가 & 색상 적용된 이름 사용 >>>
-            Log($"{prefix}<sprite index=5> {targetName}: 상태 효과 '{evt.EffectType}' 종료 {reason}", LogLevel.Info); // EFFECT- 아이콘
+            Log($"{prefix}<sprite index=5> {targetName}: 상태 효과 '{evt.EffectType}' 종료 {reason}", level); // EFFECT- 아이콘
         }
 
         private void LogStatusEffectTicked(StatusEffectEvents.StatusEffectTickEvent evt)
         {
+            // --- SASHA: 플래그 검사 추가 ---
+            const LogLevel level = LogLevel.Info; 
+            if (!AllowedLogLevels.HasFlag(ConvertLogLevelToFlag(level))) return;
+            // --- SASHA: 추가 끝 ---
+
             // Colorize target name
             string targetNameColored = ColorizeText($"[{evt.Target.Name}]", "lightblue"); 
             string effectName = evt.Effect.EffectName;
@@ -689,9 +703,8 @@ namespace AF.Combat
             // <<< 유니코드 스프라이트 태그 추가 및 기존 이모지 제거 >>>
             string logMsg = $"<sprite index=0> {targetNameColored} < [{effectName}] 틱! ([{evt.Effect.TickValue:F0}] {tickAction})";
 
-            Log(logMsg, LogLevel.Info);
+            Log(logMsg, level);
         }
-        // <<< 상태 효과 로깅 끝 >>>
         
         #endregion
 
@@ -736,6 +749,17 @@ namespace AF.Combat
             // <<< 스프라이트 태그를 텍스트 마커로 변환 >>>
             messageContent = ConvertSpriteTagToTextMarker(messageContent);
 
+            // --- SASHA: 임시 디버그 로그 추가 (제거 전) ---
+            Debug.Log($"[TextLogger] Before RemoveRichTextTags: {messageContent}");
+            // --- SASHA: 추가 끝 ---
+
+            // 실제 로그 메시지 추가 (리치 텍스트 제거)
+            messageContent = RemoveRichTextTags(messageContent); // 변환된 메시지 사용
+
+            // --- SASHA: 임시 디버그 로그 추가 (제거 후) ---
+            Debug.Log($"[TextLogger] After RemoveRichTextTags: {messageContent}");
+            // --- SASHA: 추가 끝 ---
+
             // 턴 넘버 접두사 (플래그 확인)
             if (ShowTurnPrefix && entry.TurnNumber > 0)
             {
@@ -749,8 +773,8 @@ namespace AF.Combat
                 formattedMessage.Append($"[{entry.Level.ToString().ToUpper()}] "); 
             }
             
-            // 실제 로그 메시지 추가 (리치 텍스트 제거)
-            formattedMessage.Append(RemoveRichTextTags(messageContent)); // 변환된 메시지 사용
+            // Append the (hopefully) cleaned message content
+            formattedMessage.Append(messageContent); 
 
             return formattedMessage.ToString();
         }
@@ -842,9 +866,17 @@ namespace AF.Combat
         private string RemoveRichTextTags(string text)
         {
             if (string.IsNullOrEmpty(text)) return text;
-            // 간단한 태그 제거 (더 복잡한 정규식 필요할 수 있음)
-            // <sprite=...> 태그도 제거되도록 함
-            return System.Text.RegularExpressions.Regex.Replace(text, "<.*?>", string.Empty);
+
+            // <color=...> 태그 제거 (예: <color=red>, <color=#FF0000FF> 등)
+            text = System.Text.RegularExpressions.Regex.Replace(text, @"<color=.*?>", string.Empty);
+            // </color> 태그 제거
+            text = text.Replace("</color>", string.Empty);
+
+            // (선택 사항) 다른 특정 리치 텍스트 태그(<b>, <i> 등)도 필요하다면 여기에 추가
+            // text = text.Replace("<b>", string.Empty).Replace("</b>", string.Empty);
+            // text = text.Replace("<i>", string.Empty).Replace("</i>", string.Empty);
+
+            return text;
         }
 
         // <<< LogUnitStatusSummary 메서드 구현 (전투 종료 시 호출되도록 CombatEnd 로그 메서드 수정 필요) >>>

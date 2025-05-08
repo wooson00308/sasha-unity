@@ -19,6 +19,7 @@ MonoBehaviour:
   BaseDamage: 30
   Accuracy: 0.7
   Range: 7
+  MinRange: 0
   AttackSpeed: 2.5
   OverheatPerShot: 0.05
   AmmoCapacity: 50

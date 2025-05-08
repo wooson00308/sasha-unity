@@ -138,7 +138,7 @@ namespace AF.AI.BehaviorTree
                     }
 
                     var textLoggerWarning = ServiceLocator.Instance?.GetService<TextLoggerService>()?.TextLogger;
-                    textLoggerWarning?.Log($"[{this.GetType().Name}] {agent.Name}: Selected target: {closestTarget.Name}. BUT no suitable weapon found. Detailed Reason: {reason}. Setting SelectedWeapon to null.", LogLevel.Warning);
+                    textLoggerWarning?.Log($"[{this.GetType().Name}] {agent.Name}: Selected target: {closestTarget.Name}. BUT no suitable weapon found. Detailed Reason: {reason}. Setting SelectedWeapon to null.", LogLevel.Debug);
                     blackboard.SelectedWeapon = null; 
                     return NodeStatus.Failure;
                 }

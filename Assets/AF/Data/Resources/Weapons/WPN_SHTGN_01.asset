@@ -14,17 +14,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   WeaponID: WPN_SHTGN_01
   WeaponName: "\uD45C\uC900 \uC0F7\uAC74"
-  WeaponType: 0
+  WeaponType: 1
   DamageType: 0
-  BaseDamage: 130
-  Accuracy: 0.6
-  Range: 5
+  BaseDamage: 100
+  Accuracy: 0.65
+  Range: 6
+  MinRange: 0
   AttackSpeed: 0.8
   OverheatPerShot: 0.15
-  AmmoCapacity: 0
-  BaseAPCost: 8
-  ReloadAPCost: 0
-  ReloadTurns: 0
+  AmmoCapacity: 8
+  BaseAPCost: 6
+  ReloadAPCost: 2
+  ReloadTurns: 1
   SpecialEffects: []
   AttackFlavorKey: Attack_WPN_SHTGN_01
   ReloadFlavorKey: Reload_WPN_SHTGN_01

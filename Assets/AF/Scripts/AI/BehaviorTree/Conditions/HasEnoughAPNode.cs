@@ -31,7 +31,7 @@ namespace AF.AI.BehaviorTree
             // CombatContext와 ActionExecutor가 유효한지 확인
             if (context == null || context.ActionExecutor == null)
             {
-                actualLogger?.Log($"[{this.GetType().Name}] {agent.Name} for {_actionType}: Failed - CombatContext or ActionExecutor is null.", LogLevel.Error);
+                actualLogger?.Log($"[{this.GetType().Name}] {agent.Name} for {_actionType}: Failed - CombatContext or ActionExecutor is null.", LogLevel.Debug);
                 return NodeStatus.Failure;
             }
 
@@ -53,7 +53,7 @@ namespace AF.AI.BehaviorTree
                 string failureReason = (_actionType == CombatActionEvents.ActionType.Reload && blackboard.WeaponToReload == null)
                                         ? "WeaponToReload is null for Reload AP check."
                                         : "Could not determine AP cost (possibly invalid weapon or action).";
-                actualLogger?.Log($"[{this.GetType().Name}] {agent.Name} for {_actionType}: Failed - {failureReason}", LogLevel.Warning);
+                actualLogger?.Log($"[{this.GetType().Name}] {agent.Name} for {_actionType}: Failed - {failureReason}", LogLevel.Debug);
                 return NodeStatus.Failure;
             }
             

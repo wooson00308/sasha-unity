@@ -16,12 +16,13 @@ MonoBehaviour:
   WeaponName: "\uC800\uACA9 \uC18C\uCD1D"
   WeaponType: 2
   DamageType: 0
-  BaseDamage: 140
+  BaseDamage: 125
   Accuracy: 0.95
-  Range: 20
+  Range: 22
+  MinRange: 8
   AttackSpeed: 0.4
   OverheatPerShot: 0.25
-  AmmoCapacity: 4
+  AmmoCapacity: 5
   BaseAPCost: 7
   ReloadAPCost: 1.5
   ReloadTurns: 2

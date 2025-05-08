@@ -1308,5 +1308,11 @@ namespace AF.Combat
             // 기존 주석 처리 유지
             //_textLogger?.Log($"//==[ Combat Turn {ev.RoundNumber} Complete ]==//", LogLevel.System);
         }
+
+        // --- SASHA: 로거 설정 변경 메서드 추가 ---
+        public void SetAllowedLogLevels(LogLevelFlags flags)
+        {
+            if (ConcreteLogger != null) ConcreteLogger.AllowedLogLevels = flags;
+        }
     }
 } 

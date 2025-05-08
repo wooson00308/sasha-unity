@@ -20,7 +20,7 @@ namespace AF.AI.BehaviorTree.Actions
 
             if (weaponToReload == null)
             {
-                actualLogger?.Log($"[{this.GetType().Name}] {agent.Name}: No weapon specified in blackboard.WeaponToReload. Failure.", LogLevel.Warning);
+                actualLogger?.Log($"[{this.GetType().Name}] {agent.Name}: No weapon specified in blackboard.WeaponToReload. Failure.", LogLevel.Debug);
                 return NodeStatus.Failure;
             }
 
@@ -46,7 +46,7 @@ namespace AF.AI.BehaviorTree.Actions
             }
             else
             {
-                actualLogger?.Log($"[{this.GetType().Name}] {agent.Name}: Reload action for '{weaponToReload.Name}' failed to execute. Failure.", LogLevel.Warning);
+                actualLogger?.Log($"[{this.GetType().Name}] {agent.Name}: Reload action for '{weaponToReload.Name}' failed to execute. Failure.", LogLevel.Debug);
                 // 실패 시 WeaponToReload를 null로 할지는 정책에 따라 결정 (예: 다음 틱에 재시도 가능하게 둘 수도 있음)
                 // 여기서는 일단 그대로 둠. 하지만 보통은 실패하면 다음 턴에 다시 시도할 것이므로 null로 해도 무방.
                 // blackboard.WeaponToReload = null; 
