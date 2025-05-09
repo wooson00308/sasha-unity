@@ -8,7 +8,8 @@
 
 -   **역할**: 게임의 주요 유닛인 Armored Frame을 나타내는 핵심 클래스입니다. 프레임, 파츠, 파일럿, 무기 등을 조합하여 하나의 기체를 구성하며, 행동 트리 기반 AI 로직을 포함합니다.
 -   **주요 속성**:
-    -   `_name`: 기체 이름
+    -   `Callsign` (또는 `PersistentID`): 유닛을 고유하게 식별하고 상태를 유지하기 위한 ID입니다. 기체 이름(`_name`)은 이 `Callsign`으로 초기화될 수 있습니다.
+    -   `_name`: 기체 이름 (주로 `Callsign`과 동일하게 사용됨).
     -   `_frameBase`: 기체의 기본 골격 (`Frame` 객체)
     -   `_parts`: 장착된 파츠 목록 (`Dictionary<string, Part>`, 슬롯 식별자 키)
     -   `_pilot`: 기체를 조종하는 파일럿 (`Pilot` 객체)
@@ -17,7 +18,7 @@
     -   `_currentAP`: 현재 행동력 (Action Points)
     -   `_totalWeight`: 기체 총 무게 (프레임 + 모든 파츠)
     -   `_activeStatusEffects`: 현재 적용 중인 상태 효과 목록 (`List<StatusEffect>`)
-    -   `_isOperational`: 기체 작동 가능 여부 (주요 파츠 파괴 시 false). `IsDestroyed` 프로퍼티는 이 플래그를 통해 결정됩니다 (`public bool IsDestroyed => !_isOperational;`).
+    -   `_isOperational`: 기체 작동 가능 여부 (주요 파츠, 특히 `BodyPart` 파괴 시 `false`가 될 수 있으며, `PartDestroyedEvent`의 `FrameWasActuallyDestroyed` 플래그와 연관됨). `IsDestroyed` 프로퍼티는 이 플래그를 통해 결정됩니다 (`public bool IsDestroyed => !_isOperational;`).
     -   `_position`, `_teamId`: 위치 및 소속 팀 정보
     -   **`BehaviorTreeRoot` (행동 트리용)**: 이 유닛의 AI 로직을 담당하는 `AF.AI.BehaviorTree.BTNode` 루트 인스턴스. `CombatSimulatorService`에서 `StartCombat` 시 할당됩니다.
     -   **`AICtxBlackboard` (행동 트리용)**: 이 유닛의 행동 트리가 사용하는 `AF.AI.BehaviorTree.Blackboard` 인스턴스. 노드 간 데이터 공유 및 최종 행동 결정 사항을 저장합니다. `CombatSimulatorService`에서 `StartCombat` 시 초기화됩니다.
@@ -27,7 +28,7 @@
     -   파츠 및 무기 장착/해제 (`AttachPart`, `DetachPart`, `AttachWeapon`, `DetachWeapon`)
     -   파일럿 할당 (`AssignPilot`)
     -   스탯 재계산 (`RecalculateStats`)
-    -   작동 상태 확인 (`CheckOperationalStatus`)
+    -   작동 상태 확인 (`CheckOperationalStatus`, Body 파츠 외 다른 조건으로도 `_isOperational`이 변경될 수 있음)
     -   데미지 및 수리 적용 (`ApplyDamage`, `ApplyRepair`)
     -   AP 관리 (`RecoverAPOnTurnStart`, `ConsumeAP`, `HasEnoughAP`)
     -   상태 효과 관리 (`AddStatusEffect`, `RemoveStatusEffect`, `TickStatusEffects`)
@@ -58,7 +59,7 @@
 -   **`BodyPart.cs`**: `PartType.Body`로 지정된 파츠. 이 파츠가 파괴되면 `ArmoredFrame`의 `CheckOperationalStatus` 로직에 의해 기체 전체가 작동 불능 상태가 될 수 있습니다.
 -   **`ArmsPart.cs`**: `PartType.Arm`로 지정된 파츠. `OnDestroyed` 구현 필요 (예: 무기 관련 패널티).
 -   **`LegsPart.cs`**: `PartType.Legs`로 지정된 파츠. `OnDestroyed` 구현 필요 (예: 이동/회피 패널티).
--   *참고: `BackpackPart.cs`는 현재 폴더에 없지만, `PartType`에는 정의되어 있습니다.* (확인 필요)
+-   **`BackpackPart.cs`**: `PartType.Backpack`로 지정된 파츠. (존재 여부 및 상세 구현 확인 필요)
 
 ### 3. `Frame.cs` (추상 클래스, `Models/Frames/` 하위에 구체 클래스 존재)
 
@@ -144,18 +145,18 @@
 -   **`DecoratorNode.cs` (추상 클래스)**: 단일 자식 노드를 가지고 그 자식 노드의 실행 결과나 조건을 변경하는 역할을 하는 장식 노드의 기본 클래스입니다.
 -   **`ConditionNode.cs` (추상 클래스)**: 특정 조건을 검사하여 `Success` 또는 `Failure`를 반환하는 잎새 노드의 기본 클래스입니다. 예: `IsTargetInRangeNode`, `HasEnoughAPNode`.
 -   **`ActionNode.cs` (추상 클래스)**: 특정 행동을 결정하거나 실행하는 잎새 노드의 기본 클래스입니다. 예: `AttackTargetNode`, `MoveToTargetNode`, `ReloadWeaponNode`.
--   **`Blackboard.cs` (클래스)**: 행동 트리 내에서 노드 간 데이터를 공유하고, AI가 최종적으로 결정한 행동과 관련된 정보(예: `DecidedActionType`, `CurrentTarget`, `SelectedWeapon`, `WeaponToReload`, `IntendedMovePosition`)를 저장하는 데 사용되는 데이터 컨테이너 클래스입니다. 각 `ArmoredFrame`은 `AICtxBlackboard`라는 이름으로 자신만의 `Blackboard` 인스턴스를 가집니다.
+-   **`Blackboard.cs` (클래스)**: 행동 트리 내에서 노드 간 데이터를 공유하고, AI가 최종적으로 결정한 행동과 관련된 정보(예: `DecidedActionType`, `CurrentTarget`, `SelectedWeapon`, `WeaponToReload`, `IntendedMovePosition`, `ImmediateReloadWeapon`)를 저장하는 데 사용되는 데이터 컨테이너 클래스입니다. 각 `ArmoredFrame`은 `AICtxBlackboard`라는 이름으로 자신만의 `Blackboard` 인스턴스를 가집니다.
 
 ## 보조 모델 및 열거형
 
--   **`ArmoredFrameSnapshot.cs`**: 특정 시점의 `ArmoredFrame` 상태를 저장하는 구조체입니다. 이름, 위치, 팀, AP, 내구도, 스탯, 파츠 및 무기 상태 스냅샷(`PartSnapshot`, `WeaponSnapshot`)을 포함합니다. 주로 전투 로그 재생 시 사용됩니다.
--   **`PartSnapshot.cs`**: 파츠의 상태 스냅샷 구조체 (이름, 내구도, 작동 여부).
--   **`WeaponSnapshot.cs`**: 무기의 상태 스냅샷 구조체 (이름, 탄약, 작동 여부).
+-   **`ArmoredFrameSnapshot.cs`**: 특정 시점의 `ArmoredFrame` 상태를 저장하는 구조체입니다. 이름(`Callsign`), 위치, 팀, AP, 내구도, 스탯, 파츠 및 무기 상태 스냅샷(`Dictionary<string, PartSnapshot>`, `List<WeaponSnapshot>`)을 포함합니다. 파츠 스냅샷은 슬롯 ID를 키로 사용하여 접근할 수 있어, `PartDestroyedEvent`의 `PartDestroyed_SlotId`와 연계하여 특정 파츠의 상태를 파악하는 데 용이합니다. 주로 전투 로그 재생 시 사용됩니다.
+-   **`PartSnapshot.cs`**: 파츠의 상태 스냅샷 구조체 (이름, 현재/최대 내구도, 작동 여부, 파츠 타입). 슬롯 ID는 `ArmoredFrameSnapshot`의 딕셔너리 키를 통해 알 수 있습니다.
+-   **`WeaponSnapshot.cs`**: 무기의 상태 스냅샷 구조체 (이름, 현재/최대 탄약, 재장전 상태, 작동 여부).
 -   **`StatusEffect.cs`**: 상태 효과(버프/디버프) 정보를 나타내는 클래스입니다. 효과 이름, 지속 턴, 효과 타입(`StatusEffectEvents.StatusEffectType`), 스탯 변경 정보(`StatToModify`, `ModificationType`, `ModificationValue`), 틱 효과 정보(`TickEffectType`, `TickValue`)를 포함합니다.
 -   **`PartSlotDefinition.cs`**: `Frame`에서 사용하는 클래스로, 파츠 슬롯의 식별자와 해당 슬롯에 장착 가능한 파츠 타입(`RequiredPartType`)을 정의합니다.
 
 -   **열거형 (Enums)**:
-    -   `PartType.cs`: 파츠 종류 (Frame, Body, Head, Arm, Legs, Backpack)
+    -   `PartType.cs`: 파츠 종류 (Frame, Body, Head, Arm, Legs, Backpack). `Backpack` 타입은 존재하나, `BackpackPart.cs` 구현체는 현재 프로젝트에 없을 수 있습니다(확인 필요).
     -   `FrameType.cs`: 프레임 종류 (Light, Standard, Heavy)
     -   `WeaponType.cs`: 무기 종류 (Melee, MidRange, LongRange)
     -   `DamageType.cs`: 데미지 종류 (Physical, Energy, Explosive, Piercing, Electric)
@@ -166,16 +167,16 @@
 
 ## 시스템 구조 요약
 
-1.  게임의 핵심 유닛은 `ArmoredFrame` 객체로 표현됩니다.
+1.  게임의 핵심 유닛은 `ArmoredFrame` 객체로 표현됩니다. 각 유닛은 고유 `Callsign`으로 식별됩니다.
 2.  `ArmoredFrame`은 하나의 `Frame`을 기반으로 하며, `Frame`은 기본 스탯과 파츠 장착 슬롯 규칙을 정의합니다.
 3.  `Frame`의 슬롯에는 해당 타입의 `Part` 객체를 장착할 수 있습니다.
 4.  `ArmoredFrame`에는 여러 `Weapon` 객체를 장착할 수 있습니다.
 5.  `ArmoredFrame`은 `Pilot` 객체에 의해 조종됩니다.
-6.  **AI 유닛의 경우, `ArmoredFrame`은 `BehaviorTreeRoot` (행동 트리의 루트 노드)와 `AICtxBlackboard` (행동 트리용 데이터 저장소)를 가집니다. 이들을 통해 AI 행동이 결정됩니다.**
+6.  **AI 유닛의 경우, `ArmoredFrame`은 `BehaviorTreeRoot` (행동 트리의 루트 노드)와 `AICtxBlackboard` (행동 트리용 데이터 저장소, `ImmediateReloadWeapon` 등 포함)를 가집니다. 이들을 통해 AI 행동이 결정됩니다.**
 7.  `Stats` 클래스는 다양한 객체의 능력치를 표현하며, `CombatContext` **클래스**는 전투 관련 정보를 묶어 전달합니다.
-8.  전투 중 `ArmoredFrame`의 상태는 `StatusEffect`에 의해 변경될 수 있으며, `ArmoredFrameSnapshot`을 통해 상태를 기록할 수 있습니다.
+8.  전투 중 `ArmoredFrame`의 상태는 `StatusEffect`에 의해 변경될 수 있으며, `ArmoredFrameSnapshot`을 통해 상태를 기록할 수 있습니다. (파츠 스냅샷은 슬롯 ID로 관리)
 9.  각종 열거형은 모델들의 종류와 특성을 구분하는 데 사용됩니다.
 
 ## 결론
 
-`Assets/AF/Scripts/Models` 디렉토리는 Armored Frame 게임의 핵심 데이터 구조를 정의합니다. `ArmoredFrame` 클래스를 중심으로 다양한 구성 요소를 조합하여 게임 유닛을 표현하며, **이제 행동 트리 시스템을 위한 `BTNode` 및 `Blackboard`와 같은 AI 관련 모델도 이 생태계의 중요한 부분을 차지합니다.** `Stats` 클래스는 능력치 시스템의 기반을 제공하며, 관련 열거형들은 게임 내 다양한 요소들을 분류하고 정의하는 데 중요한 역할을 합니다. 이 모델들은 게임 로직의 다른 부분(전투, UI, 데이터 관리 등)에서 사용될 데이터의 청사진을 제공합니다. 
+`Assets/AF/Scripts/Models` 디렉토리는 Armored Frame 게임의 핵심 데이터 구조를 정의합니다. `ArmoredFrame` 클래스를 중심으로 다양한 구성 요소를 조합하여 게임 유닛을 표현하며(`Callsign` 도입, `IsOperational` 로직 변경점 등 반영), **이제 행동 트리 시스템을 위한 `BTNode` 및 `Blackboard`와 같은 AI 관련 모델도 이 생태계의 중요한 부분을 차지합니다(`ImmediateReloadWeapon` 추가 등).** `Stats` 클래스는 능력치 시스템의 기반을 제공하며, 관련 열거형들은 게임 내 다양한 요소들을 분류하고 정의하는 데 중요한 역할을 합니다. 스냅샷 구조 또한 상세화되어 로그 분석 및 재생에 더욱 유용해졌습니다. 이 모델들은 게임 로직의 다른 부분(전투, UI, 데이터 관리 등)에서 사용될 데이터의 청사진을 제공합니다. 

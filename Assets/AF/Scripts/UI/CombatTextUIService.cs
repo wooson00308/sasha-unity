@@ -438,34 +438,38 @@ namespace AF.UI
                     break;
 
                 case LogEventType.PartDestroyed:
-                    // <<< DEBUG: Log PartDestroyed processing >>>
-                    // Debug.Log($"[UpdateSnapshotWithDelta] Handling PartDestroyed for Owner: {deltaEntry.PartDestroyed_OwnerName}, PartType: {deltaEntry.PartDestroyed_PartType}");
-                    // TODO: This requires the LogEntry to contain the specific SLOT ID, not just PartType.
-                    // If Slot ID is added to LogEntry:
-                    /*
                     if (!string.IsNullOrEmpty(deltaEntry.PartDestroyed_OwnerName) &&
-                        !string.IsNullOrEmpty(deltaEntry.PartDestroyed_SlotId) && // Assuming SlotId is added
                         updatedSnapshots.TryGetValue(deltaEntry.PartDestroyed_OwnerName, out var ownerSnapshot_PD))
                     {
                         var updatedPartSnapshots_PD = new Dictionary<string, PartSnapshot>(ownerSnapshot_PD.PartSnapshots);
-                        if (updatedPartSnapshots_PD.TryGetValue(deltaEntry.PartDestroyed_SlotId, out var destroyedPartSnapshot_PD))
-                        {
-                            var updatedDestroyedPart_PD = CreateUpdatedPartSnapshot(
-                                destroyedPartSnapshot_PD,
-                                newDurability: 0 // Set durability to 0
-                            );
-                            updatedPartSnapshots_PD[deltaEntry.PartDestroyed_SlotId] = updatedDestroyedPart_PD;
+                        bool frameActuallyDestroyed = deltaEntry.PartDestroyed_FrameWasActuallyDestroyed; // <<< SASHA: 플래그 사용
 
-                            var updatedOwnerSnapshot_PD = CreateUpdatedArmoredFrameSnapshot(
-                                ownerSnapshot_PD,
-                                updatedPartSnapshots_PD
+                        // PartDestroyedEvent는 특정 슬롯 ID를 가지고 있음 (TextLoggerService의 HandlePartDestroyed에서 설정 가정)
+                        // 이 슬롯 ID는 LogEntry.Damage_DamagedPartSlot (이름 변경 필요) 또는 PartDestroyed_SlotId 같은 새 필드에 저장되어야 함.
+                        // 여기서는 임시로 LogEntry에 PartDestroyed_SlotId 필드가 있다고 가정하고 사용.
+                        // TODO: LogEntry에 PartDestroyed_SlotId 필드 추가 및 TextLoggerService에서 값 설정 필요.
+                        string destroyedSlotId = deltaEntry.PartDestroyed_SlotId; // <<< SASHA: 새로 추가된 SlotId 필드 사용
+                                                                                 // 지금은 Damage_DamagedPartSlot을 임시로 사용.
+                        
+                        if (!string.IsNullOrEmpty(destroyedSlotId) && updatedPartSnapshots_PD.TryGetValue(destroyedSlotId, out var partToUpdate_PD))
+                        {
+                            var updatedPartSnapshot = CreateUpdatedPartSnapshot(
+                                partToUpdate_PD,
+                                newDurability: 0f // 파괴된 파츠는 내구도 0
                             );
-                            updatedSnapshots[deltaEntry.PartDestroyed_OwnerName] = updatedOwnerSnapshot_PD;
+                            updatedPartSnapshots_PD[destroyedSlotId] = updatedPartSnapshot;
                             snapshotUpdated = true;
-                            Debug.Log($"[UpdateSnapshotWithDelta] Marked part {deltaEntry.PartDestroyed_SlotId} as destroyed for {deltaEntry.PartDestroyed_OwnerName}");
                         }
+
+                        // 프레임 전체가 파괴된 경우 스냅샷의 IsOperational을 false로 명시적 설정
+                        var finalSnapshot = CreateUpdatedArmoredFrameSnapshot(
+                            ownerSnapshot_PD,
+                            updatedPartSnapshots_PD,
+                            newIsOperationalOverride: frameActuallyDestroyed ? false : (bool?)null // <<< SASHA: 프레임 파괴 시 IsOperational을 false로 강제
+                        );
+                        updatedSnapshots[deltaEntry.PartDestroyed_OwnerName] = finalSnapshot;
+                        snapshotUpdated = true; 
                     }
-                    */
                     break;
 
                 // Add other cases as needed (e.g., Status Effects changing stats, Weapon ammo changes)
@@ -498,14 +502,41 @@ namespace AF.UI
             ArmoredFrameSnapshot original,
             Dictionary<string, PartSnapshot> newPartSnapshots = null,
             Vector3? newPosition = null,
-            float? newCurrentAP = null // Optional: Add other fields to update as needed
+            float? newCurrentAP = null, // Optional: Add other fields to update as needed
+            bool? newIsOperationalOverride = null // <<< SASHA: IsOperational 오버라이드 파라미터 추가
             )
         {
             var partsToUse = newPartSnapshots ?? original.PartSnapshots;
-            // Recalculate totals based on the parts collection being used
             float totalCurrentDurability = partsToUse?.Values.Sum(p => p.CurrentDurability) ?? 0;
             float totalMaxDurability = partsToUse?.Values.Sum(p => p.MaxDurability) ?? 0;
-            bool isOperational = totalCurrentDurability > 0;
+            
+            // <<< SASHA: IsOperational 결정 로직 수정 >>>
+            bool isOperational;
+            if (newIsOperationalOverride.HasValue)
+            {
+                isOperational = newIsOperationalOverride.Value;
+            }
+            else
+            {
+                // 기존 로직: Body 파츠 존재 및 작동 여부 확인 추가 필요
+                // BodyPart가 파괴되면 전체가 작동 불능이 되도록 명시적 처리 필요.
+                // 여기서는 일단 CurrentTotalDurability 기준으로만 판단 (추후 ArmoredFrame.CheckOperationalStatus 로직 참고하여 개선 필요)
+                isOperational = totalCurrentDurability > 0;
+                if (isOperational && partsToUse != null)
+                {
+                    // Body 파츠 확인 로직 (예시 - 실제 슬롯 ID는 FrameSO 등에서 가져와야 함)
+                    string bodySlotId = "Body"; // 실제 Body 슬롯 ID로 대체 필요
+                    if (partsToUse.TryGetValue(bodySlotId, out PartSnapshot bodySnapshot))
+                    {
+                        if (!bodySnapshot.IsOperational)
+                        {
+                            isOperational = false;
+                        }
+                    }
+                    // else -> Body 파츠가 없으면 작동 불능으로 처리할 수도 있음 (게임 규칙에 따라)
+                }
+            }
+            // <<< SASHA: 수정 끝 >>>
 
             // Use the new constructor directly
             return new ArmoredFrameSnapshot(

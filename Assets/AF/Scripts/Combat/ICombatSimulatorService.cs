@@ -48,8 +48,8 @@ namespace AF.Combat
         /// <summary>
         /// 현재 전투 종료
         /// </summary>
-        /// <param name="forceResult">강제 결과 (null이면 자동 판정)</param>
-        void EndCombat(CombatSessionEvents.CombatEndEvent.ResultType? forceResult = null);
+        /// <param name="forceResult">강제 결과</param>
+        void EndCombat(CombatSessionEvents.CombatEndEvent.ResultType forceResult = CombatSessionEvents.CombatEndEvent.ResultType.Aborted);
         
         /// <summary>
         /// 다음 턴으로 진행

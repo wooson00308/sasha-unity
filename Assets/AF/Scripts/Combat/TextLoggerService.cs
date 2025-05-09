@@ -454,11 +454,10 @@ namespace AF.Combat
             {
                 //string activeUnitNameColored = ColorizeText($"[{ev.ActiveUnit.Name}]", "yellow"); // 색상 적용 // 이전 방식
                 //string activeUnitName = $"[{ev.ActiveUnit.Name}]"; // 색상 적용 // 이전 방식
-                string activeUnitNameColored = GetTeamColoredName(ev.ActiveUnit.Name, ev.ActiveUnit.TeamId); // +++ SASHA: 팀 색상 사용 +++
                 string remainingApInfo = $" (Remaining AP: {ev.ActiveUnit.CurrentAP:F1})";
                 string iconTag = _useSpriteIcons ? "< " : "";
                 //string message = $"{iconTag}Unit Standby: {activeUnitNameColored}{remainingApInfo}";
-                string message = $"{iconTag}Unit Standby: {activeUnitNameColored}{remainingApInfo}";
+                string message = $"{iconTag}Unit Standby: {ev.ActiveUnit.Name}{remainingApInfo}";
 
                  var logEntry = new TextLogger.LogEntry(
                      message,
@@ -944,6 +943,8 @@ namespace AF.Combat
                  logEntry.PartDestroyed_OwnerName = ev.Frame.Name;
                  logEntry.PartDestroyed_PartType = ev.DestroyedPartType; // Nullable 아님
                  logEntry.PartDestroyed_DestroyerName = ev.Destroyer?.Name; // Nullable
+                 logEntry.PartDestroyed_SlotId = ev.DestroyedSlotId; // <<< SASHA: SlotId 값 할당
+                 logEntry.PartDestroyed_FrameWasActuallyDestroyed = ev.FrameWasDestroyed; // <<< SASHA: 플래그 값 할당
 
                  _textLogger.AddLogEntryDirectly(logEntry);
             }

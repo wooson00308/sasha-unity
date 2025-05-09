@@ -282,6 +282,15 @@ namespace AF.Combat
                     attacker, target, weapon, finalD, part.Type, critical,
                     part.CurrentDurability, part.MaxDurability, isCounter));
 
+                // +++ SASHA: 즉시 재장전 필요 여부 블랙보드에 기록 +++
+                if (weapon.CurrentAmmo == 0 && weapon.MaxAmmo > 0 && !weapon.IsReloading)
+                {
+                    attacker.AICtxBlackboard.ImmediateReloadWeapon = weapon;
+                    // 로그 추가 (선택적)
+                    // ctx.Logger?.TextLogger?.Log($"INFO: [{attacker.Name}] {weapon.Name} 탄약 소진. 즉시 재장전 대기.", LogLevel.Info);
+                }
+                // +++ SASHA: 수정 끝 +++
+
                 if (destroyed)
                 {
                     ctx.Bus.Publish(new PartEvents.PartDestroyedEvent(
@@ -289,6 +298,7 @@ namespace AF.Combat
                         part.Type,          // destroyedPartType
                         slot,               // destroyedSlotId
                         attacker,           // destroyer
+                        !target.IsOperational, // <<< SASHA: frameWasDestroyed 플래그 전달
                         $"{slot} 파트가 파괴되었습니다.", // effects[0]
                         $"{target.Name} 성능이 감소했습니다." // effects[1]
                     ));

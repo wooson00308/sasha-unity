@@ -18,7 +18,8 @@ namespace AF.Services
         private ServiceLocator _serviceLocator;
         
         // 등록할 서비스 인스턴스들 (하이어라키에서 추가 및 설정 가능)
-        [SerializeField] private List<MonoBehaviour> _serviceObjects = new List<MonoBehaviour>();
+        [SerializeField] private List<MonoBehaviour> _preServiceObjects = new List<MonoBehaviour>();
+        [SerializeField] private List<MonoBehaviour> _postServiceObjects = new List<MonoBehaviour>();
         
         // 종료 순서 관리를 위한 우선순위 (낮은 수가 먼저 종료됨)
         [SerializeField] private bool _useShutdownOrder = false;
@@ -40,18 +41,29 @@ namespace AF.Services
         /// </summary>
         private void RegisterServices()
         {
+            RegisterPreServices();
             RegisterCoreServices();
+            RegisterPostServices();
+        }
 
-            foreach (var serviceObject in _serviceObjects)
+        private void RegisterPreServices()
+        {
+            foreach (var serviceObject in _preServiceObjects)
             {
                 if (serviceObject is IService service)
                 {
-                    // 서비스 타입을 검색해서 가장 적합한 인터페이스 타입으로 등록
                     RegisterServiceWithInterface(service, serviceObject.GetType());
                 }
-                else
+            }
+        }
+
+        private void RegisterPostServices()
+        {
+            foreach (var serviceObject in _postServiceObjects)
+            {
+                if (serviceObject is IService service)
                 {
-                    Debug.LogError($"{serviceObject.name}은(는) IService를 구현하지 않았습니다.");
+                    RegisterServiceWithInterface(service, serviceObject.GetType());
                 }
             }
         }
@@ -142,7 +154,7 @@ namespace AF.Services
         {
             if (service is IService)
             {
-                _serviceObjects.Add(service);
+                _postServiceObjects.Add(service);
             }
             else
             {

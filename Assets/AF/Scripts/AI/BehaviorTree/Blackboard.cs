@@ -21,6 +21,7 @@ namespace AF.AI.BehaviorTree
         public CombatActionEvents.ActionType? DecidedActionType { get; set; }
         public Weapon SelectedWeapon { get; set; }
         public Weapon WeaponToReload { get; set; }
+        public Weapon ImmediateReloadWeapon { get; set; }
 
         // 향후 AI가 특정 상태나 플래그를 기억해야 할 때 사용할 수 있는 일반적인 값들
         public bool HasReachedTarget { get; set; } = false;
@@ -65,6 +66,7 @@ namespace AF.AI.BehaviorTree
             DecidedActionType = null;
             SelectedWeapon = null;
             WeaponToReload = null;
+            ImmediateReloadWeapon = null;
             HasReachedTarget = false;
             IsAlerted = false;
         }

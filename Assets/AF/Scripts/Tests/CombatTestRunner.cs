@@ -28,17 +28,17 @@ namespace AF.Tests
         // --- Re-add Color Palette for Team IDs ---
         private static readonly List<Color> teamColorPalette = new List<Color>
         {
-            new Color(0.9f, 0.2f, 0.2f), // Red
-            new Color(0.2f, 0.4f, 0.9f), // Blue
-            new Color(0.2f, 0.8f, 0.3f), // Green
-            new Color(0.9f, 0.8f, 0.2f), // Yellow
-            new Color(0.8f, 0.3f, 0.9f), // Magenta
-            new Color(0.3f, 0.8f, 0.9f), // Cyan
-            new Color(0.9f, 0.5f, 0.2f), // Orange
-            new Color(0.6f, 0.3f, 0.9f), // Purple
-            new Color(0.5f, 0.9f, 0.2f), // Lime
-            new Color(0.2f, 0.7f, 0.7f), // Teal
-            Color.grey // Default/fallback
+            new Color(0.3f, 0.8f, 0.9f), // Cyan (플레이어 스쿼드 - 밝고 선명하게)
+            new Color(0.9f, 0.2f, 0.2f), // Red (외부 세력 1 - 강렬한 적대색)
+            new Color(0.9f, 0.5f, 0.2f), // Orange (외부 세력 2 - 적대 또는 경계)
+            new Color(0.9f, 0.8f, 0.2f), // Yellow (외부 세력 3 - 중립 또는 주의)
+            new Color(0.8f, 0.3f, 0.9f), // Magenta (외부 세력 4 - 특수 또는 기타)
+            new Color(0.2f, 0.4f, 0.9f), // Blue (외부 세력 5 - 또 다른 아군 계열 또는 차분한 세력)
+            new Color(1.0f, 1.0f, 1.0f), // White (외부 세력 6 - 중요 타겟 또는 중립 고가치)
+            new Color(0.9f, 0.6f, 0.7f), // Pink (외부 세력 7 - 독특한 개체)
+            new Color(0.6f, 0.3f, 0.9f), // Purple (외부 세력 8 - 위협적인 세력)
+            new Color(0.7f, 0.7f, 0.7f), // Light Grey (외부 세력 9 - 일반 중립 또는 덜 위협적)
+            new Color(0.4f, 0.4f, 0.4f)  // Dark Grey (외부 세력 10 - 배경 요소 또는 매우 낮은 위협)
         };
         private Dictionary<int, Color> _currentTeamColors = new Dictionary<int, Color>();
         // --- End Re-add Color Palette ---
@@ -485,6 +485,12 @@ namespace AF.Tests
         [LabelText("로그 필터링 (제외)")]
         public LogLevelFlags logLevelsToRecord = LogLevelFlags.Nothing;
 
+        [FoldoutGroup("전투 옵션", expanded: true)]
+        [LabelText("안전 브레이크 턴 수")]
+        [Tooltip("전투가 이 턴 수를 초과하면 안전을 위해 자동으로 무승부 처리됩니다.")]
+        [Range(5, 100)] 
+        public int safetyBreakTurns = 10;
+
         private ICombatSimulatorService combatSimulator;
         private TextLoggerService textLogger;
 
@@ -777,9 +783,9 @@ namespace AF.Tests
             try
             {
                 bool combatEnded = false;
-                int safetyBreak = 10; // 무한 루프 방지
+                int currentSafetyBreak = this.safetyBreakTurns; // 필드 값 사용
 
-                while (!combatEnded && isInCombat && combatSimulator.CurrentTurn < safetyBreak)
+                while (!combatEnded && isInCombat && combatSimulator.CurrentTurn < currentSafetyBreak)
                 {
                     // ProcessNextTurn() 반환값이 true면 전투 지속, false면 종료
                     combatEnded = !combatSimulator.ProcessNextTurn(); 
@@ -788,9 +794,9 @@ namespace AF.Tests
                     await UniTask.Yield(PlayerLoopTiming.Update); 
                 }
 
-                if (combatSimulator.CurrentTurn >= safetyBreak)
+                if (combatSimulator.CurrentTurn >= currentSafetyBreak)
                 {
-                    Log($"안전 브레이크 발동! ({safetyBreak} 턴 초과)", LogLevel.Warning);
+                    Log($"안전 브레이크 발동! ({currentSafetyBreak} 턴 초과)", LogLevel.Warning);
                     // 전투 강제 종료 (무승부 처리 등)
                     if (isInCombat) combatSimulator.EndCombat(CombatSessionEvents.CombatEndEvent.ResultType.Draw);
                 }

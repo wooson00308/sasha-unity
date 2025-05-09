@@ -16,42 +16,58 @@ namespace AF.AI.BehaviorTree.Actions
         public override NodeStatus Tick(ArmoredFrame agent, Blackboard blackboard, CombatContext context)
         {
             var actualLogger = context?.Logger?.TextLogger;
-            Weapon weaponToReload = blackboard.WeaponToReload; // 블랙보드에서 재장전할 무기 가져오기
+            Weapon weaponToReload = blackboard.WeaponToReload; 
 
             if (weaponToReload == null)
             {
-                actualLogger?.Log($"[{this.GetType().Name}] {agent.Name}: No weapon specified in blackboard.WeaponToReload. Failure.", LogLevel.Debug);
+                actualLogger?.Log($"[{this.GetType().Name}] {agent.Name}: Blackboard에 WeaponToReload가 지정되지 않음. Failure.", LogLevel.Debug);
                 return NodeStatus.Failure;
             }
 
-            // AP 비용은 HasEnoughAPNode에서 이미 확인했다고 가정.
-            // 여기서는 실제 재장전 로직만 수행.
-
-            // CombatActionExecutor를 통해 재장전 실행 요청
-            // Execute 메서드가 Reload 액션에 대해 weapon 파라미터를 사용하도록 수정되었다고 가정
-            bool success = context.ActionExecutor.Execute(
-                context, 
-                agent, 
-                CombatActionEvents.ActionType.Reload, 
-                null, // targetFrame for Reload is null
-                null, // targetPosition for Reload is null
-                weaponToReload); // 재장전할 무기 전달
-
-            if (success)
+            // 이미 재장전이 완료되었거나 더 이상 재장전할 필요가 없는 상태인지 확인 (예: 탄약 가득 참)
+            if (!weaponToReload.IsReloading && (weaponToReload.MaxAmmo > 0 && weaponToReload.CurrentAmmo >= weaponToReload.MaxAmmo))
             {
-                actualLogger?.Log($"[{this.GetType().Name}] {agent.Name}: Reload action for '{weaponToReload.Name}' initiated/completed. Success.", LogLevel.Debug);
-                blackboard.WeaponToReload = null; // 재장전 작업 시작/완료 후 블랙보드에서 해당 정보 제거
-                // blackboard.SelectedWeapon은 NeedsReloadNode에서 이미 null로 설정했을 것이므로 여기서 다시 할 필요는 없음
-                return NodeStatus.Success;
+                actualLogger?.Log($"[{this.GetType().Name}] {agent.Name}: {weaponToReload.Name} 이미 탄약 가득 또는 재장전 불필요. Success (행동 결정 안함).", LogLevel.Debug);
+                blackboard.WeaponToReload = null; // 더 이상 이 무기를 재장전 대상으로 고려하지 않음
+                return NodeStatus.Success; // 재장전 행동을 결정할 필요 없음
             }
-            else
+
+            // 현재 무기가 재장전 중인지 확인 (IsReloading 플래그와 실제 완료 여부)
+            if (weaponToReload.IsReloading)
             {
-                actualLogger?.Log($"[{this.GetType().Name}] {agent.Name}: Reload action for '{weaponToReload.Name}' failed to execute. Failure.", LogLevel.Debug);
-                // 실패 시 WeaponToReload를 null로 할지는 정책에 따라 결정 (예: 다음 틱에 재시도 가능하게 둘 수도 있음)
-                // 여기서는 일단 그대로 둠. 하지만 보통은 실패하면 다음 턴에 다시 시도할 것이므로 null로 해도 무방.
-                // blackboard.WeaponToReload = null; 
+                // Weapon.CheckReloadCompletion은 내부적으로 FinishReload를 호출하고 완료 시 true 반환
+                bool justCompleted = weaponToReload.CheckReloadCompletion(context.CurrentTurn);
+                if (justCompleted)
+                {
+                    actualLogger?.Log($"[{this.GetType().Name}] {agent.Name}: {weaponToReload.Name} 이번 틱에 재장전 완료됨. Success (행동 결정 안함).", LogLevel.Debug);
+                    blackboard.WeaponToReload = null; 
+                    return NodeStatus.Success; // 재장전 행동을 결정할 필요 없음
+                }
+                else
+                {
+                    // 아직 재장전 중이므로, BT는 다른 행동을 찾아야 함 (예: 재장전 중 방어/회피)
+                    // 이 노드는 "재장전 시작 결정" 노드이므로, 이미 진행 중일 땐 Failure를 반환하여 다른 경로 탐색 유도 가능
+                    // 또는, Running을 반환하여 상위에서 이 상태를 활용하도록 할 수도 있음.
+                    // 현재 로직 (재장전 중 다른 행동)을 위해서는 여기서 Failure가 맞을 수 있음.
+                    actualLogger?.Log($"[{this.GetType().Name}] {agent.Name}: {weaponToReload.Name} 여전히 재장전 진행 중. Failure (다른 행동 우선).", LogLevel.Debug);
+                    return NodeStatus.Failure; 
+                }
+            }
+
+            // 재장전 시작 결정 단계
+            float requiredAP = weaponToReload.ReloadAPCost; // 무기 자체의 재장전 AP 비용 사용
+            if (!agent.HasEnoughAP(requiredAP)) // ArmoredFrame의 AP 확인 메서드 사용
+            {
+                actualLogger?.Log($"[{this.GetType().Name}] {agent.Name}: {weaponToReload.Name} 재장전을 위한 AP 부족 ({agent.CurrentAP}/{requiredAP}). Failure.", LogLevel.Debug);
                 return NodeStatus.Failure;
             }
+
+            // 재장전 행동을 결정함
+            blackboard.DecidedActionType = CombatActionEvents.ActionType.Reload;
+            // 선택된 무기는 재장전 대상인 weaponToReload (이미 블랙보드에 있음)
+            // blackboard.SelectedWeapon = weaponToReload; // 공격용이 아니므로 설정 불필요
+            actualLogger?.Log($"[{this.GetType().Name}] {agent.Name}: {weaponToReload.Name} 재장전 결정. Success.", LogLevel.Debug);
+            return NodeStatus.Success;
         }
     }
 } 

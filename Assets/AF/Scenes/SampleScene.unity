@@ -400,6 +400,19 @@ MonoBehaviour:
   pulseScale: 1.8
   moveAnimDuration: 0.3
   materialTransitionFadeDuration: 0.25
+  markerAppearDuration: 0.35
+  markerAppearEase: 27
+  markerDisappearDuration: 0.25
+  markerDisappearEase: 26
+  markerMoveEase: 30
+  damageShakeStrength: {x: 3, y: 3, z: 0}
+  damageShakeVibrato: 10
+  damageShakeRandomness: 0
+  markerActiveScaleDuration: 0.2
+  detectedPulseScaleFactor: 1.3
+  detectedPulseDuration: 0.3
+  detectedPulseEaseOut: 15
+  detectedPulseEaseIn: 14
   radarScanTransform: {fileID: 1885636001073493839}
   scanArcWidthDegrees: 100
   scanFadeRangeDegrees: 5
@@ -1337,10 +1350,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _dontDestroyOnLoad: 1
-  _serviceObjects:
+  _preServiceObjects:
+  - {fileID: 1776037131}
+  _postServiceObjects:
   - {fileID: 2012339888}
   - {fileID: 19313496}
-  - {fileID: 1776037131}
   _useShutdownOrder: 0
   _shutdownOrder: []
 --- !u!1 &510718089
@@ -5529,7 +5543,7 @@ MonoBehaviour:
     customAFName: "\uD06C\uB9BC\uC2A8 \uB370\uB4DC\uC544\uC774"
     assembly: {fileID: 11400000, guid: 69171450ad83c1d4f9163f1aa70be07b, type: 2}
     teamId: 0
-    teamColorPreview: {r: 0.9, g: 0.2, b: 0.2, a: 1}
+    teamColorPreview: {r: 0.3, g: 0.8, b: 0.9, a: 1}
     startPosition: {x: 40, y: 0, z: 30}
     customFrame: {fileID: 11400000, guid: 4953d225f51f1bf4a9dc8e0ee2bea8ee, type: 2}
     customHead: {fileID: 11400000, guid: 84f18fb331da5db4a8e95e3f7040187c, type: 2}
@@ -5539,13 +5553,28 @@ MonoBehaviour:
     customWeaponR1: {fileID: 11400000, guid: 2c441138c51bce44ebeaa40cfe3bb82c, type: 2}
     customWeaponL1: {fileID: 0}
     customPilot: {fileID: 11400000, guid: 5a606a1b12582644bb00669016dec86a, type: 2}
-    callsign: "\uC6B0\uCC3D"
+    callsign: "\uB370\uB4DC\uC544\uC774"
+  - useCustomAssembly: 0
+    customAFName: "\uC2E0\uC18D\uC758 \uC138\uC774\uBC84"
+    assembly: {fileID: 11400000, guid: 6e96ea29a2cb34344a59b026f42743ba, type: 2}
+    teamId: 0
+    teamColorPreview: {r: 0.3, g: 0.8, b: 0.9, a: 1}
+    startPosition: {x: 40, y: 0, z: -30}
+    customFrame: {fileID: 11400000, guid: e2bfae6ff34c7714e886711fcc3c90c5, type: 2}
+    customHead: {fileID: 11400000, guid: 1e5fac94e025f7644a1b5bd127a3c38d, type: 2}
+    customBody: {fileID: 11400000, guid: 94c1560f515ef8c4c9ae57820ff8a608, type: 2}
+    customArms: {fileID: 11400000, guid: 2d7f95d4f61b04f48a6cada280e6736c, type: 2}
+    customLegs: {fileID: 11400000, guid: 78d3cc7ae706ccb48a00fc1c2d8535ba, type: 2}
+    customWeaponR1: {fileID: 11400000, guid: bc1690be888e8004989637365eb247aa, type: 2}
+    customWeaponL1: {fileID: 11400000, guid: 5ef8d5cea82b9224cb9f2b5ad48463da, type: 2}
+    customPilot: {fileID: 11400000, guid: c6b8bc701c8332d43adbd8a676ec5e1e, type: 2}
+    callsign: "\uC2E0\uC18D\uC758 \uC138\uC774\uBC84 (SASHA \uC804\uC6A9\uAE30\uCCB4)"
   afSetups:
   - useCustomAssembly: 0
     customAFName: "\uCF54\uBC1C\uD2B8 \uBC45\uAC00\uB4DC"
     assembly: {fileID: 11400000, guid: 903cf094c4dc7034483f90c9ce86aae5, type: 2}
     teamId: 1
-    teamColorPreview: {r: 0.2, g: 0.4, b: 0.9, a: 1}
+    teamColorPreview: {r: 0.9, g: 0.2, b: 0.2, a: 1}
     startPosition: {x: 0, y: 0, z: 0}
     customFrame: {fileID: 11400000, guid: ae0e1f83a60977a4daeaba4d00a0247c, type: 2}
     customHead: {fileID: 11400000, guid: 80688ab2f1942764db0d5e34cab92041, type: 2}
@@ -5578,6 +5607,7 @@ MonoBehaviour:
   logActionSummaries: 0
   useSpriteIconsInLog: 0
   logLevelsToRecord: 1
+  safetyBreakTurns: 10
   currentBattleId: 
   currentCycle: 0
   isInCombat: 0

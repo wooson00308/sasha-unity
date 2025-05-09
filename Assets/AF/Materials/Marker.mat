@@ -45,7 +45,7 @@ Material:
     - _EnableExternalAlpha: 0
     - _FadeRangeRad: 0.08726646
     - _ScanArcWidthRad: 1.7453293
-    - _ScanCurrentAngleRad: 4.280837
+    - _ScanCurrentAngleRad: 2.10955
     - _Stencil: 0
     - _StencilComp: 8
     - _StencilOp: 0

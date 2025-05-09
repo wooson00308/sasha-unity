@@ -79,7 +79,9 @@ namespace AF.Combat
             // +++ PartDestroyed 델타 정보 필드 +++
             public string PartDestroyed_OwnerName { get; set; }
             public PartType? PartDestroyed_PartType { get; set; }
-            public string PartDestroyed_DestroyerName { get; set; } // Optional
+            public string PartDestroyed_DestroyerName { get; set; }
+            public string PartDestroyed_SlotId { get; set; }
+            public bool PartDestroyed_FrameWasActuallyDestroyed { get; set; }
 
             // +++ WeaponFired 델타 정보 필드 +++
             public string Weapon_AttackerName { get; set; }
@@ -157,6 +159,8 @@ namespace AF.Combat
                 PartDestroyed_OwnerName = null;
                 PartDestroyed_PartType = null;
                 PartDestroyed_DestroyerName = null;
+                PartDestroyed_SlotId = null;
+                PartDestroyed_FrameWasActuallyDestroyed = false;
 
                 // +++ Initialize NEW delta fields +++
                 Weapon_AttackerName = null;

@@ -169,11 +169,11 @@ namespace AF.Combat
             return _currentBattleId;
         }
 
-        public void EndCombat(CombatSessionEvents.CombatEndEvent.ResultType? forceResult = null)
+        public void EndCombat(CombatSessionEvents.CombatEndEvent.ResultType forceResult = CombatSessionEvents.CombatEndEvent.ResultType.Aborted)
         {
             if (!_isInCombat) return;
 
-            var result = forceResult ?? _resultEvaluator.Evaluate(_participants, _teamAssignments);
+            var result = forceResult;
             float dur  = Time.time - _combatStartTime;
             var survivors = _participants.Where(p => p.IsOperational).ToArray();
 
@@ -234,6 +234,8 @@ namespace AF.Combat
                 if (_currentTurn > 0) 
                 {
                     _eventBus.Publish(new CombatSessionEvents.RoundEndEvent(_currentTurn, _currentBattleId));
+                    CheckBattleEndCondition();
+                    if (!_isInCombat) return false;
                 }
                 _currentTurn++;
                 _currentCycle = 0;
@@ -252,12 +254,15 @@ namespace AF.Combat
 
             if (_currentActiveUnit == null) 
             {
-                if (!isNewTurn)
-                {
-                     Debug.LogWarning($"ProcessNextTurn: GetNextActiveUnit returned null unexpectedly. Turn: {_currentTurn}, Acted: {_actedThisCycle.Count}, Active: {activeParticipants.Count}");
-                }
+                // if (!isNewTurn)
+                // {
+                //      Debug.LogWarning($"ProcessNextTurn: GetNextActiveUnit returned null unexpectedly. Turn: {_currentTurn}, Acted: {_actedThisCycle.Count}, Active: {activeParticipants.Count}");
+                // }
                 CheckBattleEndCondition(); 
-                return !_isInCombat;       
+                // SASHA: 수정된 반환 로직
+                // 만약 CheckBattleEndCondition에 의해 EndCombat이 호출되어 _isInCombat이 false가 되었다면, false를 반환 (전투 종료)
+                // 그렇지 않고 _isInCombat이 true라면 (즉, 전투는 계속되어야 하지만 이번 턴에 행동할 유닛이 없는 경우, 다음 턴으로 넘어가야 함), true를 반환.
+                return _isInCombat; 
             }
 
             _currentCycle++;
@@ -291,11 +296,11 @@ namespace AF.Combat
                 NodeStatus btStatus = NodeStatus.Failure;
                 if (_currentActiveUnit.BehaviorTreeRoot != null)
                 {
-                    btStatus = _currentActiveUnit.BehaviorTreeRoot.Tick(_currentActiveUnit, _currentActiveUnit.AICtxBlackboard, currentActionContext); // 수정된 컨텍스트 사용
+                    btStatus = _currentActiveUnit.BehaviorTreeRoot.Tick(_currentActiveUnit, _currentActiveUnit.AICtxBlackboard, currentActionContext);
                 }
                 else
                 {
-                    _textLogger?.TextLogger?.Log($"[{_currentActiveUnit.Name}]에게 할당된 행동 트리가 없습니다. 활성화 종료.", LogLevel.Warning);
+                    _textLogger?.TextLogger?.Log($"CRITICAL ERROR: [{_currentActiveUnit.Name}] 코어 AI 모듈 연결 실패. 행동 로직 부재. 현 작전 수행 불가. 활성화 강제 종료.", LogLevel.Error);
                     canContinueActing = false; 
                     break;
                 }
@@ -304,30 +309,61 @@ namespace AF.Combat
 
                 if (decidedActionType.HasValue && decidedActionType.Value != CombatActionEvents.ActionType.None)
                 {
+                    // +++ SASHA: AP 비용 계산 시 재장전 액션일 경우 WeaponToReload 사용 +++
+                    Weapon weaponForApCost = decidedActionType.Value == CombatActionEvents.ActionType.Reload 
+                                                ? _currentActiveUnit.AICtxBlackboard.WeaponToReload 
+                                                : _currentActiveUnit.AICtxBlackboard.SelectedWeapon;
+
                     float apCost = _actionExecutor.GetActionAPCost(
                         decidedActionType.Value, 
                         _currentActiveUnit, 
-                        _currentActiveUnit.AICtxBlackboard.SelectedWeapon);
+                        weaponForApCost); // 수정된 weaponForApCost 사용
+                    // +++ SASHA: 수정 끝 +++
 
                     if (!_currentActiveUnit.HasEnoughAP(apCost))
                     {
-                        _textLogger?.TextLogger?.Log($"[{_currentActiveUnit.Name}]이(가) {decidedActionType.Value} 행동을 위한 AP 부족 (필요: {apCost:F1}, 현재: {_currentActiveUnit.CurrentAP:F1}). 다음 행동 시도 중단.", LogLevel.Info);
+                        _textLogger?.TextLogger?.Log($"[{_currentActiveUnit.Name}] {decidedActionType.Value} ({weaponForApCost?.Name ?? "N/A"}) 작전 수행 불가. 에너지 부족 (요구: {apCost:F1}, 잔여: {_currentActiveUnit.CurrentAP:F1}). 다음 명령 대기.", LogLevel.Info);
                         _currentActiveUnit.AICtxBlackboard.DecidedActionType = null; 
                         actionsThisActivation++; 
+                        CheckBattleEndCondition();
+                        if (!_isInCombat) 
+                        {
+                            _actedThisCycle.Add(_currentActiveUnit);
+                            return false; 
+                        }
                         continue; 
                     }
                     
-                    if (decidedActionType.Value == CombatActionEvents.ActionType.Move && currentActionContext.MovedThisActivation.Contains(_currentActiveUnit)) // 수정된 컨텍스트 사용
+                    if (decidedActionType.Value == CombatActionEvents.ActionType.Move && currentActionContext.MovedThisActivation.Contains(_currentActiveUnit))
                     {
-                        _textLogger?.TextLogger?.Log($"[{_currentActiveUnit.Name}]은(는) 이번 활성화에 이미 이동했습니다. 다른 행동을 시도합니다.", LogLevel.Info);
+                        _textLogger?.TextLogger?.Log($"[{_currentActiveUnit.Name}] 현재 활성화 주기 내 기동 완료. 전술적 위치 재조정 불가. 다른 작전 프로토콜 탐색.", LogLevel.Info);
                         _currentActiveUnit.AICtxBlackboard.DecidedActionType = null; 
                         actionsThisActivation++; 
+                        CheckBattleEndCondition();
+                        if (!_isInCombat)
+                        {
+                            _actedThisCycle.Add(_currentActiveUnit);
+                            return false;
+                        }
                         continue;
                     }
 
                     var targetFrame = _currentActiveUnit.AICtxBlackboard.CurrentTarget;
                     var targetPosition = _currentActiveUnit.AICtxBlackboard.IntendedMovePosition;
-                    var selectedWeapon = _currentActiveUnit.AICtxBlackboard.SelectedWeapon;
+                    // var selectedWeapon = _currentActiveUnit.AICtxBlackboard.SelectedWeapon; // 기존 변수 주석 처리
+
+                    // +++ SASHA: 액션 실행 시 사용할 무기 결정 로직 추가 +++
+                    Weapon weaponForExecution = null;
+                    if (decidedActionType.Value == CombatActionEvents.ActionType.Reload)
+                    {
+                        weaponForExecution = _currentActiveUnit.AICtxBlackboard.WeaponToReload;
+                    }
+                    else if (decidedActionType.Value == CombatActionEvents.ActionType.Attack)
+                    {
+                        weaponForExecution = _currentActiveUnit.AICtxBlackboard.SelectedWeapon;
+                    }
+                    // 다른 액션 타입(Move, Defend 등)은 weaponForExecution이 null일 수 있음
+                    // +++ SASHA: 수정 끝 +++
 
                     bool actionSuccess = _actionExecutor.Execute(
                         currentActionContext, 
@@ -335,39 +371,62 @@ namespace AF.Combat
                         decidedActionType.Value, 
                         targetFrame, 
                         targetPosition, 
-                        selectedWeapon);
+                        weaponForExecution); // 수정된 weaponForExecution 사용
 
                     actionsThisActivation++;
 
-                    // ★★★ 핵심 수정: 행동 성공 시 MovedThisActivation 및 DefendedThisActivation 업데이트 ★★★
                     if (actionSuccess)
                     {
                         if (decidedActionType.Value == CombatActionEvents.ActionType.Move)
                         {
-                            if (!currentActionContext.MovedThisActivation.Contains(_currentActiveUnit)) // 컨텍스트에서 확인
+                            if (!currentActionContext.MovedThisActivation.Contains(_currentActiveUnit))
                             {
-                                currentActionContext.MovedThisActivation.Add(_currentActiveUnit); // 컨텍스트에 추가
+                                currentActionContext.MovedThisActivation.Add(_currentActiveUnit);
                             }
                         }
                         else if (decidedActionType.Value == CombatActionEvents.ActionType.Defend)
                         {
-                            if (!currentActionContext.DefendedThisActivation.Contains(_currentActiveUnit)) // 컨텍스트에서 확인
+                            if (!currentActionContext.DefendedThisActivation.Contains(_currentActiveUnit)) 
                             {
-                                currentActionContext.DefendedThisActivation.Add(_currentActiveUnit); // 컨텍스트에 추가
-                                _defendedThisTurn.Add(_currentActiveUnit); // 턴 당 방어 기록도 유지
+                                currentActionContext.DefendedThisActivation.Add(_currentActiveUnit);
+                                _defendedThisTurn.Add(_currentActiveUnit); 
+                            }
+                        }
+
+                        if (decidedActionType.Value == CombatActionEvents.ActionType.Attack && 
+                            _currentActiveUnit.AICtxBlackboard.ImmediateReloadWeapon != null)
+                        {
+                            Weapon weaponToReloadImmediately = _currentActiveUnit.AICtxBlackboard.ImmediateReloadWeapon;
+                            float reloadApCost = _actionExecutor.GetActionAPCost(CombatActionEvents.ActionType.Reload, _currentActiveUnit, weaponToReloadImmediately);
+
+                            if (_currentActiveUnit.HasEnoughAP(reloadApCost))
+                            {
+                                _textLogger?.TextLogger?.Log($"SYSTEM: [{_currentActiveUnit.Name}] {weaponToReloadImmediately.Name} 탄약 소진. 즉시 재장전 프로토콜 실행.", LogLevel.Info);
+                                bool reloadSuccess = _actionExecutor.Execute(currentActionContext, _currentActiveUnit, CombatActionEvents.ActionType.Reload, null, null, weaponToReloadImmediately);
+                                _currentActiveUnit.AICtxBlackboard.ImmediateReloadWeapon = null; 
+                                actionsThisActivation++; 
+                            }
+                            else
+                            {
+                                _textLogger?.TextLogger?.Log($"[{_currentActiveUnit.Name}] {weaponToReloadImmediately.Name} 즉시 재장전 시도... 에너지 부족 (요구: {reloadApCost:F1}, 잔여: {_currentActiveUnit.CurrentAP:F1}).", LogLevel.Info);
                             }
                         }
                     }
-                    // ★★★ 수정 끝 ★★★
                     else 
                     {
-                        _textLogger?.TextLogger?.Log($"[{_currentActiveUnit.Name}]의 행동 {decidedActionType.Value} 실행 실패.", LogLevel.Warning);
-                        // 실패 시에도 AP가 소모되었을 수 있으므로 AP 체크는 아래에서 공통으로 수행
+                        _textLogger?.TextLogger?.Log($"WARNING: [{_currentActiveUnit.Name}]의 행동 {decidedActionType.Value} 실행 프로토콜 인터럽트 발생.", LogLevel.Warning);
+                    }
+
+                    CheckBattleEndCondition();
+                    if (!_isInCombat) 
+                    {
+                        _actedThisCycle.Add(_currentActiveUnit);
+                        return false; 
                     }
 
                     if (_currentActiveUnit.CurrentAP <= 0.001f)
                     {
-                        _textLogger?.TextLogger?.Log($"[{_currentActiveUnit.Name}]이(가) AP를 모두 소모. 활성화 종료.", LogLevel.Info);
+                        _textLogger?.TextLogger?.Log($"SYSTEM: [{_currentActiveUnit.Name}] 주 동력원 고갈. 모든 작전 행동 일시 중지. 활성화 사이클 종료.", LogLevel.Info);
                         canContinueActing = false;
                     }
                 }
@@ -375,24 +434,47 @@ namespace AF.Combat
                 {
                     if (btStatus == NodeStatus.Success) 
                     {
-                        _textLogger?.TextLogger?.Log($"[{_currentActiveUnit.Name}]이(가) BT 성공으로 명시적 대기 또는 행동 없음 결정. 활성화 종료. (Decided: {decidedActionType?.ToString() ?? "null"})", LogLevel.Info);
+                        _textLogger?.TextLogger?.Log($"[{_currentActiveUnit.Name}] 지정된 작전 노드 성공적으로 통과. 다음 지시까지 현 위치 고수. (BT Status: {btStatus}, Decided Action: {decidedActionType?.ToString() ?? "None"})", LogLevel.Info);
                     }
                     else 
                     {
-                        _textLogger?.TextLogger?.Log($"[{_currentActiveUnit.Name}]이(가) BT 상태 {btStatus}로 행동 결정 실패. 활성화 종료.", LogLevel.Info);
+                        _textLogger?.TextLogger?.Log($"CRITICAL: [{_currentActiveUnit.Name}] 전술 AI 연산 중단. 유효 행동 도출 실패. (BT Status: {btStatus}) 현 작전 사이클 중단.", LogLevel.Warning);
                     }
                     canContinueActing = false; 
                 }
                 
                 if (!_currentActiveUnit.IsOperational) 
                 {
-                    _textLogger?.TextLogger?.Log($"[{_currentActiveUnit.Name}] 파괴됨. 활성화 즉시 종료.", LogLevel.Info);
+                    _textLogger?.TextLogger?.Log($"FATAL: [{_currentActiveUnit.Name}] 기체 완파 확인. 생명 유지 장치 가동... 실패. 모든 기능 정지. 활성화 즉시 종료.", LogLevel.Error);
+                    
+                    // SASHA: 디버그 로그 추가
+                    if (_textLogger?.TextLogger != null)
+                    {
+                        var aliveDebug = _participants.Where(p => p != null && p.IsOperational).ToList();
+                        _textLogger.TextLogger.Log($"[DEBUG] Before CheckBattleEndCondition (after unit [{_currentActiveUnit.Name}] destroyed): Total Participants: {_participants.Count}, Alive: {aliveDebug.Count}", LogLevel.Debug);
+                        foreach(var p_debug in aliveDebug)
+                        {
+                            _textLogger.TextLogger.Log($"  [DEBUG] Alive: {p_debug.Name} (Team: {(_teamAssignments.TryGetValue(p_debug, out int teamId) ? teamId.ToString() : "N/A")})", LogLevel.Debug);
+                        }
+                        if (aliveDebug.Count == 0 && _participants.Any(p => p != null && !p.IsOperational))
+                        {
+                            _textLogger.TextLogger.Log($"[DEBUG] All units are non-operational. Evaluator might return Draw or Aborted.", LogLevel.Debug);
+                        }
+                    }
+                    // SASHA: 디버그 로그 끝
+
                     canContinueActing = false;
+                    CheckBattleEndCondition();
+                    if (!_isInCombat)
+                    {
+                         _actedThisCycle.Add(_currentActiveUnit);
+                        return false;
+                    }
                 }
             } 
             
             _actedThisCycle.Add(_currentActiveUnit);
-            CheckBattleEndCondition();
+
             return _isInCombat;
         }
 
@@ -485,8 +567,12 @@ namespace AF.Combat
 
         private void CheckBattleEndCondition()
         {
-            var res = _resultEvaluator.Evaluate(_participants,_teamAssignments);
-            if (res!=CombatSessionEvents.CombatEndEvent.ResultType.Draw) EndCombat(res);
+            var result = _resultEvaluator.Evaluate(_participants, _teamAssignments);
+
+            if (result.HasValue)
+            {
+                EndCombat(result.Value);
+            }
         }
     }
 }

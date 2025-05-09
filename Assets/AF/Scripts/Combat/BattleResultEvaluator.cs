@@ -6,14 +6,14 @@ namespace AF.Combat
 {
     public interface IBattleResultEvaluator
     {
-        CombatSessionEvents.CombatEndEvent.ResultType Evaluate(
+        CombatSessionEvents.CombatEndEvent.ResultType? Evaluate(
             IList<ArmoredFrame> participants,
             IDictionary<ArmoredFrame,int> teamAssignments);
     }
 
     public sealed class BattleResultEvaluator : IBattleResultEvaluator
     {
-        public CombatSessionEvents.CombatEndEvent.ResultType Evaluate(
+        public CombatSessionEvents.CombatEndEvent.ResultType? Evaluate(
             IList<ArmoredFrame> participants,
             IDictionary<ArmoredFrame,int> teamAssignments)
         {
@@ -32,7 +32,7 @@ namespace AF.Combat
                 case 1:  return aliveTeams[0] == 0
                           ? CombatSessionEvents.CombatEndEvent.ResultType.Victory
                           : CombatSessionEvents.CombatEndEvent.ResultType.Defeat;
-                default: return CombatSessionEvents.CombatEndEvent.ResultType.Draw;
+                default: return null;
             }
         }
     }
