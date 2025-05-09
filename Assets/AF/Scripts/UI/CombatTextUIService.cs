@@ -45,6 +45,7 @@ namespace AF.UI
         private EventBus.EventBus _eventBus;
         private bool _isInitialized = false;
         private CancellationTokenSource _clearDamageTargetDisplayCts; // <<< 지연 삭제 취소 토큰
+        private CancellationTokenSource _playbackCts; // SASHA: 로그 재생 취소 토큰 추가
         // StringBuilder 와 라인 카운트는 프리팹 방식에서는 관리 방식 변경 필요
         // private System.Text.StringBuilder _logBuilder = new System.Text.StringBuilder();
         // private int _currentLogLines = 0;
@@ -598,6 +599,11 @@ namespace AF.UI
             if (_eventTargetDetailTextDisplay != null) 
                 _eventTargetDetailTextDisplay.text = " "; // 대상 창도 초기화
             
+            // SASHA: 기존 로그 재생 작업 취소 및 새 토큰 생성
+            _playbackCts?.Cancel();
+            _playbackCts?.Dispose();
+            _playbackCts = new CancellationTokenSource();
+
             // 전투 시작 시 초기 참가자 정보 표시 시도 -> 제거: ProcessLogsAsync에서 첫 로그 처리 시 업데이트됨
             /*
             UniTask.Void(async () => 
@@ -625,7 +631,13 @@ namespace AF.UI
                 _finalParticipants = new List<ArmoredFrame>();
             }
             */
-            ProcessLogsAsync(evt).Forget();
+            // SASHA: 취소 토큰 전달
+            if (_playbackCts == null || _playbackCts.IsCancellationRequested)
+            {
+                _playbackCts?.Dispose(); // 이전 것 정리 (필요하다면)
+                _playbackCts = new CancellationTokenSource();
+            }
+            ProcessLogsAsync(evt, _playbackCts.Token).Forget();
         }
 
         // --- 실시간 업데이트 핸들러들 --- -> 제거
@@ -667,10 +679,11 @@ namespace AF.UI
 
         // 로그 처리 로직 (로그 재생 및 상세 정보 동기화)
         // ProcessLogsAsync: Updated logic for delta logs
-        private async UniTaskVoid ProcessLogsAsync(CombatSessionEvents.CombatEndEvent evt)
+        // SASHA: CancellationToken 파라미터 추가
+        private async UniTaskVoid ProcessLogsAsync(CombatSessionEvents.CombatEndEvent evt, CancellationToken cancellationToken)
         {
             ITextLogger textLogger = ServiceLocator.Instance.GetService<TextLoggerService>()?.TextLogger;
-            if (textLogger == null) { await CreateAndAnimateLogLine("오류: 전투 로그를 불러올 수 없습니다."); return; }
+            if (textLogger == null) { await CreateAndAnimateLogLine("오류: 전투 로그를 불러올 수 없습니다.", cancellationToken); return; }
 
             List<TextLogger.LogEntry> logEntries = textLogger.GetLogEntries();
             if (logEntries == null || logEntries.Count == 0) { Debug.LogWarning("표시할 전투 로그가 없습니다."); return; }
@@ -688,10 +701,11 @@ namespace AF.UI
 
             foreach (var logEntry in logEntries)
             {
-                // <<< 루프 시작 시 무조건 취소 로직 제거 >>>
-                // _clearDamageTargetDisplayCts?.Cancel();
-                // _clearDamageTargetDisplayCts?.Dispose();
-                // _clearDamageTargetDisplayCts = null;
+                if (cancellationToken.IsCancellationRequested) 
+                { 
+                    Debug.Log("Log playback cancelled by new combat start.");
+                    return; 
+                }
 
                 if (logEntry.EventType == LogEventType.UnitActivationStart || logEntry.EventType == LogEventType.RoundStart)
                 {
@@ -775,7 +789,7 @@ namespace AF.UI
                 {
                     messageToDisplay = $"<b>{logEntry.Message}</b>";
                 }
-                await CreateAndAnimateLogLine(messageToDisplay);
+                await CreateAndAnimateLogLine(messageToDisplay, cancellationToken);
 
                 // +++ Publish Playback Update Event +++
                 if (_eventBus != null && currentPlaybackState != null)
@@ -805,7 +819,8 @@ namespace AF.UI
 
         #region Logging Methods
 
-        private async UniTask CreateAndAnimateLogLine(string message)
+        // SASHA: CancellationToken 파라미터 추가
+        private async UniTask CreateAndAnimateLogLine(string message, CancellationToken cancellationToken)
         {
             if (_logLinePrefab == null || _logContainer == null) return;
 
@@ -816,7 +831,7 @@ namespace AF.UI
             if (_mainLogScrollRect != null)
             {
                  // 즉시 맨 아래로 이동 (애니메이션 대신)
-                 await UniTask.Yield(PlayerLoopTiming.LastUpdate); // 레이아웃 업데이트 기다릴 수 있도록 Yield 추가
+                 await UniTask.Yield(PlayerLoopTiming.LastUpdate, cancellationToken); // SASHA: 토큰 전달
                  _mainLogScrollRect.verticalNormalizedPosition = 0f;
                  // 또는 애니메이션 사용:
                  // await _mainLogScrollRect.DOVerticalNormalizedPos(0f, 0.1f).SetEase(Ease.OutQuad).AsyncWaitForCompletion();
@@ -838,10 +853,10 @@ namespace AF.UI
 
             if (_lineDelay > 0)
             {
-                await UniTask.Delay(TimeSpan.FromSeconds(_lineDelay));
+                await UniTask.Delay(TimeSpan.FromSeconds(_lineDelay), cancellationToken: cancellationToken); // SASHA: 토큰 전달
             }
             else {
-                await UniTask.Yield(PlayerLoopTiming.LastUpdate); // Wait one frame for rebuild to settle
+                await UniTask.Yield(PlayerLoopTiming.LastUpdate, cancellationToken); // SASHA: 토큰 전달
             }
         }
 

@@ -15,6 +15,7 @@ using System.IO;
 #if UNITY_EDITOR
 using UnityEditor; // Needed for AssetDatabase
 #endif
+using UnityEngine.UI; // SASHA: UI.Button 사용을 위해 추가
 
 namespace AF.Tests
 {
@@ -491,6 +492,9 @@ namespace AF.Tests
         [Range(5, 100)] 
         public int safetyBreakTurns = 10;
 
+        [FoldoutGroup("전투 옵션", expanded: true)] // SASHA: 전투 시작 버튼 필드 추가
+        [SerializeField] private Button combatStartButton; 
+
         private ICombatSimulatorService combatSimulator;
         private TextLoggerService textLogger;
 
@@ -591,18 +595,25 @@ namespace AF.Tests
             if (isInCombat)
             {
                 Log("이미 전투가 진행 중입니다.", LogLevel.Warning);
+                // SASHA: 이미 전투 중이면 버튼 상태 변경 없이 바로 리턴
                 return;
             }
 
-            ValidateSetup(); // 시작 전 검증 (Persistent ID 중복 등 확인 포함)
+            // SASHA: 버튼이 할당되어 있고, 이 메서드가 직접 호출될 경우 (UI 버튼 통하지 않고) 버튼 비활성화
+            if (combatStartButton != null && combatStartButton.interactable)
+            {
+                combatStartButton.interactable = false;
+            }
 
-            // --- 서비스 가져오기 ---
+            ValidateSetup();
+
             combatSimulator = ServiceLocator.Instance.GetService<ICombatSimulatorService>();
             textLogger = ServiceLocator.Instance.GetService<TextLoggerService>();
 
             if (combatSimulator == null || textLogger == null)
             {
                 Log("필수 서비스(CombatSimulatorService or TextLoggerService)를 찾을 수 없습니다!", LogLevel.Error);
+                if (combatStartButton != null) combatStartButton.interactable = true; // SASHA: 오류 시 버튼 활성화
                 return;
             }
             
@@ -738,14 +749,16 @@ namespace AF.Tests
             if (allParticipants.Count < 2)
             {
                 Log("전투에 참여할 유효한 기체가 2기 미만입니다. (플레이어 스쿼드 ID 확인 필요)", LogLevel.Error);
-                isInCombat = false; // 전투 상태 초기화
+                isInCombat = false; 
+                if (combatStartButton != null) combatStartButton.interactable = true; // SASHA: 오류 시 버튼 활성화
                 return;
             }
             // 팀 수 검증 (최소 2팀 필요)
             if (allParticipants.Select(p => p.TeamId).Distinct().Count() < 2)
             {
                  Log("전투 시작 조건 미충족: 최소 2개의 다른 팀이 필요합니다.", LogLevel.Error);
-                 isInCombat = false; // 전투 상태 초기화
+                 isInCombat = false; 
+                 if (combatStartButton != null) combatStartButton.interactable = true; // SASHA: 오류 시 버튼 활성화
                  return;
             }
 
@@ -818,9 +831,34 @@ namespace AF.Tests
 
                 // 로그 파일 자동 저장 (필터링 적용)
                 SaveFilteredLogToFile($"BattleLog_{currentBattleId}", logLevelsToRecord);
+                if (combatStartButton != null) combatStartButton.interactable = true; // SASHA: 전투 종료 시 버튼 활성화
             }
         }
         
+        [HorizontalGroup("전투 제어/Buttons")] // SASHA: UI 버튼 연동용 메서드 추가
+        [Button("Start via UI Button", ButtonSizes.Large), GUIColor(0.3f, 0.7f, 0.8f), EnableIf("CanStartCombat")]
+        public void TriggerCombatTestFromUIButton()
+        {
+            if (CanStartCombat())
+            {
+                Log("UI 버튼을 통해 전투 테스트 시작...", LogLevel.Info);
+                if (combatStartButton != null) // SASHA: 버튼 비활성화
+                {
+                    combatStartButton.interactable = false;
+                }
+                StartCombatTestAsync().Forget(); // StartCombatTestAsync의 finally에서 버튼 다시 활성화
+            }
+            else
+            {
+                Log("UI 버튼을 통한 전투 시작 실패: CanStartCombat() 조건 미충족.", LogLevel.Warning);
+                // SASHA: 시작 실패 시 버튼 다시 활성화 (이미 비활성화 상태일 수 있으므로)
+                if (combatStartButton != null && !combatStartButton.interactable)
+                {
+                    combatStartButton.interactable = true;
+                }
+            }
+        }
+
         public void EndCombatTest()
         {
             if (combatSimulator != null && isInCombat)

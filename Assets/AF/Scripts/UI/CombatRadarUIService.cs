@@ -396,7 +396,7 @@ namespace AF.UI
                                 if (markerImage != null) DOTween.Kill(markerImage); // 기존 이미지 트윈 중지
 
                                 Sequence destructionSequence = DOTween.Sequence();
-                                await destructionSequence.Append(markerImage.DOColor(Color.black, 0.1f)) // 즉시 검은색으로
+                                destructionSequence.Append(markerImage.DOColor(Color.black, 0.1f)) // 즉시 검은색으로
                                     .Append(markerImage.DOFade(0.3f, 0.08f).SetLoops(6, LoopType.Yoyo)) // 빠르게 깜빡임 (0.3 알파 <-> 현재 알파)
                                     .Append(targetMarker.transform.DOShakePosition(0.3f, damageShakeStrength * 0.7f, 15, damageShakeRandomness)) // 살짝 흔들림
                                     .Append(targetMarker.transform.DOScale(Vector3.zero, 0.3f).SetEase(Ease.InBack))
@@ -407,7 +407,7 @@ namespace AF.UI
                                         _unitMarkers.Remove(targetUnitName);
                                         _lastMarkerWasAlwaysVisible.Remove(targetUnitName);
                                     });
-                                await destructionSequence.Play();
+                                destructionSequence.Play();
                             }
                             // +++ SASHA: 애니메이션 끝 +++
                         }
@@ -481,13 +481,24 @@ namespace AF.UI
 
         private void ClearRadar()
         {
-            foreach (var marker in _unitMarkers.Values)
+            foreach (var markerKvp in _unitMarkers) // SASHA: 순회 방식 변경 및 키 가져오기
             {
+                GameObject marker = markerKvp.Value;
+                string unitName = markerKvp.Key;
+
                 if (marker != null)
                 {
+                    // SASHA: 마커 및 자식 텍스트의 DOTween 애니메이션 명시적 중지
+                    DOTween.Kill(marker.transform, true); // true: complete a.s.a.p.
                     Image image = marker.GetComponent<Image>();
-                    if (image != null) DOTween.Kill(image); 
-                    DOTween.Kill(marker.transform); 
+                    if (image != null) DOTween.Kill(image, true);
+                    
+                    if (_markerTexts.TryGetValue(unitName, out TextMeshProUGUI callsignTMP) && callsignTMP != null)
+                    {
+                        DOTween.Kill(callsignTMP, true);
+                    }
+                    // --- SASHA: 끝 ---
+
                     Destroy(marker);
                 }
             }
