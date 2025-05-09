@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using AF.AI.BehaviorTree.Actions;
+using AF.AI.BehaviorTree.Conditions;
 using AF.Combat;
 using AF.Models;
 
@@ -10,12 +11,21 @@ namespace AF.AI.BehaviorTree.PilotBTs
         public static BTNode Create(ArmoredFrame agent)
         {
             // 근접 전투 행동 트리:
+            // 0. 재장전 중이면 방어 시도 (최우선)
             // 1. 타겟을 정하고 교전을 시도 (공격 우선, 안되면 이동)
             // 2. 교전이 불가능하면 방어 시도
             // 3. 모든 행동이 불가능하면 대기
             return new SelectorNode(new List<BTNode>
             {
-                // 타겟팅 및 교전 시도
+                // 0. 재장전 중 방어 시퀀스
+                new SequenceNode(new List<BTNode>
+                {
+                    new IsAnyWeaponReloadingNode(),
+                    new CanDefendThisActivationNode(),
+                    new HasEnoughAPNode(CombatActionEvents.ActionType.Defend),
+                    new DefendNode()
+                }),
+                // 1. 타겟팅 및 교전 시도
                 new SequenceNode(new List<BTNode>
                 {
                     // 타겟 확보 로직 (기존 타겟 유효성 검사 또는 신규 타겟 선택)

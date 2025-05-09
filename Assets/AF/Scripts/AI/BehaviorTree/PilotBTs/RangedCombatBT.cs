@@ -3,7 +3,7 @@ using AF.Combat;
 using AF.Models;
 using AF.AI.BehaviorTree; // For BTNode, SelectorNode, SequenceNode, MoveAwayFromTargetNode, IsTargetTooCloseNode etc.
 using AF.AI.BehaviorTree.Actions; // For AttackTargetNode, MoveToTargetNode, ReloadWeaponNode, SelectTargetNode, WaitNode
-using AF.AI.BehaviorTree.Conditions; // <<< SASHA: IsAnyWeaponReloadingNode 사용을 위해 추가
+using AF.AI.BehaviorTree.Conditions; // IsAnyWeaponReloadingNode 사용을 위해 추가
 // NeedsReloadNode, HasEnoughAPNode, IsTargetInRangeNode, IsTargetAliveNode, HasValidTargetNode are in AF.AI.BehaviorTree namespace based on previous analysis
 using UnityEngine;
 
@@ -40,12 +40,14 @@ namespace AF.AI.BehaviorTree.PilotBTs
 
             return new SelectorNode(new List<BTNode>
             {
+                // 0. 재장전 중 후퇴 시퀀스 (방어 대신)
                 new SequenceNode(new List<BTNode>
                 {
-                    new IsAnyWeaponReloadingNode(), // 어떤 무기든 재장전 중인가?
-                    new CanDefendThisActivationNode(), // 이번 활성화에 방어 가능한가?
-                    new HasEnoughAPNode(CombatActionEvents.ActionType.Defend), // 방어 AP 충분한가?
-                    new DefendNode() // 방어 행동
+                    new IsAnyWeaponReloadingNode(),
+                    new HasValidTargetNode(), // 후퇴하려면 타겟이 필요
+                    new CanMoveThisActivationNode(),
+                    new HasEnoughAPNode(CombatActionEvents.ActionType.Move),
+                    new MoveAwayFromTargetNode()
                 }),
 
                 // 1. OutOfAmmo Reload Sequence (Still highest practical priority for RELOAD DECISION)

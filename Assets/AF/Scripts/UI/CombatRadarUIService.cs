@@ -22,7 +22,30 @@ namespace AF.UI
         [Header("UI References")]
         [SerializeField] private RectTransform radarContainer; // 레이더 UI의 기준 영역
         [SerializeField] private GameObject unitMarkerPrefab; // 유닛 표시용 프리팹
-        [SerializeField] private LineRenderer targetLinePrefab; // 타겟 연결선 프리팹 (선택적)
+        [SerializeField] private UILineRenderer uiLinePrefab; // 네임스페이스 명시
+
+        [Header("Target Line Animation Settings")] // SASHA: 타겟 라인 애니메이션 속도 조절용 필드 추가
+        [SerializeField] private float lineInitialFadeInDuration = 0.05f;
+        [SerializeField] private float lineDrawDuration = 0.2f; // 선이 길어지고 두꺼워지며 색이 변하는 시간
+        [SerializeField] private float lineSustainDuration = 0.1f;
+        [SerializeField] private float lineFadeOutDuration = 0.2f;
+
+        [Header("Target Line Dynamic Speed Settings")] // SASHA: 타겟 라인 동적 속도 조절용 필드 추가
+        [SerializeField] private float minLineDrawDuration = 0.05f;
+        [SerializeField] private float maxLineDrawDuration = 0.2f; // 기존 lineDrawDuration의 역할
+        // radarRadius는 이미 UI 상의 레이더 반지름으로 존재함.
+        // UI상의 최대 유효 거리는 radarRadius * 2 (지름) 정도로 생각할 수 있음.
+
+        [Header("Target Line Animation Colors")] // SASHA: 타겟 라인 애니메이션 색상 설정용 필드 추가
+        [SerializeField] private Color lineInitialStartColor = Color.yellow;
+        [SerializeField] private Color lineFinalStartColor = Color.yellow;
+        [SerializeField] private Color lineFinalEndColor = Color.red;
+        [SerializeField] private Color lineFadeOutTargetColor = new Color(0.5f, 0, 0, 0); // 알파 포함된 최종 목표색
+
+        [Header("Evasion Effect Settings")] // SASHA: 회피 효과 설정용 필드 추가
+        [SerializeField] private float evasionEffectDuration = 0.15f;
+        [SerializeField] [Range(0f, 1f)] private float evasionEffectMinAlpha = 0.2f;
+        [SerializeField] [Range(0f, 1f)] private float evasionEffectMinScaleFactor = 0.7f;
 
         private EventBus.EventBus _eventBus;
         private bool _isInitialized = false;
@@ -70,6 +93,10 @@ namespace AF.UI
         private Vector3 _battleCenterWorldPosition = Vector3.zero; // 레이더 UI의 원점으로 사용될 월드 좌표
         private Vector3? _lastKnownPlayerUnitWorldPosition = null; // SASHA: 마지막 활성 플레이어 유닛 위치
 
+        // SASHA: Target line management
+        private AF.UI.UILineRenderer _activeUILine; // 네임스페이스 명시
+        private Sequence _targetLineSequence; // 타겟 라인 애니메이션 시퀀스
+
         // +++ SASHA: Radar Scan Effect Settings +++
         [Header("Radar Scan Effect Settings")]
         [Tooltip("애니메이터로 Z축 회전하는 레이더 UI 오브젝트의 Transform")]
@@ -93,9 +120,9 @@ namespace AF.UI
             // _combatSimulator = ServiceLocator.Instance.GetService<ICombatSimulatorService>(); // No longer directly needed
 
             // CombatSimulator is removed, adjust null check if necessary
-            if (_eventBus == null || radarContainer == null || unitMarkerPrefab == null)
+            if (_eventBus == null || radarContainer == null || unitMarkerPrefab == null || uiLinePrefab == null)
             {
-                Debug.LogError("CombatRadarUIService 초기화 실패: 필수 참조(EventBus, UI 요소)가 없습니다.");
+                Debug.LogError("CombatRadarUIService 초기화 실패: 필수 참조(EventBus, UI 요소, uiLinePrefab)가 없습니다.");
                 enabled = false; // 초기화 실패 시 비활성화
                 return;
             }
@@ -114,6 +141,16 @@ namespace AF.UI
             _eventBus = null;
             // _combatSimulator = null; // No longer needed
             _isInitialized = false;
+
+            // SASHA: 타겟 라인 정리
+            if (_activeUILine != null)
+            {
+                Destroy(_activeUILine.gameObject);
+                _activeUILine = null;
+            }
+            _targetLineSequence?.Kill();
+            _targetLineSequence = null;
+
             Debug.Log("CombatRadarUIService Shutdown.");
         }
 
@@ -144,6 +181,15 @@ namespace AF.UI
             ClearRadar();
             _battleCenterWorldPosition = Vector3.zero; // Reset battle center on new combat start
             _lastKnownPlayerUnitWorldPosition = null; // SASHA: 전투 시작 시 초기화
+
+            // SASHA: 전투 시작 시 기존 타겟 라인 제거
+            if (_activeUILine != null)
+            {
+                Destroy(_activeUILine.gameObject);
+                _activeUILine = null;
+            }
+            _targetLineSequence?.Kill();
+            _targetLineSequence = null;
 
             // Calculate battle center immediately if possible (using start event participants)
             if (ev.Participants != null && ev.Participants.Length > 0)
@@ -278,6 +324,36 @@ namespace AF.UI
             GameObject targetMarker = null;
             string targetUnitName = null;
 
+            // SASHA: 공격/타겟팅 라인 처리
+            string attackerNameForLine = null;
+            string targetNameForLine = null;
+
+            if (logEntry.EventType == LogEventType.WeaponFired)
+            {
+                attackerNameForLine = logEntry.Weapon_AttackerName;
+                targetNameForLine = logEntry.Weapon_TargetName;
+            }
+            else if (logEntry.EventType == LogEventType.ActionCompleted && logEntry.Action_Type == CombatActionEvents.ActionType.Attack)
+            {
+                attackerNameForLine = logEntry.Action_ActorName;
+                targetNameForLine = logEntry.Action_TargetName;
+            }
+
+            if (!string.IsNullOrEmpty(attackerNameForLine) && !string.IsNullOrEmpty(targetNameForLine) && uiLinePrefab != null)
+            {
+                if (ev.CurrentSnapshot.TryGetValue(attackerNameForLine, out var attackerSnapshot) &&
+                    ev.CurrentSnapshot.TryGetValue(targetNameForLine, out var targetSnapshot) &&
+                    _unitMarkers.TryGetValue(attackerNameForLine, out var attackerMarkerGO) &&
+                    _unitMarkers.TryGetValue(targetNameForLine, out var targetMarkerGO) &&
+                    attackerMarkerGO != null && targetMarkerGO != null)
+                {
+                    Vector2 attackerRadarPos = CalculateRadarPosition(attackerSnapshot.Position);
+                    Vector2 targetRadarPos = CalculateRadarPosition(targetSnapshot.Position);
+                    DrawTargetingLine(attackerRadarPos, targetRadarPos);
+                }
+            }
+            // SASHA: 공격/타겟팅 라인 처리 끝
+
             switch (logEntry.EventType)
             {
                 case LogEventType.ActionCompleted:
@@ -353,21 +429,38 @@ namespace AF.UI
                     break;
 
                 case LogEventType.RepairApplied:
-                    targetUnitName = logEntry.Repair_TargetName;
-                    if (!string.IsNullOrEmpty(targetUnitName) && _unitMarkers.TryGetValue(targetUnitName, out targetMarker))
+                    targetUnitName = logEntry.Repair_TargetName; // 수정 전: targetName 사용 오류
+                    if (!string.IsNullOrEmpty(targetUnitName) && _unitMarkers.TryGetValue(targetUnitName, out targetMarker)) // targetUnitName으로 변경
                     {
                         await PlayFlashEffect(targetMarker, Color.green);
                     }
                     break;
 
                 // Add cases for other EventTypes if visual feedback is desired
-                // case LogEventType.DamageAvoided: ...
+                case LogEventType.DamageAvoided: // SASHA: 회피 이벤트 처리 추가
+                    // 실제 TextLogger.LogEntry에 정의된, 회피한 유닛의 이름이 담긴 필드명을 사용해야 합니다.
+                    // TextLogger.cs 확인 결과, Avoid_TargetName 필드를 사용합니다.
+                    targetUnitName = logEntry.Avoid_TargetName; 
+                    
+                    if (!string.IsNullOrEmpty(targetUnitName) && _unitMarkers.TryGetValue(targetUnitName, out targetMarker))
+                    {
+                        PlayEvasionEffect(targetMarker).Forget(); // async UniTask 호출이므로 Forget() 처리
+                    }
+                    break;
+
                 // case LogEventType.WeaponFired: ...
 
                 default:
                     // No specific visual effect for this log type
                     break;
             }
+
+            // SASHA: 깜빡임 시퀀스도 모두 정리
+            foreach (var seq in _blinkingSequences.Values)
+            {
+                seq?.Kill();
+            }
+            _blinkingSequences.Clear();
         }
         // +++ End New Handler +++
 
@@ -386,7 +479,6 @@ namespace AF.UI
 
         #region Radar Update Logic (Snapshot Based)
 
-        // Renamed method
         private void ClearRadar()
         {
             foreach (var marker in _unitMarkers.Values)
@@ -394,30 +486,28 @@ namespace AF.UI
                 if (marker != null)
                 {
                     Image image = marker.GetComponent<Image>();
-                    if (image != null) DOTween.Kill(image); // Kill tween before destroying
-                    DOTween.Kill(marker.transform); // SASHA: 마커 트랜스폼에 걸린 모든 트윈 제거 (스케일, 이동, 깜빡임 등)
+                    if (image != null) DOTween.Kill(image); 
+                    DOTween.Kill(marker.transform); 
                     Destroy(marker);
                 }
             }
             _unitMarkers.Clear();
-            _lastMarkerWasAlwaysVisible.Clear(); // 이전 상태 추적 딕셔너리도 클리어
-            _markerTexts.Clear(); // SASHA: 마커 텍스트 캐시 클리어
-            // SASHA: 깜빡임 시퀀스도 모두 정리
-            foreach (var seq in _blinkingSequences.Values)
-            {
-                seq?.Kill();
-            }
-            _blinkingSequences.Clear();
+            _lastMarkerWasAlwaysVisible.Clear(); 
+            _markerTexts.Clear(); 
 
-            foreach (var line in _targetLines)
+            // _blinkingSequences 관련 코드 완전 제거
+
+            // _activeUILine 정리 (Shutdown 및 HandleCombatStart에서 이미 처리)
+            if (_activeUILine != null)
             {
-                 if (line != null) Destroy(line.gameObject); 
+                Destroy(_activeUILine.gameObject);
+                _activeUILine = null;
             }
-             _targetLines.Clear();
+            _targetLineSequence?.Kill(); 
+            _targetLineSequence = null;
         }
 
         // Renamed and modified to accept snapshot and active unit name for highlight
-        // SASHA: radarFocusTargetUnitName 파라미터 대신 focusTargetSnapshotNullable 파라미터 사용
         private void UpdateRadarDisplayFromSnapshot(Dictionary<string, ArmoredFrameSnapshot> snapshotDict, string activeUnitName, ArmoredFrameSnapshot? focusTargetSnapshotNullable, bool playerSquadAnnihilated)
         {
             if (!_isInitialized) return;
@@ -447,10 +537,9 @@ namespace AF.UI
                      if(marker != null)
                      {
                          Image image = marker.GetComponent<Image>();
-                         if (image != null) DOTween.Kill(image); // 트윈 중지
-                         DOTween.Kill(marker.transform); // SASHA: 마커 트랜스폼에 걸린 모든 트윈 제거
+                         if (image != null) DOTween.Kill(image); 
+                         DOTween.Kill(marker.transform); 
 
-                         // +++ SASHA: Enhanced Disappear Animation (Image & Text) +++
                          TextMeshProUGUI callsignTMP = null;
                          if (_markerTexts.TryGetValue(unitName, out var tmp)) { callsignTMP = tmp; }
 
@@ -463,20 +552,13 @@ namespace AF.UI
                             disappearSequence.Join(callsignTMP.DOFade(0f, markerDisappearDuration));
                          }
 
-                         disappearSequence.OnComplete(() => {
+                         disappearSequence.OnComplete(() => { 
                                             if (marker != null) Destroy(marker); 
                                         });
-                         // +++ SASHA: End Enhanced Disappear Animation +++
                      }
                      _unitMarkers.Remove(unitName);
-                     _lastMarkerWasAlwaysVisible.Remove(unitName); // 상태 제거
-                     _markerTexts.Remove(unitName); // SASHA: 마커 텍스트 캐시에서 제거
-                     // SASHA: 깜빡임 시퀀스 정리
-                     if (_blinkingSequences.TryGetValue(unitName, out var blinkingSeq))
-                     {
-                         blinkingSeq?.Kill();
-                         _blinkingSequences.Remove(unitName);
-                     }
+                     _lastMarkerWasAlwaysVisible.Remove(unitName); 
+                     _markerTexts.Remove(unitName); 
                 }
             }
 
@@ -508,7 +590,6 @@ namespace AF.UI
                     }
                     else
                     {
-                        _unitMarkers.Remove(unitSnapshot.Name);
                         CreateNewMarkerFromSnapshot(unitSnapshot, radarPosition, isActive, isRadarFocus, isInWeaponRange, playerSquadNames, playerSquadAnnihilated); // SASHA: playerSquadAnnihilated 전달
                     }
                 }
@@ -662,46 +743,23 @@ namespace AF.UI
             }
             // +++ SASHA: stateChangedThisFrame 계산 로직 이동 끝 +++
 
-            // +++ SASHA: 빈사 상태 깜빡임 로직 +++
-            bool isNearDeath = bodyDamageRatio >= 0.8f; // 내구도 20% 미만 (1.0 - 0.2 = 0.8)
-            // callsignTMP는 이미 위에서 처리되었으므로 여기서는 사용만 함.
-
-            if (isNearDeath)
+            // --- SASHA: 빈사 상태 시 텍스트 색상 변경 로직 추가 ---
+            bool isNearDeath = bodyDamageRatio >= 0.8f; 
+            if (callsignTMP != null)
             {
-                if (!_blinkingSequences.ContainsKey(unitSnapshot.Name) || _blinkingSequences[unitSnapshot.Name] == null || !_blinkingSequences[unitSnapshot.Name].IsActive())
-                {
-                    if (_blinkingSequences.TryGetValue(unitSnapshot.Name, out var oldSeq)) { oldSeq?.Kill(); }
+                Color defaultTextColor = Color.white; // 기본 텍스트 색상
 
-                    image.DOKill(); 
-                    if (callsignTMP != null) callsignTMP.DOKill();
-                    
-                    Sequence blinkingSequence = DOTween.Sequence();
-                    blinkingSequence.Append(image.DOFade(0.3f, 0.4f).SetEase(Ease.InOutSine))
-                                  .Append(image.DOFade(1.0f, 0.4f).SetEase(Ease.InOutSine));
-                    if (callsignTMP != null)
-                    {
-                        blinkingSequence.Join(callsignTMP.DOFade(0.3f, 0.4f).SetEase(Ease.InOutSine))
-                                      .Join(callsignTMP.DOFade(1.0f, 0.4f).SetEase(Ease.InOutSine));
-                    }
-                    blinkingSequence.SetLoops(-1, LoopType.Restart)
-                                  .SetId(marker.GetInstanceID() + "_blinking");
-                    _blinkingSequences[unitSnapshot.Name] = blinkingSequence;
-                    blinkingSequence.Play();
+                if (isNearDeath)
+                {
+                    callsignTMP.color = Color.red; // 빈사 상태일 때 빨간색으로 변경
+                }
+                else
+                {
+                    Color currentTextColor = callsignTMP.color;
+                    callsignTMP.color = new Color(defaultTextColor.r, defaultTextColor.g, defaultTextColor.b, currentTextColor.a); 
                 }
             }
-            else
-            {
-                if (_blinkingSequences.TryGetValue(unitSnapshot.Name, out var blinkingSeq))
-                {
-                    blinkingSeq?.Kill();
-                    _blinkingSequences.Remove(unitSnapshot.Name);
-                    if (!stateChangedThisFrame) 
-                    {
-                         image.color = new Color(displayColor.r, displayColor.g, displayColor.b, 1f);
-                         if (callsignTMP != null) callsignTMP.color = new Color(callsignTMP.color.r, callsignTMP.color.g, callsignTMP.color.b, 1f);
-                    }
-                }
-            }
+            // --- SASHA: 빈사 상태 텍스트 색상 변경 로직 끝 ---
 
             if (stateChangedThisFrame)
             {
@@ -725,7 +783,7 @@ namespace AF.UI
                 if (image.material != targetMaterial) { image.material = targetMaterial; }
                 Color currentColor = image.color;
                 image.color = new Color(displayColor.r, displayColor.g, displayColor.b, currentColor.a);
-                if (callsignTMP != null && !isNearDeath && !stateChangedThisFrame) 
+                if (callsignTMP != null && !stateChangedThisFrame) 
                 {
                     Color currentTextColor = callsignTMP.color;
                 }
@@ -744,9 +802,8 @@ namespace AF.UI
             // +++ SASHA: End Smooth Scale Transition +++
             
             // SASHA: Callsign 업데이트 로직 (unitSnapshot.Name 사용, 메서드 상단에서 이미 할당된 callsignTMP 사용)
-            if (callsignTMP != null) // callsignTMP는 메서드 상단에서 이미 값을 할당받았거나 null일 것임
+            if (callsignTMP != null) 
             {
-                // 이름이 변경될 가능성은 거의 없지만, 만약을 위해 업데이트
                 if (callsignTMP.text != unitSnapshot.Name) 
                 {
                     callsignTMP.text = unitSnapshot.Name;
@@ -988,6 +1045,36 @@ namespace AF.UI
         }
         // +++ SASHA: End New Helper +++
 
+        // SASHA: 회피 효과 재생 메서드 추가
+        private async UniTask PlayEvasionEffect(GameObject marker)
+        {
+            if (marker == null) return;
+
+            Image image = marker.GetComponent<Image>();
+            if (image == null) return;
+
+            // DOTween.Kill을 호출하기 전에 원래 값들을 저장합니다.
+            // Graphic.color는 전체 알파에 영향을 주므로, 개별 마커 이미지의 현재 알파를 기준으로 해야 할 수 있습니다.
+            // 다만, 대부분의 경우 회피 직전 마커는 불투명(알파1) 상태일 가능성이 높습니다.
+            // 여기서는 간단하게 Graphic.color.a를 사용하지만, 더 복잡한 알파 관리가 있다면 수정이 필요할 수 있습니다.
+            float originalAlpha = image.color.a; // 현재 이미지 알파 (또는 _activeUILine.color.a 와 같은 Graphic의 알파)
+            Vector3 originalScale = marker.transform.localScale;
+
+            // 기존 트윈 중지 (เฉพาะ image 와 transform 관련)
+            DOTween.Kill(image, false); 
+            DOTween.Kill(marker.transform, false);
+
+            Sequence evasionSequence = DOTween.Sequence();
+            evasionSequence.Append(image.DOFade(evasionEffectMinAlpha, evasionEffectDuration / 2f).SetEase(Ease.OutQuad))
+                         .Join(marker.transform.DOScale(originalScale * evasionEffectMinScaleFactor, evasionEffectDuration / 2f).SetEase(Ease.OutQuad))
+                         .Append(image.DOFade(originalAlpha, evasionEffectDuration / 2f).SetEase(Ease.InQuad))
+                         .Join(marker.transform.DOScale(originalScale, evasionEffectDuration / 2f).SetEase(Ease.InQuad));
+            
+            evasionSequence.SetId(marker.GetInstanceID() + "_evasion"); // 고유 ID로 트윈 관리 용이
+
+            await evasionSequence.Play().AsyncWaitForCompletion();
+        }
+
         #endregion
 
         // +++ SASHA: CalculateRadarPosition 메서드 복원 +++
@@ -1013,5 +1100,85 @@ namespace AF.UI
             return radarPosition;
         }
         // +++ SASHA: CalculateRadarPosition 메서드 복원 끝 +++
+
+        // +++ SASHA: 타겟팅 라인 그리기 및 애니메이션 메서드 +++
+        private void DrawTargetingLine(Vector2 attackerUIPos, Vector2 targetUIPos)
+        {
+            _targetLineSequence?.Kill();
+            if (_activeUILine != null)
+            {
+                Destroy(_activeUILine.gameObject);
+                _activeUILine = null; 
+            }
+
+            if (uiLinePrefab == null) return;
+
+            _activeUILine = Instantiate(uiLinePrefab, radarContainer);
+            if (_activeUILine == null) return;
+
+            // --- SASHA: 동적 lineDrawDuration 계산 --- 
+            float uiDistance = Vector2.Distance(attackerUIPos, targetUIPos);
+            // radarRadius * 2 를 최대 유효 UI 거리로 사용 (레이더 지름)
+            float effectiveMaxDistance = radarRadius * 2f;
+            if (effectiveMaxDistance <= 0) effectiveMaxDistance = 0.01f; // 0으로 나누기 방지 및 매우 작은 기본값
+            
+            float distanceRatio = Mathf.Clamp01(uiDistance / effectiveMaxDistance);
+            float dynamicDrawDuration = Mathf.Lerp(minLineDrawDuration, maxLineDrawDuration, distanceRatio);
+            // --- SASHA: 계산 끝 ---
+
+            _activeUILine.points.Clear();
+            _activeUILine.AddPoint(attackerUIPos); 
+            _activeUILine.AddPoint(attackerUIPos); 
+            
+            float finalThickness = uiLinePrefab.thickness; 
+            _activeUILine.thickness = finalThickness / 3f; 
+
+            _activeUILine.SetGradientColors(lineInitialStartColor, lineInitialStartColor); // 인스펙터 값 사용
+            _activeUILine.color = new Color(1,1,1,0); 
+
+            _targetLineSequence = DOTween.Sequence();
+
+            _targetLineSequence.Append(_activeUILine.DOFade(1f, lineInitialFadeInDuration)); 
+            _targetLineSequence.Join(
+                DOTween.To(() => _activeUILine.points[1], x => {
+                                _activeUILine.points[1] = x;
+                                _activeUILine.SetVerticesDirty(); 
+                            }, targetUIPos, dynamicDrawDuration).SetEase(Ease.OutSine) // lineDrawDuration 대신 dynamicDrawDuration 사용
+            );
+            _targetLineSequence.Join(
+                DOTween.To(() => _activeUILine.thickness, x => _activeUILine.SetThickness(x), finalThickness, dynamicDrawDuration).SetEase(Ease.OutCubic) // dynamicDrawDuration 사용
+            );
+            _targetLineSequence.Join(
+                DOTween.To(() => _activeUILine.startColor, x => _activeUILine.startColor = x, lineFinalStartColor, dynamicDrawDuration).OnUpdate(() => _activeUILine.SetVerticesDirty()) // dynamicDrawDuration 사용
+            );
+            _targetLineSequence.Join(
+                DOTween.To(() => _activeUILine.endColor, x => _activeUILine.endColor = x, lineFinalEndColor, dynamicDrawDuration).OnUpdate(() => _activeUILine.SetVerticesDirty()) // dynamicDrawDuration 사용
+            );
+
+            _targetLineSequence.AppendInterval(lineSustainDuration);
+
+            Sequence fadeOutSequence = DOTween.Sequence();
+            fadeOutSequence.Append(_activeUILine.DOFade(0f, lineFadeOutDuration).SetEase(Ease.InQuad));
+            fadeOutSequence.Join(
+                DOTween.To(() => _activeUILine.startColor, x => _activeUILine.startColor = x, lineFadeOutTargetColor, lineFadeOutDuration).OnUpdate(() => _activeUILine.SetVerticesDirty()) // 인스펙터 값 사용
+            );
+            fadeOutSequence.Join(
+                DOTween.To(() => _activeUILine.endColor, x => _activeUILine.endColor = x, lineFadeOutTargetColor, lineFadeOutDuration).OnUpdate(() => _activeUILine.SetVerticesDirty()) // 인스펙터 값 사용, _activeUILine 오타 수정
+            );
+
+            _targetLineSequence.Append(fadeOutSequence);
+            
+            _targetLineSequence.OnComplete(() =>
+            {
+                if (_activeUILine != null)
+                {
+                    Destroy(_activeUILine.gameObject);
+                    _activeUILine = null;
+                }
+            });
+            
+            _targetLineSequence.Play();
+        }
+        // +++ SASHA: 타겟팅 라인 그리기 및 애니메이션 메서드 끝 +++
     }
 } 

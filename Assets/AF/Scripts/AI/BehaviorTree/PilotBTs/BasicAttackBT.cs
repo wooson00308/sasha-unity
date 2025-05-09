@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using AF.AI.BehaviorTree.Actions;
 using AF.AI.BehaviorTree; // 통합된 네임스페이스 사용
+using AF.AI.BehaviorTree.Conditions; // IsAnyWeaponReloadingNode 사용을 위해 추가
 using AF.Combat;
 using AF.Models;
 
@@ -23,16 +24,25 @@ namespace AF.AI.BehaviorTree.PilotBTs
         {
             return new SelectorNode(new List<BTNode>
             {
-                // 0. 거리 벌리기 시퀀스 (신규)
+                // 0. 재장전 중 방어 시퀀스 (최우선)
+                new SequenceNode(new List<BTNode>
+                {
+                    new IsAnyWeaponReloadingNode(),
+                    new CanDefendThisActivationNode(),
+                    new HasEnoughAPNode(CombatActionEvents.ActionType.Defend),
+                    new DefendNode()
+                }),
+                // 1. 거리 벌리기 시퀀스 (신규)
                 new SequenceNode(new List<BTNode>
                 {
                     // 예시 임계값, 실제 값은 밸런싱 필요
-                    new IsTargetTooCloseNode(), 
+                    new IsTargetTooCloseNode(),
                     new CanMoveThisActivationNode(),
+                    new HasEnoughAPNode(CombatActionEvents.ActionType.Move),
                     // MoveAway 액션은 AP 비용 확인이 필요할 수 있음 (HasEnoughAPNode 추가 고려)
-                    new MoveAwayFromTargetNode() 
+                    new MoveAwayFromTargetNode()
                 }),
-                // 1. 즉시 공격 시퀀스 (최우선)
+                // 2. 즉시 공격 시퀀스 (최우선)
                 new SequenceNode(new List<BTNode>
                 {
                     new HasValidTargetNode(),     
@@ -40,20 +50,20 @@ namespace AF.AI.BehaviorTree.PilotBTs
                     new HasEnoughAPNode(CombatActionEvents.ActionType.Attack),
                     new AttackTargetNode()       
                 }),
-                // 2. 타겟팅 및 교전 시퀀스 (이동 또는 공격)
+                // 3. 타겟팅 및 교전 시퀀스 (이동 또는 공격)
                 new SequenceNode(new List<BTNode>
                 {
                     new SelectTargetNode(),       
                     new SelectorNode(new List<BTNode> 
                     {
-                        // 2a. 사거리 내면 바로 공격
+                        // 3a. 사거리 내면 바로 공격
                         new SequenceNode(new List<BTNode>
                         {
                             new IsTargetInRangeNode(),
                             new HasEnoughAPNode(CombatActionEvents.ActionType.Attack),
                             new AttackTargetNode()
                         }),
-                        // 2b. 사거리 밖이면 이동
+                        // 3b. 사거리 밖이면 이동
                         new SequenceNode(new List<BTNode>
                         {
                             new CanMoveThisActivationNode(),
@@ -62,28 +72,28 @@ namespace AF.AI.BehaviorTree.PilotBTs
                         })
                     })
                 }),
-                // 3. 필수 재장전 시퀀스 (탄약 없음) - 공격/이동 불가 시
+                // 4. 필수 재장전 시퀀스 (탄약 없음) - 공격/이동 불가 시
                 new SequenceNode(new List<BTNode>
                 {
                     new NeedsReloadNode(ReloadCondition.OutOfAmmo), // 탄약 없음 조건 사용
                     new HasEnoughAPNode(CombatActionEvents.ActionType.Reload), // RELOAD_AP_COST 대신 ActionType.Reload
                     new ReloadWeaponNode()       
                 }),
-                // 4. 방어 시퀀스
+                // 5. 방어 시퀀스
                 new SequenceNode(new List<BTNode>
                 {
                     new CanDefendThisActivationNode(),
                     new HasEnoughAPNode(CombatActionEvents.ActionType.Defend), // DEFEND_AP_COST 대신 ActionType.Defend
                     new DefendNode()            
                 }),
-                 // 5. 낮은 탄약 재장전 시퀀스 - 다른 할 일 없을 때 최후의 수단
+                 // 6. 낮은 탄약 재장전 시퀀스 - 다른 할 일 없을 때 최후의 수단
                 new SequenceNode(new List<BTNode>
                 {
                     new NeedsReloadNode(ReloadCondition.LowAmmo, 0.1f), // 낮은 탄약(10%) 비율 조건 사용
                     new HasEnoughAPNode(CombatActionEvents.ActionType.Reload), // RELOAD_AP_COST 대신 ActionType.Reload
                     new ReloadWeaponNode()
                 }),
-                // 6. 대기 노드 (최후)
+                // 7. 대기 노드 (최후)
                 new WaitNode() 
             });
         }

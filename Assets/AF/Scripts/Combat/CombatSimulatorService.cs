@@ -227,11 +227,14 @@ namespace AF.Combat
             }
 
             var activeParticipants = _participants.Where(p => p.IsOperational).ToList();
-            bool isNewTurn = _actedThisCycle.SetEquals(activeParticipants);
+            // A new turn starts if it's the very first turn (currentTurn == 0),
+            // OR if there are any active participants and all of them have already acted in the current cycle.
+            bool isNewTurn = (_currentTurn == 0) ||
+                             (activeParticipants.Any() && activeParticipants.All(p => _actedThisCycle.Contains(p)));
 
-            if (isNewTurn || _currentTurn == 0) 
+            if (isNewTurn)
             {
-                if (_currentTurn > 0) 
+                if (_currentTurn > 0)
                 {
                     _eventBus.Publish(new CombatSessionEvents.RoundEndEvent(_currentTurn, _currentBattleId));
                     CheckBattleEndCondition();
@@ -434,7 +437,7 @@ namespace AF.Combat
                 {
                     if (btStatus == NodeStatus.Success) 
                     {
-                        _textLogger?.TextLogger?.Log($"[{_currentActiveUnit.Name}] 지정된 작전 노드 성공적으로 통과. 다음 지시까지 현 위치 고수. (BT Status: {btStatus}, Decided Action: {decidedActionType?.ToString() ?? "None"})", LogLevel.Info);
+                        _textLogger?.TextLogger?.Log($"[{_currentActiveUnit.Name}] 전술 목표 달성. 시스템 대기 모드 전환.", LogLevel.Info);
                     }
                     else 
                     {
