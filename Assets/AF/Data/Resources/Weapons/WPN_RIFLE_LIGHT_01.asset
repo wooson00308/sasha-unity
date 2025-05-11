@@ -30,3 +30,4 @@ MonoBehaviour:
   AttackFlavorKey: Attack_WPN_RIFLE_LIGHT_01
   ReloadFlavorKey: Reload_WPN_RIFLE_LIGHT_01
   Notes: 
+  Weight: 1

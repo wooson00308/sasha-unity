@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Flavor_Reload_WPN_SABER_LIGHT_01_Start
   m_EditorClassIdentifier: 
   templateKey: Reload_WPN_SABER_LIGHT_01_Start
-  templateText: "\uC138\uC774\uBC84 \uC5D0\uB108\uC9C0 \uC140 \uC7AC\uCDA9\uC804
-    \uC911."
+  templateText: "<color=#778899>\uC138\uC774\uBC84 \uC5D0\uB108\uC9C0 \uC140 \uC7AC\uCDA9\uC804
+    \uC911.</color>"

@@ -13,4 +13,5 @@ MonoBehaviour:
   m_Name: Flavor_Reload_WPN_MG_MID_01_Start
   m_EditorClassIdentifier: 
   templateKey: Reload_WPN_MG_MID_01_Start
-  templateText: "{weaponName} \uD0C4\uB760 \uAE09\uD0C4 \uC791\uC5C5 \uC9C4\uD589."
+  templateText: "{weaponName} <color=#778899>\uD0C4\uB760 \uAE09\uD0C4 \uC791\uC5C5
+    \uC9C4\uD589.</color>"

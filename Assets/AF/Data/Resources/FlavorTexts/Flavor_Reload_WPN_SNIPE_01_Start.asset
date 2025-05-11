@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Flavor_Reload_WPN_SNIPE_01_Start
   m_EditorClassIdentifier: 
   templateKey: Reload_WPN_SNIPE_01_Start
-  templateText: "\uC800\uACA9\uC6A9 \uD0C4\uD658 \uC0BD\uD0C4 \uBC0F \uC57D\uC2E4
-    \uD655\uC778."
+  templateText: "<color=#778899>\uC800\uACA9\uC6A9 \uD0C4\uD658 \uC0BD\uD0C4 \uBC0F
+    \uC57D\uC2E4 \uD655\uC778.</color>"

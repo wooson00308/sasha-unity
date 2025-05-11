@@ -22,6 +22,7 @@ namespace AF.Combat
         StatusEffectApplied,// (델타 정보 저장 대상)
         StatusEffectExpired,// (델타 정보 저장 대상)
         StatusEffectTicked, // (델타 정보 저장 대상)
-        RepairApplied       // (델타 정보 저장 대상)
+        RepairApplied,      // (델타 정보 저장 대상)
+        CounterAttackAnnounced // (델타 정보 저장 대상)
     }
 } 

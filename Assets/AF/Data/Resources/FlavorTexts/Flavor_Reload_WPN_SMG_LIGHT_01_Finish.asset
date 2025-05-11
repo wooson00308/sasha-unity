@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Flavor_Reload_WPN_SMG_LIGHT_01_Finish
   m_EditorClassIdentifier: 
   templateKey: Reload_WPN_SMG_LIGHT_01_Finish
-  templateText: "{weaponName} \uD0C4\uC57D \uAD50\uCCB4 \uC644\uB8CC. \uC18D\uC0AC
-    \uC900\uBE44\uB428. ({currentAmmo}/{maxAmmo})"
+  templateText: "{weaponName} \uD0C4\uC57D \uAD50\uCCB4 \uC644\uB8CC. <color=#5BB675>\uC18D\uC0AC
+    \uC900\uBE44\uB428.</color> ({currentAmmo}/{maxAmmo})"

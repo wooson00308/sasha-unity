@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Flavor_Reload_WPN_MG_HEAVY_01_Finish
   m_EditorClassIdentifier: 
   templateKey: Reload_WPN_MG_HEAVY_01_Finish
-  templateText: "{weaponName} \uD0C4\uC57D \uACF5\uAE09 \uC644\uB8CC. \uC81C\uC555
-    \uC0AC\uACA9 \uAC00\uB2A5. ({currentAmmo}/{maxAmmo})"
+  templateText: "{weaponName} \uD0C4\uC57D \uACF5\uAE09 \uC644\uB8CC. <color=#5BB675>\uC81C\uC555
+    \uC0AC\uACA9 \uAC00\uB2A5.</color> ({currentAmmo}/{maxAmmo})"

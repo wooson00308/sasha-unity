@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Flavor_Reload_WPN_RAILGUN_SASHA_01_Start
   m_EditorClassIdentifier: 
   templateKey: Reload_WPN_RAILGUN_SASHA_01_Start
-  templateText: "\uB808\uC77C\uAC74 \uD2B9\uC218 \uD0C4\uC790 \uC7A5\uC804 \uBC0F
-    \uCF54\uC77C \uCDA9\uC804."
+  templateText: "<color=#778899>\uB808\uC77C\uAC74 \uD2B9\uC218 \uD0C4\uC790 \uC7A5\uC804
+    \uBC0F \uCF54\uC77C \uCDA9\uC804.</color>"

@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Flavor_Reload_WPN_CANNON_HEAVY_01_Start
   m_EditorClassIdentifier: 
   templateKey: Reload_WPN_CANNON_HEAVY_01_Start
-  templateText: "\uD3EC\uD0C4 \uC7AC\uC7A5\uC804 \uC2DC\uD000\uC2A4 \uAC00\uB3D9.
-    ({turnsRemaining}\uD134 \uC18C\uC694)"
+  templateText: "<color=#778899>\uD3EC\uD0C4 \uC7AC\uC7A5\uC804 \uC2DC\uD000\uC2A4
+    \uAC00\uB3D9.</color> ({turnsRemaining}\uD134 \uC18C\uC694)"

@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Flavor_Attack_WPN_SHTGN_01
   m_EditorClassIdentifier: 
   templateKey: Attack_WPN_SHTGN_01
-  templateText: "{weaponName}\uC774 \uADFC\uAC70\uB9AC\uC5D0 <color=orange>\uAD11\uBC94\uC704\uD55C
+  templateText: "{weaponName}\uC774 \uADFC\uAC70\uB9AC\uC5D0 <color=#00BFFF>\uAD11\uBC94\uC704\uD55C
     \uC0B0\uD0C4</color>\uC744 \uBC1C\uC0AC."

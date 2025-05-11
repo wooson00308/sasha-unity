@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   templateKey: DamageApplied_Low
   templateText: "{attacker}\uC758 \uACF5\uACA9\uC774 {target}\uC758 {part}\uC5D0
-    <color=grey>\uC2A4\uCCE4\uB2E4</color>. ({damage} \uD53C\uD574)"
+    <color=#778899>\uC2A4\uCCE4\uB2E4</color>. ({damage} \uD53C\uD574)"

@@ -149,7 +149,15 @@ namespace AF.Combat
                     {
                         unit.BehaviorTreeRoot = MeleeCombatBT.Create(unit); 
                     }
-                    else
+                    else if (unit.Pilot != null && unit.Pilot.Specialization == SpecializationType.Defense)
+                    {
+                        unit.BehaviorTreeRoot = DefenderBT.Create(unit); // DefenderBT 할당
+                    }
+                    else if (unit.Pilot != null && unit.Pilot.Specialization == SpecializationType.Support)
+                    {
+                        unit.BehaviorTreeRoot = SupportBT.Create(unit); 
+                    }
+                    else // 그 외 모든 경우 (파일럿이 없거나, 다른 특화 타입이거나, StandardCombat 등)
                     {
                         unit.BehaviorTreeRoot = BasicAttackBT.Create(); 
                     }

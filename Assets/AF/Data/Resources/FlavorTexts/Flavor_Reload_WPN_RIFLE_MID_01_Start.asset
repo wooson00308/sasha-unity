@@ -13,4 +13,5 @@ MonoBehaviour:
   m_Name: Flavor_Reload_WPN_RIFLE_MID_01_Start
   m_EditorClassIdentifier: 
   templateKey: Reload_WPN_RIFLE_MID_01_Start
-  templateText: "\uD45C\uC900 \uB77C\uC774\uD50C \uD0C4\uCC3D \uC7A5\uCC29 \uC911."
+  templateText: "<color=#778899>\uD45C\uC900 \uB77C\uC774\uD50C \uD0C4\uCC3D \uC7A5\uCC29
+    \uC911.</color>"

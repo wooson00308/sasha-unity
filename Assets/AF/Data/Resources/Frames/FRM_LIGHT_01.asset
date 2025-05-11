@@ -17,20 +17,20 @@ MonoBehaviour:
   FrameType: 0
   Stat_AttackPower: 0
   Stat_Defense: 0
-  Stat_Speed: 8
+  Stat_Speed: 10
   Stat_Accuracy: 0
-  Stat_Evasion: 0.3
-  Stat_Durability: 400
-  Stat_EnergyEff: 0.6
-  Stat_MaxAP: 5
-  Stat_APRecovery: 2.5
+  Stat_Evasion: 0.35
+  Stat_Durability: 150
+  Stat_EnergyEff: 0.5
+  Stat_MaxAP: 4
+  Stat_APRecovery: 2
   FrameWeight: 40
   Slot_Head: Head
   Slot_Body: Body
   Slot_Arm_L: Arm_Left
   Slot_Arm_R: Arm_Right
   Slot_Legs: Legs
-  Slot_Backpack: 
+  Slot_Backpack: BackpackSlot
   Slot_Weapon_1: WeaponSlot_R
   Slot_Weapon_2: WeaponSlot_L
   Notes: 

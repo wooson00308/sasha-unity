@@ -16,7 +16,7 @@ MonoBehaviour:
   WeaponName: "\uD30C\uC77C\uBC99\uCEE4 (\uC88C)"
   WeaponType: 0
   DamageType: 0
-  BaseDamage: 170
+  BaseDamage: 130
   Accuracy: 0.55
   Range: 1
   MinRange: 0
@@ -30,3 +30,4 @@ MonoBehaviour:
   AttackFlavorKey: Attack_WPN_PILEBUNKER_L
   ReloadFlavorKey: Reload_WPN_PILEBUNKER_L
   Notes: 
+  Weight: 1

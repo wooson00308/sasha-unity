@@ -16,7 +16,7 @@ MonoBehaviour:
   WeaponName: "\uC0AC\uC0E4 \uCEE4\uC2A4\uD140 \uB808\uC77C\uAC74"
   WeaponType: 2
   DamageType: 1
-  BaseDamage: 150
+  BaseDamage: 110
   Accuracy: 0.92
   Range: 28
   MinRange: 9
@@ -30,3 +30,4 @@ MonoBehaviour:
   AttackFlavorKey: Attack_WPN_RAILGUN_SASHA_01
   ReloadFlavorKey: Reload_WPN_RAILGUN_SASHA_01
   Notes: 
+  Weight: 1

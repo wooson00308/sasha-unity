@@ -97,16 +97,6 @@ namespace AF.Combat
             try
             {
                 _combatTestRunnerCache = ServiceLocator.Instance.GetService<CombatTestRunner>();
-                // +++ 확인용 로그 추가 +++
-                if (_combatTestRunnerCache == null)
-                {
-                    Debug.LogError("TextLoggerService: GetService<CombatTestRunner>() returned null!");
-                }
-                else
-                {
-                    Debug.Log("TextLoggerService: Successfully retrieved CombatTestRunner service.");
-                }
-                // +++ 확인용 로그 끝 +++
             }
             catch (Exception ex)
             {
@@ -209,28 +199,22 @@ namespace AF.Combat
             string result = template;
             foreach (var kvp in parameters)
             {
-                // 이제 kvp.Value는 각 핸들러에서 GetTeamColoredName 등을 통해
-                // 이미 색상이 입혀졌거나, 색상이 필요 없는 일반 문자열이라고 가정한다.
+                // Parameters are expected to be pre-formatted (bracketed and colored)
                 string placeholder = "{" + kvp.Key + "}";
-                // replacementValue = GetTeamColoredName(replacementValue, -1); // <<< 제거
-                result = result.Replace(placeholder, kvp.Value); // Use the already (potentially) colorized value
+                result = result.Replace(placeholder, kvp.Value);
             }
             return result;
         }
         // +++ End Flavor Text Helper Methods +++
 
         // +++ SASHA: 새로운 팀 색상 적용 헬퍼 메서드 +++
-        private string GetTeamColoredName(string name, int teamId, bool addBrackets = true)
+        private string GetTeamColoredName(string name, int teamId, bool addBrackets = true) // Default is true
         {
-            // +++ 확인용 로그 추가 +++
-            // Debug.Log($"GetTeamColoredName called for Name: '{name}', TeamID: {teamId}");
-            // +++ 확인용 로그 끝 +++
             string coloredName = name;
             if (_combatTestRunnerCache != null && _combatTestRunnerCache.TryGetTeamColor(teamId, out Color teamColor))
             {
                 coloredName = $"<color=#{ColorUtility.ToHtmlStringRGB(teamColor)}>{name}</color>";
             }
-            // 예전 로그들과의 일관성을 위해 대괄호 추가 (선택적)
             return addBrackets ? $"[{coloredName}]" : coloredName;
         }
         // +++ SASHA: 추가 끝 +++
@@ -263,7 +247,7 @@ namespace AF.Combat
             _eventBus.Subscribe<CombatActionEvents.WeaponFiredEvent>(HandleWeaponFired);
 
             // 데미지 이벤트
-            _eventBus.Subscribe<DamageEvents.DamageAppliedEvent>(HandleDamageApplied);
+            _eventBus.Subscribe<CombatActionEvents.DamageAppliedEvent>(HandleDamageApplied);
             _eventBus.Subscribe<DamageEvents.DamageAvoidedEvent>(HandleDamageAvoided);
 
             // 파츠 이벤트
@@ -280,6 +264,7 @@ namespace AF.Combat
             
             // 유닛 패배 이벤트
             // _eventBus.Subscribe<CombatSessionEvents.UnitDefeatedEvent>(HandleUnitDefeated);
+            _eventBus.Subscribe<CombatActionEvents.CounterAttackAnnouncedEvent>(HandleCounterAttackAnnounced); // +++ SASHA: 카운터 공격 알림 구독
         }
 
         private void UnsubscribeFromEvents()
@@ -298,7 +283,7 @@ namespace AF.Combat
             _eventBus.Unsubscribe<CombatActionEvents.ActionCompletedEvent>(HandleActionCompleted);
             _eventBus.Unsubscribe<CombatActionEvents.WeaponFiredEvent>(HandleWeaponFired);
 
-            _eventBus.Unsubscribe<DamageEvents.DamageAppliedEvent>(HandleDamageApplied);
+            _eventBus.Unsubscribe<CombatActionEvents.DamageAppliedEvent>(HandleDamageApplied);
             _eventBus.Unsubscribe<DamageEvents.DamageAvoidedEvent>(HandleDamageAvoided);
 
             _eventBus.Unsubscribe<PartEvents.PartDestroyedEvent>(HandlePartDestroyed);
@@ -307,11 +292,10 @@ namespace AF.Combat
             _eventBus.Unsubscribe<StatusEffectEvents.StatusEffectExpiredEvent>(HandleStatusEffectExpired);
             _eventBus.Unsubscribe<StatusEffectEvents.StatusEffectTickEvent>(HandleStatusEffectTick);
             
-            // +++ 수리 이벤트 구독 해제 추가 +++
-            _eventBus.Unsubscribe<CombatActionEvents.RepairAppliedEvent>(HandleRepairApplied);
             // +++ 수리 이벤트 구독 해제 추가 끝 +++
             
             // _eventBus.Unsubscribe<CombatSessionEvents.UnitDefeatedEvent>(HandleUnitDefeated);
+            _eventBus.Unsubscribe<CombatActionEvents.CounterAttackAnnouncedEvent>(HandleCounterAttackAnnounced); // +++ SASHA: 카운터 공격 알림 구독 해제
         }
 
         private void HandleCombatStart(CombatSessionEvents.CombatStartEvent ev)
@@ -614,10 +598,8 @@ namespace AF.Combat
                 {
                     var parameters = new Dictionary<string, string>
                     {
-                        // 이전: { "attacker", ev.Attacker.Name }, 
-                        // 이전: { "target", ev.Target.Name },
-                        { "attacker", GetTeamColoredName(ev.Attacker.Name, ev.Attacker.TeamId, addBrackets: false) }, // +++ SASHA: 팀 색상 사용, 대괄호 제외 +++
-                        { "target", GetTeamColoredName(ev.Target.Name, ev.Target.TeamId, addBrackets: false) },     // +++ SASHA: 팀 색상 사용, 대괄호 제외 +++
+                        { "attacker", GetTeamColoredName(ev.Attacker.Name, ev.Attacker.TeamId) }, // Ensure brackets
+                        { "target", GetTeamColoredName(ev.Target.Name, ev.Target.TeamId) },       // Ensure brackets
                         { "weaponName", ev.Weapon.Name },
                         { "distance", distance.ToString("F1") },
                         { "hitOrMiss", hitOrMissText },
@@ -680,26 +662,22 @@ namespace AF.Combat
             // +++ 델타 로그 기록 로직 끝 +++
         }
 
-        private void HandleDamageApplied(DamageEvents.DamageAppliedEvent ev)
+        private void HandleDamageApplied(CombatActionEvents.DamageAppliedEvent ev)
         {
             // Flavor Text 생성 로직은 그대로 유지 (LogEntry의 Message 필드를 채우기 위함)
             string logMsg;
             string iconTagFlavor = _useSpriteIcons ? "<sprite index=0> " : "";
 
-            // Check if this is a counter-attack damage
             if (ev.IsCounterAttack)
             {
-                // Construct specific log for counter-attack damage
-                // string counterAttackerNameColored = ColorizeText($"[{ev.Source?.Name ?? "Unknown Source"}]", "lightblue"); // Null check added for safety // 이전 방식
-                // string counterTargetNameColored = ColorizeText($"[{ev.Target.Name}]", "yellow"); // 이전 방식
-                string counterAttackerNameColored = GetTeamColoredName(ev.Source?.Name ?? "Unknown Source", ev.Source?.TeamId ?? -1); // +++ SASHA: 팀 색상 사용 (-1은 안전한 기본값) +++
-                string counterTargetNameColored = GetTeamColoredName(ev.Target.Name, ev.Target.TeamId); // +++ SASHA: 팀 색상 사용 +++
+                string counterAttackerNameColored = GetTeamColoredName(ev.Source?.Name ?? "Unknown Source", ev.Source?.TeamId ?? -1);
+                string counterTargetNameColored = GetTeamColoredName(ev.Target.Name, ev.Target.TeamId);
                 string criticalTag = ev.IsCritical ? " <sprite index=15>!!" : "";
-                string partName = ev.DamagedPart.ToString();
-                string prefix = _textLogger.UseIndentation ? "    " : ""; 
+                string partName = ev.DamagedPart?.Name ?? "알 수 없는 파츠";
+                string prefix = _textLogger.UseIndentation ? "    " : "";
                 logMsg = $"{prefix}{iconTagFlavor}{counterAttackerNameColored}의 반격! {counterTargetNameColored}의 {partName}에 {ev.DamageDealt:F0} 피해!{criticalTag}";
             }
-            else // Normal damage, use flavor text logic
+            else
             {
                 string templateKey;
                 float damagePercentage = ev.PartMaxDurability > 0 ? ev.DamageDealt / ev.PartMaxDurability : 0f;
@@ -709,13 +687,11 @@ namespace AF.Combat
 
                 var parameters = new Dictionary<string, string>
                 {
-                    //{ "attacker", ev.Source?.Name ?? "알 수 없는 공격자" },
-                    //{ "target", ev.Target.Name },
-                    { "attacker", GetTeamColoredName(ev.Source?.Name ?? "알 수 없는 공격자", ev.Source?.TeamId ?? -1, addBrackets: false) }, // +++ SASHA: 팀 색상, 대괄호X +++
-                    { "target", GetTeamColoredName(ev.Target.Name, ev.Target.TeamId, addBrackets: false) }, // +++ SASHA: 팀 색상, 대괄호X +++
-                    { "part", ev.DamagedPart.ToString() },
+                    { "attacker", GetTeamColoredName(ev.Source?.Name ?? "알 수 없는 공격자", ev.Source?.TeamId ?? -1) },
+                    { "target", GetTeamColoredName(ev.Target.Name, ev.Target.TeamId) },
+                    { "part", ev.DamagedPart?.Name ?? "알 수 없는 파츠" },
                     { "damage", ev.DamageDealt.ToString("F0") },
-                    { "weapon", ev.Weapon?.Name ?? "알 수 없는 무기" }
+                    { "weapon", "무기" }
                 };
                 string flavorText = GetRandomFlavorText(templateKey);
                 string formattedFlavorLog = FormatFlavorText(flavorText, parameters);
@@ -724,7 +700,7 @@ namespace AF.Combat
                 {
                     logMsg = $"{iconTagFlavor}{formattedFlavorLog}";
                 }
-                else // Fallback if flavor text not found
+                else
                 {
                     // Default message if flavor text fails
                     // string attackerNameColored = ColorizeText($"[{ev.Source?.Name ?? "Unknown Source"}]", "yellow"); // 이전 방식
@@ -756,7 +732,7 @@ namespace AF.Combat
                     logMsg, // 위에서 생성한 flavor text 메시지
                     LogLevel.Info,
                     currentTurn,
-                    currentCycle, // 실제 사이클 번호 사용
+                    currentCycle,
                     LogEventType.DamageApplied, // 이벤트 타입 지정
                     contextUnit: ev.Target, // 피격 대상이 주요 컨텍스트
                     shouldUpdateTargetView: true,
@@ -889,12 +865,9 @@ namespace AF.Combat
             // 2. Prepare parameters
             var parameters = new Dictionary<string, string>
             {
-                //{ "target", ev.Frame.Name },
-                //{ "part", partTypeString },
-                //{ "destroyer", ev.Destroyer?.Name ?? "알 수 없는 원인" }
-                { "target", GetTeamColoredName(ev.Frame.Name, ev.Frame.TeamId, addBrackets: false) }, // +++ SASHA: 팀 색상, 대괄호X +++
+                { "target", GetTeamColoredName(ev.Frame.Name, ev.Frame.TeamId) }, // Ensure brackets
                 { "part", partTypeString },
-                { "destroyer", GetTeamColoredName(ev.Destroyer?.Name ?? "알 수 없는 원인", ev.Destroyer?.TeamId ?? -1, addBrackets: false) } // +++ SASHA: 팀 색상, 대괄호X +++
+                { "destroyer", GetTeamColoredName(ev.Destroyer?.Name ?? "알 수 없는 원인", ev.Destroyer?.TeamId ?? -1) } // Ensure brackets
             };
 
             // 3. Get and format the flavor text
@@ -967,9 +940,9 @@ namespace AF.Combat
 
             var parameters = new Dictionary<string, string>
             {
-                { "target", GetTeamColoredName(ev.Target.Name, ev.Target.TeamId, addBrackets: false) }, // +++ SASHA: 팀 색상, 대괄호X +++
+                { "target", GetTeamColoredName(ev.Target.Name, ev.Target.TeamId) }, // Ensure brackets
                 { "effect", effectName },
-                { "source", GetTeamColoredName(ev.Source?.Name ?? "알 수 없는 원인", ev.Source?.TeamId ?? -1, addBrackets: false) }, // +++ SASHA: 팀 색상, 대괄호X +++
+                { "source", GetTeamColoredName(ev.Source?.Name ?? "알 수 없는 원인", ev.Source?.TeamId ?? -1) }, // Ensure brackets
                 { "duration", durationText },
                 { "magnitude", ev.Magnitude.ToString("F1") }
             };
@@ -1240,6 +1213,36 @@ namespace AF.Combat
         }
         // +++ 새로운 이벤트 핸들러 추가 끝 +++
         
+        // +++ SASHA: 카운터 공격 알림 이벤트 핸들러 +++
+        private void HandleCounterAttackAnnounced(CombatActionEvents.CounterAttackAnnouncedEvent ev)
+        {
+            if (_textLogger == null) return;
+
+            string defenderNameColored = GetTeamColoredName(ev.Defender.Name, ev.Defender.TeamId);
+            string attackerNameColored = GetTeamColoredName(ev.Attacker.Name, ev.Attacker.TeamId);
+            // TODO: TextLogger.cs 의 LogEventType 에 CounterAttackAnnounced 추가 후 아래 라인 수정 필요
+            // 현재는 임시로 SystemMessage 사용
+            string message = $"{defenderNameColored}의 <color=lightblue>카운터!</color> ({attackerNameColored}에게)";
+
+            var logEntry = new TextLogger.LogEntry(
+                message,
+                LogLevel.Info, // 일반 정보 레벨
+                ev.TurnNumber, // 이벤트에서 턴 번호 가져오기
+                _textLogger.GetCurrentCycleForLogging(), // 현재 사이클 사용 (필요시 CombatContext 등에서 전달받도록 수정 가능)
+                LogEventType.CounterAttackAnnounced, // <<< 타입 변경 
+                contextUnit: ev.Defender, // 카운터 주체가 컨텍스트
+                shouldUpdateTargetView: true,
+                turnStartStateSnapshot: null // 이 이벤트는 상태 스냅샷을 가지지 않음
+            );
+            
+            // 델타 정보 (필요하다면 추가)
+            logEntry.Counter_DefenderName = ev.Defender.Name;
+            logEntry.Counter_AttackerName = ev.Attacker.Name;
+
+            _textLogger.AddLogEntryDirectly(logEntry);
+        }
+        // +++ SASHA: 카운터 공격 알림 이벤트 핸들러 끝 +++
+
         private Dictionary<(ArmoredFrame, string), float> _previousPartDurability = new Dictionary<(ArmoredFrame, string), float>();
         private Dictionary<ArmoredFrame, float> _previousUnitAP = new Dictionary<ArmoredFrame, float>();
 

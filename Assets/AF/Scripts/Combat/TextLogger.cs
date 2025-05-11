@@ -117,6 +117,10 @@ namespace AF.Combat
             public float Repair_Amount { get; set; }
             public CombatActionEvents.ActionType Repair_ActionType { get; set; } // Distinguish Self/Ally repair
 
+            // +++ 카운터 공격 알림 델타 정보 필드 +++
+            public string Counter_DefenderName { get; set; }
+            public string Counter_AttackerName { get; set; }
+
             public LogEntry(string message, LogLevel level, int turnNumber, int cycleNumber,
                             LogEventType eventType,
                             ArmoredFrame contextUnit = null, bool shouldUpdateTargetView = false,
@@ -191,6 +195,10 @@ namespace AF.Combat
                 Repair_PartSlot = null;
                 Repair_Amount = 0f;
                 Repair_ActionType = CombatActionEvents.ActionType.None;
+
+                // +++ 카운터 공격 알림 필드 초기화 +++
+                Counter_DefenderName = null;
+                Counter_AttackerName = null;
             }
         }
 
@@ -269,7 +277,7 @@ namespace AF.Combat
             {
                 LogActionCompleted(actionCompletedEvent);
             }
-            else if (combatEvent is DamageEvents.DamageAppliedEvent damageAppliedEvent)
+            else if (combatEvent is CombatActionEvents.DamageAppliedEvent damageAppliedEvent)
             {
                 LogDamageApplied(damageAppliedEvent);
             }
@@ -583,7 +591,7 @@ namespace AF.Combat
             Log($"{prefix}<sprite index=0> <color=red>-></color> {actionSpriteTag} [{ColorizeText(evt.Actor.Name, "yellow")}] [{GetActionDescription(evt.Action)}] {resultDetails} {apInfo}", level);
         }
         
-        private void LogDamageApplied(DamageEvents.DamageAppliedEvent evt)
+        private void LogDamageApplied(CombatActionEvents.DamageAppliedEvent evt)
         {
             // --- SASHA: 플래그 검사 추가 ---
             const LogLevel level = LogLevel.Info; // 데미지 적용은 Info 레벨
@@ -593,7 +601,7 @@ namespace AF.Combat
             // Wrap source and target names in brackets and apply colors
             string attackerName = ColorizeText($"[{evt.Source.Name}]", "yellow"); 
             string targetName = ColorizeText($"[{evt.Target.Name}]", "lightblue");
-            string partName = evt.DamagedPart.ToString(); 
+            string partName = evt.DamagedPart.Name;
             string durabilityInfo = $"({evt.PartCurrentDurability:F0}/{evt.PartMaxDurability:F0})";
 
             // UseIndentation 플래그 확인하여 들여쓰기 적용
@@ -993,12 +1001,12 @@ namespace AF.Combat
         /// <param name="entry">The LogEntry object to add.</param>
         public void AddLogEntryDirectly(LogEntry entry)
         {
-             if (entry == null) return;
-             _logs.Add(entry);
-             // Note: We might not need to invoke OnLogAdded here if the consuming UI
-             // fetches the full log list after combat ends.
-             // If real-time log updates are needed, consider invoking:
-             // OnLogAdded?.Invoke(FormatLogEntry(entry), entry.Level);
+            if (entry == null) return;
+            _logs.Add(entry);
+            // Note: We might not need to invoke OnLogAdded here if the consuming UI
+            // fetches the full log list after combat ends.
+            // If real-time log updates are needed, consider invoking:
+            // OnLogAdded?.Invoke(FormatLogEntry(entry), entry.Level);
         }
 
         // +++ Fallback 메서드 추가 +++

@@ -10,9 +10,19 @@ namespace AF.AI.BehaviorTree
     /// </summary>
     public class IsTargetInRangeNode : ConditionNode
     {
-        // 생성자에서 특정 무기 슬롯을 받지 않음.
-        // 검사할 무기는 사전에 Blackboard에 SelectedWeapon으로 설정되어 있거나, agent의 주무기를 사용.
-        public IsTargetInRangeNode() { }
+        private float? _customRange; // Nullable float for custom range
+
+        // Existing constructor for weapon-based range check
+        public IsTargetInRangeNode() 
+        {
+            _customRange = null;
+        }
+
+        // New constructor for custom range check
+        public IsTargetInRangeNode(float customRange)
+        {
+            _customRange = customRange;
+        }
 
         public override NodeStatus Tick(ArmoredFrame agent, Blackboard blackboard, CombatContext context)
         {
@@ -22,23 +32,38 @@ namespace AF.AI.BehaviorTree
                 return NodeStatus.Failure;
             }
 
-            // 검사할 무기 결정: Blackboard에 SelectedWeapon이 있으면 그것을 사용, 없으면 agent의 주무기 사용
-            Weapon weaponToUse = blackboard.SelectedWeapon ?? agent.GetPrimaryWeapon();
-            if (weaponToUse == null || !weaponToUse.IsOperational)
-            {
-                var textLogger = ServiceLocator.Instance?.GetService<TextLoggerService>()?.TextLogger;
-                textLogger?.Log($"[{GetType().Name}] {agent.Name}: No usable weapon found (Selected: {blackboard.SelectedWeapon?.Name ?? "null"}, Primary: {agent.GetPrimaryWeapon()?.Name ?? "null"}). Failure.", LogLevel.Debug);
-                return NodeStatus.Failure;
-            }
-
             float distanceToTarget = Vector3.Distance(agent.Position, currentTarget.Position);
-            bool isInRange = distanceToTarget >= weaponToUse.MinRange && distanceToTarget <= weaponToUse.MaxRange;
+            bool isInRange;
+            string rangeSourceForLog;
+            string rangeValuesForLog;
+
+            if (_customRange.HasValue)
+            {
+                // Use custom range if provided
+                isInRange = distanceToTarget <= _customRange.Value;
+                rangeSourceForLog = "Custom";
+                rangeValuesForLog = $"(0.0-{_customRange.Value:F1})";
+            }
+            else
+            {
+                // Use weapon-based range if custom range is not provided
+                Weapon weaponToUse = blackboard.SelectedWeapon ?? agent.GetPrimaryWeapon();
+                if (weaponToUse == null || !weaponToUse.IsOperational)
+                {
+                    var textLogger = ServiceLocator.Instance?.GetService<TextLoggerService>()?.TextLogger;
+                    textLogger?.Log($"[{GetType().Name}] {agent.Name}: No usable weapon. Failure.", LogLevel.Debug);
+                    return NodeStatus.Failure;
+                }
+                isInRange = distanceToTarget >= weaponToUse.MinRange && distanceToTarget <= weaponToUse.MaxRange;
+                rangeSourceForLog = weaponToUse.Name;
+                rangeValuesForLog = $"({weaponToUse.MinRange:F1}-{weaponToUse.MaxRange:F1})";
+            }
 
             var logger = ServiceLocator.Instance?.GetService<TextLoggerService>()?.TextLogger;
             logger?.Log(
                 $"[{GetType().Name}] {agent.Name} to {currentTarget.Name}: " +
-                $"Weapon='{weaponToUse.Name}', Dist={distanceToTarget:F1}, " +
-                $"Range=({weaponToUse.MinRange:F1}-{weaponToUse.MaxRange:F1}), InRange={isInRange}. " +
+                $"Source='{rangeSourceForLog}', Dist={distanceToTarget:F1}, " +
+                $"Range={rangeValuesForLog}, InRange={isInRange}. " +
                 $"Result: {(isInRange ? NodeStatus.Success : NodeStatus.Failure)}",
                 LogLevel.Debug
             );

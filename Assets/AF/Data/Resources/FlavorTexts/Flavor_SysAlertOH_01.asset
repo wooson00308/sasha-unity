@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Flavor_SysAlertOH_01
   m_EditorClassIdentifier: 
   templateKey: SystemAlert_Overheat
-  templateText: "<color=orange>\uACBD\uACE0: \uACFC\uC5F4 \uC784\uACC4\uC810 \uB3C4\uB2EC!</color>
-    \uB0C9\uAC01 \uC2DC\uC2A4\uD15C \uAC00\uB3D9."
+  templateText: "<color=#FFA500>\uACBD\uACE0: \uACFC\uC5F4 \uC784\uACC4\uC810 \uB3C4\uB2EC!</color>
+    <color=#40E0D0>\uB0C9\uAC01 \uC2DC\uC2A4\uD15C \uAC00\uB3D9.</color>"

@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Flavor_PartDestroyA_01
   m_EditorClassIdentifier: 
   templateKey: PartDestroyed_Arm
-  templateText: "{target}\uC758 {part} \uD314\uC774 <color=orange>\uC808\uB2E8</color>\uB418\uC5B4
+  templateText: "{target}\uC758 {part} \uD314\uC774 <color=#FF0000>\uC808\uB2E8</color>\uB418\uC5B4
     \uB5A8\uC5B4\uC838 \uB098\uAC14\uB2E4!"

@@ -209,5 +209,40 @@ namespace AF.Models
         {
             return $"[Stats: Atk:{_attackPower:F1} Def:{_defense:F1} Spd:{_speed:F1} Acc:{_accuracy:F1} Eva:{_evasion:F1} Dur:{_durability:F1} EE:{_energyEfficiency:F1} MaxAP:{_maxAP:F1} APR:{_apRecovery:F1}]";
         }
+
+        /// <summary>
+        /// 모든 스탯 값을 기본값으로 초기화합니다.
+        /// </summary>
+        public void Clear()
+        {
+            _attackPower = 0f;
+            _defense = 0f;
+            _speed = 0f;
+            _accuracy = 0f;
+            _evasion = 0f;
+            _durability = 0f;
+            _energyEfficiency = 1f; // 에너지 효율은 기본 1
+            _maxAP = 0f;
+            _apRecovery = 0f;
+        }
+
+        /// <summary>
+        /// 다른 Stats 객체의 값들을 현재 Stats 객체에 더합니다.
+        /// </summary>
+        /// <param name="other">더할 Stats 객체</param>
+        public void Add(Stats other)
+        {
+            if (other == null) return;
+
+            _attackPower += other._attackPower;
+            _defense += other._defense;
+            _speed += other._speed;
+            _accuracy += other._accuracy;
+            _evasion += other._evasion;
+            _durability += other._durability;
+            _energyEfficiency += other._energyEfficiency; // 에너지 효율도 합산 (기본값 1에서 시작해서 더해짐)
+            _maxAP += other._maxAP;
+            _apRecovery += other._apRecovery;
+        }
     }
 } 

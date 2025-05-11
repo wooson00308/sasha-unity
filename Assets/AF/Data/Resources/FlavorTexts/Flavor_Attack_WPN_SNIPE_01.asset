@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Flavor_Attack_WPN_SNIPE_01
   m_EditorClassIdentifier: 
   templateKey: Attack_WPN_SNIPE_01
-  templateText: "{weaponName}\uC5D0\uC11C <color=purple>\uACE0\uC815\uBC00 \uC800\uACA9\uD0C4</color>
+  templateText: "{weaponName}\uC5D0\uC11C <color=#00BFFF>\uACE0\uC815\uBC00 \uC800\uACA9\uD0C4</color>
     \uBC1C\uC0AC."

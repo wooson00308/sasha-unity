@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Flavor_Attack_WPN_MG_MID_01
   m_EditorClassIdentifier: 
   templateKey: Attack_WPN_MG_MID_01
-  templateText: "{weaponName}\uC5D0\uC11C <color=red>\uC9C0\uC18D\uC801\uC778 \uC5F0\uC0AC</color>\uAC00
-    \uC774\uB8E8\uC5B4\uC9D0."
+  templateText: "{weaponName}\uC5D0\uC11C <color=#00BFFF>\uC9C0\uC18D\uC801\uC778
+    \uC5F0\uC0AC</color>\uAC00 \uC774\uB8E8\uC5B4\uC9D0."

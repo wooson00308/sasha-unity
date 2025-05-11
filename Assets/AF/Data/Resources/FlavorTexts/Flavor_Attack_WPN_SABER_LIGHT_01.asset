@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Flavor_Attack_WPN_SABER_LIGHT_01
   m_EditorClassIdentifier: 
   templateKey: Attack_WPN_SABER_LIGHT_01
-  templateText: "{weaponName}\uC758 <color=lightblue>\uACE0\uCD9C\uB825 \uC5D0\uB108\uC9C0
+  templateText: "{weaponName}\uC758 <color=#00BFFF>\uACE0\uCD9C\uB825 \uC5D0\uB108\uC9C0
     \uBE14\uB808\uC774\uB4DC</color> \uC791\uB3D9."

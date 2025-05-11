@@ -19,6 +19,7 @@ namespace AF.Models // Models 하위 네임스페이스 사용 -> 수정: Models
             { "Arm_Left", new PartSlotDefinition { SlotIdentifier = "Arm_Left", RequiredPartType = PartType.Arm } },
             { "Arm_Right", new PartSlotDefinition { SlotIdentifier = "Arm_Right", RequiredPartType = PartType.Arm } },
             { "Legs", new PartSlotDefinition { SlotIdentifier = "Legs", RequiredPartType = PartType.Legs } }, // 왼다리 슬롯 추가// 오른다리 슬롯 추가
+            { "Backpack", new PartSlotDefinition { SlotIdentifier = "Backpack", RequiredPartType = PartType.Backpack } }
         };
 
         /// <summary>

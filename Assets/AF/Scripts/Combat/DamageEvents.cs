@@ -36,39 +36,6 @@ namespace AF.Combat
         }
 
         /// <summary>
-        /// 데미지 적용 이벤트 - 데미지가 실제로 적용되었을 때 발생
-        /// </summary>
-        public class DamageAppliedEvent : ICombatEvent
-        {
-            public ArmoredFrame Source { get; private set; }
-            public ArmoredFrame Target { get; private set; }
-            public Weapon Weapon { get; private set; }
-            public float DamageDealt { get; private set; }
-            public PartType DamagedPart { get; private set; }
-            public bool IsCritical { get; private set; }
-            public float PartCurrentDurability { get; private set; }
-            public float PartMaxDurability { get; private set; }
-            public bool IsCounterAttack { get; private set; }
-
-            public DamageAppliedEvent(ArmoredFrame source, ArmoredFrame target,
-                                    Weapon weapon,
-                                    float damageDealt, PartType damagedPart, bool isCritical,
-                                    float partCurrentDurability, float partMaxDurability,
-                                    bool isCounterAttack)
-            {
-                Source = source;
-                Target = target;
-                Weapon = weapon;
-                DamageDealt = damageDealt;
-                DamagedPart = damagedPart;
-                IsCritical = isCritical;
-                PartCurrentDurability = partCurrentDurability;
-                PartMaxDurability = partMaxDurability;
-                IsCounterAttack = isCounterAttack;
-            }
-        }
-
-        /// <summary>
         /// 데미지 회피 이벤트
         /// </summary>
         public class DamageAvoidedEvent : ICombatEvent

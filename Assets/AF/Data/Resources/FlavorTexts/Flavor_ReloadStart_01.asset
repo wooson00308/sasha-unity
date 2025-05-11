@@ -13,5 +13,4 @@ MonoBehaviour:
   m_Name: Flavor_ReloadStart_01
   m_EditorClassIdentifier: 
   templateKey: Reload_Start
-  templateText: "{weapon} <color=#AFEEEE>\uC7AC\uC7A5\uC804</color> \uC2DC\uD000\uC2A4
-    \uAC00\uB3D9."
+  templateText: "{weapon} <color=#778899>\uC7AC\uC7A5\uC804 \uC2DC\uD000\uC2A4 \uAC00\uB3D9.</color>"

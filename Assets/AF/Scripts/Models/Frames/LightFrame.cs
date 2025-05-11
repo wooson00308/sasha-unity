@@ -19,7 +19,7 @@ namespace AF.Models
             { "Arm_Right", new PartSlotDefinition { SlotIdentifier = "Arm_Right", RequiredPartType = PartType.Arm } },
             { "Legs", new PartSlotDefinition { SlotIdentifier = "Legs", RequiredPartType = PartType.Legs } },
             // 경량 프레임은 백팩 슬롯이 없을 수도 있음 (예시)
-            // { "Backpack", new PartSlotDefinition { SlotIdentifier = "Backpack", RequiredPartType = PartType.Backpack } }, 
+            { "Backpack", new PartSlotDefinition { SlotIdentifier = "Backpack", RequiredPartType = PartType.Backpack } }, 
         };
 
         /// <summary>

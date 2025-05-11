@@ -58,6 +58,7 @@ namespace AF.Models
         public float CurrentDurability => _currentDurability;
         public float MaxDurability => _maxDurability;
         public bool IsOperational => _isOperational;
+        public bool IsDestroyed => !_isOperational;
         public IReadOnlyList<string> Abilities => _abilities;
 
         /// <summary>
@@ -81,8 +82,12 @@ namespace AF.Models
         /// <returns>이 호출로 인해 파츠가 작동 가능(true) 또는 불가능(false) 상태로 변경되었는지 여부. 상태 변경 없으면 null 반환.</returns>
         public virtual bool? SetDurability(float value)
         {
+            float previousDurability = _currentDurability; // 이전 값 기록
             bool previousOperationalState = _isOperational;
             _currentDurability = Mathf.Clamp(value, 0, _maxDurability); // 0 ~ MaxDurability 범위 유지
+
+            // <<< 로그 추가 >>>
+            Debug.Log($"[SetDurability_DEBUG] Part: {_name} ({_type}), PrevHP: {previousDurability}, NewHP_Attempt: {value}, ClampedHP: {_currentDurability}, MaxHP: {_maxDurability}");
 
             bool newOperationalState = _currentDurability > 0;
 

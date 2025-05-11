@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Flavor_Attack_WPN_CANNON_HEAVY_01
   m_EditorClassIdentifier: 
   templateKey: Attack_WPN_CANNON_HEAVY_01
-  templateText: "{weaponName}\uC758 <color=orange>\uC911\uB7C9 \uD3EC\uD0C4</color>\uC774
+  templateText: "{weaponName}\uC758 <color=#00BFFF>\uC911\uB7C9 \uD3EC\uD0C4</color>\uC774
     \uBC1C\uC0AC\uB428."

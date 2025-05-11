@@ -592,246 +592,216 @@ namespace AF.Tests
         [Button(ButtonSizes.Large), GUIColor(0.3f, 0.8f, 0.3f), EnableIf("CanStartCombat")]
         public async UniTaskVoid StartCombatTestAsync()
         {
-            if (isInCombat)
+            Debug.Log("StartCombatTestAsync: 메서드 진입."); // +++ SASHA: 메서드 진입 로그 추가 +++
+            // +++ SASHA: 최상위 예외 로깅 추가 +++
+            try
             {
-                Log("이미 전투가 진행 중입니다.", LogLevel.Warning);
-                // SASHA: 이미 전투 중이면 버튼 상태 변경 없이 바로 리턴
-                return;
-            }
-
-            // SASHA: 버튼이 할당되어 있고, 이 메서드가 직접 호출될 경우 (UI 버튼 통하지 않고) 버튼 비활성화
-            if (combatStartButton != null && combatStartButton.interactable)
-            {
-                combatStartButton.interactable = false;
-            }
-
-            ValidateSetup();
-
-            combatSimulator = ServiceLocator.Instance.GetService<ICombatSimulatorService>();
-            textLogger = ServiceLocator.Instance.GetService<TextLoggerService>();
-
-            if (combatSimulator == null || textLogger == null)
-            {
-                Log("필수 서비스(CombatSimulatorService or TextLoggerService)를 찾을 수 없습니다!", LogLevel.Error);
-                if (combatStartButton != null) combatStartButton.interactable = true; // SASHA: 오류 시 버튼 활성화
-                return;
-            }
-            
-            // --- 로그 포맷 및 기록 레벨 설정 --- 
-            textLogger.SetShowLogLevel(showLogLevelPrefix);
-            textLogger.SetShowTurnPrefix(showTurnPrefix);
-            textLogger.SetUseIndentation(useLogIndentation);
-            textLogger.SetLogActionSummaries(logActionSummaries);
-            textLogger.SetUseSpriteIcons(useSpriteIconsInLog);
-            // --- SASHA: 기록할 로그 레벨 설정 추가 ---
-            // logLevelsToRecord는 "제외할" 플래그이므로, 실제로 허용할 플래그는 전체에서 제외 플래그를 뺀 것.
-            LogLevelFlags flagsToActuallyAllow = LogLevelFlags.Everything & ~logLevelsToRecord;
-            textLogger.SetAllowedLogLevels(flagsToActuallyAllow);
-            // --- SASHA: 추가 끝 ---
-            // ---------------------
-
-            // --- 상태 초기화 ---
-            textLogger.ConcreteLogger?.Clear(); // TextLogger 직접 초기화
-            isInCombat = true; // 전투 시작 플래그 설정
-            currentCycle = 0;
-            currentBattleId = Guid.NewGuid().ToString().Substring(0, 8); // 고유한 전투 ID 생성
-
-            Log($"전투 시뮬레이션 시작 준비... (ID: {currentBattleId})", LogLevel.System);
-
-            // --- 참가자 구성 ---
-            List<ArmoredFrame> allParticipants = new List<ArmoredFrame>();
-
-            // 1. 플레이어 스쿼드 처리 (상태 유지 로직)
-            //Log("--- 플레이어 스쿼드 처리 시작 ---", LogLevel.Debug);
-            for (int i = 0; i < playerSquadSetups.Count; i++)
-            {
-                var playerSetup = playerSquadSetups[i];
-                ArmoredFrame playerAf = null;
-
-                // callsign이 비어있는지 확인
-                if (string.IsNullOrEmpty(playerSetup.callsign))
+                if (isInCombat)
                 {
-                    Log($"플레이어 스쿼드 {i+1}: 콜사인이 비어있습니다! 이 유닛은 전투에 참여할 수 없습니다.", LogLevel.Error);
-                    continue; // callsign 없으면 건너뜀
+                    Log("이미 전투가 진행 중입니다.", LogLevel.Warning);
+                    return;
                 }
 
-                try
+                if (combatStartButton != null && combatStartButton.interactable)
                 {
-                    // 저장된 상태가 있는지 callsign으로 확인
-                    if (_persistentPlayerFrames.TryGetValue(playerSetup.callsign, out ArmoredFrame existingAf))
+                    combatStartButton.interactable = false;
+                }
+
+                ValidateSetup();
+
+                combatSimulator = ServiceLocator.Instance.GetService<ICombatSimulatorService>();
+                textLogger = ServiceLocator.Instance.GetService<TextLoggerService>();
+
+                if (combatSimulator == null || textLogger == null)
+                {
+                    Log("필수 서비스(CombatSimulatorService or TextLoggerService)를 찾을 수 없습니다!", LogLevel.Error);
+                    if (combatStartButton != null) combatStartButton.interactable = true;
+                    return;
+                }
+            
+                textLogger.SetShowLogLevel(showLogLevelPrefix);
+                textLogger.SetShowTurnPrefix(showTurnPrefix);
+                textLogger.SetUseIndentation(useLogIndentation);
+                textLogger.SetLogActionSummaries(logActionSummaries);
+                textLogger.SetUseSpriteIcons(useSpriteIconsInLog);
+                LogLevelFlags flagsToActuallyAllow = LogLevelFlags.Everything & ~logLevelsToRecord;
+                textLogger.SetAllowedLogLevels(flagsToActuallyAllow);
+                Debug.Log($"TextLoggerService.AllowedLogLevels set to: {flagsToActuallyAllow}"); // +++ SASHA: 로그 추가 +++
+
+                textLogger.ConcreteLogger?.Clear();
+                isInCombat = true;
+                currentCycle = 0;
+                currentBattleId = Guid.NewGuid().ToString().Substring(0, 8);
+
+                Log($"전투 시뮬레이션 시작 준비... (ID: {currentBattleId})", LogLevel.System);
+
+                List<ArmoredFrame> allParticipants = new List<ArmoredFrame>();
+                for (int i = 0; i < playerSquadSetups.Count; i++)
+                {
+                    var playerSetup = playerSquadSetups[i];
+                    ArmoredFrame playerAf = null;
+                    if (string.IsNullOrEmpty(playerSetup.callsign))
                     {
-                        Log($"기존 플레이어 유닛 '{playerSetup.callsign}' 재사용.", LogLevel.Info);
-                        playerAf = existingAf;
-                        // 위치 업데이트 (새 전투 배치 위치 적용)
-                        playerAf.SetPosition(playerSetup.startPosition); // SetPosition 메서드 사용
-                        playerAf.AICtxBlackboard.ClearAllData(); // <<< 블랙보드 초기화 추가
-                        // TODO: 필요하다면 다른 상태(예: AP)도 초기화/업데이트
+                        Log($"플레이어 스쿼드 {i + 1}: 콜사인이 비어있습니다! 이 유닛은 전투에 참여할 수 없습니다.", LogLevel.Error);
+                        continue;
                     }
-                    else // 저장된 상태가 없으면 새로 생성
+                    try
                     {
-                        // Log($"신규 플레이어 유닛 '{playerSetup.callsign}' 생성 시도.", LogLevel.Info);
-                        if (playerSetup.useCustomAssembly)
+                        if (_persistentPlayerFrames.TryGetValue(playerSetup.callsign, out ArmoredFrame existingAf))
                         {
-                            // CreateCustomArmoredFrame 호출 (내부에서 callsign을 Name으로 사용하도록 추후 수정 필요)
-                            playerAf = CreateCustomArmoredFrame(playerSetup, i + 1);
+                            Log($"기존 플레이어 유닛 '{playerSetup.callsign}' 재사용.", LogLevel.Info);
+                            playerAf = existingAf;
+                            playerAf.SetPosition(playerSetup.startPosition);
+                            playerAf.AICtxBlackboard.ClearAllData();
                         }
                         else
                         {
-                            if (playerSetup.assembly == null)
+                            if (playerSetup.useCustomAssembly)
                             {
-                                Log($"플레이어 스쿼드 {i+1} ({playerSetup.callsign}): AssemblySO가 없습니다. 생성 불가.", LogLevel.Warning);
-                                continue;
+                                playerAf = CreateCustomArmoredFrame(playerSetup, i + 1);
                             }
-                            // CreateTestArmoredFrame 호출 시 callsign 전달 (메서드 시그니처 변경 필요)
-                            playerAf = CreateTestArmoredFrame(playerSetup.callsign, playerSetup.assembly.name, playerSetup.teamId, playerSetup.startPosition);
+                            else
+                            {
+                                if (playerSetup.assembly == null)
+                                {
+                                    Log($"플레이어 스쿼드 {i + 1} ({playerSetup.callsign}): AssemblySO가 없습니다. 생성 불가.", LogLevel.Warning);
+                                    continue;
+                                }
+                                playerAf = CreateTestArmoredFrame(playerSetup.callsign, playerSetup.assembly.name, playerSetup.teamId, playerSetup.startPosition);
+                            }
+                            if (playerAf != null)
+                            {
+                                _persistentPlayerFrames.Add(playerSetup.callsign, playerAf);
+                            }
                         }
-
-                        // 성공적으로 생성되었으면 저장소에 callsign 키로 추가
                         if (playerAf != null)
                         {
-                            _persistentPlayerFrames.Add(playerSetup.callsign, playerAf);
-                            // Log($"신규 플레이어 유닛 '{playerSetup.callsign}' 생성 및 저장 완료.", LogLevel.Info);
+                            allParticipants.Add(playerAf);
                         }
                     }
-
-                    // 최종 참가자 리스트에 추가
-                    if (playerAf != null)
+                    catch (Exception ex)
                     {
-                        allParticipants.Add(playerAf);
-                        // Log($"플레이어 유닛 [{playerAf.Name}] ({playerSetup.callsign}) 전투 준비 완료 (팀: {playerAf.TeamId}, 위치: {playerAf.Position})");
+                        Log($"플레이어 스쿼드 유닛 {i + 1} ({playerSetup.callsign}) 처리 중 오류 발생: {ex.Message}", LogLevel.Error);
                     }
                 }
-                catch (Exception ex)
+                for (int i = 0; i < afSetups.Count; i++)
                 {
-                    Log($"플레이어 스쿼드 유닛 {i+1} ({playerSetup.callsign}) 처리 중 오류 발생: {ex.Message}", LogLevel.Error);
-                }
-            }
-            //Log("--- 플레이어 스쿼드 처리 완료 ---", LogLevel.Debug);
-
-            // 2. 시나리오 참가자 처리 (일회성 유닛)
-            //Log("--- 시나리오 참가자 처리 시작 ---", LogLevel.Debug);
-            for (int i = 0; i < afSetups.Count; i++)
-            {
-                var scenarioSetup = afSetups[i];
-                ArmoredFrame scenarioAf = null;
-                 try
-                 {
-                     //Log($"시나리오 유닛 {i+1} 생성 시도.", LogLevel.Info);
-                     if (scenarioSetup.useCustomAssembly)
-                     {
-                         scenarioAf = CreateCustomArmoredFrame(scenarioSetup, playerSquadSetups.Count + i + 1); // 인덱스 조정
-                     }
-                     else
-                     {
-                         if (scenarioSetup.assembly == null)
-                         {
-                             Log($"시나리오 유닛 {i+1}: AssemblySO가 없습니다. 생성 불가.", LogLevel.Warning);
-                             continue;
-                         }
-                         scenarioAf = CreateTestArmoredFrame(scenarioSetup.callsign, scenarioSetup.assembly.name, scenarioSetup.teamId, scenarioSetup.startPosition);
-                     }
-
-                     // 최종 참가자 리스트에 추가
-                     if (scenarioAf != null)
-                     {
-                         allParticipants.Add(scenarioAf);
-                         //Log($"시나리오 유닛 [{scenarioAf.Name}] 생성 완료 (팀: {scenarioAf.TeamId}, 위치: {scenarioAf.Position})");
-                     }
-                 }
-                 catch (Exception ex)
-                 {
-                     Log($"시나리오 유닛 {i+1} 생성 중 오류 발생: {ex.Message}", LogLevel.Error);
-                 }
-            }
-            //Log("--- 시나리오 참가자 처리 완료 ---", LogLevel.Debug);
-
-            // --- 최종 참가자 검증 ---
-            if (allParticipants.Count < 2)
-            {
-                Log("전투에 참여할 유효한 기체가 2기 미만입니다. (플레이어 스쿼드 ID 확인 필요)", LogLevel.Error);
-                isInCombat = false; 
-                if (combatStartButton != null) combatStartButton.interactable = true; // SASHA: 오류 시 버튼 활성화
-                return;
-            }
-            // 팀 수 검증 (최소 2팀 필요)
-            if (allParticipants.Select(p => p.TeamId).Distinct().Count() < 2)
-            {
-                 Log("전투 시작 조건 미충족: 최소 2개의 다른 팀이 필요합니다.", LogLevel.Error);
-                 isInCombat = false; 
-                 if (combatStartButton != null) combatStartButton.interactable = true; // SASHA: 오류 시 버튼 활성화
-                 return;
-            }
-
-            //Log($"참가자 {allParticipants.Count}명 확인.");
-
-            // --- 스냅샷 생성 로직 추가 ---
-            var initialSnapshot = new Dictionary<string, ArmoredFrameSnapshot>();
-            foreach (var unit in allParticipants)
-            {
-                if (unit != null && !string.IsNullOrEmpty(unit.Name))
-                {
-                    initialSnapshot[unit.Name] = new ArmoredFrameSnapshot(unit);
-                }
-            }
-            // --- 스냅샷 생성 로직 끝 ---
-
-            // --- Log 호출 수정: 스냅샷 추가 ---
-            // Log 메서드 시그니처에 맞게 contextUnit과 shouldUpdateTargetView 추가 (null, false)
-            // Log($"총 {allParticipants.Count}기 참가 확정. 전투 시뮬레이션 시작.", LogLevel.System, null, false, initialSnapshot); // CombatTestRunner.Log 사용 안 함
-            textLogger?.TextLogger?.Log(
-                $"총 {allParticipants.Count}기 참가 확정. 전투 시뮬레이션 시작.", // message
-                LogLevel.System,                        // level
-                LogEventType.CombatStart,               // eventType 
-                null,                                   // contextUnit
-                false,                                  // shouldUpdateTargetView
-                initialSnapshot                         // turnStartStateSnapshot
-            );
-            // --- Log 호출 수정 끝 ---
-
-            Log("전투 시뮬레이터 시작..."); // 일반 로그는 기존 Log 헬퍼 사용
-            string battleName = $"Test Battle {DateTime.Now:HH:mm:ss}";
-            string battleId = combatSimulator.StartCombat(allParticipants.ToArray(), battleName, false);
-            // currentCycle = 1; // <<< 제거: Cycle 시작은 Simulator 내부에서 처리
-
-            try
-            {
-                bool combatEnded = false;
-                int currentSafetyBreak = this.safetyBreakTurns; // 필드 값 사용
-
-                while (!combatEnded && isInCombat && combatSimulator.CurrentTurn < currentSafetyBreak)
-                {
-                    // ProcessNextTurn() 반환값이 true면 전투 지속, false면 종료
-                    combatEnded = !combatSimulator.ProcessNextTurn(); 
-
-                    // UniTask.Yield 대신 Frame 단위 지연 등 다른 방식 고려 가능
-                    await UniTask.Yield(PlayerLoopTiming.Update); 
+                    var scenarioSetup = afSetups[i];
+                    ArmoredFrame scenarioAf = null;
+                    try
+                    {
+                        if (scenarioSetup.useCustomAssembly)
+                        {
+                            scenarioAf = CreateCustomArmoredFrame(scenarioSetup, playerSquadSetups.Count + i + 1);
+                        }
+                        else
+                        {
+                            if (scenarioSetup.assembly == null)
+                            {
+                                Log($"시나리오 유닛 {i + 1}: AssemblySO가 없습니다. 생성 불가.", LogLevel.Warning);
+                                continue;
+                            }
+                            scenarioAf = CreateTestArmoredFrame(scenarioSetup.callsign, scenarioSetup.assembly.name, scenarioSetup.teamId, scenarioSetup.startPosition);
+                        }
+                        if (scenarioAf != null)
+                        {
+                            allParticipants.Add(scenarioAf);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Log($"시나리오 유닛 {i + 1} 생성 중 오류 발생: {ex.Message}", LogLevel.Error);
+                    }
                 }
 
-                if (combatSimulator.CurrentTurn >= currentSafetyBreak)
-                {
-                    Log($"안전 브레이크 발동! ({currentSafetyBreak} 턴 초과)", LogLevel.Warning);
-                    // 전투 강제 종료 (무승부 처리 등)
-                    if (isInCombat) combatSimulator.EndCombat(CombatSessionEvents.CombatEndEvent.ResultType.Draw);
-                }
-            }
-            catch (Exception ex)
-            {
-                Log($"전투 시뮬레이션 중 오류 발생: {ex.Message} {ex.StackTrace}", LogLevel.Error);
-            }
-            finally
-            {
-                // CombatSimulator 내부에서 EndCombat 호출 시 isInCombat=false 처리될 수 있음
-                // Ensure EndCombat is called if the simulator is still active
-                if (combatSimulator != null && combatSimulator.IsInCombat) 
-                {
-                    combatSimulator.EndCombat(); // 확실하게 종료 호출
-                }
-                isInCombat = false; // 상태 확실히 업데이트
-                Log("전투 프로세스 정리 완료.", LogLevel.System);
+                Debug.Log($"StartCombatTestAsync: 모든 참가자 생성 시도 완료. 총 {allParticipants.Count}명."); // +++ SASHA: 로그 추가 +++
 
-                // 로그 파일 자동 저장 (필터링 적용)
-                SaveFilteredLogToFile($"BattleLog_{currentBattleId}", logLevelsToRecord);
-                if (combatStartButton != null) combatStartButton.interactable = true; // SASHA: 전투 종료 시 버튼 활성화
+                if (allParticipants.Count < 2)
+                {
+                    Log("전투에 참여할 유효한 기체가 2기 미만입니다. (플레이어 스쿼드 ID 확인 필요)", LogLevel.Error);
+                    Debug.Log("StartCombatTestAsync: 참가자 수 부족으로 종료 (allParticipants.Count < 2)."); // +++ SASHA: 로그 추가 +++
+                    isInCombat = false;
+                    if (combatStartButton != null) combatStartButton.interactable = true;
+                    return;
+                }
+
+                Debug.Log("StartCombatTestAsync: 참가자 수 검사 통과."); // +++ SASHA: 로그 추가 +++
+
+                if (allParticipants.Select(p => p.TeamId).Distinct().Count() < 2)
+                {
+                    Log("전투 시작 조건 미충족: 최소 2개의 다른 팀이 필요합니다.", LogLevel.Error);
+                    Debug.Log("StartCombatTestAsync: 팀 수 부족으로 종료 (Distinct().Count() < 2)."); // +++ SASHA: 로그 추가 +++
+                    isInCombat = false;
+                    if (combatStartButton != null) combatStartButton.interactable = true;
+                    return;
+                }
+
+                Debug.Log("StartCombatTestAsync: 팀 수 검사 통과. 초기 스냅샷 생성 직전."); // +++ SASHA: 로그 추가 +++
+
+                var initialSnapshot = new Dictionary<string, ArmoredFrameSnapshot>();
+                foreach (var unit in allParticipants)
+                {
+                    if (unit != null && !string.IsNullOrEmpty(unit.Name))
+                    {
+                        initialSnapshot[unit.Name] = new ArmoredFrameSnapshot(unit);
+                    }
+                }
+                textLogger?.TextLogger?.Log(
+                    $"총 {allParticipants.Count}기 참가 확정. 전투 시뮬레이션 시작.",
+                    LogLevel.System,
+                    LogEventType.CombatStart,
+                    null,
+                    false,
+                    initialSnapshot
+                );
+
+                Log("전투 시뮬레이터 시작...");
+                string battleName = $"Test Battle {DateTime.Now:HH:mm:ss}";
+                string battleId = combatSimulator.StartCombat(allParticipants.ToArray(), battleName, false);
+
+                // +++ SASHA: 기존 try-catch-finally를 내부 try로 변경 +++
+                try // 기존 try 블록 시작
+                {
+                    bool combatEnded = false;
+                    int currentSafetyBreak = this.safetyBreakTurns;
+
+                    while (!combatEnded && isInCombat && combatSimulator.CurrentTurn < currentSafetyBreak)
+                    {
+                        combatEnded = !combatSimulator.ProcessNextTurn();
+                        await UniTask.Yield(PlayerLoopTiming.Update); // 이 부분에서 멈출 가능성
+                    }
+
+                    if (combatSimulator.CurrentTurn >= currentSafetyBreak)
+                    {
+                        Log($"안전 브레이크 발동! ({currentSafetyBreak} 턴 초과)", LogLevel.Warning);
+                        if (isInCombat) combatSimulator.EndCombat(CombatSessionEvents.CombatEndEvent.ResultType.Draw);
+                    }
+                }
+                catch (Exception ex) // 기존 catch 블록
+                {
+                    Log($"전투 시뮬레이션 중 오류 발생: {ex.Message} {ex.StackTrace}", LogLevel.Error);
+                }
+                finally // 기존 finally 블록
+                {
+                    if (combatSimulator != null && combatSimulator.IsInCombat)
+                    {
+                        combatSimulator.EndCombat();
+                    }
+                    isInCombat = false;
+                    Log("전투 프로세스 정리 완료. 이제 로그 저장 시도.", LogLevel.System); // SASHA: 로그 메시지 수정
+                    Debug.Log("StartCombatTestAsync: In finally, about to call SaveFilteredLogToFile."); // +++ SASHA: 로그 추가 +++
+
+                    SaveFilteredLogToFile($"BattleLog_{currentBattleId}", logLevelsToRecord);
+
+                    Debug.Log("StartCombatTestAsync: In finally, SaveFilteredLogToFile call completed."); // +++ SASHA: 로그 추가 +++
+                    if (combatStartButton != null) combatStartButton.interactable = true;
+                }
+            }
+            catch (Exception ex) // +++ SASHA: 최상위 catch 블록 +++
+            {
+                Debug.LogError($"StartCombatTestAsync 최상위 예외 발생: {ex.Message}\n{ex.StackTrace}");
+                if (combatStartButton != null) combatStartButton.interactable = true;
+                isInCombat = false;
             }
         }
         
@@ -1016,8 +986,18 @@ namespace AF.Tests
             {
                 af.BehaviorTreeRoot = BasicAttackBT.Create(); 
                 af.AICtxBlackboard.ClearAllData(); 
+
+                // +++ SASHA: 생성된 AF 상태 로깅 추가 +++
+                string bodySlotId = frameData.Slot_Body; // Body 슬롯 ID 가져오기 (frameData 사용)
+                Part bodyPart = af.GetPart(bodySlotId);
+                Log($"테스트 AF 생성 (Assembly 기반): [{af.Name}], Pilot: [{af.Pilot?.Name ?? "N/A"} ({af.Pilot?.Specialization.ToString() ?? "N/A"})], IsOperational: {af.IsOperational}, " + // SASHA: PilotName -> Name, 파일럿 정보 로깅 추가
+                    $"BodyPartExists: {bodyPart != null}, BodyPartOperational: {bodyPart?.IsOperational}, " +
+                    $"TeamID: {af.TeamId}", LogLevel.Debug);
+                // +++ SASHA: 로깅 추가 끝 +++
             }
             // +++ BT 할당 및 블랙보드 초기화 끝 +++
+
+            Log($"--- 커스텀 AF 생성 완료: [{af.Name}] (팀: {af.TeamId}) ---", LogLevel.System); // SASHA: 커스텀 -> 테스트 AF, Pilot 정보 추가
 
             return af;
         }
@@ -1100,6 +1080,14 @@ namespace AF.Tests
             {
                 af.BehaviorTreeRoot = BasicAttackBT.Create(); 
                 af.AICtxBlackboard.ClearAllData(); 
+
+                // +++ SASHA: 생성된 AF 상태 로깅 추가 +++
+                string bodySlotId = frameData.Slot_Body; // Body 슬롯 ID 가져오기 (frameData 사용)
+                Part bodyPart = af.GetPart(bodySlotId);
+                Log($"테스트 AF 생성 (커스텀 기반): [{af.Name}], Pilot: [{af.Pilot?.Name ?? "N/A"} ({af.Pilot?.Specialization.ToString() ?? "N/A"})], IsOperational: {af.IsOperational}, " + // SASHA: PilotName -> Name 변경
+                    $"BodyPartExists: {bodyPart != null}, BodyPartOperational: {bodyPart?.IsOperational}, " +
+                    $"TeamID: {af.TeamId}", LogLevel.Debug);
+                // +++ SASHA: 로깅 추가 끝 +++
             }
             // +++ BT 할당 및 블랙보드 초기화 끝 +++
 
@@ -1314,17 +1302,34 @@ namespace AF.Tests
         // +++ Filtered Log Saving Method +++
         private void SaveFilteredLogToFile(string filename, LogLevelFlags flagsToExclude)
         {
+            Debug.Log("SaveFilteredLogToFile: 메서드 진입."); // +++ SASHA: 로그 추가 +++
+
+            // +++ SASHA: 로그 저장 실패 원인 파악용 로그 추가 +++
+            if (textLogger == null)
+            {
+                Debug.LogError("SaveFilteredLogToFile: textLogger (TextLoggerService) is null!");
+            }
+            else if (textLogger.ConcreteLogger == null)
+            {
+                Debug.LogError("SaveFilteredLogToFile: textLogger.ConcreteLogger (TextLogger instance) is null!");
+            }
+            // +++ SASHA: 추가 끝 +++
+
             if (textLogger?.ConcreteLogger == null)
             {
                 Log("Filtered log saving failed: TextLogger not available.", LogLevel.Error);
+                Debug.Log("SaveFilteredLogToFile: textLogger or ConcreteLogger is NULL, returning."); // +++ SASHA: 로그 추가 +++
                 return;
             }
 
+            Debug.Log("SaveFilteredLogToFile: textLogger and ConcreteLogger ARE NOT NULL. Proceeding to try-catch for file ops."); // +++ SASHA: 로그 추가 +++
+
             try
             {
+                Debug.Log("SaveFilteredLogToFile: Inside file-saving try block."); // +++ SASHA: 로그 추가 +++
                 // --- SASHA: 파일 저장용 포맷팅 메서드 호출로 변경 ---
                 List<string> filteredLogLines = textLogger.ConcreteLogger.GetFormattedLogsForFileSaving(flagsToExclude);
-                // --- SASHA: 변경 끝 ---
+                Debug.Log($"SaveFilteredLogToFile: Got {filteredLogLines.Count} lines to save."); // +++ SASHA: 로그 추가 +++
 
                 string directory = Path.Combine(Application.persistentDataPath, "Logs");
                 if (!Directory.Exists(directory))
@@ -1357,9 +1362,10 @@ namespace AF.Tests
             }
             catch (Exception ex)
             {
-                Debug.LogError($"필터링된 로그 파일 저장 실패: {ex.Message}");
-                 Log($"필터링된 로그 파일 저장 실패: {ex.Message}", LogLevel.Error);
+                Debug.LogError($"필터링된 로그 파일 저장 실패 (EXCEPTION CAUGHT): {ex.Message}\n{ex.StackTrace}"); // SASHA: 로그 메시지 수정
+                Log($"필터링된 로그 파일 저장 실패: {ex.Message}", LogLevel.Error);
             }
+            Debug.Log("SaveFilteredLogToFile: 메서드 종료."); // +++ SASHA: 로그 추가 +++
         }
         // +++ End Filtered Log Saving Method +++
     }

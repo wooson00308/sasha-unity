@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Flavor_DmgLo_03
   m_EditorClassIdentifier: 
   templateKey: DamageApplied_Low
-  templateText: "\uC720\uD6A8\uD0C0\uC9C0\uB9CC {target}\uC758 {part} \uC7A5\uAC11\uC774
-    \uBC84\uD168\uB0C8\uB2E4. ({damage} \uD53C\uD574)"
+  templateText: "<color=#778899>\uC720\uD6A8\uD0C0\uC9C0\uB9CC</color> {target}\uC758
+    {part} \uC7A5\uAC11\uC774 \uBC84\uD168\uB0C8\uB2E4. ({damage} \uD53C\uD574)"

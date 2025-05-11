@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Flavor_Move_01
   m_EditorClassIdentifier: 
   templateKey: Move_Success
-  templateText: "{actor}\uAC00 <color=lightblue>\uC2E0\uC18D\uD558\uAC8C</color>
-    {distance}m \uC774\uB3D9\uD558\uC5EC {position}\uC5D0 \uB3C4\uCC29."
+  templateText: "{actor}\uAC00 <color=#40E0D0>\uC2E0\uC18D\uD558\uAC8C</color> {distance}m
+    \uC774\uB3D9\uD558\uC5EC {position}\uC5D0 \uB3C4\uCC29."

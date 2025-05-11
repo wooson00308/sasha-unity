@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Flavor_PartDestroyL_01
   m_EditorClassIdentifier: 
   templateKey: PartDestroyed_Legs
-  templateText: "{target}\uC758 \uB2E4\uB9AC <color=orange>\uD30C\uAD34</color>!
-    \uAE30\uB3D9\uB825 \uC0C1\uC2E4!"
+  templateText: "{target}\uC758 \uB2E4\uB9AC <color=#FF0000>\uD30C\uAD34!</color>
+    \uAE30\uB3D9\uB825 <color=#FFA500>\uC0C1\uC2E4!</color>"

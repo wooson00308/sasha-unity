@@ -145,5 +145,84 @@ namespace AF.Combat
                 TurnNumber = turnNumber;
             }
         }
+
+        /// <summary>
+        /// 카운터 공격 발생 알림 이벤트
+        /// </summary>
+        public class CounterAttackAnnouncedEvent : ICombatEvent
+        {
+            public ArmoredFrame Defender { get; private set; } // 카운터 공격자
+            public ArmoredFrame Attacker { get; private set; } // 카운터 대상
+            public int TurnNumber { get; private set; }
+
+            public CounterAttackAnnouncedEvent(ArmoredFrame defender, ArmoredFrame attacker, int turnNumber)
+            {
+                Defender = defender;
+                Attacker = attacker;
+                TurnNumber = turnNumber;
+            }
+        }
+
+        /// <summary>
+        /// 데미지 적용 전 이벤트 (데미지 수정 가능)
+        /// </summary>
+        public class PreDamageApplicationEvent : ICombatEvent
+        {
+            public ArmoredFrame TargetAF { get; private set; }
+            public Part DamagedPart { get; private set; }
+            public float OriginalDamage { get; private set; }
+            public int CurrentTurn { get; private set; }
+            public float ModifiedDamage { get; set; } // 외부에서 수정 가능하도록 set 추가
+
+            public PreDamageApplicationEvent(ArmoredFrame targetAF, Part damagedPart, float originalDamage, int currentTurn)
+            {
+                TargetAF = targetAF;
+                DamagedPart = damagedPart;
+                OriginalDamage = originalDamage;
+                CurrentTurn = currentTurn;
+                ModifiedDamage = originalDamage; // 초기값은 원본 데미지
+            }
+        }
+
+        /// <summary>
+        /// 데미지 적용 후 이벤트
+        /// </summary>
+        public class DamageAppliedEvent : ICombatEvent
+        {
+            public ArmoredFrame Source { get; private set; } // Attacker -> Source
+            public ArmoredFrame Target { get; private set; } // TargetAF -> Target
+            public Part DamagedPart { get; private set; }
+            public float DamageDealt { get; private set; }
+            public bool IsCritical { get; private set; } // WasCriticalHit -> IsCritical
+            public bool WasDestroyed { get; private set; }
+            public int TurnNumber { get; private set; }
+            public float PartCurrentDurability { get; private set; } // 추가
+            public float PartMaxDurability { get; private set; }   // 추가
+            public bool IsCounterAttack { get; private set; }      // 추가
+
+            public DamageAppliedEvent(
+                ArmoredFrame source, 
+                ArmoredFrame target, 
+                Part damagedPart, 
+                float damageDealt, 
+                bool isCritical, 
+                bool wasDestroyed, 
+                int turnNumber,
+                float partCurrentDurability, // 추가
+                float partMaxDurability,   // 추가
+                bool isCounterAttack)      // 추가
+            {
+                Source = source;
+                Target = target;
+                DamagedPart = damagedPart;
+                DamageDealt = damageDealt;
+                IsCritical = isCritical;
+                WasDestroyed = wasDestroyed;
+                TurnNumber = turnNumber;
+                PartCurrentDurability = partCurrentDurability; // 추가
+                PartMaxDurability = partMaxDurability;     // 추가
+                IsCounterAttack = isCounterAttack;        // 추가
+            }
+        }
     }
 } 

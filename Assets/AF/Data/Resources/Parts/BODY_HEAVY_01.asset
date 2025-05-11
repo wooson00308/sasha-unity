@@ -16,7 +16,7 @@ MonoBehaviour:
   PartName: "\uC911\uB7C9 \uBC14\uB514 \uC720\uB2DB"
   PartType: 1
   Stat_AttackPower: 0
-  Stat_Defense: 1.2
+  Stat_Defense: 2.5
   Stat_Speed: 0
   Stat_Accuracy: 0
   Stat_Evasion: 0
@@ -25,6 +25,6 @@ MonoBehaviour:
   Stat_MaxAP: 0
   Stat_APRecovery: 0
   MaxDurability: 200
-  PartWeight: 50
+  PartWeight: 500
   Abilities: []
   Notes: 

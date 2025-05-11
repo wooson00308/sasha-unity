@@ -16,12 +16,21 @@ namespace AF.AI.BehaviorTree.Actions
         // handled by the CombatActionExecutor or a similar system.
         const int MIN_AP_TO_INITIATE_MOVE = 1;
 
+        private float? _desiredStoppingDistance; // Nullable float for specific stopping distance
+
         // 생성자에서 파라미터 제거
         public MoveToTargetNode()
         {
+            _desiredStoppingDistance = null;
             // 필드 초기화 제거
             // this.storedUnit = unit;
             // this.storedContext = context;
+        }
+
+        // New constructor for specific stopping distance
+        public MoveToTargetNode(float desiredStoppingDistance)
+        {
+            _desiredStoppingDistance = desiredStoppingDistance;
         }
 
         public override NodeStatus Tick(ArmoredFrame agent, Blackboard blackboard, CombatContext context)
@@ -30,87 +39,94 @@ namespace AF.AI.BehaviorTree.Actions
 
             if (blackboard.CurrentTarget == null || blackboard.CurrentTarget.IsDestroyed)
             {
-                textLogger?.Log($"[{GetType().Name}] {agent.Name}: CurrentTarget is null or destroyed. Failure.", LogLevel.Debug);
+                textLogger?.Log($"[{GetType().Name}] {agent.Name}: CT null/destroyed. Failure.", LogLevel.Debug);
                 blackboard.IntendedMovePosition = null;
                 blackboard.DecidedActionType = null;
                 return NodeStatus.Failure;
             }
 
-            // 무기 선택 로직: Blackboard에 SelectedWeapon이 있으면 사용, 없으면 주무기 사용
-            Weapon weaponToConsider = blackboard.SelectedWeapon ?? agent.GetPrimaryWeapon();
+            float distanceToTarget = Vector3.Distance(agent.Position, blackboard.CurrentTarget.Position);
 
-            if (weaponToConsider == null || !weaponToConsider.IsOperational)
+            if (_desiredStoppingDistance.HasValue)
             {
-                textLogger?.Log($"[{GetType().Name}] {agent.Name}: No usable weapon to consider for move range check. Failure.", LogLevel.Debug);
-                blackboard.IntendedMovePosition = null;
-                blackboard.DecidedActionType = null;
-                return NodeStatus.Failure;
-            }
+                // Mode 1: Move to a specific stopping distance
+                float stoppingDist = _desiredStoppingDistance.Value;
+                // Allow a small tolerance to prevent jittering or endless attempts if already very close
+                if (Mathf.Abs(distanceToTarget - stoppingDist) < 0.5f) 
+                {
+                    textLogger?.Log($"[{GetType().Name}] {agent.Name} already at desired distance ({stoppingDist}m) from {blackboard.CurrentTarget.Name}. No move needed.", LogLevel.Debug);
+                    blackboard.IntendedMovePosition = null;
+                    blackboard.DecidedActionType = null; // No move action decided by this node
+                    return NodeStatus.Success; 
+                }
 
-            float distanceSqr = (agent.Position - blackboard.CurrentTarget.Position).sqrMagnitude;
-            float minRange = weaponToConsider.MinRange;
-            float maxRange = weaponToConsider.MaxRange;
-            // Ensure minRange is not greater than maxRange to avoid issues with range checks
-            if (minRange > maxRange) 
-            {
-                minRange = maxRange; 
-            }
-
-            float minRangeSqr = minRange * minRange;
-            float maxRangeSqr = maxRange * maxRange;
-
-            bool isInRange = distanceSqr >= minRangeSqr && distanceSqr <= maxRangeSqr;
-
-            if (isInRange)
-            {
-                textLogger?.Log($"[{GetType().Name}] {agent.Name} is already in optimal range of {blackboard.CurrentTarget.Name} with {weaponToConsider.Name}. No move needed.", LogLevel.Debug);
-                blackboard.IntendedMovePosition = null; 
-                blackboard.DecidedActionType = null;
-                return NodeStatus.Success; // Already in optimal range, no action decided by this node
+                // If not at the desired distance, calculate move
+                Vector3 directionToTarget = (blackboard.CurrentTarget.Position - agent.Position).normalized;
+                 if (directionToTarget == Vector3.zero) // Failsafe
+                {
+                    directionToTarget = (Random.insideUnitSphere).normalized; directionToTarget.y = 0; 
+                    if (directionToTarget == Vector3.zero) directionToTarget = Vector3.forward; 
+                    directionToTarget.Normalize();
+                }
+                blackboard.IntendedMovePosition = blackboard.CurrentTarget.Position - directionToTarget * stoppingDist;
+                blackboard.DecidedActionType = CombatActionEvents.ActionType.Move;
+                textLogger?.Log($"[{GetType().Name}] {agent.Name} moving towards {blackboard.CurrentTarget.Name} to custom stop distance: {stoppingDist}m.", LogLevel.Debug);
+                return NodeStatus.Success;
             }
             else
             {
-                // Not in range, needs to move.
-                if (agent.CurrentAP < MIN_AP_TO_INITIATE_MOVE)
+                // Mode 2: Original weapon-range based movement
+                Weapon weaponToConsider = blackboard.SelectedWeapon ?? agent.GetPrimaryWeapon();
+                if (weaponToConsider == null || !weaponToConsider.IsOperational)
                 {
-                    textLogger?.Log($"[{GetType().Name}] {agent.Name}: Not enough AP ({agent.CurrentAP}) to move towards {blackboard.CurrentTarget.Name}. Required: {MIN_AP_TO_INITIATE_MOVE}. Failure.", LogLevel.Debug);
+                    textLogger?.Log($"[{GetType().Name}] {agent.Name}: No usable weapon. Failure.", LogLevel.Debug);
                     blackboard.IntendedMovePosition = null;
                     blackboard.DecidedActionType = null;
                     return NodeStatus.Failure;
                 }
 
-                Vector3 directionToTarget = (blackboard.CurrentTarget.Position - agent.Position).normalized;
-                if (directionToTarget == Vector3.zero) // Failsafe if agent and target are at the same exact position
+                float minRange = weaponToConsider.MinRange;
+                float maxRange = weaponToConsider.MaxRange;
+                if (minRange > maxRange) { minRange = maxRange; }
+
+                // Using squared distances for efficiency, but original log used Distance
+                // Let's use Distance for consistency with logging, and check if already in range first
+                bool isInOptimalRange = distanceToTarget >= minRange && distanceToTarget <= maxRange;
+                // Special case for melee/very short range weapons where minRange is effectively 0
+                if (minRange < 0.1f && distanceToTarget <= maxRange) isInOptimalRange = true;
+
+                if (isInOptimalRange)
                 {
-                    directionToTarget = (Random.insideUnitSphere).normalized;
-                    directionToTarget.y = 0; 
-                    if (directionToTarget == Vector3.zero) directionToTarget = Vector3.forward;
-                    directionToTarget.Normalize();
+                    textLogger?.Log($"[{GetType().Name}] {agent.Name} already in weapon range of {blackboard.CurrentTarget.Name}. No move.", LogLevel.Debug);
+                    blackboard.IntendedMovePosition = null;
+                    blackboard.DecidedActionType = null;
+                    return NodeStatus.Success;
                 }
+                
+                // ... (rest of original move logic: calculate IntendedMovePosition based on weapon ranges) ...
+                Vector3 directionToTargetNormalized = (blackboard.CurrentTarget.Position - agent.Position).normalized;
+                if (directionToTargetNormalized == Vector3.zero) { /* Failsafe from above */ directionToTargetNormalized = Vector3.forward; }
 
                 Vector3 calculatedIntendedPosition;
-
-                if (distanceSqr > maxRangeSqr) // Too far, move to just inside MaxRange
+                if (distanceToTarget > maxRange) 
                 {
-                    float targetDist = Mathf.Max(0f, maxRange * 0.9f); // Aim for 90% of maxRange
-                    calculatedIntendedPosition = blackboard.CurrentTarget.Position - directionToTarget * targetDist;
-                    textLogger?.Log($"[{GetType().Name}] {agent.Name} is too far. Moving towards {blackboard.CurrentTarget.Name} to engage at ~{targetDist}m (MaxRange: {maxRange}m).", LogLevel.Debug);
+                    float targetDist = Mathf.Max(0f, maxRange * 0.9f); 
+                    calculatedIntendedPosition = blackboard.CurrentTarget.Position - directionToTargetNormalized * targetDist;
+                    textLogger?.Log($"[{GetType().Name}] {agent.Name} too far. Moving to weapon range {targetDist}m.", LogLevel.Debug);
                 }
-                else if (distanceSqr < minRangeSqr && minRange > 0.1f) // Too close for a ranged weapon, move to just outside MinRange
+                else if (distanceToTarget < minRange && minRange > 0.1f) 
                 {
-                    float targetDist = minRange * 1.05f; // Aim for 105% of minRange (or just minRange)
-                    calculatedIntendedPosition = blackboard.CurrentTarget.Position - directionToTarget * targetDist;
-                    textLogger?.Log($"[{GetType().Name}] {agent.Name} is too close. Adjusting position relative to {blackboard.CurrentTarget.Name} to ~{targetDist}m (MinRange: {minRange}m).", LogLevel.Debug);
+                    float targetDist = minRange * 1.05f; 
+                    calculatedIntendedPosition = blackboard.CurrentTarget.Position - directionToTargetNormalized * targetDist;
+                    textLogger?.Log($"[{GetType().Name}] {agent.Name} too close. Adjusting to weapon range {targetDist}m.", LogLevel.Debug);
                 }
-                else // Default: Melee (minRange is 0 or very small) or other unhandled cases when !isInRange
+                else 
                 {
                     calculatedIntendedPosition = blackboard.CurrentTarget.Position;
-                    textLogger?.Log($"[{GetType().Name}] {agent.Name} moving to target {blackboard.CurrentTarget.Name} default position (MinRange: {minRange}m, MaxRange: {maxRange}m).", LogLevel.Debug);
+                    textLogger?.Log($"[{GetType().Name}] {agent.Name} moving to target default weapon pos.", LogLevel.Debug);
                 }
-                
                 blackboard.IntendedMovePosition = calculatedIntendedPosition;
-                blackboard.DecidedActionType = CombatActionEvents.ActionType.Move; 
-                
+                blackboard.DecidedActionType = CombatActionEvents.ActionType.Move;
                 return NodeStatus.Success;
             }
         }

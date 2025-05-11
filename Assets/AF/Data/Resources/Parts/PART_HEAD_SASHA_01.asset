@@ -25,7 +25,7 @@ MonoBehaviour:
   Stat_MaxAP: 0
   Stat_APRecovery: 0
   MaxDurability: 60
-  PartWeight: 11
+  PartWeight: 45
   Abilities:
   - EnhancedSensors
   Notes: "\uC0AC\uC0E4\uAC00 \uC9C1\uC811 \uC124\uACC4\uD55C \uACE0\uC131\uB2A5 \uD5E4\uB4DC

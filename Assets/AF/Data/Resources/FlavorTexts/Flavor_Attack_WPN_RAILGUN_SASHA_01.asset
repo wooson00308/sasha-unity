@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Flavor_Attack_WPN_RAILGUN_SASHA_01
   m_EditorClassIdentifier: 
   templateKey: Attack_WPN_RAILGUN_SASHA_01
-  templateText: "{weaponName} <color=magenta>\uC804\uC790\uAE30 \uAC00\uC18D \uB808\uC77C</color>
-    \uC791\uB3D9. \uD0C4\uC790 \uBC1C\uC0AC."
+  templateText: "{weaponName} <color=#00BFFF>\uC804\uC790\uAE30 \uAC00\uC18D \uB808\uC77C</color>
+    \uC791\uB3D9. <color=#00BFFF>\uD0C4\uC790 \uBC1C\uC0AC.</color>"

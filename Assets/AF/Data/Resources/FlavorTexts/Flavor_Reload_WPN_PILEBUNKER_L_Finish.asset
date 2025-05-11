@@ -13,4 +13,5 @@ MonoBehaviour:
   m_Name: Flavor_Reload_WPN_PILEBUNKER_L_Finish
   m_EditorClassIdentifier: 
   templateKey: Reload_WPN_PILEBUNKER_L_Finish
-  templateText: "{weaponName} \uD0C0\uACA9 \uC900\uBE44 \uC644\uB8CC. ({currentAmmo}/{maxAmmo})"
+  templateText: "{weaponName} <color=#5BB675>\uD0C0\uACA9 \uC900\uBE44 \uC644\uB8CC.</color>
+    ({currentAmmo}/{maxAmmo})"

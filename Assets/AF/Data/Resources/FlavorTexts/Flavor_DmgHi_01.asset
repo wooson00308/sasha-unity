@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Flavor_DmgHi_01
   m_EditorClassIdentifier: 
   templateKey: DamageApplied_High
-  templateText: "{attacker}\uC758 {weapon} <color=red>\uAC15\uD0C0</color>! {target}\uC758
-    {part} \uC7A5\uAC11\uC774 \uCC0C\uADF8\uB7EC\uC9C4\uB2E4!"
+  templateText: "{attacker}\uC758 {weapon} <color=#FF0000>\uAC15\uD0C0</color>! {target}\uC758
+    {part} \uC7A5\uAC11\uC774 <color=#FF0000>\uCC0C\uADF8\uB7EC\uC9C4\uB2E4</color>!"

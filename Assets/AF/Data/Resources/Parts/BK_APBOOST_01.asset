@@ -21,11 +21,11 @@ MonoBehaviour:
   Stat_Accuracy: 0
   Stat_Evasion: 0
   Stat_Durability: 0
-  Stat_EnergyEff: 0.45
-  Stat_MaxAP: 0
-  Stat_APRecovery: 1.5
+  Stat_EnergyEff: 0.7
+  Stat_MaxAP: 3
+  Stat_APRecovery: 5
   MaxDurability: 40
-  PartWeight: 18
+  PartWeight: 30
   Abilities:
   - APBoost
   Notes: "AP \uD68C\uBCF5 \uC18D\uB3C4 \uC99D\uAC00"

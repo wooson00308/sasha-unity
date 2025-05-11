@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Flavor_StatusApp_01
   m_EditorClassIdentifier: 
   templateKey: StatusEffectApplied
-  templateText: "{target}\uC5D0\uAC8C <color=purple>{effect}</color> \uD6A8\uACFC
+  templateText: "{target}\uC5D0\uAC8C <color=#9370DB>{effect}</color> \uD6A8\uACFC
     \uBC1C\uC0DD!"

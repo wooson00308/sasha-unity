@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Flavor_StatusTickHeal_01
   m_EditorClassIdentifier: 
   templateKey: StatusEffectTick_Heal
-  templateText: "\uB098\uB178 \uBA38\uC2E0 \uAC00\uB3D9. {target}\uC758 \uB0B4\uAD6C\uB3C4
-    <color=green>\uD68C\uBCF5</color> \uC2DC\uC791! (+{value})"
+  templateText: "<color=#5BB675>\uB098\uB178 \uBA38\uC2E0 \uAC00\uB3D9.</color> {target}\uC758
+    \uB0B4\uAD6C\uB3C4 <color=#5BB675>\uD68C\uBCF5 \uC2DC\uC791!</color> (+{value})"

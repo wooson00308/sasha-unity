@@ -30,3 +30,4 @@ MonoBehaviour:
   AttackFlavorKey: Attack_WPN_MG_MID_01
   ReloadFlavorKey: Reload_WPN_MG_MID_01
   Notes: 
+  Weight: 1

@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   templateKey: StatusEffectApplied
   templateText: "{attacker}\uC758 \uACF5\uACA9\uC73C\uB85C {target} \uC2DC\uC2A4\uD15C\uC5D0
-    <color=purple>{effect}</color> \uC774\uC0C1 \uBC1C\uC0DD!"
+    <color=#9370DB>{effect}</color> \uC774\uC0C1 \uBC1C\uC0DD!"

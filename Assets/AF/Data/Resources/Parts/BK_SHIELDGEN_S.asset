@@ -25,7 +25,7 @@ MonoBehaviour:
   Stat_MaxAP: 0
   Stat_APRecovery: 0
   MaxDurability: 60
-  PartWeight: 15
+  PartWeight: 40
   Abilities:
   - EnergyShield
   Notes: "\uC5D0\uB108\uC9C0\uB97C \uC18C\uBAA8\uD558\uC5EC \uBC29\uC5B4\uB9C9 \uC804\uAC1C"

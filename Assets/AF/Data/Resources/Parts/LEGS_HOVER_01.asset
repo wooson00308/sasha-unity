@@ -16,16 +16,16 @@ MonoBehaviour:
   PartName: "\uD638\uBC84 \uB808\uADF8"
   PartType: 4
   Stat_AttackPower: 0
-  Stat_Defense: -0.1
-  Stat_Speed: 4.5
+  Stat_Defense: 0
+  Stat_Speed: 8
   Stat_Accuracy: 0
-  Stat_Evasion: 0.5
-  Stat_Durability: -50
-  Stat_EnergyEff: 0.4
+  Stat_Evasion: 0.7
+  Stat_Durability: 0
+  Stat_EnergyEff: 0.6
   Stat_MaxAP: 0
-  Stat_APRecovery: 0
+  Stat_APRecovery: 0.5
   MaxDurability: 90
-  PartWeight: 22
+  PartWeight: 100
   Abilities:
   - Hover
   Notes: "\uC9C0\uD615 \uC601\uD5A5\uC744 \uB35C \uBC1B\uB294 \uD638\uBC84 \uC774\uB3D9

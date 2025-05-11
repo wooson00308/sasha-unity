@@ -183,6 +183,7 @@ namespace AF.Models
 
                 _parts[slotIdentifier] = part;
                 RecalculateStats(); // 새 파츠 포함하여 스탯 재계산
+                CheckOperationalStatus(); // <<< 기체 작동 상태 재확인
                 // TODO: PartAttachedEvent 발행 고려
                 return true;
             }
@@ -203,6 +204,7 @@ namespace AF.Models
             {
                 _parts.Remove(slotIdentifier);
                 RecalculateStats(); // 파츠 제거 후 스탯 재계산
+                CheckOperationalStatus(); // <<< 기체 작동 상태 재확인
                 // TODO: PartDetachedEvent 발행 고려
                 return part;
             }
@@ -366,144 +368,62 @@ namespace AF.Models
         /// </summary>
         private void RecalculateStats()
         {
-            // Stats 객체를 새로 생성하여 초기화
-            _combinedStats = new Stats();
-            // 1. 프레임 기본 스탯 추가
+            _combinedStats.Clear();
+            _totalWeight = 0f; // 무게도 초기화
+
+            // 1. 프레임 기본 스탯 적용
             if (_frameBase != null)
             {
-                _combinedStats += _frameBase.BaseStats;
+                _combinedStats.Add(_frameBase.BaseStats);
+                _totalWeight += _frameBase.Weight; // Frame.Weight 사용하도록 수정
             }
 
-            // 2. 모든 장착된 파츠 스탯 합산 (Evasion 및 EnergyEfficiency 제외)
-            float totalPartsWeight = 0f;
-            foreach (var kvp in _parts)
-            {
-                string slotId = kvp.Key;
-                Part part = kvp.Value;
-                if (part != null)
-                {
-                    // Evasion 및 EnergyEfficiency 제외
-                    Stats statsToAdd = new Stats(
-                        part.PartStats.AttackPower,
-                        part.PartStats.Defense,
-                        part.PartStats.Speed,
-                        part.PartStats.Accuracy,
-                        0, // Evasion 제외
-                        part.PartStats.Durability,
-                        0, // EnergyEfficiency 제외
-                        part.PartStats.MaxAP,
-                        part.PartStats.APRecovery
-                    );
-                    _combinedStats += statsToAdd;
-                    totalPartsWeight += part.Weight;
-                }
-            }
-
-            // 3. 파일럿 스탯 합산 (Evasion 및 EnergyEfficiency 제외)
-            float pilotBaseEnergyEfficiency = 0f;
-            float pilotBonusEnergyEfficiency = 0f;
+            // 2. 파일럿 스탯 적용 (존재한다면)
             if (_pilot != null)
             {
-                 // 파일럿 기본 스탯 (Evasion/Eff 제외) 직접 더하기
-                 Stats pilotBaseStatsNoEvasionEff = new Stats(
-                    _pilot.BaseStats.AttackPower,
-                    _pilot.BaseStats.Defense,
-                    _pilot.BaseStats.Speed,
-                    _pilot.BaseStats.Accuracy,
-                    0, // Evasion 제외
-                    _pilot.BaseStats.Durability,
-                    0, // EnergyEfficiency 제외
-                    _pilot.BaseStats.MaxAP,
-                    _pilot.BaseStats.APRecovery
-                 );
-                 _combinedStats += pilotBaseStatsNoEvasionEff;
-                 pilotBaseEnergyEfficiency = _pilot.BaseStats.EnergyEfficiency; // 파일럿 기본 Eff 따로 저장
-                 
-                 // 파일럿 전문화 보너스 (Evasion/Eff 제외) 직접 더하기
-                 Stats pilotBonusStatsNoEvasionEff = new Stats(
-                     _pilot.SpecializationBonus.AttackPower,
-                     _pilot.SpecializationBonus.Defense,
-                     _pilot.SpecializationBonus.Speed,
-                     _pilot.SpecializationBonus.Accuracy,
-                     0, // Evasion 제외
-                     _pilot.SpecializationBonus.Durability,
-                     0, // EnergyEfficiency 제외
-                     _pilot.SpecializationBonus.MaxAP,
-                     _pilot.SpecializationBonus.APRecovery
-                 );
-                 _combinedStats += pilotBonusStatsNoEvasionEff;
-                 pilotBonusEnergyEfficiency = _pilot.SpecializationBonus.EnergyEfficiency; // 파일럿 보너스 Eff 따로 저장
+                _combinedStats.Add(_pilot.BaseStats);
+                // 파일럿 자체의 무게는 없다고 가정하거나, 있다면 Pilot 클래스에 Weight 속성 추가 후 반영
             }
 
-            // 4. 총 무게 계산
-            _totalWeight = (_frameBase?.Weight ?? 0f) + totalPartsWeight;
-
-            // 5. Evasion 스탯 특별 계산
-            float baseEvasion = 0f;
-            // 속도 기반 회피율 계산 (예시 공식: 속도의 5%)
-            float evasionFromSpeed = _combinedStats.Speed * 0.05f;
-            // 무게 기반 회피율 페널티 계산 (예시 공식: 무게 10당 0.01 감소)
-            float evasionPenaltyFromWeight = _totalWeight * 0.001f;
-
-            baseEvasion = Mathf.Max(0f, evasionFromSpeed - evasionPenaltyFromWeight);
-
-            // 파일럿의 Evasion 스탯 추가
-            // float pilotEvasionBonus = _pilot?.GetTotalStats().Evasion ?? 0f; // 이전 코드: 총 스탯 Evasion 사용
-            // 수정: 파일럿 기본 Evasion + 전문화 보너스 Evasion 사용
-            float pilotBaseEvasion = _pilot?.BaseStats.Evasion ?? 0f;
-            float pilotBonusEvasion = _pilot?.SpecializationBonus.Evasion ?? 0f;
-            float pilotEvasionBonus = pilotBaseEvasion + pilotBonusEvasion;
-
-            // (선택적) 특정 파츠(예: Legs)의 Evasion 합산
-            float partsEvasionBonus = 0f;
-            Part legsPart = GetPart("Legs"); // "Legs" 슬롯 가정
-            if (legsPart != null) // Legs 파츠 Evasion 로그 추가
+            // 3. 장착된 파츠 스탯 및 무게 적용 (파괴되지 않은 파츠만)
+            foreach (var partEntry in _parts)
             {
-                 partsEvasionBonus += legsPart.PartStats.Evasion;
-            }
-            // TODO: 다른 슬롯의 Legs 파츠가 있다면 추가 (예: "Leg_Left", "Leg_Right")
-            // Part leftLeg = GetPart("Leg_Left");
-            // if (leftLeg != null) { ... }
-            // Part rightLeg = GetPart("Leg_Right");
-            // if (rightLeg != null) { ... }
-
-            // 최종 Evasion 계산 및 CombinedStats에 반영
-            float finalEvasion = baseEvasion + pilotEvasionBonus + partsEvasionBonus;
-            
-            // 5.5. EnergyEfficiency 계산 (프레임 + 파일럿 베이스 + 파일럿 보너스)
-            float finalEnergyEfficiency = (_frameBase?.BaseStats.EnergyEfficiency ?? 0f) 
-                                        + pilotBaseEnergyEfficiency 
-                                        + pilotBonusEnergyEfficiency;
-            // 필요하다면 여기서 최소/최대값 제한 등 추가 가능
-
-            // 7. 최종 스탯 적용 (CombinedStats 다시 생성)
-            _combinedStats = new Stats(
-                 _combinedStats.AttackPower,
-                 _combinedStats.Defense,
-                 _combinedStats.Speed,
-                 _combinedStats.Accuracy,
-                 finalEvasion, 
-                 _combinedStats.Durability,
-                 finalEnergyEfficiency, // 계산된 최종 EnergyEfficiency 사용
-                 _combinedStats.MaxAP,
-                 _combinedStats.APRecovery
-            );
-
-            // 8. 상태 효과 적용
-            foreach (var effect in _activeStatusEffects)
-            {
-                if (effect.StatToModify != StatType.None && effect.ModificationType != ModificationType.None)
+                Part part = partEntry.Value;
+                if (part != null && !part.IsDestroyed) // 파괴되지 않은 파츠만 스탯과 무게를 더함
                 {
-                    // Stats 클래스의 ApplyModifier 메소드를 사용하여 _combinedStats 직접 수정
-                    _combinedStats.ApplyModifier(effect.StatToModify, effect.ModificationType, effect.ModificationValue);
+                    _combinedStats.Add(part.PartStats);
+                    _totalWeight += part.Weight;
+                }
+                else if (part != null && part.IsDestroyed)
+                {
+                    // 선택: 파괴된 파츠도 여전히 무게는 차지하게 하려면 이 조건문에서 _totalWeight += part.Weight; 를 수행.
+                    // 현재는 사용자의 요청에 따라 파괴된 파츠의 무게도 제외.
                 }
             }
 
-            // 최종 스탯 재계산 후 AP 값 재설정 (최대치 초과 방지)
-            _currentAP = Mathf.Clamp(_currentAP, 0, _combinedStats.MaxAP);
+            // 4. 무기 스탯 적용 (무기 자체 스탯이 있다면. 현재는 무게만 고려)
+            foreach (var weapon in _equippedWeapons)
+            {
+                if (weapon != null)
+                {
+                    _totalWeight += weapon.Weight; // 무기 무게는 항상 적용 (파괴 개념이 현재 없음)
+                }
+            }
+            
+            // 호환성 및 무게 패널티 등 추가 로직이 있다면 여기에...
+            // 예: ApplyCompatibilityModifiers();
+            // 예: ApplyWeightPenalties();
 
-            // 작동 상태 재확인 (내구도 등)
-            CheckOperationalStatus();
+            // AP가 MaxAP를 초과하지 않도록 조정
+            if (_currentAP > _combinedStats.MaxAP)
+            {
+                _currentAP = _combinedStats.MaxAP;
+            }
+            // 최소 AP 보정 (예: 0 미만으로 내려가지 않도록)
+            if (_currentAP < 0)
+            {
+                _currentAP = 0;
+            }
         }
 
         /// <summary>
@@ -550,65 +470,85 @@ namespace AF.Models
         /// <param name="targetSlotIdentifier">데미지를 받을 파츠의 슬롯 식별자</param>
         /// <param name="damageAmount">적용할 데미지 양</param>
         /// <param name="currentTurn">현재 턴 번호 (이벤트 발행용)</param>
+        /// <param name="source">공격자 (없을 경우 null)</param>
+        /// <param name="isCritical">치명타 여부</param>
+        /// <param name="isCounterAttack">반격 여부</param>
         /// <returns>해당 파츠가 이 공격으로 파괴되었는지 여부</returns>
-        public bool ApplyDamage(string targetSlotIdentifier, float damageAmount, int currentTurn)
+        public bool ApplyDamage(string targetSlotIdentifier, float damageAmount, int currentTurn, ArmoredFrame source = null, bool isCritical = false, bool isCounterAttack = false)
         {
-            if (!_isOperational) return false; 
-
-            if (_parts.TryGetValue(targetSlotIdentifier, out Part targetPart))
+            if (string.IsNullOrEmpty(targetSlotIdentifier) || !_parts.ContainsKey(targetSlotIdentifier))
             {
-                if (!targetPart.IsOperational) return false; 
-
-                float previousDurability = targetPart.CurrentDurability;
-                bool wasDestroyedByThisHit = targetPart.ApplyDamage(damageAmount);
-
-                if (wasDestroyedByThisHit)
+                // 슬롯이 없거나 유효하지 않으면 몸통(Body)을 기본 타겟으로 (게임 규칙에 따라 변경 가능)
+                targetSlotIdentifier = _parts.FirstOrDefault(p => p.Value.Type == PartType.Body).Key ?? _parts.Keys.FirstOrDefault();
+                if (string.IsNullOrEmpty(targetSlotIdentifier))
                 {
-                    targetPart.OnDestroyed(this); 
-
-                    // <<< Body 파괴 시 즉시 격파 처리 추가 >>>
-                    if (targetSlotIdentifier == "Body") 
-                    {
-                        _isOperational = false;
-                    }
-                    // <<< Body 파괴 시 즉시 격파 처리 추가 끝 >>>
-
-                    // 스탯 재계산 및 최종 상태 확인 (이벤트 발행 전에 수행)
-                    RecalculateStats();
-                    CheckOperationalStatus(); 
-
-                    // <<< 이벤트 메시지 동적 설정 시작 >>>
-                    string eventEffectDescription = _isOperational 
-                        ? $"[{Name}]의 {targetSlotIdentifier} 파괴 (성능 저하 예상)" 
-                        : $"[{Name}] 격파됨! ({targetSlotIdentifier} 파괴됨)";
-                    // <<< 이벤트 메시지 동적 설정 끝 >>>
-
-                    // 파츠 파괴 이벤트 발행 (주석 처리 - CombatSimulatorService에서 발행)
-                    /* 
-                    _eventBus?.Publish(new PartEvents.PartDestroyedEvent(
-                        this, 
-                        targetPart.Type, // PartType 전달
-                        null, // 공격자 정보 (TODO)
-                        // params string[] effects 부분:
-                        $"[{Name}] {targetSlotIdentifier} 파괴됨", // 첫번째 메시지: 어떤 파츠가 파괴되었는지 명시
-                        eventEffectDescription // 두번째 메시지: 최종 결과 (성능저하 or 격파)
-                    ));
-                    */
-                    
-                    // AF가 작동 불능이 되었는지 로그만 남김 (이벤트와 별개)
-                    if (!_isOperational)
-                    {
-                        Debug.LogError($"ArmoredFrame({Name}) 최종 작동 불능 확인 (Body 파괴 또는 기타 조건 충족)");
-                    }
-
-                    return true; 
+                    Debug.LogError($"{Name}: 유효한 타겟 슬롯을 찾을 수 없어 데미지 적용 불가.");
+                    return false; // 데미지 적용 실패
                 }
             }
-            else
+
+            Part targetPart = _parts[targetSlotIdentifier];
+            if (targetPart == null || targetPart.IsDestroyed)
             {
-                Debug.LogWarning($"ArmoredFrame({Name}): 존재하지 않는 슬롯 '{targetSlotIdentifier}'에 데미지 적용 시도됨.");
+                // 이미 파괴된 파츠이거나 존재하지 않는 파츠에 대한 처리 (예: 데미지 무시 또는 다른 파츠로 전이)
+                // 현재는 몸통이 아니라면 데미지 무효, 몸통이라면 _isOperational 체크로 이어짐
+                if (targetPart != null && targetPart.Type != PartType.Body)
+                {
+                    Debug.LogWarning($"{Name}: 이미 파괴된 파츠({targetPart.Name})에 대한 공격 시도. 데미지 무효.");
+                    return false; // 데미지 적용 안 함 (몸통 아니면)
+                }
+                // 몸통이 이미 파괴되었다면 기체 파괴 로직으로 이어짐
             }
-            return false; 
+
+            // 이벤트 발행 준비 (데미지 적용 전)
+            var preDamageEvent = new CombatActionEvents.PreDamageApplicationEvent(this, targetPart, damageAmount, currentTurn);
+            _eventBus?.Publish(preDamageEvent);
+
+            // 수정된 데미지 (이벤트 핸들러에 의해 변경될 수 있음)
+            float finalDamage = preDamageEvent.ModifiedDamage;
+
+
+            bool wasDestroyedThisHit = false;
+            if (targetPart != null && !targetPart.IsDestroyed) // 파괴되지 않은 파츠에만 데미지 적용
+            {
+                wasDestroyedThisHit = targetPart.ApplyDamage(finalDamage);
+
+                // 이벤트 발행 (데미지 적용 후)
+                _eventBus?.Publish(new CombatActionEvents.DamageAppliedEvent(
+                    source: source, // 전달받은 source 사용
+                    target: this,
+                    damagedPart: targetPart,
+                    damageDealt: finalDamage,
+                    isCritical: isCritical, // 전달받은 isCritical 사용
+                    wasDestroyed: wasDestroyedThisHit,
+                    turnNumber: currentTurn,
+                    partCurrentDurability: targetPart.CurrentDurability,
+                    partMaxDurability: targetPart.MaxDurability,
+                    isCounterAttack: isCounterAttack // 전달받은 isCounterAttack 사용
+                ));
+            }
+
+
+            // 몸통 파츠가 파괴되었는지 또는 모든 파츠가 파괴되었는지 등 기체 운용 상태 확인
+            CheckOperationalStatus();
+
+
+            // 만약 이번 공격으로 파츠가 파괴되었다면, 스탯과 무게를 즉시 재계산
+            if (wasDestroyedThisHit)
+            {
+                RecalculateStats();
+                Debug.Log($"{Name}의 {targetPart.Name} 파츠가 파괴되어 스탯 재계산됨.");
+            }
+
+            // 기체가 파괴되었다면 추가 처리 (예: 파괴 이벤트 발행)
+            if (!_isOperational)
+            {
+                Debug.Log($"{Name}이(가) 파괴되었습니다!");
+                _eventBus?.Publish(new CombatSessionEvents.UnitDefeatedEvent(this, currentTurn, null)); // 패배 이벤트 발행
+                return true; // 기체 파괴됨
+            }
+
+            return wasDestroyedThisHit; // 파츠가 이 공격으로 파괴되었는지 여부 반환
         }
 
         /// <summary>
@@ -660,45 +600,45 @@ namespace AF.Models
         }
 
         /// <summary>
-        /// 지정된 슬롯의 파츠를 수리합니다.
+        /// 지정된 파츠에 수리를 적용합니다.
         /// </summary>
-        /// <param name="targetSlotIdentifier">수리할 파츠의 슬롯 식별자</param>
-        /// <param name="repairAmount">수리하려는 양</param>
-        /// <returns>실제로 수리된 내구도 양</returns>
+        /// <param name="targetSlotIdentifier">수리할 파츠의 슬롯 ID</param>
+        /// <param name="repairAmount">수리량</param>
+        /// <returns>실제로 수리된 양. 수리할 필요가 없거나 파츠가 없으면 0을 반환합니다.</returns>
         public float ApplyRepair(string targetSlotIdentifier, float repairAmount)
         {
-            if (repairAmount <= 0) return 0f; // 수리량이 0 이하면 아무것도 하지 않음
-
-            if (_parts.TryGetValue(targetSlotIdentifier, out Part targetPart))
+            if (string.IsNullOrEmpty(targetSlotIdentifier) || repairAmount <= 0)
             {
-                float maxDurability = targetPart.PartStats.Durability;
-                float currentDurability = targetPart.CurrentDurability;
-
-                if (currentDurability >= maxDurability) return 0f; // 이미 최대 내구도면 수리 불가
-
-                float targetDurability = currentDurability + repairAmount; // 목표 내구도 계산
-                float actualRepairAmount = Mathf.Min(repairAmount, maxDurability - currentDurability); // 실제 수리될 양 계산
-
-                // SetDurability 호출하고 상태 변경 여부 확인
-                bool? statusChanged = targetPart.SetDurability(targetDurability);
-
-                // 상태가 변경되었고, 그 상태가 '작동 가능(true)'이면 후속 처리
-                if (statusChanged.HasValue && statusChanged.Value)
-                {
-                    // 파츠가 수리되어 작동 가능 상태가 되면, 전체 스탯 및 작동 상태 재계산 필요
-                    RecalculateStats();
-                    CheckOperationalStatus();
-                    // TODO: PartRepairedEvent 같은 이벤트 발행 고려 가능
-                    Debug.Log($"ArmoredFrame({Name}): {targetSlotIdentifier} 파츠 수리 완료. 작동 가능 상태로 복구됨.");
-                }
-
-                return actualRepairAmount; // 실제 수리된 양 반환
-            }
-            else
-            {
-                Debug.LogWarning($"ArmoredFrame({Name}): 존재하지 않는 슬롯 '{targetSlotIdentifier}'에 수리 적용 시도됨.");
                 return 0f;
             }
+
+            Part partToRepair = GetPart(targetSlotIdentifier);
+
+            if (partToRepair == null || !partToRepair.IsOperational || partToRepair.CurrentDurability >= partToRepair.MaxDurability)
+            {
+                return 0f; // 수리할 파츠가 없거나, 작동 불능이거나, 이미 최대 내구도인 경우
+            }
+
+            float maxDurability = partToRepair.MaxDurability;
+            float currentDurability = partToRepair.CurrentDurability;
+
+            float targetDurability = currentDurability + repairAmount; // 목표 내구도 계산
+            float actualRepairAmount = Mathf.Min(repairAmount, maxDurability - currentDurability); // 실제 수리될 양 계산
+
+            // SetDurability 호출하고 상태 변경 여부 확인
+            bool? statusChanged = partToRepair.SetDurability(targetDurability);
+
+            // 상태가 변경되었고, 그 상태가 '작동 가능(true)'이면 후속 처리
+            if (statusChanged.HasValue && statusChanged.Value)
+            {
+                // 파츠가 수리되어 작동 가능 상태가 되면, 전체 스탯 및 작동 상태 재계산 필요
+                RecalculateStats();
+                CheckOperationalStatus();
+                // TODO: PartRepairedEvent 같은 이벤트 발행 고려 가능
+                Debug.Log($"ArmoredFrame({Name}): {targetSlotIdentifier} 파츠 수리 완료. 작동 가능 상태로 복구됨.");
+            }
+
+            return actualRepairAmount; // 실제 수리된 양 반환
         }
 
         // TODO: 수리 메서드 (Repair)도 슬롯 기반으로 수정 필요

@@ -16,28 +16,30 @@
 
 -   **역할**: 서비스 로케이터 패턴을 구현한 싱글톤 클래스입니다. 게임 내 다양한 서비스에 대한 중앙 집중식 접근 지점을 제공합니다.
 -   **주요 기능**:
-    -   **서비스 등록 (`RegisterService<T>`)**: `IService`를 구현한 서비스 인스턴스를 타입별로 등록합니다. 등록 시 `Initialize()` 메서드를 호출합니다. 이미 해당 타입의 서비스가 등록되어 있으면 기존 서비스를 `Shutdown()`하고 교체합니다.
+    -   **서비스 등록 (`RegisterService<T>`)**: `IService`를 구현한 서비스 인스턴스를 타입별로 등록합니다. 등록 시 `Initialize()` 메서드를 호출합니다. 만약 이미 해당 타입의 서비스가 등록되어 있을 경우, 경고 로그를 출력하고 기존 서비스를 `Shutdown()`한 뒤 새로운 서비스로 교체합니다. 서비스 초기화 중 오류 발생 시 해당 서비스는 제거되고 예외가 다시 throw될 수 있습니다.
     -   **서비스 검색 (`GetService<T>`)**: 등록된 서비스 인스턴스를 타입으로 검색하여 반환합니다. 서비스가 등록되어 있지 않으면 예외를 발생시킵니다.
     -   **서비스 확인 (`HasService<T>`)**: 특정 타입의 서비스가 등록되어 있는지 확인합니다.
-    -   **서비스 제거 (`RemoveService<T>`)**: 특정 타입의 서비스를 제거합니다. 제거 시 `Shutdown()` 메서드를 호출합니다.
-    -   **전체 서비스 제거 (`ClearAllServices`)**: 등록된 모든 서비스를 종료(`Shutdown()`)하고 제거합니다.
+    -   **서비스 제거 (`RemoveService<T>`)**: 특정 타입의 서비스를 제거합니다. 제거 시 `Shutdown()` 메서드를 호출하며, 이 과정에서 발생하는 예외는 로그로 기록됩니다.
+    -   **전체 서비스 제거 (`ClearAllServices`)**: 등록된 모든 서비스를 종료(`Shutdown()`)하고 제거합니다. 각 서비스 종료 시 발생하는 예외는 로그로 기록됩니다.
 -   **특징**:
     -   싱글톤 패턴을 사용하여 어디서든 `ServiceLocator.Instance`를 통해 접근 가능합니다.
     -   `Dictionary<Type, IService>`를 사용하여 서비스를 관리합니다.
-    -   서비스 등록 및 제거 시 초기화/종료 로직을 자동으로 처리합니다.
+    -   서비스 등록 및 제거 시 초기화/종료 로직을 자동으로 처리하며, 관련 예외 상황에 대한 로깅이 포함되어 있습니다.
 
 ### 3. `ServiceManager.cs`
 
 -   **역할**: Unity `MonoBehaviour` 컴포넌트로, 게임 시작 시 필요한 서비스들을 `ServiceLocator`에 자동으로 등록하고 관리하는 역할을 합니다.
 -   **주요 기능**:
-    -   **자동 서비스 등록**: `Awake()` 시점에 `RegisterServices()`를 호출하여 핵심 서비스 및 인스펙터에 설정된 서비스 객체들을 `ServiceLocator`에 등록합니다.
-        -   **핵심 서비스 등록 (`RegisterCoreServices`)**: `EventBusService`, `TextLoggerService` (Flavor Text 및 스타일 개선된 로그 제공), `CombatSimulatorService` (행동 트리 기반 AI 로직 포함), `CombatTestRunner` (전투 테스트 시나리오 실행 및 관리), `CombatRadarUIService` (전투 상황 시각화 및 UI 애니메이션 처리)와 같은 필수적이거나 주요한 서비스들을 코드 또는 인스펙터 설정을 통해 등록합니다. (각 서비스의 상세 역할은 해당 서비스 분석 문서, 예를 들어 `Docs/프로젝트 분석/CombatAnalysis.md` 등을 참조하십시오.)
-        -   **인스펙터 기반 등록**: `_serviceObjects` 리스트에 할당된 `MonoBehaviour` 객체 중 `IService`를 구현한 객체들을 리플렉션을 사용하여 적절한 인터페이스 타입으로 `ServiceLocator`에 등록합니다.
+    -   **자동 서비스 등록**: `Awake()` 시점에 `RegisterServices()`를 호출하여 서비스를 등록합니다. 이 메서드는 `RegisterPreServices()`, `RegisterCoreServices()`, `RegisterPostServices()` 순으로 호출됩니다.
+        -   **Pre-Core 서비스 등록 (`RegisterPreServices`)**: 인스펙터의 `_preServiceObjects` 리스트에 할당된 `MonoBehaviour` 객체 중 `IService`를 구현한 객체들을 `RegisterCoreServices` 호출 전에 `ServiceLocator`에 등록합니다.
+        -   **핵심 서비스 등록 (`RegisterCoreServices`)**: `EventBusService`, `TextLoggerService`, `CombatSimulatorService` (ICombatSimulatorService 타입으로)와 같은 필수 서비스를 코드에서 직접 `ServiceLocator`에 등록합니다.
+        -   **Post-Core 서비스 등록 (`RegisterPostServices`)**: 인스펙터의 `_postServiceObjects` 리스트에 할당된 `MonoBehaviour` 객체 중 `IService`를 구현한 객체들을 `RegisterCoreServices` 호출 후에 `ServiceLocator`에 등록합니다. (기존 문서에 언급되었던 `CombatTestRunner`, `CombatRadarUIService` 등은 필요시 이 리스트들을 통해 인스펙터에서 등록될 수 있습니다.)
+        -   **인스펙터 기반 등록 로직 (`RegisterServiceWithInterface`)**: `_preServiceObjects` 및 `_postServiceObjects`의 서비스 객체를 등록할 때, 리플렉션을 사용하여 해당 객체가 구현한 `IService`의 실제 파생 인터페이스 타입(예: `ICombatSimulatorService`)으로 등록을 시도합니다. 적절한 인터페이스를 찾지 못하면 구체 타입으로 등록합니다.
     -   **종료 순서 관리**: `_useShutdownOrder` 플래그가 활성화된 경우, `_shutdownOrder` 리스트에 정의된 순서(`ShutdownOrderItem`)에 따라 `OnDestroy()` 시점에 서비스를 순차적으로 종료(`RemoveService<T>`)합니다. 순서가 지정되지 않으면 `ClearAllServices()`를 호출하여 한 번에 모든 서비스를 종료합니다.
     -   **DontDestroyOnLoad**: `_dontDestroyOnLoad` 옵션을 통해 씬 전환 시 파괴되지 않도록 설정할 수 있습니다.
 -   **특징**:
     -   Unity 라이프사이클(`Awake`, `OnDestroy`)과 연동됩니다.
-    -   인스펙터 설정을 통해 게임에 필요한 서비스를 유연하게 구성할 수 있습니다.
+    -   인스펙터 설정을 통해 게임에 필요한 서비스를 유연하게 구성하고 등록 순서를 세분화할 수 있습니다 (`_preServiceObjects`, `_postServiceObjects`).
     -   리플렉션을 사용하여 서비스 인터페이스 타입을 동적으로 찾아 등록하는 기능을 포함합니다.
     -   서비스 간의 종료 의존성이 있을 경우, 명시적인 순서를 지정하여 관리할 수 있습니다.
 
@@ -54,8 +56,10 @@
 1.  게임이 시작되면 `ServiceManager`(`MonoBehaviour`)가 `Awake()`에서 활성화됩니다.
 2.  `ServiceManager`는 `ServiceLocator.Instance`를 얻어옵니다.
 3.  `RegisterServices()` 메서드가 호출됩니다.
-    -   `RegisterCoreServices()` 및 인스펙터 설정을 통해 필수/주요 서비스(`EventBusService`, `TextLoggerService`, `CombatSimulatorService`, `CombatTestRunner`, `CombatRadarUIService` 등)가 `ServiceLocator`에 등록됩니다. 각 서비스의 `Initialize()`가 호출됩니다.
-    -   인스펙터의 `_serviceObjects`에 할당된 `MonoBehaviour` 중 `IService`를 구현한 객체들이 리플렉션을 통해 검색되고 적절한 인터페이스 타입으로 `ServiceLocator`에 등록됩니다. 각 서비스의 `Initialize()`가 호출됩니다.
+    -   `RegisterPreServices()`, `RegisterCoreServices()`, `RegisterPostServices()` 순으로 호출됩니다.
+    -   `RegisterPreServices()`에서는 인스펙터의 `_preServiceObjects`에 할당된 `MonoBehaviour` 중 `IService`를 구현한 객체들을 `RegisterCoreServices` 호출 전에 `ServiceLocator`에 등록합니다.
+    -   `RegisterCoreServices()`에서는 필수 서비스들을 코드에서 직접 `ServiceLocator`에 등록합니다.
+    -   `RegisterPostServices()`에서는 인스펙터의 `_postServiceObjects`에 할당된 `MonoBehaviour` 중 `IService`를 구현한 객체들을 `RegisterCoreServices` 호출 후에 `ServiceLocator`에 등록합니다.
 4.  게임 플레이 중 다른 시스템들은 `ServiceLocator.Instance.GetService<T>()`를 사용하여 필요한 서비스에 접근합니다.
 5.  게임이 종료되거나 `ServiceManager` 오브젝트가 파괴될 때 `OnDestroy()`가 호출됩니다.
     -   `_useShutdownOrder`가 활성화되어 있으면 `_shutdownOrder`에 정의된 순서대로 `ServiceLocator.RemoveService<T>()`를 호출하여 서비스를 순차적으로 종료합니다. 각 서비스의 `Shutdown()`이 호출됩니다.

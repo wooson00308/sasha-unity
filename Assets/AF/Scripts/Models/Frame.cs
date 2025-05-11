@@ -97,7 +97,7 @@ namespace AF.Models
             _partCompatibility.Clear();
             foreach (PartType partType in Enum.GetValues(typeof(PartType)))
             {
-                if (partType != PartType.Frame) // 프레임 자신은 제외 (필요하다면 이 로직도 검토)
+                if (partType != PartType.Frame) // 프레임 자신은 제외
                 {
                     _partCompatibility[partType] = 1.0f;
                 }
@@ -115,12 +115,17 @@ namespace AF.Models
                 case FrameType.Light:
                     _partCompatibility[PartType.Body] = 0.8f; // 예시 값
                     _partCompatibility[PartType.Arm] = 0.9f; // 예시 값
+                    // _partCompatibility[PartType.Backpack] = 0.7f; // 예: 경량은 백팩 호환성 낮음
                     break;
                 case FrameType.Heavy:
                     _partCompatibility[PartType.Legs] = 0.8f; // 예시 값
                     _partCompatibility[PartType.Head] = 0.9f; // 예시 값
+                    // _partCompatibility[PartType.Backpack] = 1.2f; // 예: 중장갑은 백팩 호환성 높음
                     break;
                 // Standard는 기본값(1.0) 유지
+                // case FrameType.Standard:
+                //     _partCompatibility[PartType.Backpack] = 1.0f;
+                //     break;
             }
         }
 

@@ -25,7 +25,7 @@ MonoBehaviour:
   Stat_MaxAP: 0
   Stat_APRecovery: 0
   MaxDurability: 50
-  PartWeight: 10
+  PartWeight: 35
   Abilities:
   - Zoom
   Notes: "\uC800\uACA9\uC6A9 \uACE0\uBC30\uC728 \uC2A4\uCF54\uD504 \uD5E4\uB4DC"

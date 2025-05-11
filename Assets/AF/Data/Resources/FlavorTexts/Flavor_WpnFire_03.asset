@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: Flavor_WpnFire_03
   m_EditorClassIdentifier: 
   templateKey: WeaponFired_General
-  templateText: "{attacker}\uC758 {weapon}\uC774 <color=grey>\uBD88\uC744 \uBFDC\uB294\uB2E4</color>!"
+  templateText: "{attacker}\uC758 {weapon}\uC774 <color=#FFA500>\uBD88\uC744 \uBFDC\uB294\uB2E4</color>!"

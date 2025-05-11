@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Flavor_Dodge_02
   m_EditorClassIdentifier: 
   templateKey: DamageAvoided_Dodge
-  templateText: "\uBD80\uC2A4\uD130 \uC5ED\uBD84\uC0AC! {target}\uC774(\uAC00) \uACF5\uACA9\uC744
-    <color=#AFEEEE>\uD758\uB824\uBCF4\uB0C8\uB2E4</color>."
+  templateText: "<color=#40E0D0>\uBD80\uC2A4\uD130 \uC5ED\uBD84\uC0AC!</color> {target}\uC774(\uAC00)
+    \uACF5\uACA9\uC744 <color=#40E0D0>\uD758\uB824\uBCF4\uB0C8\uB2E4</color>."

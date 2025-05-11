@@ -13,4 +13,5 @@ MonoBehaviour:
   m_Name: Flavor_Reload_WPN_SHTGN_01_Start
   m_EditorClassIdentifier: 
   templateKey: Reload_WPN_SHTGN_01_Start
-  templateText: "\uC258 \uC0BD\uD0C4 \uBC0F \uD38C\uD504 \uC561\uC158 \uC218\uD589."
+  templateText: "<color=#778899>\uC258 \uC0BD\uD0C4 \uBC0F \uD38C\uD504 \uC561\uC158
+    \uC218\uD589.</color>"

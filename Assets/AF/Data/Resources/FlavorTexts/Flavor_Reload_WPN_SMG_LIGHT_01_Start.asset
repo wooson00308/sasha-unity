@@ -13,4 +13,5 @@ MonoBehaviour:
   m_Name: Flavor_Reload_WPN_SMG_LIGHT_01_Start
   m_EditorClassIdentifier: 
   templateKey: Reload_WPN_SMG_LIGHT_01_Start
-  templateText: "\uAE30\uAD00\uB2E8\uCD1D \uD0C4\uCC3D \uAD50\uCCB4 \uC9C4\uD589."
+  templateText: "<color=#778899>\uAE30\uAD00\uB2E8\uCD1D \uD0C4\uCC3D \uAD50\uCCB4
+    \uC9C4\uD589.</color>"

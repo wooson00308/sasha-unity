@@ -57,6 +57,7 @@ namespace AF.Combat
                 CombatActionEvents.ActionType.Reload     => weapon != null ? weapon.ReloadAPCost : float.MaxValue,
                 CombatActionEvents.ActionType.RepairAlly => REPAIR_ALLY_AP_COST,
                 CombatActionEvents.ActionType.RepairSelf => REPAIR_SELF_AP_COST,
+                CombatActionEvents.ActionType.None       => 0f, // ActionType.None의 AP 소모는 0으로 명시
                 _                                        => float.MaxValue
             };
 
@@ -116,19 +117,25 @@ namespace AF.Combat
                     // ============= 수리 (수정) =====================
                     case CombatActionEvents.ActionType.RepairAlly:
                     {
-                        ArmoredFrame actualTarget = targetFrame; // 명확성을 위해 변수 사용
+                        ArmoredFrame actualTarget = targetFrame; 
+                        ctx.Logger?.TextLogger?.Log($"[EXECUTOR_REPAIR_ALLY_START] Actor: {actor?.Name}, Target: {actualTarget?.Name}, Target IsOp: {actualTarget?.IsOperational}", LogLevel.Debug);
+
                         if (actualTarget == null || actualTarget == actor || !actualTarget.IsOperational)
                         {
                             resultDescription = "유효한 아군 수리 대상 지정 필요";
                             success = false;
+                            ctx.Logger?.TextLogger?.Log($"  [EXECUTOR_REPAIR_ALLY_FAIL] Reason: Invalid target. Desc: {resultDescription}", LogLevel.Debug);
                         }
                         else
                         {
-                            string targetSlot = GetMostDamagedPartSlot(actualTarget);
+                            string targetSlot = GetMostDamagedPartSlot(actualTarget, ctx);
+                            ctx.Logger?.TextLogger?.Log($"  [EXECUTOR_REPAIR_ALLY_INFO] TargetSlot for {actualTarget.Name}: {targetSlot ?? "NULL"}", LogLevel.Debug);
+
                             if (targetSlot != null)
                             {
-                                float repairAmount = BASE_REPAIR_AMOUNT; // <<< 실제 수리량 >>>
+                                float repairAmount = BASE_REPAIR_AMOUNT; 
                                 float repairedAmount = actualTarget.ApplyRepair(targetSlot, repairAmount);
+                                ctx.Logger?.TextLogger?.Log($"  [EXECUTOR_REPAIR_ALLY_INFO] ApplyRepair called. RepairedAmount: {repairedAmount}", LogLevel.Debug);
 
                                 if (repairedAmount > 0)
                                 {
@@ -136,18 +143,20 @@ namespace AF.Combat
                                     resultDescription = $"{actualTarget.Name}의 {targetSlot} 파츠를 {repairedAmount:F1} 만큼 수리";
                                     ctx.Bus.Publish(new CombatActionEvents.RepairAppliedEvent(
                                         actor, actualTarget, actionType, targetSlot, repairedAmount, ctx.CurrentTurn));
+                                    ctx.Logger?.TextLogger?.Log($"  [EXECUTOR_REPAIR_ALLY_SUCCESS] Desc: {resultDescription}", LogLevel.Debug);
                                 }
                                 else
                                 {
-                                    success = false; // 수리할 필요 없거나 실패
+                                    success = false; 
                                     resultDescription = $"{actualTarget.Name}의 {targetSlot} 파츠는 수리 불필요";
-                                    // 실패했지만 이벤트는 발행하지 않음 (선택적)
+                                    ctx.Logger?.TextLogger?.Log($"  [EXECUTOR_REPAIR_ALLY_FAIL] Reason: No repair needed or ApplyRepair failed. Desc: {resultDescription}", LogLevel.Debug);
                                 }
                             }
                             else
                             {
                                 success = false;
                                 resultDescription = $"{actualTarget.Name}에 수리할 파츠 없음";
+                                ctx.Logger?.TextLogger?.Log($"  [EXECUTOR_REPAIR_ALLY_FAIL] Reason: No target slot found. Desc: {resultDescription}", LogLevel.Debug);
                             }
                         }
                         break;
@@ -156,7 +165,7 @@ namespace AF.Combat
                     case CombatActionEvents.ActionType.RepairSelf:
                     {
                         ArmoredFrame selfTarget = actor; // 자가 수리 대상은 자신
-                        string targetSlot = GetMostDamagedPartSlot(selfTarget);
+                        string targetSlot = GetMostDamagedPartSlot(selfTarget, ctx);
                         if (targetSlot != null)
                         {
                             float repairAmount = BASE_REPAIR_AMOUNT; // <<< 실제 수리량 >>>
@@ -276,20 +285,7 @@ namespace AF.Combat
                     attacker, target, weapon, rawDmg, calcDmg,
                     weapon.DamageType, part.Type));
 
-                bool destroyed = target.ApplyDamage(slot, finalD, ctx.CurrentTurn);
-
-                ctx.Bus.Publish(new DamageEvents.DamageAppliedEvent(
-                    attacker, target, weapon, finalD, part.Type, critical,
-                    part.CurrentDurability, part.MaxDurability, isCounter));
-
-                // +++ SASHA: 즉시 재장전 필요 여부 블랙보드에 기록 +++
-                if (weapon.CurrentAmmo == 0 && weapon.MaxAmmo > 0 && !weapon.IsReloading)
-                {
-                    attacker.AICtxBlackboard.ImmediateReloadWeapon = weapon;
-                    // 로그 추가 (선택적)
-                    // ctx.Logger?.TextLogger?.Log($"INFO: [{attacker.Name}] {weapon.Name} 탄약 소진. 즉시 재장전 대기.", LogLevel.Info);
-                }
-                // +++ SASHA: 수정 끝 +++
+                bool destroyed = target.ApplyDamage(slot, finalD, ctx.CurrentTurn, attacker, critical, isCounter);
 
                 if (destroyed)
                 {
@@ -379,24 +375,17 @@ namespace AF.Combat
             ArmoredFrame actor,
             Weapon weapon = null)
         {
-            switch (actionType)
+            return actionType switch
             {
-                case CombatActionEvents.ActionType.Attack:
-                    return weapon != null ? CalculateAttackAPCost(actor, weapon) : float.MaxValue;
-                case CombatActionEvents.ActionType.Move:
-                    return CalculateMoveAPCost(actor);
-                case CombatActionEvents.ActionType.Defend:
-                    return DEFEND_AP_COST;
-                case CombatActionEvents.ActionType.Reload:
-                    return weapon != null ? weapon.ReloadAPCost : float.MaxValue;
-                case CombatActionEvents.ActionType.RepairAlly:
-                    return REPAIR_ALLY_AP_COST;
-                case CombatActionEvents.ActionType.RepairSelf:
-                    return REPAIR_SELF_AP_COST;
-                default:
-                    Debug.LogWarning($"[CombatActionExecutor] GetActionAPCost: Unknown action type '{actionType}'");
-                    return float.MaxValue;
-            }
+                CombatActionEvents.ActionType.Attack => weapon != null ? CalculateAttackAPCost(actor, weapon) : float.MaxValue,
+                CombatActionEvents.ActionType.Move => CalculateMoveAPCost(actor),
+                CombatActionEvents.ActionType.Defend => DEFEND_AP_COST,
+                CombatActionEvents.ActionType.Reload => weapon != null ? weapon.ReloadAPCost : float.MaxValue,
+                CombatActionEvents.ActionType.RepairAlly => REPAIR_ALLY_AP_COST,
+                CombatActionEvents.ActionType.RepairSelf => REPAIR_SELF_AP_COST,
+                CombatActionEvents.ActionType.None => 0f, // ActionType.None의 AP 소모는 0으로 명시
+                _ => float.MaxValue
+            };
         }
 
         public float CalculateMoveAPCost(ArmoredFrame unit)
@@ -427,7 +416,7 @@ namespace AF.Combat
             return ops[idx];
         }
 
-        private string GetMostDamagedPartSlot(ArmoredFrame target)
+        private string GetMostDamagedPartSlot(ArmoredFrame target, CombatContext ctx)
         {
             string mostDamagedSlot = null;
             float lowestDurabilityRatio = float.MaxValue;
@@ -440,6 +429,7 @@ namespace AF.Combat
                 if (part.MaxDurability <= 0) continue;
 
                 float currentRatio = part.CurrentDurability / part.MaxDurability;
+                ctx?.Logger?.TextLogger?.Log($"  [GetMostDamagedPartSlot_DEBUG] Part: {kvp.Key}, CurHP: {part.CurrentDurability}, MaxHP: {part.MaxDurability}, Ratio: {currentRatio}, Op: {part.IsOperational}", LogLevel.Debug);
 
                 if (currentRatio < lowestDurabilityRatio)
                 {
@@ -475,8 +465,9 @@ namespace AF.Combat
             if (w == null) return;
 
             // --- Log Counter announcement BEFORE executing the counter attack ---
-            string counterAnnounceMsg = $"<color=lightblue>[{defender.Name}]</color>의 <color=lightblue>카운터!</color>";
-            ctx.Logger.TextLogger.Log(counterAnnounceMsg, LogLevel.Info); 
+            // string counterAnnounceMsg = $"<color=lightblue>[{defender.Name}]</color>의 <color=lightblue>카운터!</color>";
+            // ctx.Logger.TextLogger.Log(counterAnnounceMsg, LogLevel.Info);
+            ctx.Bus.Publish(new CombatActionEvents.CounterAttackAnnouncedEvent(defender, attacker, ctx.CurrentTurn));
             // --- End Counter announcement ---
 
             // AP 0, Delay 0 ▶ freeCounter=true 로 호출

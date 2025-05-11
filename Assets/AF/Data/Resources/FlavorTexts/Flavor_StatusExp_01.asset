@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: Flavor_StatusExp_01
   m_EditorClassIdentifier: 
   templateKey: StatusEffectExpired
-  templateText: "{target}\uC758 <color=grey>{effect}</color> \uD6A8\uACFC \uC18C\uBA78."
+  templateText: "{target}\uC758 <color=#778899>{effect} \uD6A8\uACFC \uC18C\uBA78.</color>"

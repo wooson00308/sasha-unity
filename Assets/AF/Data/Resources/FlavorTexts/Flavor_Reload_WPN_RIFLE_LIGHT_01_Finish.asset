@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Flavor_Reload_WPN_RIFLE_LIGHT_01_Finish
   m_EditorClassIdentifier: 
   templateKey: Reload_WPN_RIFLE_LIGHT_01_Finish
-  templateText: "{weaponName} \uD45C\uC900 \uD0C4\uD658 \uC7A5\uC804 \uC644\uB8CC.
-    ({currentAmmo}/{maxAmmo})"
+  templateText: "{weaponName} \uD45C\uC900 \uD0C4\uD658 <color=#5BB675>\uC7A5\uC804
+    \uC644\uB8CC.</color> ({currentAmmo}/{maxAmmo})"

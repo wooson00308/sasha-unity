@@ -13,4 +13,5 @@ MonoBehaviour:
   m_Name: Flavor_Reload_WPN_SNIPE_01_Finish
   m_EditorClassIdentifier: 
   templateKey: Reload_WPN_SNIPE_01_Finish
-  templateText: "{weaponName} \uC800\uACA9 \uC900\uBE44 \uC644\uB8CC. ({currentAmmo}/{maxAmmo})"
+  templateText: "{weaponName} <color=#5BB675>\uC800\uACA9 \uC900\uBE44 \uC644\uB8CC.</color>
+    ({currentAmmo}/{maxAmmo})"

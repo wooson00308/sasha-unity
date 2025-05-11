@@ -16,7 +16,7 @@ MonoBehaviour:
   WeaponName: "\uC800\uACA9 \uC18C\uCD1D"
   WeaponType: 2
   DamageType: 0
-  BaseDamage: 125
+  BaseDamage: 95
   Accuracy: 0.95
   Range: 22
   MinRange: 8
@@ -30,3 +30,4 @@ MonoBehaviour:
   AttackFlavorKey: Attack_WPN_SNIPE_01
   ReloadFlavorKey: Reload_WPN_SNIPE_01
   Notes: 
+  Weight: 1

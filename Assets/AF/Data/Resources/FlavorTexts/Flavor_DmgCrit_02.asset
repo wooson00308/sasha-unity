@@ -13,5 +13,6 @@ MonoBehaviour:
   m_Name: Flavor_DmgCrit_02
   m_EditorClassIdentifier: 
   templateKey: DamageApplied_Crit
-  templateText: "\uAE09\uC18C \uAC15\uD0C0! {target}\uC758 {part}\uC5D0\uC11C <color=lightblue>\uC2A4\uD30C\uD06C</color>\uAC00
-    \uD130\uC9C4\uB2E4! ({damage} \uD53C\uD574)"
+  templateText: "<color=#FFFF00>\uAE09\uC18C \uAC15\uD0C0!</color> {target}\uC758
+    {part}\uC5D0\uC11C <color=#40E0D0>\uC2A4\uD30C\uD06C</color>\uAC00 \uD130\uC9C4\uB2E4!
+    ({damage} \uD53C\uD574)"

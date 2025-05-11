@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Flavor_ReloadComp_01
   m_EditorClassIdentifier: 
   templateKey: Reload_Complete
-  templateText: "{weapon} \uC7AC\uC7A5\uC804 \uC644\uB8CC. <color=green>\uC804\uD22C
-    \uC18D\uD589 \uAC00\uB2A5</color>."
+  templateText: "{weapon} \uC7AC\uC7A5\uC804 \uC644\uB8CC. <color=#5BB675>\uC804\uD22C
+    \uC18D\uD589 \uAC00\uB2A5.</color>"

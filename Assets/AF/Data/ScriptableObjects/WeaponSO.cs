@@ -42,6 +42,8 @@ namespace AF.Data
         [TextArea]
         public string Notes;
 
+        public float Weight = 1f; // 무기 무게
+
         #if UNITY_EDITOR
         [Button("Update Preview"), BoxGroup("Preview")]
         private void UpdatePreview()

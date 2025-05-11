@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Flavor_SysAlertLA_01
   m_EditorClassIdentifier: 
   templateKey: SystemAlert_LowAmmo
-  templateText: "{weapon} <color=yellow>\uC794\uD0C4 \uBD80\uC871</color>. \uC7AC\uC7A5\uC804
+  templateText: "{weapon} <color=#FFA500>\uC794\uD0C4 \uBD80\uC871.</color> \uC7AC\uC7A5\uC804
     \uD544\uC694."

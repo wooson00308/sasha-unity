@@ -122,5 +122,22 @@ namespace AF.Combat
                 BattleId = battleId;
             }
         }
+
+        /// <summary>
+        /// 유닛 패배 이벤트
+        /// </summary>
+        public class UnitDefeatedEvent : ICombatEvent
+        {
+            public ArmoredFrame DefeatedUnit { get; private set; }
+            public int TurnNumber { get; private set; }
+            public ArmoredFrame DefeatedBy { get; private set; } // Optional: null if defeated by environment or self-destruct
+
+            public UnitDefeatedEvent(ArmoredFrame defeatedUnit, int turnNumber, ArmoredFrame defeatedBy = null)
+            {
+                DefeatedUnit = defeatedUnit;
+                TurnNumber = turnNumber;
+                DefeatedBy = defeatedBy;
+            }
+        }
     }
 } 

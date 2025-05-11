@@ -4428,7 +4428,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: -308}
-  m_SizeDelta: {x: 1080, y: 251.5866}
+  m_SizeDelta: {x: 1080, y: 382}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1203827027
 MonoBehaviour:
@@ -6113,6 +6113,21 @@ MonoBehaviour:
     customWeaponL1: {fileID: 11400000, guid: 2d0595d3ba1bd064496486fcbfd16857, type: 2}
     customPilot: {fileID: 11400000, guid: 694905c2fd5d33d4485fd9d2751ca4d5, type: 2}
     callsign: "\uC800\uAC70\uB108\uD2B8"
+  - useCustomAssembly: 1
+    customAFName: "SASHA \uBD84\uC11D \uC720\uB2DB"
+    assembly: {fileID: 11400000, guid: ecaa3137880ca2046a1d2b017661ad4f, type: 2}
+    teamId: 0
+    teamColorPreview: {r: 0.3, g: 0.8, b: 0.9, a: 1}
+    startPosition: {x: 40, y: 0, z: 50}
+    customFrame: {fileID: 11400000, guid: ae0e1f83a60977a4daeaba4d00a0247c, type: 2}
+    customHead: {fileID: 11400000, guid: 84f18fb331da5db4a8e95e3f7040187c, type: 2}
+    customBody: {fileID: 11400000, guid: 94c1560f515ef8c4c9ae57820ff8a608, type: 2}
+    customArms: {fileID: 11400000, guid: 2d7f95d4f61b04f48a6cada280e6736c, type: 2}
+    customLegs: {fileID: 11400000, guid: 0034c50c2583c91419dda8b22b5958d9, type: 2}
+    customWeaponR1: {fileID: 11400000, guid: 74b7090b268c6f741bba6c28f863d3f6, type: 2}
+    customWeaponL1: {fileID: 0}
+    customPilot: {fileID: 11400000, guid: cfcbf9cd9b8dcc543b4b089dcae40fff, type: 2}
+    callsign: "\uC0AC\uC0E4"
   afSetups:
   - useCustomAssembly: 0
     customAFName: "\uCF54\uBC1C\uD2B8 \uBC45\uAC00\uB4DC"
@@ -6152,7 +6167,7 @@ MonoBehaviour:
   useSpriteIconsInLog: 0
   logLevelsToRecord: 1
   safetyBreakTurns: 10
-  combatStartButton: {fileID: 0}
+  combatStartButton: {fileID: 1423314143}
   currentBattleId: 
   currentCycle: 0
   isInCombat: 0
@@ -6972,11 +6987,11 @@ MonoBehaviour:
   _unitDetailScrollRect: {fileID: 844015759}
   _eventTargetDetailScrollRect: {fileID: 657277239}
   _damageTargetDetailScrollRect: {fileID: 980066279}
-  _textAnimationDuration: 0.3
+  _textAnimationDuration: 1
   _lineDelay: 0.15
   _damageTargetDisplayClearDelay: 1.5
   _durationPerCharacter: 0.02
-  _minTextAnimationDuration: 0.1
+  _minTextAnimationDuration: 0.3
 --- !u!1 &2023426744
 GameObject:
   m_ObjectHideFlags: 0

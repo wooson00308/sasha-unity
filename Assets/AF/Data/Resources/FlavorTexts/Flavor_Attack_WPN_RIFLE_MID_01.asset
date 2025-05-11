@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Flavor_Attack_WPN_RIFLE_MID_01
   m_EditorClassIdentifier: 
   templateKey: Attack_WPN_RIFLE_MID_01
-  templateText: "{weaponName}\uC758 <color=lightblue>\uC548\uC815\uC801\uC778 \uC810\uC0AC</color>
+  templateText: "{weaponName}\uC758 <color=#00BFFF>\uC548\uC815\uC801\uC778 \uC810\uC0AC</color>
     \uC2E4\uD589."

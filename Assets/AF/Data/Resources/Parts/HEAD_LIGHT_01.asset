@@ -18,13 +18,13 @@ MonoBehaviour:
   Stat_AttackPower: 0
   Stat_Defense: 0
   Stat_Speed: 0
-  Stat_Accuracy: 1.2
-  Stat_Evasion: 0.1
+  Stat_Accuracy: 2.5
+  Stat_Evasion: 0.15
   Stat_Durability: 0
   Stat_EnergyEff: 0.5
   Stat_MaxAP: 0
   Stat_APRecovery: 0
   MaxDurability: 40
-  PartWeight: 8
+  PartWeight: 30
   Abilities: []
   Notes: 

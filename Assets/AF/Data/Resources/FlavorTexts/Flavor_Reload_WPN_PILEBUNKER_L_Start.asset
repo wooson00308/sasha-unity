@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Flavor_Reload_WPN_PILEBUNKER_L_Start
   m_EditorClassIdentifier: 
   templateKey: Reload_WPN_PILEBUNKER_L_Start
-  templateText: "\uD30C\uC77C\uBC99\uCEE4 \uC791\uC57D \uAD50\uCCB4 \uBC0F \uC555\uCD95
-    \uC791\uC5C5."
+  templateText: "<color=#778899>\uD30C\uC77C\uBC99\uCEE4 \uC791\uC57D \uAD50\uCCB4
+    \uBC0F \uC555\uCD95 \uC791\uC5C5.</color>"

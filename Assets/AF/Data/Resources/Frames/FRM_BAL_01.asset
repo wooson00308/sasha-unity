@@ -16,14 +16,14 @@ MonoBehaviour:
   FrameName: "\uADE0\uD615\uD615 \uD504\uB808\uC784"
   FrameType: 1
   Stat_AttackPower: 0
-  Stat_Defense: 6
-  Stat_Speed: 6
+  Stat_Defense: 2
+  Stat_Speed: 7
   Stat_Accuracy: 0
-  Stat_Evasion: 0.2
-  Stat_Durability: 500
-  Stat_EnergyEff: 0.55
-  Stat_MaxAP: 7
-  Stat_APRecovery: 3.2
+  Stat_Evasion: 0.25
+  Stat_Durability: 200
+  Stat_EnergyEff: 0.45
+  Stat_MaxAP: 6
+  Stat_APRecovery: 2.8
   FrameWeight: 55
   Slot_Head: Head
   Slot_Body: Body

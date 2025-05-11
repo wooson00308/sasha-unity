@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Flavor_Attack_WPN_PILEBUNKER_L
   m_EditorClassIdentifier: 
   templateKey: Attack_WPN_PILEBUNKER_L
-  templateText: "{weaponName}\uC758 <color=yellow>\uD30C\uC77C \uB4DC\uB77C\uC774\uBC84</color>
-    \uD0C0\uACA9 \uC791\uB3D9."
+  templateText: "{weaponName}\uC758 <color=#00BFFF>\uD30C\uC77C \uB4DC\uB77C\uC774\uBC84
+    \uD0C0\uACA9</color> \uC791\uB3D9."

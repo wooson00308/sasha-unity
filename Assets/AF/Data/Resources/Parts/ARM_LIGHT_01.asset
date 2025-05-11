@@ -25,6 +25,6 @@ MonoBehaviour:
   Stat_MaxAP: 0
   Stat_APRecovery: 0
   MaxDurability: 60
-  PartWeight: 12
+  PartWeight: 80
   Abilities: []
   Notes: 

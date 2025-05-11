@@ -117,6 +117,11 @@ namespace AF.Models
         /// </summary>
         private bool _isOperational;
 
+        /// <summary>
+        /// 무기의 무게
+        /// </summary>
+        [SerializeField] private float _weight = 1f; // +++ SASHA: 무게 필드 추가 (기본값 1)
+
         // 공개 프로퍼티
         public string Name => _name;
         public WeaponType Type => _type;
@@ -137,13 +142,15 @@ namespace AF.Models
         public float ReloadAPCost => _reloadAPCost;
         public int ReloadTurns => _reloadTurns;
         public bool IsReloading => _isReloading;
+        public float Weight => _weight; // +++ SASHA: 무게 프로퍼티 추가 +++
 
         /// <summary>
         /// 상세 정보를 지정하는 생성자 (탄약/재장전/FlavorKey 포함)
         /// </summary>
         public Weapon(string name, WeaponType type, DamageType damageType, float damage, float accuracy, float minRange, float maxRange, float attackSpeed, float overheatPerShot, float baseAPCost,
                       int maxAmmo, float reloadAPCost, int reloadTurns,
-                      string attackFlavorKey, string reloadFlavorKey) // FlavorKey 파라미터 추가
+                      string attackFlavorKey, string reloadFlavorKey,
+                      float weight = 1f) // +++ SASHA: weight 파라미터 추가 (기본값 1)
         {
             _name = name;
             _type = type;
@@ -173,6 +180,7 @@ namespace AF.Models
             _attackFlavorKey = attackFlavorKey ?? "";
             _reloadFlavorKey = reloadFlavorKey ?? "";
             // <<< Flavor Key 할당 추가 끝 >>>
+            _weight = weight; // +++ SASHA: 무게 초기화 추가
         }
 
         /// <summary>
@@ -203,6 +211,7 @@ namespace AF.Models
             _specialEffects = new List<string>(weaponSO.SpecialEffects ?? new List<string>());
             _attackFlavorKey = weaponSO.AttackFlavorKey ?? ""; // SO에서 키 가져오기
             _reloadFlavorKey = weaponSO.ReloadFlavorKey ?? ""; // SO에서 키 가져오기
+            _weight = weaponSO.Weight; // +++ SASHA: SO에서 무게 가져오기 (WeaponSO에 Weight가 있다고 가정)
 
             // Runtime 상태 초기화
             _currentAmmo = _maxAmmo > 0 ? _maxAmmo : 999; // 무한 탄약 처리
@@ -450,7 +459,8 @@ namespace AF.Models
                 this._reloadAPCost,
                 this._reloadTurns,
                 this._attackFlavorKey,
-                this._reloadFlavorKey
+                this._reloadFlavorKey,
+                this._weight
             );
 
             // 상태 변수 초기화

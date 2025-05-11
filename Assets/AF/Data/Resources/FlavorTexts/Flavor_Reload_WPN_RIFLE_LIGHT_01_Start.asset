@@ -13,4 +13,5 @@ MonoBehaviour:
   m_Name: Flavor_Reload_WPN_RIFLE_LIGHT_01_Start
   m_EditorClassIdentifier: 
   templateKey: Reload_WPN_RIFLE_LIGHT_01_Start
-  templateText: "{weaponName} \uD0C4\uCC3D \uAD50\uCCB4 \uC791\uC5C5 \uC2E4\uC2DC."
+  templateText: "{weaponName} <color=#778899>\uD0C4\uCC3D \uAD50\uCCB4 \uC791\uC5C5
+    \uC2E4\uC2DC.</color>"
