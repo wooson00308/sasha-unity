@@ -40,6 +40,7 @@ namespace AF.Data
         public List<string> Abilities; // Store as list
         [TextArea] // Added for consistency
         public string Notes;
+        public float MaxRepairUses; // MaxRepairUses 필드 추가
 
         #if UNITY_EDITOR
         [Button("Update Preview"), BoxGroup("Preview")]
@@ -108,6 +109,7 @@ namespace AF.Data
                                      .Select(s => s.Trim())
                                      .ToList() ?? new List<string>();
             Notes = data.Notes;
+            MaxRepairUses = data.MaxRepairUses; // MaxRepairUses 매핑 추가
 
             #if UNITY_EDITOR
             // Update preview after applying data from Excel

@@ -24,6 +24,7 @@ namespace ExcelToSO.DataModels
         public float PartWeight { get; private set; }
         public string Abilities { get; private set; }
         public string Notes { get; private set; }
+        public float MaxRepairUses { get; private set; }
 
         public void FromExcelRow(IRow row)
         {
@@ -43,6 +44,7 @@ namespace ExcelToSO.DataModels
             PartWeight = GetFloatValue(row, 13);
             Abilities = row.GetCell(14)?.ToString() ?? "";
             Notes = row.GetCell(15)?.ToString() ?? "";
+            MaxRepairUses = GetFloatValue(row, 16);
         }
 
         private float GetFloatValue(IRow row, int cellIndex, float defaultValue = 0f)

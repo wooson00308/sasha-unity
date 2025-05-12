@@ -14,7 +14,8 @@ namespace AF.Models
         Durability, // 최대 내구도 자체를 변경할 수도 있음 (예: 임시 강화)
         EnergyEfficiency,
         MaxAP, // 최대 AP
-        APRecovery // 턴당 AP 회복량
+        APRecovery, // 턴당 AP 회복량
+        MaxRepairUses, // 최대 수리 횟수 추가
         // 필요에 따라 추가 (예: 받는 데미지 감소율, 특정 무기 데미지 등)
     }
 } 

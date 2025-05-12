@@ -54,6 +54,11 @@ namespace AF.Models
         /// </summary>
         [SerializeField] private float _apRecovery = 3.0f; // 기본값 3으로 설정
 
+        /// <summary>
+        /// 최대 수리 횟수 (기본값 예: 3)
+        /// </summary>
+        [SerializeField] private float _maxRepairUses = 3.0f;
+
         // 공개 프로퍼티
         public float AttackPower => _attackPower;
         public float Defense => _defense;
@@ -64,6 +69,7 @@ namespace AF.Models
         public float EnergyEfficiency => _energyEfficiency;
         public float MaxAP => _maxAP;
         public float APRecovery => _apRecovery;
+        public float MaxRepairUses => _maxRepairUses;
 
         /// <summary>
         /// 기본 생성자
@@ -80,6 +86,7 @@ namespace AF.Models
             _energyEfficiency = 1f; // 에너지 효율은 기본 1이 적절할 수 있음
             _maxAP = 0f;
             _apRecovery = 0f;
+            _maxRepairUses = 0f; // 기본 생성 시 수리 횟수는 0으로 초기화
         }
 
         /// <summary>
@@ -88,7 +95,7 @@ namespace AF.Models
         public Stats(float attackPower = 0f, float defense = 0f, float speed = 0f, 
                      float accuracy = 0f, float evasion = 0f, float durability = 0f, 
                      float energyEfficiency = 1f, // 에너지 효율은 기본 1 유지?
-                     float maxAP = 0f, float apRecovery = 0f)
+                     float maxAP = 0f, float apRecovery = 0f, float maxRepairUses = 0f)
         {
             _attackPower = attackPower;
             _defense = defense;
@@ -99,6 +106,7 @@ namespace AF.Models
             _energyEfficiency = energyEfficiency;
             _maxAP = maxAP;
             _apRecovery = apRecovery;
+            _maxRepairUses = maxRepairUses; // maxRepairUses 할당
         }
 
         /// <summary>
@@ -115,13 +123,15 @@ namespace AF.Models
                 a._durability + b._durability,
                 a._energyEfficiency + b._energyEfficiency,
                 a._maxAP + b._maxAP,
-                a._apRecovery + b._apRecovery
+                a._apRecovery + b._apRecovery,
+                a._maxRepairUses + b._maxRepairUses // MaxRepairUses 덧셈 추가
             );
         }
 
         /// <summary>
         /// Stats에 계수를 곱합니다. (AP 관련 스탯 포함 - 곱하는게 맞는지 확인 필요, 일단 제외)
         /// TODO: AP 스탯에 곱셈이 필요한지 결정해야 함 (예: 버프/디버프). 지금은 곱하지 않음.
+        /// MaxRepairUses도 곱셈에서 제외 (버프/디버프로 수리 횟수가 변경되는 것은 현재 기획에 없음)
         /// </summary>
         public static Stats operator *(Stats stats, float multiplier)
         {
@@ -134,7 +144,8 @@ namespace AF.Models
                 stats._durability * multiplier,
                 stats._energyEfficiency * multiplier,
                 stats._maxAP, 
-                stats._apRecovery
+                stats._apRecovery,
+                stats._maxRepairUses // MaxRepairUses는 곱셈에서 제외
             );
         }
 
@@ -184,6 +195,10 @@ namespace AF.Models
                     if (modType == ModificationType.Additive) _apRecovery += value;
                     else if (modType == ModificationType.Multiplicative) _apRecovery *= value;
                     break;
+                case StatType.MaxRepairUses: // MaxRepairUses case 추가
+                    if (modType == ModificationType.Additive) _maxRepairUses += value;
+                    else if (modType == ModificationType.Multiplicative) _maxRepairUses *= value;
+                    break;
                 default:
                     Debug.LogWarning($"ApplyModifier: 처리되지 않은 스탯 타입 - {statToModify}");
                     break;
@@ -198,7 +213,8 @@ namespace AF.Models
             _durability = Mathf.Max(0, _durability);
             _energyEfficiency = Mathf.Max(0, _energyEfficiency);
             _maxAP = Mathf.Max(1, _maxAP); // 최대 AP는 최소 1 이상
-            _apRecovery = Mathf.Max(0, _apRecovery); // AP 회복량은 0 이상
+            _apRecovery = Mathf.Max(0, _apRecovery);
+            _maxRepairUses = Mathf.Max(0, _maxRepairUses); // 최대 수리 횟수는 0 이상
         }
         
         /// <summary>
@@ -207,7 +223,7 @@ namespace AF.Models
         /// <returns>모든 스탯 값을 포함하는 문자열</returns>
         public override string ToString()
         {
-            return $"[Stats: Atk:{_attackPower:F1} Def:{_defense:F1} Spd:{_speed:F1} Acc:{_accuracy:F1} Eva:{_evasion:F1} Dur:{_durability:F1} EE:{_energyEfficiency:F1} MaxAP:{_maxAP:F1} APR:{_apRecovery:F1}]";
+            return $"ATK: {_attackPower}, DEF: {_defense}, SPD: {_speed}, ACC: {_accuracy}, EVA: {_evasion}, DUR: {_durability}, EFF: {_energyEfficiency}, MaxAP: {_maxAP}, APRec: {_apRecovery}, MaxRepair: {_maxRepairUses}";
         }
 
         /// <summary>
@@ -224,6 +240,7 @@ namespace AF.Models
             _energyEfficiency = 1f; // 에너지 효율은 기본 1
             _maxAP = 0f;
             _apRecovery = 0f;
+            _maxRepairUses = 0f; // MaxRepairUses 초기화 추가
         }
 
         /// <summary>
@@ -243,6 +260,7 @@ namespace AF.Models
             _energyEfficiency += other._energyEfficiency; // 에너지 효율도 합산 (기본값 1에서 시작해서 더해짐)
             _maxAP += other._maxAP;
             _apRecovery += other._apRecovery;
+            _maxRepairUses += other._maxRepairUses; // MaxRepairUses 덧셈 추가
         }
     }
 } 

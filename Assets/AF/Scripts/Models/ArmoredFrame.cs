@@ -76,6 +76,11 @@ namespace AF.Models
         /// </summary>
         private float _totalWeight;
 
+        /// <summary>
+        /// 현재 남은 수리 횟수
+        /// </summary>
+        private int _currentRepairUses;
+
         // 이벤트 버스 (생성자나 메서드에서 주입받거나 서비스 로케이터로 가져옴)
         private EventBus.EventBus _eventBus;
 
@@ -141,6 +146,8 @@ namespace AF.Models
             // <<< AP 초기화 추가 시작 >>>
             _currentAP = _combinedStats.MaxAP; // 스탯 계산 전에 기본값으로라도 초기화
             // <<< AP 초기화 추가 끝 >>>
+
+            _currentRepairUses = (int)_combinedStats.MaxRepairUses; // 수리 횟수 초기화
 
             RecalculateStats(); // 프레임 기본 스탯으로 초기화
             CheckOperationalStatus();
@@ -368,62 +375,46 @@ namespace AF.Models
         /// </summary>
         private void RecalculateStats()
         {
-            _combinedStats.Clear();
-            _totalWeight = 0f; // 무게도 초기화
+            Stats newStats = new Stats(); // 기본값으로 초기화
 
-            // 1. 프레임 기본 스탯 적용
+            // 1. 프레임 기본 스탯
             if (_frameBase != null)
             {
-                _combinedStats.Add(_frameBase.BaseStats);
-                _totalWeight += _frameBase.Weight; // Frame.Weight 사용하도록 수정
+                newStats.Add(_frameBase.BaseStats); // Stats.Add() 사용
+                _totalWeight = _frameBase.Weight; // 프레임 무게부터 시작
+            }
+            else
+            {
+                _totalWeight = 0f;
             }
 
-            // 2. 파일럿 스탯 적용 (존재한다면)
+            // 2. 장착된 모든 파츠의 스탯 합산
+            foreach (var partEntry in _parts.Values)
+            {
+                if (partEntry != null && partEntry.IsOperational)
+                {
+                    newStats.Add(partEntry.PartStats); // partEntry.Stats 대신 partEntry.PartStats 사용
+                    _totalWeight += partEntry.Weight;
+                }
+            }
+
+            // 3. 파일럿 스탯 (TODO: 파일럿의 GetTotalStats() 결과를 newStats에 합산해야 함)
             if (_pilot != null)
             {
-                _combinedStats.Add(_pilot.BaseStats);
-                // 파일럿 자체의 무게는 없다고 가정하거나, 있다면 Pilot 클래스에 Weight 속성 추가 후 반영
-            }
-
-            // 3. 장착된 파츠 스탯 및 무게 적용 (파괴되지 않은 파츠만)
-            foreach (var partEntry in _parts)
-            {
-                Part part = partEntry.Value;
-                if (part != null && !part.IsDestroyed) // 파괴되지 않은 파츠만 스탯과 무게를 더함
-                {
-                    _combinedStats.Add(part.PartStats);
-                    _totalWeight += part.Weight;
-                }
-                else if (part != null && part.IsDestroyed)
-                {
-                    // 선택: 파괴된 파츠도 여전히 무게는 차지하게 하려면 이 조건문에서 _totalWeight += part.Weight; 를 수행.
-                    // 현재는 사용자의 요청에 따라 파괴된 파츠의 무게도 제외.
-                }
-            }
-
-            // 4. 무기 스탯 적용 (무기 자체 스탯이 있다면. 현재는 무게만 고려)
-            foreach (var weapon in _equippedWeapons)
-            {
-                if (weapon != null)
-                {
-                    _totalWeight += weapon.Weight; // 무기 무게는 항상 적용 (파괴 개념이 현재 없음)
-                }
+                // newStats.Add(_pilot.GetTotalStats()); // Stats.Add() 사용 가정
             }
             
-            // 호환성 및 무게 패널티 등 추가 로직이 있다면 여기에...
-            // 예: ApplyCompatibilityModifiers();
-            // 예: ApplyWeightPenalties();
+            // 4. 무기 스탯 (선택적 - 현재는 무기 자체 스탯이 기체 스탯에 직접 영향주지 않음)
+            // foreach (var weapon in _equippedWeapons) { ... }
 
-            // AP가 MaxAP를 초과하지 않도록 조정
-            if (_currentAP > _combinedStats.MaxAP)
-            {
-                _currentAP = _combinedStats.MaxAP;
-            }
-            // 최소 AP 보정 (예: 0 미만으로 내려가지 않도록)
-            if (_currentAP < 0)
-            {
-                _currentAP = 0;
-            }
+            // 최종 계산된 스탯을 _combinedStats에 할당
+            _combinedStats = newStats; // 이 시점에서 _combinedStats.MaxRepairUses는 프레임 및 모든 파츠의 합산된 값임
+
+            // 기체 AP도 현재 스탯에 맞춰 갱신 (최대치를 넘지 않도록 Clamp)
+            _currentAP = Mathf.Clamp(_currentAP, 0, _combinedStats.MaxAP);
+
+            // TODO: 스탯 변경 이벤트 발행 고려 (예: StatsChangedEvent)
+            // _eventBus?.Publish(new CombatEvents.StatsChangedEvent(this, _combinedStats));
         }
 
         /// <summary>
@@ -689,6 +680,25 @@ namespace AF.Models
                 }
             }
             return currentHP;
+        }
+
+        /// <summary>
+        /// 현재 남은 수리 횟수를 반환합니다.
+        /// </summary>
+        public int GetCurrentRepairUses()
+        {
+            return _currentRepairUses;
+        }
+
+        /// <summary>
+        /// 수리 횟수를 1 감소시킵니다.
+        /// </summary>
+        public void DecrementRepairUses()
+        {
+            if (_currentRepairUses > 0)
+            {
+                _currentRepairUses--;
+            }
         }
     }
 } 
