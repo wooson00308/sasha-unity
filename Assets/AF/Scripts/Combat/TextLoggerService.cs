@@ -457,11 +457,6 @@ namespace AF.Combat
 
                 _textLogger.Log(" ", LogLevel.Info);
                 _textLogger.Log(" ", LogLevel.Info);
-                _textLogger.Log(" ", LogLevel.Info);
-                _textLogger.Log(" ", LogLevel.Info);
-                _textLogger.Log(" ", LogLevel.Info);
-                _textLogger.Log(" ", LogLevel.Info);
-                _textLogger.Log(" ", LogLevel.Info);
             }
         }
 

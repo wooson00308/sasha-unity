@@ -33,6 +33,7 @@ namespace AF.Data
         public float Stat_EnergyEff;
         public float Stat_MaxAP;
         public float Stat_APRecovery;
+        public float Stat_MaxRepairUses;
         public SpecializationType Specialization; // Enum
         public int InitialLevel;
         public List<string> InitialSkills; // List
@@ -81,7 +82,7 @@ namespace AF.Data
             Stat_EnergyEff = data.Stat_EnergyEff;
             Stat_MaxAP = data.Stat_MaxAP;
             Stat_APRecovery = data.Stat_APRecovery;
-
+            Stat_MaxRepairUses = data.Stat_MaxRepairUses;
             if (Enum.TryParse<SpecializationType>(data.Specialization, true, out SpecializationType parsedSpec))
             {
                 Specialization = parsedSpec;

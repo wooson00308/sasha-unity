@@ -31,7 +31,7 @@ namespace AF.AI.BehaviorTree.Actions
             if (!allies.Any())
             {
                 blackboard.CurrentTarget = null; // Set CurrentTarget to null
-                // context.Logger?.TextLogger?.Log($"[BT] {agent.Name} - SelectNearestAllyNode: No allies found. RESULT: FAILURE", LogLevel.Debug);
+                context.Logger?.TextLogger?.Log($"[BT] {agent.Name} - SelectNearestAllyNode: No allies found. RESULT: FAILURE", LogLevel.Debug);
                 return NodeStatus.Failure;
             }
 
@@ -52,13 +52,13 @@ namespace AF.AI.BehaviorTree.Actions
             if (nearestAlly != null)
             {
                 blackboard.CurrentTarget = nearestAlly; // Set CurrentTarget directly
-                // context.Logger?.TextLogger?.Log($"[BT] {agent.Name} - SelectNearestAllyNode: Selected '{nearestAlly.Name}' as CurrentTarget. RESULT: SUCCESS", LogLevel.Debug);
+                context.Logger?.TextLogger?.Log($"[BT] {agent.Name} - SelectNearestAllyNode: Selected '{nearestAlly.Name}' as CurrentTarget. RESULT: SUCCESS", LogLevel.Debug);
                 return NodeStatus.Success;
             }
             else
             {
                 blackboard.CurrentTarget = null; // Fallback, set CurrentTarget to null
-                // context.Logger?.TextLogger?.Log($"[BT] {agent.Name} - SelectNearestAllyNode: Could not find nearest ally. RESULT: FAILURE", LogLevel.Debug);
+                context.Logger?.TextLogger?.Log($"[BT] {agent.Name} - SelectNearestAllyNode: Could not find nearest ally. RESULT: FAILURE", LogLevel.Debug);
                 return NodeStatus.Failure;
             }
         }

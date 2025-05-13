@@ -6113,21 +6113,21 @@ MonoBehaviour:
     customWeaponL1: {fileID: 11400000, guid: 2d0595d3ba1bd064496486fcbfd16857, type: 2}
     customPilot: {fileID: 11400000, guid: 694905c2fd5d33d4485fd9d2751ca4d5, type: 2}
     callsign: "\uC800\uAC70\uB108\uD2B8"
-  - useCustomAssembly: 1
-    customAFName: "SASHA \uBD84\uC11D \uC720\uB2DB"
-    assembly: {fileID: 11400000, guid: ecaa3137880ca2046a1d2b017661ad4f, type: 2}
+  - useCustomAssembly: 0
+    customAFName: "\uD06C\uB9BC\uC2A8 \uC6CC\uB4E0"
+    assembly: {fileID: 11400000, guid: 9e807f0ac5785bd419932050d6a927ac, type: 2}
     teamId: 0
     teamColorPreview: {r: 0.3, g: 0.8, b: 0.9, a: 1}
     startPosition: {x: 40, y: 0, z: 50}
     customFrame: {fileID: 11400000, guid: ae0e1f83a60977a4daeaba4d00a0247c, type: 2}
-    customHead: {fileID: 11400000, guid: 84f18fb331da5db4a8e95e3f7040187c, type: 2}
+    customHead: {fileID: 11400000, guid: 80688ab2f1942764db0d5e34cab92041, type: 2}
     customBody: {fileID: 11400000, guid: 94c1560f515ef8c4c9ae57820ff8a608, type: 2}
     customArms: {fileID: 11400000, guid: 2d7f95d4f61b04f48a6cada280e6736c, type: 2}
     customLegs: {fileID: 11400000, guid: 0034c50c2583c91419dda8b22b5958d9, type: 2}
     customWeaponR1: {fileID: 11400000, guid: 74b7090b268c6f741bba6c28f863d3f6, type: 2}
     customWeaponL1: {fileID: 0}
     customPilot: {fileID: 11400000, guid: cfcbf9cd9b8dcc543b4b089dcae40fff, type: 2}
-    callsign: "\uC0AC\uC0E4"
+    callsign: "\uC6CC\uB4E0(\uC0AC\uC0E4\uC804\uC6A9\uAE30\uCCB4)"
   afSetups:
   - useCustomAssembly: 0
     customAFName: "\uCF54\uBC1C\uD2B8 \uBC45\uAC00\uB4DC"
@@ -6166,7 +6166,7 @@ MonoBehaviour:
   logActionSummaries: 0
   useSpriteIconsInLog: 0
   logLevelsToRecord: 1
-  safetyBreakTurns: 10
+  safetyBreakTurns: 100
   combatStartButton: {fileID: 1423314143}
   currentBattleId: 
   currentCycle: 0

@@ -28,3 +28,4 @@ MonoBehaviour:
   PartWeight: 160
   Abilities: []
   Notes: ' '
+  Stat_MaxRepairUses: 0

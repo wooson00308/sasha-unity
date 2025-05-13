@@ -21,13 +21,27 @@ namespace AF.AI.BehaviorTree.PilotBTs
                     new HasEnoughAPNode(CombatActionEvents.ActionType.Defend),
                     new DefendNode()
                 }),
-                // 1. 차선: 스스로 위험할 때 방어 (체력 50% 이하)
+                // 1. 차선: 스스로 위험할 때 생존 시도 (자가 수리 우선, 그 후 방어)
                 new SequenceNode(new List<BTNode>
                 {
-                    new IsHealthLowNode(0.8f),
-                    new CanDefendThisActivationNode(),
-                    new HasEnoughAPNode(CombatActionEvents.ActionType.Defend),
-                    new DefendNode()
+                    new IsHealthLowNode(0.8f), // 높은 체력 기준 유지 (기존 0.8f)
+                    new SelectorNode(new List<BTNode> // 수리 또는 방어 선택
+                    {
+                        // 1a. 자가 수리 시도
+                        new SequenceNode(new List<BTNode>
+                        {
+                            new HasRepairUsesNode(),
+                            new HasEnoughAPNode(CombatActionEvents.ActionType.RepairSelf),
+                            new RepairSelfNode()
+                        }),
+                        // 1b. 수리 불가 시 방어 시도
+                        new SequenceNode(new List<BTNode>
+                        {
+                            new CanDefendThisActivationNode(),
+                            new HasEnoughAPNode(CombatActionEvents.ActionType.Defend),
+                            new DefendNode()
+                        })
+                    })
                 }),
                 // 2. 그 다음: 적이 나를 조준 중일 때 방어
                 new SequenceNode(new List<BTNode>

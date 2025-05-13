@@ -42,6 +42,14 @@ namespace AF.AI.BehaviorTree.PilotBTs
                     // MoveAway 액션은 AP 비용 확인이 필요할 수 있음 (HasEnoughAPNode 추가 고려)
                     new MoveAwayFromTargetNode()
                 }),
+                // NEW: Self-Repair Sequence (High Priority Survival)
+                new SequenceNode(new List<BTNode>
+                {
+                    new HasRepairUsesNode(),          // Check if repair uses are available
+                    new IsHealthLowNode(0.5f),      // Check if health is below 50%
+                    new HasEnoughAPNode(CombatActionEvents.ActionType.RepairSelf),
+                    new RepairSelfNode()              // Set action to RepairSelf
+                }),
                 // 2. 즉시 공격 시퀀스 (최우선)
                 new SequenceNode(new List<BTNode>
                 {

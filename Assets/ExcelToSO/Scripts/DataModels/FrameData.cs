@@ -22,6 +22,7 @@ namespace ExcelToSO.DataModels
         public float Stat_EnergyEff { get; private set; }
         public float Stat_MaxAP { get; private set; }
         public float Stat_APRecovery { get; private set; }
+        public float Stat_MaxRepairUses { get; private set; }
         public float FrameWeight { get; private set; }
         public string Slot_Head { get; private set; }
         public string Slot_Body { get; private set; }
@@ -58,6 +59,7 @@ namespace ExcelToSO.DataModels
             Slot_Weapon_1 = row.GetCell(19)?.ToString() ?? "";
             Slot_Weapon_2 = row.GetCell(20)?.ToString() ?? "";
             Notes = row.GetCell(21)?.ToString() ?? "";
+            Stat_MaxRepairUses = GetFloatValue(row, 22);
 
             // TODO: 각 셀 타입에 맞는 더 견고한 파싱 로직 및 오류 처리 추가 필요
             // 예를 들어, 숫자 셀인데 문자열이 들어있는 경우 등 처리
@@ -82,6 +84,19 @@ namespace ExcelToSO.DataModels
             }
             // TODO: 다른 셀 타입(Formula 등) 처리 및 오류 로그 추가
             return 0f; 
+        }
+
+        private string GetStringValue(IRow row, int cellIndex)
+        {
+            ICell cell = row.GetCell(cellIndex);
+            if (cell == null) return "";
+
+            if (cell.CellType == CellType.String)
+            {
+                return cell.StringCellValue;
+            }
+            // TODO: 다른 셀 타입(Formula 등) 처리 및 오류 로그 추가
+            return "";
         }
     }
 } 

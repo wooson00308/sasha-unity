@@ -58,6 +58,8 @@
 -   **역할**: Unity 에디터 상단 메뉴에 "Tools/Generate AF Data from Excel" 항목을 추가하고, 이 메뉴를 클릭했을 때 데이터 생성 프로세스를 실행하는 역할을 합니다.
 -   **주요 기능 (`GenerateData` 메서드)**:
     -   Excel 파일 경로(`Assets/AF/Data/AF_Data.xlsx`)와 ScriptableObject 에셋 저장 경로(`Assets/AF/Data/Resources/`)를 정의합니다.
+    -   **[주의!]** 여기에 명시된 Excel 파일 경로 (`Assets/AF/Data/AF_Data.xlsx`)는 스크립트 내에서 사용되는 **상대 경로**입니다. 만약 **외부 도구(예: AI 어시스턴트의 Excel 관련 도구)**를 사용하여 이 파일에 접근해야 할 경우, 해당 도구는 **절대 윈도우 경로**(예: `C:\Users\사용자명\...\sasha-unity\Assets\AF\Data\AF_Data.xlsx`)를 요구할 수 있습니다. 상대 경로 또는 다른 형식의 경로(예: `/c%/...`)는 인식되지 않을 수 있으니 유의해야 합니다.
+    -   **[추가 주의!]** 또한, 외부 도구 중 특정 셀에 값을 쓰는 기능(예: `mcp_excel-mcp-server_excel_write_to_sheet`)을 사용할 경우, 단일 셀을 지정하더라도 `range` 매개변수는 `"A1"`과 같은 형식이 아니라 `"A1:A1"`과 같이 콜론으로 시작과 끝 셀을 명시하는 형식을 요구할 수 있습니다. 도구의 정확한 매개변수 형식을 확인하고 사용해야 합니다.
     -   Excel 파일 존재 여부를 확인합니다.
     -   각 데이터 타입(Frame, Part, Weapon, Pilot, Assembly, FlavorText)에 대해 대응하는 `DataModel`과 `ScriptableObject` 타입을 지정하고, 정확한 Excel 시트 이름과 출력 하위 폴더 이름을 명시하여 `GenerateSO<TModel, TSO>` 헬퍼 메서드를 호출합니다.
 -   **`GenerateSO<TModel, TSO>` 헬퍼 메서드**: `ScriptableObjectGenerator.Generate` 메서드를 호출하기 전에 출력 폴더 존재 여부를 확인하고 없으면 생성합니다.

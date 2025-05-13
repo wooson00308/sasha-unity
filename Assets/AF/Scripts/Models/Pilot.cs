@@ -148,34 +148,34 @@ namespace AF.Models
             {
                 case SpecializationType.StandardCombat:
                     // 공격 전문화: 공격력과 정확도 보너스
-                    return new Stats(0.2f, 0, 0, 0.15f, 0, 0, 1.0f, 0, 0);
+                    return new Stats(0.2f, 0, 0, 0.15f, 0, 0, 1.0f, 0, 0, 0f);
                 
                 case SpecializationType.MeleeCombat:
                     // 근접 전투 전문화: 공격력, 방어력, 내구도 보너스
-                    return new Stats(0.25f, 0.15f, 0.05f, 0f, 0f, 15.0f, 1.0f, 0f, 0f);
+                    return new Stats(0.25f, 0.15f, 0.05f, 0f, 0f, 15.0f, 1.0f, 0f, 0f, 0f);
                 
                 case SpecializationType.RangedCombat:
                     // 원거리 전투 전문화: 정확도, 속도, 약간의 공격력/에너지 효율 보너스
-                    return new Stats(0.1f, 0f, 0.15f, 0.25f, 0f, 0f, 1.05f, 0f, 0f);
+                    return new Stats(0.1f, 0f, 0.15f, 0.25f, 0f, 0f, 1.05f, 0f, 0f, 0f);
                 
                 case SpecializationType.Defense:
                     // 방어 전문화: 방어력과 내구도 보너스
-                    return new Stats(0, 0.2f, 0, 0, 0.15f, 20.0f, 1.0f, 0, 0);
+                    return new Stats(0, 0.2f, 0, 0, 0.15f, 20.0f, 1.0f, 0, 0, 0f);
                 
                 case SpecializationType.Support:
                     // 지원 전문화: 속도와 에너지 효율 보너스
-                    return new Stats(0, 0, 0.15f, 0, 0, 0, 1.2f, 0, 0);
+                    return new Stats(0, 0, 0.15f, 0, 0, 0, 1.2f, 0, 0, 0f);
                 
                 case SpecializationType.Engineering:
                     // 기계 전문화: 균형 잡힌 보너스
-                    return new Stats(0.1f, 0.1f, 0.1f, 0.05f, 0.05f, 10.0f, 1.1f, 0, 0);
+                    return new Stats(0.1f, 0.1f, 0.1f, 0.05f, 0.05f, 10.0f, 1.1f, 0, 0, 0f);
                 
                 case SpecializationType.Evasion:
                     // 예시: 회피율과 속도 보너스
-                    return new Stats(0, 0, 0.1f, 0, 0.2f, 0, 1.0f, 0, 0); // Spd +0.1, Eva +0.2
+                    return new Stats(0, 0, 0.1f, 0, 0.2f, 0, 1.0f, 0, 0, 0f); // Spd +0.1, Eva +0.2
 
                 default:
-                    return bonus;
+                    return bonus; // 기본 bonus는 MaxRepairUses가 0f로 초기화되어 있음
             }
         }
 

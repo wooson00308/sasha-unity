@@ -29,3 +29,4 @@ MonoBehaviour:
   Abilities:
   - APBoost
   Notes: "AP \uD68C\uBCF5 \uC18D\uB3C4 \uC99D\uAC00"
+  Stat_MaxRepairUses: 0

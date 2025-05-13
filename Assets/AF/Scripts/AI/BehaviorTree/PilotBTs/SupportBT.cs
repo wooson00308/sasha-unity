@@ -17,29 +17,13 @@ namespace AF.AI.BehaviorTree.PilotBTs
 
             return new SelectorNode(new List<BTNode>
             {
-                // Sequence 0: Defend while reloading
-                new SequenceNode(new List<BTNode>
-                {
-                    new IsAnyWeaponReloadingNode(),
-                    new CanDefendThisActivationNode(),
-                    new HasEnoughAPNode(CombatActionEvents.ActionType.Defend),
-                    new DefendNode()
-                }),
-
-                // Sequence 1: Self-preservation
-                new SequenceNode(new List<BTNode>
-                {
-                    new IsHealthLowNode(0.3f),
-                    new HasEnoughAPNode(CombatActionEvents.ActionType.Defend),
-                    new DefendNode()
-                }),
-
                 // Sequence 2: Ally Support (Repairing Allies)
                 new SequenceNode(new List<BTNode>
                 {
                     new SelectLowestHealthAllyNode(allyHealthThresholdForRepair, "Body"),
                     new HasValidTargetNode(),
                     new IsTargetAliveNode(),
+                    new HasRepairUsesNode(), // <<< Added check for repair uses before attempting ally repair
                     new HasEnoughAPNode(CombatActionEvents.ActionType.RepairAlly),
 
                     new SelectorNode(new List<BTNode>
@@ -55,6 +39,27 @@ namespace AF.AI.BehaviorTree.PilotBTs
                     
                     new CanRepairTargetPartNode(),
                     new SetRepairAllyActionNode()
+                }),
+
+                // Sequence 1: Self-preservation (Self-repair first, then defend)
+                new SequenceNode(new List<BTNode>
+                {
+                    new IsHealthLowNode(0.5f), // Standardized health threshold for self-repair attempt
+                    new SelectorNode(new List<BTNode> // Attempt repair or defend
+                    {
+                        new SequenceNode(new List<BTNode> // 1a. Self-repair
+                        {
+                            new HasRepairUsesNode(),
+                            new HasEnoughAPNode(CombatActionEvents.ActionType.RepairSelf),
+                            new RepairSelfNode()
+                        }),
+                        new SequenceNode(new List<BTNode> // 1b. Defend if repair not possible
+                        {
+                            new CanDefendThisActivationNode(), // Ensure defend is still a valid action this turn if repair fails
+                            new HasEnoughAPNode(CombatActionEvents.ActionType.Defend),
+                            new DefendNode()
+                        })
+                    })
                 }),
 
                 // Sequence NEW: Potential Ally Support (Move to nearest ally and Defend)

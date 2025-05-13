@@ -25,6 +25,14 @@ namespace AF.AI.BehaviorTree.PilotBTs
                     new HasEnoughAPNode(CombatActionEvents.ActionType.Defend),
                     new DefendNode()
                 }),
+                // NEW: Self-Repair Sequence (High Priority Survival)
+                new SequenceNode(new List<BTNode>
+                {
+                    new HasRepairUsesNode(),
+                    new IsHealthLowNode(0.5f),
+                    new HasEnoughAPNode(CombatActionEvents.ActionType.RepairSelf),
+                    new RepairSelfNode()
+                }),
                 // 1. 타겟팅 및 교전 시도
                 new SequenceNode(new List<BTNode>
                 {

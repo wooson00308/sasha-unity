@@ -19,6 +19,7 @@ namespace ExcelToSO.DataModels
         public float Stat_EnergyEff { get; private set; }
         public float Stat_MaxAP { get; private set; }
         public float Stat_APRecovery { get; private set; }
+        public float Stat_MaxRepairUses { get; private set; }
         public string Specialization { get; private set; } // Enum 파싱 필요
         public int InitialLevel { get; private set; }
         public string InitialSkills { get; private set; }
@@ -41,6 +42,7 @@ namespace ExcelToSO.DataModels
             InitialLevel = GetIntValue(row, 12, 1); // 기본값 1
             InitialSkills = row.GetCell(13)?.ToString() ?? "";
             Notes = row.GetCell(14)?.ToString() ?? "";
+            Stat_MaxRepairUses = GetFloatValue(row, 15);
         }
 
         private float GetFloatValue(IRow row, int cellIndex, float defaultValue = 0f)

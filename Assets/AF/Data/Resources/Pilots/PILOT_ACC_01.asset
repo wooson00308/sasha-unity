@@ -23,6 +23,7 @@ MonoBehaviour:
   Stat_EnergyEff: 0.5
   Stat_MaxAP: 0
   Stat_APRecovery: 0
+  Stat_MaxRepairUses: 0
   Specialization: 2
   InitialLevel: 1
   InitialSkills: []

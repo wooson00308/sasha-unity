@@ -33,6 +33,7 @@ namespace AF.Data
         public float Stat_EnergyEff;
         public float Stat_MaxAP;
         public float Stat_APRecovery;
+        public float Stats_MaxRepairUses;
         public float FrameWeight;
         public string Slot_Head;
         public string Slot_Body;
@@ -103,6 +104,7 @@ namespace AF.Data
             Stat_EnergyEff = data.Stat_EnergyEff;
             Stat_MaxAP = data.Stat_MaxAP;
             Stat_APRecovery = data.Stat_APRecovery;
+            Stats_MaxRepairUses = data.Stat_MaxRepairUses;
             FrameWeight = data.FrameWeight;
             Slot_Head = data.Slot_Head;
             Slot_Body = data.Slot_Body;

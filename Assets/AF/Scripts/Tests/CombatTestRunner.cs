@@ -934,7 +934,8 @@ namespace AF.Tests
             }
             Stats frameBaseStats = new Stats(
                  frameData.Stat_AttackPower, frameData.Stat_Defense, frameData.Stat_Speed, frameData.Stat_Accuracy,
-                 frameData.Stat_Evasion, frameData.Stat_Durability, frameData.Stat_EnergyEff, frameData.Stat_MaxAP, frameData.Stat_APRecovery
+                 frameData.Stat_Evasion, frameData.Stat_Durability, frameData.Stat_EnergyEff, frameData.Stat_MaxAP, frameData.Stat_APRecovery,
+                 frameData.Stats_MaxRepairUses // <<< MaxRepairUses 추가 (FrameSO에 해당 필드가 있다고 가정)
             );
             Frame frame = null;
             switch (frameData.FrameType)
@@ -960,7 +961,8 @@ namespace AF.Tests
             {
                 Stats pilotBaseStats = new Stats(
                     pilotData.Stat_AttackPower, pilotData.Stat_Defense, pilotData.Stat_Speed, pilotData.Stat_Accuracy,
-                    pilotData.Stat_Evasion, pilotData.Stat_Durability, pilotData.Stat_EnergyEff, pilotData.Stat_MaxAP, pilotData.Stat_APRecovery
+                    pilotData.Stat_Evasion, pilotData.Stat_Durability, pilotData.Stat_EnergyEff, pilotData.Stat_MaxAP, pilotData.Stat_APRecovery,
+                    pilotData.Stat_MaxRepairUses
                 );
                 Pilot pilot = new Pilot(pilotData.PilotName, pilotBaseStats, pilotData.Specialization);
                 af.AssignPilot(pilot);
@@ -1018,7 +1020,8 @@ namespace AF.Tests
             FrameSO frameData = setup.customFrame;
             Stats frameBaseStats = new Stats(
                  frameData.Stat_AttackPower, frameData.Stat_Defense, frameData.Stat_Speed, frameData.Stat_Accuracy,
-                 frameData.Stat_Evasion, frameData.Stat_Durability, frameData.Stat_EnergyEff, frameData.Stat_MaxAP, frameData.Stat_APRecovery
+                 frameData.Stat_Evasion, frameData.Stat_Durability, frameData.Stat_EnergyEff, frameData.Stat_MaxAP, frameData.Stat_APRecovery,
+                 frameData.Stats_MaxRepairUses                
             );
             Frame frame = null;
             switch (frameData.FrameType)
@@ -1057,7 +1060,8 @@ namespace AF.Tests
                 PilotSO pilotData = setup.customPilot;
                 Stats pilotBaseStats = new Stats(
                     pilotData.Stat_AttackPower, pilotData.Stat_Defense, pilotData.Stat_Speed, pilotData.Stat_Accuracy,
-                    pilotData.Stat_Evasion, pilotData.Stat_Durability, pilotData.Stat_EnergyEff, pilotData.Stat_MaxAP, pilotData.Stat_APRecovery
+                    pilotData.Stat_Evasion, pilotData.Stat_Durability, pilotData.Stat_EnergyEff, pilotData.Stat_MaxAP, pilotData.Stat_APRecovery,
+                    pilotData.Stat_MaxRepairUses
                 );
                 Pilot pilot = new Pilot(pilotData.PilotName, pilotBaseStats, pilotData.Specialization);
                 af.AssignPilot(pilot);
@@ -1105,7 +1109,8 @@ namespace AF.Tests
 
             Stats partStats = new Stats(
                 partSO.Stat_AttackPower, partSO.Stat_Defense, partSO.Stat_Speed, partSO.Stat_Accuracy,
-                partSO.Stat_Evasion, partSO.Stat_Durability, partSO.Stat_EnergyEff, partSO.Stat_MaxAP, partSO.Stat_APRecovery
+                partSO.Stat_Evasion, partSO.Stat_Durability, partSO.Stat_EnergyEff, partSO.Stat_MaxAP, partSO.Stat_APRecovery,
+                partSO.Stat_MaxRepairUses // <<< MaxRepairUses 추가
             );
             Part runtimePart = null;
             try
@@ -1117,6 +1122,7 @@ namespace AF.Tests
                     case PartType.Body: runtimePart = new AF.Models.BodyPart(partSO.PartName ?? partSO.name, partStats, partSO.MaxDurability, partSO.PartWeight); break; // Fully qualified
                     case PartType.Arm: runtimePart = new ArmsPart(partSO.PartName ?? partSO.name, partStats, partSO.MaxDurability, partSO.PartWeight); break;
                     case PartType.Legs: runtimePart = new LegsPart(partSO.PartName ?? partSO.name, partStats, partSO.MaxDurability, partSO.PartWeight); break;
+                    case PartType.Backpack: runtimePart = new BackpackPart(partSO.PartName, partStats, partSO.MaxDurability, partSO.PartWeight); break;
                     // Backpack 등 다른 파츠 타입 추가 가능
                     default: Debug.LogWarning($"Unhandled PartType '{partSO.PartType}' for PartSO '{partSO.name}'."); break;
                 }
@@ -1173,7 +1179,8 @@ namespace AF.Tests
             {
                 Stats partStats = new Stats(
                     partSO.Stat_AttackPower, partSO.Stat_Defense, partSO.Stat_Speed, partSO.Stat_Accuracy,
-                    partSO.Stat_Evasion, partSO.Stat_Durability, partSO.Stat_EnergyEff, partSO.Stat_MaxAP, partSO.Stat_APRecovery
+                    partSO.Stat_Evasion, partSO.Stat_Durability, partSO.Stat_EnergyEff, partSO.Stat_MaxAP, partSO.Stat_APRecovery,
+                    partSO.Stat_MaxRepairUses // <<< MaxRepairUses 추가
                 );
                 Part runtimePart = null;
                 try
@@ -1184,6 +1191,7 @@ namespace AF.Tests
                         case PartType.Body: runtimePart = new AF.Models.BodyPart(partSO.PartName, partStats, partSO.MaxDurability, partSO.PartWeight); break; // Fully qualified
                         case PartType.Arm: runtimePart = new ArmsPart(partSO.PartName, partStats, partSO.MaxDurability, partSO.PartWeight); break;
                         case PartType.Legs: runtimePart = new LegsPart(partSO.PartName, partStats, partSO.MaxDurability, partSO.PartWeight); break;
+                        case PartType.Backpack: runtimePart = new BackpackPart(partSO.PartName, partStats, partSO.MaxDurability, partSO.PartWeight); break;
                         default: Debug.LogWarning($"Unhandled PartType '{partSO.PartType}' for ID '{partId}'."); break;
                     }
                      if (runtimePart != null)

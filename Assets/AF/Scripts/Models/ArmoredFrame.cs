@@ -84,6 +84,8 @@ namespace AF.Models
         // 이벤트 버스 (생성자나 메서드에서 주입받거나 서비스 로케이터로 가져옴)
         private EventBus.EventBus _eventBus;
 
+        TextLoggerService textLoggerService;
+
         // AI Behavior Tree를 위한 현재 타겟
         public ArmoredFrame CurrentTarget { get; set; }
 
@@ -134,6 +136,7 @@ namespace AF.Models
             if (ServiceLocator.Instance != null && ServiceLocator.Instance.HasService<EventBusService>())
             {
                 _eventBus = ServiceLocator.Instance.GetService<EventBusService>().Bus;
+                textLoggerService = ServiceLocator.Instance.GetService<TextLoggerService>(); // Get TextLoggerService
             }
             else
             {
@@ -143,18 +146,15 @@ namespace AF.Models
 
             _activeStatusEffects = new List<StatusEffect>(); // 상태 효과 리스트 초기화
             
-            // <<< AP 초기화 추가 시작 >>>
-            _currentAP = _combinedStats.MaxAP; // 스탯 계산 전에 기본값으로라도 초기화
-            // <<< AP 초기화 추가 끝 >>>
+            // AP는 RecalculateStats에서 Clamp될 것이므로 여기서의 초기화는 기본값으로 충분할 수 있음
+            // _currentAP = _combinedStats.MaxAP; // 스탯 계산 전에 기본값으로라도 초기화 (RecalculateStats에서 처리 예정)
 
-            _currentRepairUses = (int)_combinedStats.MaxRepairUses; // 수리 횟수 초기화
-
-            RecalculateStats(); // 프레임 기본 스탯으로 초기화
+            RecalculateStats(); // 프레임 기본 스탯으로 초기화 (이때 _currentRepairUses와 _currentAP도 설정됨)
             CheckOperationalStatus();
             
-            // <<< RecalculateStats 이후 AP 재설정 시작 >>>
-            _currentAP = _combinedStats.MaxAP; // 재계산된 MaxAP로 설정
-            // <<< RecalculateStats 이후 AP 재설정 끝 >>>
+            _currentAP = _combinedStats.MaxAP; // RecalculateStats 이후 MaxAP로 현재 AP 설정
+
+            textLoggerService?.TextLogger?.Log($"[ArmoredFrame Ctor] {Name} initialized. CombinedMaxRepairUses: {_combinedStats.MaxRepairUses}, CurrentRepairUses: {_currentRepairUses}", LogLevel.Debug);
         }
 
         /// <summary>
@@ -413,8 +413,15 @@ namespace AF.Models
             // 기체 AP도 현재 스탯에 맞춰 갱신 (최대치를 넘지 않도록 Clamp)
             _currentAP = Mathf.Clamp(_currentAP, 0, _combinedStats.MaxAP);
 
+            // <<< _currentRepairUses 업데이트 추가 >>>
+            _currentRepairUses = (int)_combinedStats.MaxRepairUses;
+
             // TODO: 스탯 변경 이벤트 발행 고려 (예: StatsChangedEvent)
             // _eventBus?.Publish(new CombatEvents.StatsChangedEvent(this, _combinedStats));
+
+            textLoggerService?.TextLogger?.Log($"[RecalculateStats] {Name} - Recalculated. CombinedMaxRepairUses: {_combinedStats.MaxRepairUses}, CurrentRepairUses: {_currentRepairUses}", LogLevel.Debug);
+            // 확인용 로그 제거 (위 로그에 CurrentRepairUses 포함됨)
+            // textLoggerService?.TextLogger?.Log($"[RecalculateStats] {Name} - AFTER UPDATE. CurrentRepairUses: {_currentRepairUses}", LogLevel.Debug);
         }
 
         /// <summary>

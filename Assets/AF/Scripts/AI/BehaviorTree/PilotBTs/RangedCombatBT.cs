@@ -58,6 +58,15 @@ namespace AF.AI.BehaviorTree.PilotBTs
                     new ReloadWeaponNode()
                 }),
 
+                // NEW: Self-Repair Sequence (High Priority Survival)
+                new SequenceNode(new List<BTNode>
+                {
+                    new HasRepairUsesNode(),
+                    new IsHealthLowNode(0.5f),
+                    new HasEnoughAPNode(CombatActionEvents.ActionType.RepairSelf),
+                    new RepairSelfNode()
+                }),
+
                 // 2. Main Combat Logic (Select Target FIRST, then decide action)
                 new SequenceNode(new List<BTNode>
                 {

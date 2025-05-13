@@ -57,7 +57,7 @@ namespace AF.Models
         /// <summary>
         /// 최대 수리 횟수 (기본값 예: 3)
         /// </summary>
-        [SerializeField] private float _maxRepairUses = 3.0f;
+        [SerializeField] private float _maxRepairUses = 0f;
 
         // 공개 프로퍼티
         public float AttackPower => _attackPower;

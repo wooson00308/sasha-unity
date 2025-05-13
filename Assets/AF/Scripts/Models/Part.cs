@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using AF.Services;
+using AF.Combat;
 
 namespace AF.Models
 {
@@ -82,18 +84,21 @@ namespace AF.Models
         /// <returns>이 호출로 인해 파츠가 작동 가능(true) 또는 불가능(false) 상태로 변경되었는지 여부. 상태 변경 없으면 null 반환.</returns>
         public virtual bool? SetDurability(float value)
         {
+            var logger = ServiceLocator.Instance?.GetService<TextLoggerService>()?.TextLogger;
+
             float previousDurability = _currentDurability; // 이전 값 기록
             bool previousOperationalState = _isOperational;
             _currentDurability = Mathf.Clamp(value, 0, _maxDurability); // 0 ~ MaxDurability 범위 유지
 
-            // <<< 로그 추가 >>>
-            Debug.Log($"[SetDurability_DEBUG] Part: {_name} ({_type}), PrevHP: {previousDurability}, NewHP_Attempt: {value}, ClampedHP: {_currentDurability}, MaxHP: {_maxDurability}");
+            // <<< 로그 수정 >>>
+            logger?.Log($"[SetDurability_DEBUG] Part: {_name} ({_type}), PrevHP: {previousDurability}, NewHP_Attempt: {value}, ClampedHP: {_currentDurability}, MaxHP: {_maxDurability}", LogLevel.Debug);
 
             bool newOperationalState = _currentDurability > 0;
 
             if (previousOperationalState != newOperationalState)
             {
                 _isOperational = newOperationalState;
+                logger?.Log($"[{this.GetType().Name}] Part '{_name}' operational status changed to: {_isOperational}", LogLevel.Debug);
                 return _isOperational; // 상태 변경 발생 (true: 작동 가능해짐, false: 작동 불가능해짐)
             }
 

@@ -22,7 +22,7 @@ MonoBehaviour:
   LeftArmPartID: ARM_STD_01
   RightArmPartID: ARM_STD_01
   LegsPartID: LEGS_STD_01
-  BackpackPartID: BK_SHIELDGEN_S
+  BackpackPartID: BK_REPKIT_01
   Weapon1ID: WPN_RIFLE_MID_01
   Weapon2ID: 
   Notes: "\uD06C\uB9BC\uC2A8 \uBC29\uC5B4 \uC9C0\uC6D0\uD615"
