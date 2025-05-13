@@ -11,9 +11,9 @@ namespace AF.AI.BehaviorTree.PilotBTs
     {
         public static BTNode Create(ArmoredFrame agent)
         {
-            float defaultRepairRange = 10f;
+            float defaultRepairRange = 3f;
             float allyHealthThresholdForRepair = 0.85f;
-            float desiredProximityToAlly = 10f;
+            float desiredProximityToAlly = 3f;
 
             return new SelectorNode(new List<BTNode>
             {
@@ -41,6 +41,20 @@ namespace AF.AI.BehaviorTree.PilotBTs
                     new SetRepairAllyActionNode()
                 }),
 
+                // Sequence NEW: Potential Ally Support (Move to nearest ally and Defend)
+                new SequenceNode(new List<BTNode>
+                {
+                    new SelectNearestAllyNode(),
+                    new HasValidTargetNode(),
+                    new IsTargetAliveNode(),
+                    new InverterNode(
+                       new IsTargetInRangeNode(desiredProximityToAlly)
+                    ),
+                    new CanMoveThisActivationNode(),
+                    new HasEnoughAPNode(CombatActionEvents.ActionType.Move),
+                    new MoveToTargetNode(desiredProximityToAlly)
+                }),
+
                 // Sequence 1: Self-preservation (Self-repair first, then defend)
                 new SequenceNode(new List<BTNode>
                 {
@@ -60,22 +74,6 @@ namespace AF.AI.BehaviorTree.PilotBTs
                             new DefendNode()
                         })
                     })
-                }),
-
-                // Sequence NEW: Potential Ally Support (Move to nearest ally and Defend)
-                new SequenceNode(new List<BTNode>
-                {
-                    new SelectNearestAllyNode(),
-                    new HasValidTargetNode(),
-                    new IsTargetAliveNode(),
-                    new InverterNode(
-                       new IsTargetInRangeNode(desiredProximityToAlly)
-                    ),
-                    new CanMoveThisActivationNode(),
-                    new HasEnoughAPNode(CombatActionEvents.ActionType.Move),
-                    new MoveToTargetNode(desiredProximityToAlly),
-                    new HasEnoughAPNode(CombatActionEvents.ActionType.Defend),
-                    new DefendNode()
                 }),
 
                 // Sequence 3: Basic Attack (If no support actions are needed/possible)

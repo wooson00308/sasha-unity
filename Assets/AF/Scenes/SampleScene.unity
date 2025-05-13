@@ -2175,7 +2175,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1190774258}
   m_HandleRect: {fileID: 1190774257}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -3651,7 +3651,7 @@ AudioSource:
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
-  Loop: 0
+  Loop: 1
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
@@ -4418,7 +4418,7 @@ RectTransform:
   m_GameObject: {fileID: 1203827025}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.64382714, y: 0.64382714, z: 0.64382714}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1115104968}
@@ -4427,7 +4427,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -308}
+  m_AnchoredPosition: {x: 177, y: 690}
   m_SizeDelta: {x: 1080, y: 382}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1203827027
@@ -5995,18 +5995,18 @@ MonoBehaviour:
     volumeScale: 1
   roundStartSound:
     clip: {fileID: 8300000, guid: d4c9c2e7b41005c47b25862334713a4b, type: 3}
-    volumeScale: 1
+    volumeScale: 3
   unitActivationSound:
-    clip: {fileID: 0}
+    clip: {fileID: 8300000, guid: 284afd6006d67a74691fe028d33e64bb, type: 3}
     volumeScale: 1
   combatEndVictorySound:
-    clip: {fileID: 0}
+    clip: {fileID: 8300000, guid: 018bbbb870fb989488e51e74b02007c3, type: 3}
     volumeScale: 1
   combatEndDefeatSound:
-    clip: {fileID: 0}
+    clip: {fileID: 8300000, guid: 17b469b6ec548b744b29a5e98a9914c7, type: 3}
     volumeScale: 1
   combatEndDrawSound:
-    clip: {fileID: 0}
+    clip: {fileID: 8300000, guid: 98554365802213d479889715c9826934, type: 3}
     volumeScale: 1
   defaultWeaponFiredSound:
     clip: {fileID: 8300000, guid: 937870da4f341c84c8459e976e11509b, type: 3}
@@ -6021,10 +6021,10 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: fefda81acca572a44b8f055e12672206, type: 3}
     volumeScale: 1
   defaultFrameDestroyedSound:
-    clip: {fileID: 8300000, guid: 5d3dce3059cae2a49b90bd429c02ee76, type: 3}
+    clip: {fileID: 8300000, guid: 51884714ddf41d64ab6708f1ffd3028a, type: 3}
     volumeScale: 1
   defaultEvasionSound:
-    clip: {fileID: 0}
+    clip: {fileID: 8300000, guid: 3b6b053aa56d28c4696432b094a47af3, type: 3}
     volumeScale: 1
   moveCompletedSound:
     clip: {fileID: 8300000, guid: 6b872a4cf339f59419dd4904e5a7d917, type: 3}
@@ -7412,7 +7412,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -203}
+  m_AnchoredPosition: {x: 0, y: -330}
   m_SizeDelta: {x: 512, y: 512}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!1 &1885635999944102476

@@ -40,7 +40,7 @@ namespace AF.AI.BehaviorTree.Actions
             }
             
             ArmoredFrame mostDamagedAlly = null;
-            float lowestHealthRatio = float.MaxValue;
+            float highestDamageTakenOnPart = 0f;
 
             if (allies == null || allies.Count == 0)
             {
@@ -74,20 +74,27 @@ namespace AF.AI.BehaviorTree.Actions
                 // Log the health ratio for the ally being considered
                 logger?.Log($"[{this.GetType().Name}] {agent.Name}: Checking ally {ally.Name}, Part '{partSlotToConsider}' Health Ratio: {currentHealthRatio * 100:F1}%. (Threshold: {healthThresholdPercentage * 100:F1}%)", LogLevel.Debug);
 
-                // Check if below threshold AND is more damaged than previously found ally
-                if (currentHealthRatio < healthThresholdPercentage && currentHealthRatio < lowestHealthRatio)
+                // Check if below threshold
+                if (currentHealthRatio < healthThresholdPercentage)
                 {
-                    // Log when a potential candidate is found (optional, but can be helpful)
-                    // logger?.Log($"[{this.GetType().Name}] {agent.Name}: Found potential target {ally.Name} with health ratio {currentHealthRatio * 100:F1}%.", LogLevel.Debug);
-                    lowestHealthRatio = currentHealthRatio;
-                    mostDamagedAlly = ally;
+                    float damageTakenOnPart = partToExamine.MaxDurability - partToExamine.CurrentDurability;
+                    logger?.Log($"[{this.GetType().Name}] {agent.Name}: Ally {ally.Name} (Part: '{partSlotToConsider}') is below threshold. Damage taken on part: {damageTakenOnPart:F1}. Current highest: {highestDamageTakenOnPart:F1}", LogLevel.Debug);
+
+                    // And if this ally's part has taken more damage than previously found ones
+                    if (damageTakenOnPart > highestDamageTakenOnPart)
+                    {
+                        highestDamageTakenOnPart = damageTakenOnPart;
+                        mostDamagedAlly = ally;
+                        logger?.Log($"[{this.GetType().Name}] {agent.Name}: New most damaged ally candidate: {ally.Name} (Part: '{partSlotToConsider}', Damage: {damageTakenOnPart:F1})", LogLevel.Debug);
+                    }
                 }
             }
 
             if (mostDamagedAlly != null)
             {
                 blackboard.CurrentTarget = mostDamagedAlly;
-                logger?.Log($"[{this.GetType().Name}] {agent.Name}: Selected ally {mostDamagedAlly.Name} (Part: {partSlotToConsider}, Health: {lowestHealthRatio * 100:F1}%, Threshold: {healthThresholdPercentage * 100:F1}%). Success.", LogLevel.Debug);
+                float finalPartHealthRatio = (mostDamagedAlly.GetPart(partSlotToConsider).CurrentDurability / mostDamagedAlly.GetPart(partSlotToConsider).MaxDurability) * 100f;
+                logger?.Log($"[{this.GetType().Name}] {agent.Name}: Selected ally {mostDamagedAlly.Name} (Part: '{partSlotToConsider}', Damage Taken: {highestDamageTakenOnPart:F1}, Current Part Health: {finalPartHealthRatio:F1}%). Success.", LogLevel.Debug);
                 return NodeStatus.Success;
             }
             else
