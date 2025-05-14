@@ -173,7 +173,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      png-transparent-contour-line-outdoor-map-black-line-thumbnail_0: -2405457602683949730
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
