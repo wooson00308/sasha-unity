@@ -1,5 +1,7 @@
 const { registerGetExcelTools } = require('./excelGetTools');
 const { registerUpdateExcelTools } = require('./excelUpdateTools');
+const { registerCreateExcelTools } = require('./excelCreateTools');
+const { registerDeleteExcelTools } = require('./excelDeleteTools');
 
 /**
  * Registers Excel-related tools with the MCP server.
@@ -10,6 +12,8 @@ function registerExcelTools(server: any) {
 
     registerGetExcelTools(server);
     registerUpdateExcelTools(server);
+    registerCreateExcelTools(server);
+    registerDeleteExcelTools(server);
 
     // If we add other categories of tools (e.g., delete),
     // their registration functions would be called here as well.
