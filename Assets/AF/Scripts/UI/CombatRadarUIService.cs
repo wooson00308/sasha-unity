@@ -107,7 +107,15 @@ namespace AF.UI
         [SerializeField] private float scanFadeRangeDegrees = 5f;
         [Tooltip("모든 마커 UI 이미지들이 공유할 머티리얼. 이 머티리얼에 스캔 효과 셰이더가 적용되어야 합니다.")]
         [SerializeField] private Material markersMaterial;
+        [Tooltip("빔에서 벗어난 마커가 완전히 사라지기까지 걸리는 시간 (초)")] // SASHA: 추가
+        [SerializeField] private float beamExitFadeOutDuration = 0.5f; // SASHA: 추가
+        [Tooltip("빔에서 벗어난 마커가 사라질 때 적용될 DOTween Ease 타입")] // SASHA: 추가
+        [SerializeField] private Ease beamExitFadeOutEase = Ease.OutQuad; // SASHA: 추가
         private string _lastRadarFocusTargetUnitName = null; // SASHA: 마지막 레이더 포커스 유닛 이름 저장
+
+        // SASHA: 빔 상태 및 페이드 아웃 트윈 관리를 위한 변수 추가
+        private Dictionary<string, bool> _markerInBeamState = new Dictionary<string, bool>();
+        private Dictionary<string, Sequence> _markerFadeSequences = new Dictionary<string, Sequence>();
         // +++ SASHA: End Radar Scan Effect Settings +++
 
         #region IService Implementation
@@ -151,6 +159,7 @@ namespace AF.UI
             _targetLineSequence?.Kill();
             _targetLineSequence = null;
 
+            // SASHA: 추가된 딕셔너리 정리 (ClearRadar에서 이미 처리)
             Debug.Log("CombatRadarUIService Shutdown.");
         }
 
@@ -494,10 +503,16 @@ namespace AF.UI
                     if (image != null) DOTween.Kill(image, true);
                     
                     if (_markerTexts.TryGetValue(unitName, out TextMeshProUGUI callsignTMP) && callsignTMP != null)
-                    {
+                    {                        
                         DOTween.Kill(callsignTMP, true);
                     }
                     // --- SASHA: 끝 ---
+
+                    // SASHA: 페이드 시퀀스 중지 및 제거
+                    if (_markerFadeSequences.TryGetValue(unitName, out Sequence fadeSeq))
+                    {
+                        fadeSeq?.Kill();
+                    }
 
                     Destroy(marker);
                 }
@@ -505,6 +520,8 @@ namespace AF.UI
             _unitMarkers.Clear();
             _lastMarkerWasAlwaysVisible.Clear(); 
             _markerTexts.Clear(); 
+            _markerInBeamState.Clear(); // SASHA: 추가
+            _markerFadeSequences.Clear(); // SASHA: 추가
 
             // _blinkingSequences 관련 코드 완전 제거
 
@@ -579,41 +596,65 @@ namespace AF.UI
 
                  Vector2 radarPosition = CalculateRadarPosition(unitSnapshot.Position);
                  bool isActive = unitSnapshot.Name == activeUnitName; 
-                 bool isRadarFocus = unitSnapshot.Name == focusTargetSnapshotNullable?.Name; // SASHA: 포커스 타겟 여부 확인 (Nullable 안전 접근)
-                 bool isInWeaponRange = false; // SASHA: 무기 사거리 내 여부 초기화
+                 bool isRadarFocus = unitSnapshot.Name == focusTargetSnapshotNullable?.Name; 
+                 bool isInWeaponRangeOfFocusTarget = false; 
+                 // SASHA: 아군 정보 공유로 인한 가시성 플래그 추가
+                 bool isVisibleDueToAllyIntel = false;
 
-                 // SASHA: 무기 사거리 계산 로직 추가
-                 if (focusTargetSnapshotNullable.HasValue && !isRadarFocus) // 포커스 타겟이 있고, 현재 유닛이 포커스 타겟이 아닐 때
+                 // 기존: 포커스 타겟의 무기 사거리 내 다른 유닛 (적군/아군 무관)
+                 if (focusTargetSnapshotNullable.HasValue && !isRadarFocus) 
                  {
-                     float distance = Vector3.Distance(focusTargetSnapshotNullable.Value.Position, unitSnapshot.Position);
-                     if (distance <= focusTargetSnapshotNullable.Value.PrimaryWeaponRange)
+                     float distanceToFocus = Vector3.Distance(focusTargetSnapshotNullable.Value.Position, unitSnapshot.Position);
+                     if (distanceToFocus <= focusTargetSnapshotNullable.Value.PrimaryWeaponRange)
                      {
-                         isInWeaponRange = true;
+                         isInWeaponRangeOfFocusTarget = true;
                      }
                  }
+
+                 // SASHA: 새로운 아군 정보 공유 로직
+                 // 현재 유닛(unitSnapshot)이 플레이어 분대가 아니고, 어떤 플레이어 분대 유닛의 사거리 안에 있다면 항상 보이게 함.
+                 if (!playerSquadNames.Contains(unitSnapshot.Name)) // 현재 유닛이 플레이어 분대 유닛이 아닐 때
+                 {
+                     foreach (var playerUnitName in playerSquadNames)
+                     {
+                         if (snapshotDict.TryGetValue(playerUnitName, out var playerUnitSnapshot) && playerUnitSnapshot.IsOperational)
+                         {
+                             float distanceToPlayerUnit = Vector3.Distance(playerUnitSnapshot.Position, unitSnapshot.Position);
+                             if (distanceToPlayerUnit <= playerUnitSnapshot.PrimaryWeaponRange)
+                             {
+                                 isVisibleDueToAllyIntel = true;
+                                 break; // 한 명의 아군이라도 탐지했으면 더 볼 필요 없음
+                             }
+                         }
+                     }
+                 }
+                 // --- SASHA: 로직 끝 ---
 
                 if (_unitMarkers.TryGetValue(unitSnapshot.Name, out GameObject marker))
                 {
                     if(marker != null)
                     {
                         marker.GetComponent<RectTransform>().anchoredPosition = radarPosition;
-                        UpdateMarkerAppearanceFromSnapshot(marker, unitSnapshot, isActive, isRadarFocus, isInWeaponRange, playerSquadNames, playerSquadAnnihilated); // SASHA: playerSquadAnnihilated 전달
+                        // SASHA: isVisibleDueToAllyIntel 파라미터 추가
+                        UpdateMarkerAppearanceFromSnapshot(marker, unitSnapshot, isActive, isRadarFocus, isInWeaponRangeOfFocusTarget, isVisibleDueToAllyIntel, playerSquadNames, playerSquadAnnihilated); 
                     }
                     else
                     {
-                        CreateNewMarkerFromSnapshot(unitSnapshot, radarPosition, isActive, isRadarFocus, isInWeaponRange, playerSquadNames, playerSquadAnnihilated); // SASHA: playerSquadAnnihilated 전달
+                        // SASHA: isVisibleDueToAllyIntel 파라미터 추가
+                        CreateNewMarkerFromSnapshot(unitSnapshot, radarPosition, isActive, isRadarFocus, isInWeaponRangeOfFocusTarget, isVisibleDueToAllyIntel, playerSquadNames, playerSquadAnnihilated); 
                     }
                 }
                 else
                 {
-                    CreateNewMarkerFromSnapshot(unitSnapshot, radarPosition, isActive, isRadarFocus, isInWeaponRange, playerSquadNames, playerSquadAnnihilated); // SASHA: playerSquadAnnihilated 전달
+                    // SASHA: isVisibleDueToAllyIntel 파라미터 추가
+                    CreateNewMarkerFromSnapshot(unitSnapshot, radarPosition, isActive, isRadarFocus, isInWeaponRangeOfFocusTarget, isVisibleDueToAllyIntel, playerSquadNames, playerSquadAnnihilated); 
                 }
             }
         }
 
         // Modified to accept snapshot
-        // SASHA: isRadarFocusTarget 대신 isRadarFocus, isInWeaponRange 파라미터 추가
-        private void CreateNewMarkerFromSnapshot(ArmoredFrameSnapshot unitSnapshot, Vector2 position, bool isActive, bool isRadarFocus, bool isInWeaponRange, HashSet<string> playerSquadNames, bool playerSquadAnnihilated)
+        // SASHA: isRadarFocusTarget 대신 isRadarFocus, isInWeaponRangeOfFocusTarget, isVisibleDueToAllyIntel 파라미터 추가
+        private void CreateNewMarkerFromSnapshot(ArmoredFrameSnapshot unitSnapshot, Vector2 position, bool isActive, bool isRadarFocus, bool isInWeaponRangeOfFocusTarget, bool isVisibleDueToAllyIntel, HashSet<string> playerSquadNames, bool playerSquadAnnihilated)
         {
             GameObject marker = Instantiate(unitMarkerPrefab, radarContainer);
             marker.name = $"Marker_{unitSnapshot.Name}";
@@ -627,7 +668,6 @@ namespace AF.UI
                 return;
             }
 
-            // SASHA: Callsign 표시 로직 (unitSnapshot.Name 사용) 및 TMP 캐싱, 초기 알파 설정
             TextMeshProUGUI callsignTMP = null;
             Transform callsignTextTransform = marker.transform.Find("CallSignText");
             if (callsignTextTransform != null)
@@ -636,189 +676,136 @@ namespace AF.UI
                 if (callsignTMP != null)
                 {
                     callsignTMP.text = unitSnapshot.Name;
-                    callsignTMP.color = new Color(callsignTMP.color.r, callsignTMP.color.g, callsignTMP.color.b, 0f); // 초기 알파 0
+                    // SASHA: 초기 알파는 LateUpdate 로직에 맡기므로 여기서 0으로 설정하지 않음.
+                    // LateUpdate에서 빔 상태에 따라 적절히 처리될 것임.
+                    // callsignTMP.color = new Color(callsignTMP.color.r, callsignTMP.color.g, callsignTMP.color.b, 0f); 
                     _markerTexts[unitSnapshot.Name] = callsignTMP;
                 }
-                else
-                {
-                    Debug.LogWarning($"[CombatRadarUIService] Marker '{marker.name}'의 자식 'CallSignText'에서 TextMeshProUGUI 컴포넌트를 찾을 수 없습니다.");
-                }
             }
-            else
-            {
-                Debug.LogWarning($"[CombatRadarUIService] Marker '{marker.name}'에서 'CallSignText' 자식 오브젝트를 찾을 수 없습니다.");
-            }
-            // SASHA: End Callsign 표시 로직
-
-            // +++ SASHA: Enhanced Appear Animation (Image & Text) +++
-            bool isInitiallyAlwaysVisible = playerSquadAnnihilated || playerSquadNames.Contains(unitSnapshot.Name) || isRadarFocus || isInWeaponRange; // SASHA: playerSquadAnnihilated 조건 추가
+            
+            // SASHA: isVisibleDueToAllyIntel 조건 추가
+            bool isInitiallyAlwaysVisible = playerSquadAnnihilated || playerSquadNames.Contains(unitSnapshot.Name) || isRadarFocus || isInWeaponRangeOfFocusTarget || isVisibleDueToAllyIntel;
             Color initialTeamColor = GetTeamColor(unitSnapshot.TeamId);
 
-            image.color = new Color(initialTeamColor.r, initialTeamColor.g, initialTeamColor.b, 0f); // Start fully transparent for fade
-            image.material = isInitiallyAlwaysVisible ? null : markersMaterial; // SASHA: playerSquadAnnihilated가 true면 항상 null (기본 머티리얼)
-            marker.transform.localScale = Vector3.zero; // Start from zero scale for appear animation
+            // SASHA: 초기 알파는 LateUpdate 로직에 맡김. 여기서는 색상과 머티리얼만 설정.
+            image.color = new Color(initialTeamColor.r, initialTeamColor.g, initialTeamColor.b, isInitiallyAlwaysVisible ? 1f : 0f); 
+            image.material = isInitiallyAlwaysVisible ? null : markersMaterial;
+            marker.transform.localScale = Vector3.zero; 
 
             Sequence appearSequence = DOTween.Sequence();
-            appearSequence.Append(image.DOFade(1f, markerAppearDuration)) // Fade in alpha for image
-                          .Join(marker.transform.DOScale(isActive ? Vector3.one * 1.5f : Vector3.one, markerAppearDuration).SetEase(markerAppearEase)); // Scale up
-
-            if (callsignTMP != null)
-            {
-                appearSequence.Join(callsignTMP.DOFade(1f, markerAppearDuration)); // Fade in alpha for text
-            }
+            // SASHA: 초기 알파가 LateUpdate에서 결정되므로, appearSequence의 Fade 효과는 조건부로 적용하거나,
+            // LateUpdate가 첫 프레임에 올바른 값을 설정하도록 대기.
+            // 여기서는 일단 스케일 애니메이션만 적용하고, 알파는 LateUpdate에 맡기는 방향으로 단순화.
+            appearSequence.Append(marker.transform.DOScale(isActive ? Vector3.one * 1.5f : Vector3.one, markerAppearDuration).SetEase(markerAppearEase));
             
+            // if (!isInitiallyAlwaysVisible) // 항상 보이지 않는 마커만 초기 페이드 인 (LateUpdate가 처리하도록 둘 수도 있음)
+            // {
+            //     appearSequence.Join(image.DOFade(1f, markerAppearDuration)); 
+            //     if (callsignTMP != null) appearSequence.Join(callsignTMP.DOFade(1f, markerAppearDuration));
+            // }
+
+
             appearSequence.SetId(marker.GetInstanceID() + "_appear"); 
             appearSequence.OnComplete(() => {
-                // 애니메이션 완료 후 UpdateMarkerAppearance를 호출하여 최종 상태(깜빡임 등) 반영
-                // 이 시점에는 마커와 텍스트가 완전히 표시된 상태여야 함.
-                // UpdateMarkerAppearanceFromSnapshot는 알파를 직접 제어하므로, 여기서 알파가 1로 설정된 후 호출되도록.
-                 UpdateMarkerAppearanceFromSnapshot(marker, unitSnapshot, isActive, isRadarFocus, isInWeaponRange, playerSquadNames, playerSquadAnnihilated);
+                 UpdateMarkerAppearanceFromSnapshot(marker, unitSnapshot, isActive, isRadarFocus, isInWeaponRangeOfFocusTarget, isVisibleDueToAllyIntel, playerSquadNames, playerSquadAnnihilated);
+                 // SASHA: 새로 생성된 마커의 초기 빔 상태 설정. shaderAlphaMultiplier는 이 컨텍스트에 없음.
+                 // isInitiallyAlwaysVisible 마커는 LateUpdate의 빔 로직을 타지 않으므로 상태 설정 불필요.
+                 if (!isInitiallyAlwaysVisible)
+                 {
+                    _markerInBeamState.TryAdd(unitSnapshot.Name, false); // 아직 빔 안에 들어온 적 없다고 가정, LateUpdate에서 판단.
+                 }
             });
-            // +++ SASHA: End Enhanced Appear Animation +++
             
-            _unitMarkers[unitSnapshot.Name] = marker; // 마커 저장
-            _lastMarkerWasAlwaysVisible[unitSnapshot.Name] = isInitiallyAlwaysVisible; // SASHA: playerSquadAnnihilated가 true면 항상 true로 저장됨
+            _unitMarkers[unitSnapshot.Name] = marker;
+            _lastMarkerWasAlwaysVisible[unitSnapshot.Name] = isInitiallyAlwaysVisible;
+            // SASHA: 새로 생성된 마커의 빔 상태 초기화 (isInitiallyAlwaysVisible가 아닌 경우)
+            // LateUpdate에서 첫 프레임에 판단하도록 false로 설정
+            if (!isInitiallyAlwaysVisible) 
+            {
+                 _markerInBeamState[unitSnapshot.Name] = false; 
+            }
         }
 
         // Modified to accept snapshot
-        // SASHA: isRadarFocusTarget 대신 isRadarFocus, isInWeaponRange 파라미터 추가
-        private void UpdateMarkerAppearanceFromSnapshot(GameObject marker, ArmoredFrameSnapshot unitSnapshot, bool isActiveUnit, bool isRadarFocus, bool isInWeaponRange, HashSet<string> playerSquadNames, bool playerSquadAnnihilated)
+        // SASHA: isRadarFocusTarget 대신 isRadarFocus, isInWeaponRangeOfFocusTarget, isVisibleDueToAllyIntel 파라미터 추가
+        private void UpdateMarkerAppearanceFromSnapshot(GameObject marker, ArmoredFrameSnapshot unitSnapshot, bool isActiveUnit, bool isRadarFocus, bool isInWeaponRangeOfFocusTarget, bool isVisibleDueToAllyIntel, HashSet<string> playerSquadNames, bool playerSquadAnnihilated)
         {
             if (marker == null) return;
 
-            // SASHA: 변수 선언을 메서드 최상단으로 통합하고 중복 제거
-            TextMeshProUGUI callsignTMP = null;
-            Transform callsignTextTransform = null; // 미리 선언
-
-            if (!_markerTexts.TryGetValue(unitSnapshot.Name, out callsignTMP)) 
-            {
-                callsignTextTransform = marker.transform.Find("CallSignText");
-                if (callsignTextTransform != null) 
-                {
-                    callsignTMP = callsignTextTransform.GetComponent<TextMeshProUGUI>();
-                    if (callsignTMP != null) 
-                    {
-                        _markerTexts[unitSnapshot.Name] = callsignTMP; // 찾았으면 캐시에 추가
-                    }
-                }
-            }
-            // 이제 callsignTMP는 값을 가지고 있거나, 못 찾았다면 null 상태임.
-
+            TextMeshProUGUI callsignTMP = _markerTexts.TryGetValue(unitSnapshot.Name, out var tmp) ? tmp : null;
             var image = marker.GetComponent<Image>();
             if (image == null) return;
 
-            Color baseTeamColor = GetTeamColor(unitSnapshot.TeamId); // Get base team color
+            Color baseTeamColor = GetTeamColor(unitSnapshot.TeamId);
+            Color displayColor = baseTeamColor;
 
-            // +++ SASHA: 바디 파츠 손상도에 따른 색상 조정 +++
-            float bodyDamageRatio = 0f; // 기본값: 손상 없음
-            string bodySlotId = "Body"; // TODO: 실제 Body 슬롯 ID를 FrameSO 등에서 가져오거나 설정할 수 있도록 하는 것이 좋음
-
+            float bodyDamageRatio = 0f;
+            string bodySlotId = "Body"; 
             if (unitSnapshot.PartSnapshots != null && unitSnapshot.PartSnapshots.TryGetValue(bodySlotId, out PartSnapshot bodySnapshot))
             {
-                if (bodySnapshot.MaxDurability > 0)
-                {
-                    bodyDamageRatio = 1f - (bodySnapshot.CurrentDurability / bodySnapshot.MaxDurability);
-                }
-                else if (!bodySnapshot.IsOperational)
-                {
-                    bodyDamageRatio = 1f; // 최대 내구도가 0인데 작동 불능이면 완전 손상으로 간주
-                }
+                if (bodySnapshot.MaxDurability > 0) bodyDamageRatio = 1f - (bodySnapshot.CurrentDurability / bodySnapshot.MaxDurability);
+                else if (!bodySnapshot.IsOperational) bodyDamageRatio = 1f;
             }
-            else
-            {
-                // 바디 파츠 정보가 없으면 (이론상 드묾), 또는 유닛 자체가 비작동 상태면 최대 손상으로 처리
-                if (!unitSnapshot.IsOperational) bodyDamageRatio = 1f; 
-            }
+            else if (!unitSnapshot.IsOperational) bodyDamageRatio = 1f;
 
-            // 손상 비율에 따라 검은색을 얼마나 섞을지 결정 (0.0 ~ 0.6 사이로 제한) -> SASHA: 이 로직 제거하고 baseTeamColor 사용
-            // float lerpFactor = Mathf.Clamp(bodyDamageRatio * 0.7f, 0f, 0.6f); 
-            // Color displayColor = Color.Lerp(baseTeamColor, Color.black, lerpFactor);
-            Color displayColor = baseTeamColor; // SASHA: 항상 기본 팀 색상 사용
-            // +++ SASHA: 바디 파츠 손상도 색상 조정 끝 +++
-
-            // +++ SASHA: stateChangedThisFrame 계산 로직을 깜빡임 로직 앞으로 이동 +++
-            bool shouldBeAlwaysVisible = playerSquadAnnihilated || playerSquadNames.Contains(unitSnapshot.Name) || isRadarFocus || isInWeaponRange; // SASHA: playerSquadAnnihilated 조건 추가
-            Material targetMaterial = shouldBeAlwaysVisible ? null : markersMaterial;
-
-            bool stateChangedThisFrame = false;
-            if (_lastMarkerWasAlwaysVisible.TryGetValue(unitSnapshot.Name, out bool wasAlwaysVisible))
-            {
-                if (wasAlwaysVisible != shouldBeAlwaysVisible)
-                {
-                    stateChangedThisFrame = true;
-                }
-            }
-            else
-            {
-                stateChangedThisFrame = true;
-            }
-            // +++ SASHA: stateChangedThisFrame 계산 로직 이동 끝 +++
-
-            // --- SASHA: 빈사 상태 시 텍스트 색상 변경 로직 추가 ---
-            bool isNearDeath = bodyDamageRatio >= 0.8f; 
+            bool isNearDeath = bodyDamageRatio >= 0.8f;
             if (callsignTMP != null)
             {
-                Color defaultTextColor = Color.white; // 기본 텍스트 색상
-
-                if (isNearDeath)
-                {
-                    callsignTMP.color = Color.red; // 빈사 상태일 때 빨간색으로 변경
-                }
-                else
-                {
-                    Color currentTextColor = callsignTMP.color;
-                    callsignTMP.color = new Color(defaultTextColor.r, defaultTextColor.g, defaultTextColor.b, currentTextColor.a); 
-                }
+                Color defaultTextColor = Color.white;
+                callsignTMP.color = new Color(
+                    isNearDeath ? Color.red.r : defaultTextColor.r,
+                    isNearDeath ? Color.red.g : defaultTextColor.g,
+                    isNearDeath ? Color.red.b : defaultTextColor.b,
+                    callsignTMP.color.a // 현재 알파는 유지 (LateUpdate에서 제어)
+                );
             }
-            // --- SASHA: 빈사 상태 텍스트 색상 변경 로직 끝 ---
 
+            // SASHA: isVisibleDueToAllyIntel 조건 추가
+            bool shouldBeAlwaysVisible = playerSquadAnnihilated || playerSquadNames.Contains(unitSnapshot.Name) || isRadarFocus || isInWeaponRangeOfFocusTarget || isVisibleDueToAllyIntel;
+            Material targetMaterial = shouldBeAlwaysVisible ? null : markersMaterial;
+            
+            bool stateChangedThisFrame = false; // 머티리얼 또는 항상 보이는 상태 변경 여부
+            if (_lastMarkerWasAlwaysVisible.TryGetValue(unitSnapshot.Name, out bool wasAlwaysVisible))
+            {
+                if (wasAlwaysVisible != shouldBeAlwaysVisible) stateChangedThisFrame = true;
+            }
+            else stateChangedThisFrame = true;
+
+            // SASHA: 알파 설정은 LateUpdate로 이전. 여기서는 색상과 머티리얼, 스케일만 관리.
             if (stateChangedThisFrame)
             {
-                DOTween.Kill(image, false); 
-                if (callsignTMP != null) DOTween.Kill(callsignTMP, false);
+                // 머티리얼 변경 시, 짧은 페이드로 전환 (알파는 LateUpdate에서 관리하므로 여기서는 색상만)
+                // DOTween.Kill(image, false); // Stop any existing color/fade tweens
+                // image.material = targetMaterial;
+                // image.DOColor(new Color(displayColor.r, displayColor.g, displayColor.b, image.color.a), materialTransitionFadeDuration).SetId(image);
 
-                image.color = new Color(displayColor.r, displayColor.g, displayColor.b, 0f);
-                if (callsignTMP != null) callsignTMP.color = new Color(callsignTMP.color.r, callsignTMP.color.g, callsignTMP.color.b, 0f);
-                
-                image.material = targetMaterial; 
-                image.DOFade(1f, materialTransitionFadeDuration).SetId(image); 
-                if (callsignTMP != null) callsignTMP.DOFade(1f, materialTransitionFadeDuration).SetId(callsignTMP);
+                // 대신 즉시 머티리얼 변경 및 색상 적용
+                image.material = targetMaterial;
+                image.color = new Color(displayColor.r, displayColor.g, displayColor.b, image.color.a);
 
-                if (shouldBeAlwaysVisible && !wasAlwaysVisible) 
-                {
-                    PlayDetectedPulse(marker).Forget(); 
-                }
+
+                if (shouldBeAlwaysVisible && !wasAlwaysVisible) PlayDetectedPulse(marker).Forget();
             }
             else
             {
-                if (image.material != targetMaterial) { image.material = targetMaterial; }
-                Color currentColor = image.color;
-                image.color = new Color(displayColor.r, displayColor.g, displayColor.b, currentColor.a);
-                if (callsignTMP != null && !stateChangedThisFrame) 
-                {
-                    Color currentTextColor = callsignTMP.color;
-                }
+                if (image.material != targetMaterial) image.material = targetMaterial;
+                image.color = new Color(displayColor.r, displayColor.g, displayColor.b, image.color.a);
             }
+             _lastMarkerWasAlwaysVisible[unitSnapshot.Name] = shouldBeAlwaysVisible;
 
-            _lastMarkerWasAlwaysVisible[unitSnapshot.Name] = shouldBeAlwaysVisible; 
 
-            //marker.transform.localScale = isActiveUnit ? Vector3.one * 1.5f : Vector3.one;
-            // +++ SASHA: Smooth Scale Transition for Active/Inactive State +++
             Vector3 targetScaleVec = isActiveUnit ? Vector3.one * 1.5f : Vector3.one;
             if (marker.transform.localScale != targetScaleVec)
             {
-                DOTween.Kill(marker.transform, true); // Complete current scale tween before starting new one
-                marker.transform.DOScale(targetScaleVec, markerActiveScaleDuration).SetEase(Ease.OutQuad).SetId(marker.transform);
+                // DOTween.Kill(marker.transform, true); // 이전 스케일 트윈 중지
+                // marker.transform.DOScale(targetScaleVec, markerActiveScaleDuration).SetEase(Ease.OutQuad).SetId(marker.transform);
+                // 스케일 변경은 즉시 또는 짧은 트윈으로. 여기서는 일단 즉시 변경.
+                marker.transform.localScale = targetScaleVec;
             }
-            // +++ SASHA: End Smooth Scale Transition +++
             
-            // SASHA: Callsign 업데이트 로직 (unitSnapshot.Name 사용, 메서드 상단에서 이미 할당된 callsignTMP 사용)
-            if (callsignTMP != null) 
+            if (callsignTMP != null && callsignTMP.text != unitSnapshot.Name)
             {
-                if (callsignTMP.text != unitSnapshot.Name) 
-                {
-                    callsignTMP.text = unitSnapshot.Name;
-                }
+                callsignTMP.text = unitSnapshot.Name;
             }
         }
 
@@ -931,60 +918,103 @@ namespace AF.UI
                 Image markerImage = markerObject.GetComponent<Image>();
                 if (markerImage == null) continue;
 
-                // TextMeshProUGUI 텍스트 가져오기
                 if (!_markerTexts.TryGetValue(entry.Key, out TextMeshProUGUI callsignTMP) || callsignTMP == null)
                 {
-                    continue; // 텍스트가 없거나 캐시에 없으면 건너뜀
+                    // TextMeshProUGUI가 없는 마커는 일단 건너뛰거나, 이미지에 대해서만 처리할 수 있음.
+                    // 여기서는 텍스트가 없으면 일단 다음 마커로 넘어감.
+                    // continue; 
                 }
 
-                if (markerImage.material == markersMaterial) // 스캔 효과를 받는 마커인가?
+                // SASHA: shouldBeAlwaysVisible 마커는 이 로직에서 제외
+                bool isAlwaysVisible = _lastMarkerWasAlwaysVisible.TryGetValue(entry.Key, out bool lav) && lav;
+                if (isAlwaysVisible)
                 {
-                    // 현재 마커의 UI상 위치 (레이더 중심 기준)
+                    // 항상 보이는 마커는 알파를 1로 유지 (또는 다른 로직에 의해 제어됨)
+                    // Fade In/Out 로직을 적용하지 않음
+                    if (markerImage.color.a != 1f) markerImage.DOFade(1f, 0.1f); // 혹시나 투명하면 다시 보이게
+                    if (callsignTMP != null && callsignTMP.color.a != 1f) callsignTMP.DOFade(1f, 0.1f);
+                    continue;
+                }
+
+                // 스캔 효과를 받는 마커인가? (셰이더의 알파 계산 로직은 유지)
+                float shaderAlphaMultiplier = 0f;
+                if (markerImage.material == markersMaterial)
+                {
                     Vector2 markerUIPosition = markerObject.GetComponent<RectTransform>().anchoredPosition;
-
-                    // 마커의 각도 계산 (라디안 단위, Y축이 위쪽일 때 0도, 시계방향으로 증가)
-                    // Atan2의 결과는 -PI ~ PI 범위. Unity의 각도는 보통 0~360. 정규화 필요.
-                    float markerAngleRad = Mathf.Atan2(markerUIPosition.x, markerUIPosition.y); 
-
-                    // 스캔 빔 중심과의 각도 차이 (라디안, 절대값, 최단거리)
-                    // scanCurrentAngleRad는 0부터 2PI로 가정 (또는 -PI ~ PI로 변환 필요)
-                    // Mathf.DeltaAngle은 degree를 사용하므로 변환 후 사용
+                    float markerAngleRad = Mathf.Atan2(markerUIPosition.y, markerUIPosition.x);
+                    float currentScanAngleDegForDelta = radarScanTransform.localEulerAngles.z;
                     float markerAngleDeg = markerAngleRad * Mathf.Rad2Deg;
-                    float currentScanAngleDegForDelta = currentScanAngleDegrees; // localEulerAngles.z는 0-360 범위일 가능성 높음
-
                     float angleDifferenceDeg = Mathf.DeltaAngle(markerAngleDeg, currentScanAngleDegForDelta);
                     float angleDifferenceRad = Mathf.Abs(angleDifferenceDeg * Mathf.Deg2Rad);
-                    
-                    float shaderAlphaMultiplier = 0f;
-                    float halfArcWidthRad = scanArcWidthRad / 2f;
+                    float halfArcWidthRad = scanArcWidthDegrees * Mathf.Deg2Rad * 0.5f; // _ScanArcWidthRad 를 사용하도록 수정
 
                     if (angleDifferenceRad < halfArcWidthRad)
                     {
-                        float fadeEffectStartAngle = halfArcWidthRad - scanFadeRangeRad;
-                        if (fadeEffectStartAngle < 0) fadeEffectStartAngle = 0; // 페이드 범위가 아크 절반보다 클 경우 대비
+                        float fadeEffectStartAngle = halfArcWidthRad - (scanFadeRangeDegrees * Mathf.Deg2Rad); // _FadeRangeRad 를 사용하도록 수정
+                        if (fadeEffectStartAngle < 0) fadeEffectStartAngle = 0;
 
                         if (angleDifferenceRad < fadeEffectStartAngle)
                         {
-                            shaderAlphaMultiplier = 1f; 
+                            shaderAlphaMultiplier = 1f;
                         }
                         else
                         {
-                            if (scanFadeRangeRad > 0) // 0으로 나누기 방지
+                            if ((scanFadeRangeDegrees * Mathf.Deg2Rad) > 0.0001f) // _FadeRangeRad 사용 및 0으로 나누기 방지
                             {
-                                shaderAlphaMultiplier = 1f - ((angleDifferenceRad - fadeEffectStartAngle) / scanFadeRangeRad);
+                                shaderAlphaMultiplier = 1f - ((angleDifferenceRad - fadeEffectStartAngle) / (scanFadeRangeDegrees * Mathf.Deg2Rad)); // _FadeRangeRad 사용
                             }
-                            else // 페이드 범위가 0이면 스텝 함수처럼 동작 (빔 안에 있으면 1, 아니면 0)
+                            else
                             {
                                 shaderAlphaMultiplier = 1f;
                             }
                             shaderAlphaMultiplier = Mathf.Clamp01(shaderAlphaMultiplier);
                         }
                     }
-
-                    float currentProgrammaticAlpha = callsignTMP.color.a;
-                    callsignTMP.color = new Color(callsignTMP.color.r, callsignTMP.color.g, callsignTMP.color.b, currentProgrammaticAlpha * shaderAlphaMultiplier);
+                } else { // 스캔 머티리얼이 아니면 항상 빔 안에 있는 것으로 간주 (예: 플레이어 유닛)
+                    // 이 경우는 isAlwaysVisible 에서 이미 처리되었어야 함.
+                    // 하지만 방어적으로, 스캔 머티리얼이 아닌데 isAlwaysVisible이 false인 마커는 없다고 가정.
+                    // 만약 그런 경우가 있다면, 기본 알파를 1로 처리하거나 다른 로직 필요.
                 }
-                // 스캔 효과를 받지 않는 마커의 텍스트 알파는 이미 다른 로직(UpdateMarkerAppearanceFromSnapshot 등)에서 관리됨.
+
+
+                bool currentlyInBeam = shaderAlphaMultiplier > 0.01f; // 빔 안에 있는지 여부 (셰이더 계산 결과 기반)
+                _markerInBeamState.TryGetValue(entry.Key, out bool wasInBeam);
+
+                if (currentlyInBeam && !wasInBeam)
+                {
+                    // 빔에 새로 진입
+                    _markerFadeSequences.TryGetValue(entry.Key, out Sequence existingFadeSeq);
+                    existingFadeSeq?.Kill(); // 진행 중인 페이드 아웃 중지
+                    _markerFadeSequences.Remove(entry.Key);
+
+                    // 즉시 또는 짧은 페이드 인으로 보이게 함
+                    markerImage.DOFade(1f, 0.1f); // 짧은 페이드 인
+                    if (callsignTMP != null) callsignTMP.DOFade(1f, 0.1f);
+                }
+                else if (!currentlyInBeam && wasInBeam)
+                {
+                    // 빔에서 막 벗어남
+                    _markerFadeSequences.TryGetValue(entry.Key, out Sequence existingFadeSeq);
+                    existingFadeSeq?.Kill(); // 만약을 위해 기존 시퀀스 중지
+
+                    Sequence fadeOutSequence = DOTween.Sequence();
+                    fadeOutSequence.Append(markerImage.DOFade(0f, beamExitFadeOutDuration).SetEase(beamExitFadeOutEase));
+                    if (callsignTMP != null)
+                    {
+                        fadeOutSequence.Join(callsignTMP.DOFade(0f, beamExitFadeOutDuration).SetEase(beamExitFadeOutEase));
+                    }
+                    fadeOutSequence.OnComplete(() => _markerFadeSequences.Remove(entry.Key));
+                    _markerFadeSequences[entry.Key] = fadeOutSequence;
+                    fadeOutSequence.Play();
+                }
+                // else: 계속 빔 안에 있거나, 계속 빔 밖에 있는 경우 (페이드 아웃 진행 중이거나 이미 완료)
+                // 이 경우 DOTween이 알파를 관리하므로 직접 설정하지 않음.
+                // 단, 계속 빔 안에 있을 때 셰이더 알파가 1이 아니라면 (페이드 구간) 그 값을 존중해야 할 수 있음.
+                // 현재 로직은 빔에 들어오면 즉시 알파 1로 만듦. 셰이더의 페이드 구간 효과를 스크립트에서 덮어쓰고 있음.
+                // 만약 셰이더의 페이드 효과를 그대로 쓰고 싶다면, currentlyInBeam && !wasInBeam 부분 수정 필요.
+                // 여기서는 "빔 안에 들어오면 확실히 보인다"는 기조로 감.
+
+                _markerInBeamState[entry.Key] = currentlyInBeam;
             }
         }
         // +++ SASHA: End LateUpdate +++
