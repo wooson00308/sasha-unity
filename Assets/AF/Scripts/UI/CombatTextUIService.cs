@@ -12,13 +12,41 @@ using System; // TimeSpan 사용 위해 추가
 using System.Linq;
 using System.Text;
 using System.Threading; // <<< CancellationTokenSource 사용 위해 추가
+using Sirenix.OdinInspector; // <<< SASHA: OdinInspector 사용 위해 추가
 
 namespace AF.UI
 {
+    // +++ SASHA: LogEventType별 속도 파라미터 구조체 +++
+    [Serializable]
+    public struct LogSpeedParameters
+    {
+        [SuffixLabel("s", Overlay = true)]
+        [LabelWidth(60)]
+        public float lineDelay;
+
+        [SuffixLabel("s/char", Overlay = true)]
+        [LabelWidth(100)]
+        public float durationPerChar;
+
+        [SuffixLabel("s", Overlay = true)]
+        [LabelWidth(60)]
+        [Tooltip("타이핑 애니메이션의 최소/최대 시간입니다.")]
+        public Vector2 minMaxDuration;
+
+        // 기본값을 설정하는 생성자
+        public LogSpeedParameters(float lineDelay = 0.1f, float durationPerChar = 0.02f, float minX = 0.1f, float maxX = 0.5f)
+        {
+            this.lineDelay = lineDelay;
+            this.durationPerChar = durationPerChar;
+            this.minMaxDuration = new Vector2(minX, maxX);
+        }
+    }
+    // +++ SASHA: 추가 끝 +++
+
     /// <summary>
     /// 전투 로그를 UI에 표시하는 서비스 (전투 종료 시 한 번에 표시)
     /// </summary>
-    public class CombatTextUIService : MonoBehaviour, IService
+    public class CombatTextUIService : SerializedMonoBehaviour, IService
     {
         [Header("UI References")] 
         // 기존 _logTextDisplay는 프리팹 방식으로 대체될 수 있으므로 주석 처리 또는 제거 고려
@@ -34,13 +62,27 @@ namespace AF.UI
         [SerializeField] private ScrollRect _eventTargetDetailScrollRect;
         [SerializeField] private ScrollRect _damageTargetDetailScrollRect;
 
-        [Header("Animation Settings")]
+        [Header("Default Animation Settings")]
         // [SerializeField] private float _fadeInDuration = 0.3f; // 각 라인 페이드인 시간 (이제 사용 안 함)
-        [SerializeField] private float _textAnimationDuration = 0.5f; // 텍스트 타이핑 애니메이션 시간
-        [SerializeField] private float _lineDelay = 0.1f; // 다음 라인 표시 전 딜레이
+        // [SerializeField] private float _textAnimationDuration = 0.5f; // 텍스트 타이핑 애니메이션 시간 // 이제 LogEventSpeedSetting에서 관리
+        [SerializeField] private float _defaultLineDelay = 0.1f; // 다음 라인 표시 전 딜레이
         [SerializeField] private float _damageTargetDisplayClearDelay = 1.5f; // <<< 피격 대상 UI 지연 삭제 시간
-        [SerializeField] private float _durationPerCharacter = 0.02f; // <<< 글자당 애니메이션 시간 추가
-        [SerializeField] private float _minTextAnimationDuration = 0.1f; // <<< 최소 애니메이션 시간 추가
+        [SerializeField] private float _defaultDurationPerCharacter = 0.02f; // <<< 글자당 애니메이션 시간 추가
+        [SerializeField] private Vector2 _defaultMinMaxTextAnimationDuration = new Vector2(0.1f, 0.5f); // <<< 최소/최대 애니메이션 시간 추가
+
+        // +++ SASHA: LogEventType별 속도 설정을 Dictionary로 변경 +++
+        [TitleGroup("Log Event Type Speed Settings")]
+        [DictionaryDrawerSettings(KeyLabel = "Event Type", ValueLabel = "Speed Parameters", DisplayMode = DictionaryDisplayOptions.ExpandedFoldout)]
+        [InfoBox("각 로그 이벤트 타입별로 텍스트 출력 속도를 설정합니다. 여기에 없는 타입은 Default Animation Settings를 따릅니다.")]
+        [SerializeField] // SASHA: 직렬화를 위해 추가
+        public Dictionary<LogEventType, LogSpeedParameters> logSpeedSettings = new Dictionary<LogEventType, LogSpeedParameters>()
+        {
+            // 예시: 기본값으로 몇 가지 타입 초기화 (필요에 따라 추가/수정)
+            { LogEventType.Unknown, new LogSpeedParameters() },
+            { LogEventType.SystemMessage, new LogSpeedParameters(lineDelay: 0.05f) },
+            { LogEventType.DamageApplied, new LogSpeedParameters(durationPerChar: 0.01f, minX: 0.05f, maxX: 0.3f) }
+        };
+        // +++ SASHA: 변경 끝 +++
 
         private EventBus.EventBus _eventBus;
         private bool _isInitialized = false;
@@ -683,7 +725,7 @@ namespace AF.UI
         private async UniTaskVoid ProcessLogsAsync(CombatSessionEvents.CombatEndEvent evt, CancellationToken cancellationToken)
         {
             ITextLogger textLogger = ServiceLocator.Instance.GetService<TextLoggerService>()?.TextLogger;
-            if (textLogger == null) { await CreateAndAnimateLogLine("오류: 전투 로그를 불러올 수 없습니다.", cancellationToken); return; }
+            if (textLogger == null) { await CreateAndAnimateLogLine("오류: 전투 로그를 불러올 수 없습니다.", cancellationToken, _defaultLineDelay, _defaultDurationPerCharacter, _defaultMinMaxTextAnimationDuration); return; }
 
             List<TextLogger.LogEntry> logEntries = textLogger.GetLogEntries();
             if (logEntries == null || logEntries.Count == 0) { Debug.LogWarning("표시할 전투 로그가 없습니다."); return; }
@@ -789,7 +831,21 @@ namespace AF.UI
                 {
                     messageToDisplay = $"<b>{logEntry.Message}</b>";
                 }
-                await CreateAndAnimateLogLine(messageToDisplay, cancellationToken);
+
+                // +++ SASHA: LogEventType에 맞는 속도 설정 찾기 (Dictionary 사용) +++
+                float lineDelayToUse = _defaultLineDelay;
+                float durationPerCharToUse = _defaultDurationPerCharacter;
+                Vector2 minMaxDurationToUse = _defaultMinMaxTextAnimationDuration;
+
+                if (logSpeedSettings.TryGetValue(logEntry.EventType, out LogSpeedParameters speedParams))
+                {
+                    lineDelayToUse = speedParams.lineDelay;
+                    durationPerCharToUse = speedParams.durationPerChar;
+                    minMaxDurationToUse = speedParams.minMaxDuration;
+                }
+                // +++ SASHA: 수정 끝 +++
+
+                await CreateAndAnimateLogLine(messageToDisplay, cancellationToken, lineDelayToUse, durationPerCharToUse, minMaxDurationToUse);
 
                 // +++ Publish Playback Update Event +++
                 if (_eventBus != null && currentPlaybackState != null)
@@ -819,8 +875,8 @@ namespace AF.UI
 
         #region Logging Methods
 
-        // SASHA: CancellationToken 파라미터 추가
-        private async UniTask CreateAndAnimateLogLine(string message, CancellationToken cancellationToken)
+        // SASHA: CancellationToken 파라미터 및 속도 관련 파라미터 추가
+        private async UniTask CreateAndAnimateLogLine(string message, CancellationToken cancellationToken, float lineDelay, float durationPerChar, Vector2 minMaxDuration)
         {
             if (_logLinePrefab == null || _logContainer == null) return;
 
@@ -840,9 +896,9 @@ namespace AF.UI
             if (logText != null)
             {
                 logText.text = "";
-                // <<< 텍스트 길이에 따른 동적 듀레이션 계산 >>>
-                float targetDuration = message.Length * _durationPerCharacter;
-                float actualDuration = Mathf.Clamp(targetDuration, _minTextAnimationDuration, _textAnimationDuration);
+                // <<< 텍스트 길이에 따른 동적 듀레이션 계산 (파라미터 사용) >>>
+                float targetDuration = message.Length * durationPerChar;
+                float actualDuration = Mathf.Clamp(targetDuration, minMaxDuration.x, minMaxDuration.y);
                 // <<< 동적 듀레이션 적용 >>>
                 await logText.DOText(message, actualDuration).SetEase(Ease.Linear).AsyncWaitForCompletion();
             }
@@ -851,9 +907,9 @@ namespace AF.UI
                  Debug.LogWarning("로그 라인 프리팹에 TMP_Text 컴포넌트를 찾을 수 없습니다.");
             }
 
-            if (_lineDelay > 0)
+            if (lineDelay > 0)
             {
-                await UniTask.Delay(TimeSpan.FromSeconds(_lineDelay), cancellationToken: cancellationToken); // SASHA: 토큰 전달
+                await UniTask.Delay(TimeSpan.FromSeconds(lineDelay), cancellationToken: cancellationToken); // SASHA: 토큰 전달
             }
             else {
                 await UniTask.Yield(PlayerLoopTiming.LastUpdate, cancellationToken); // SASHA: 토큰 전달

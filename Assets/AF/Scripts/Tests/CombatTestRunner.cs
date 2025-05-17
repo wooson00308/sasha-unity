@@ -835,7 +835,7 @@ namespace AF.Tests
             {
                 combatSimulator.EndCombat();
                 isInCombat = false;
-                Log("=== 전투 테스트 중단됨 ===", LogLevel.System);
+                Log("전투 테스트가 중단되었습니다.", LogLevel.System);
                 Debug.Log("전투가 수동으로 중단되었습니다.");
             }
         }
@@ -999,7 +999,7 @@ namespace AF.Tests
             }
             // +++ BT 할당 및 블랙보드 초기화 끝 +++
 
-            Log($"--- 커스텀 AF 생성 완료: [{af.Name}] (팀: {af.TeamId}) ---", LogLevel.System); // SASHA: 커스텀 -> 테스트 AF, Pilot 정보 추가
+            Log($"테스트 AF 생성 완료: [{af.Name}] (팀: {af.TeamId}, 파일럿: {af.Pilot?.Name ?? "N/A"})", LogLevel.System);
 
             return af;
         }
@@ -1088,14 +1088,14 @@ namespace AF.Tests
                 // +++ SASHA: 생성된 AF 상태 로깅 추가 +++
                 string bodySlotId = frameData.Slot_Body; // Body 슬롯 ID 가져오기 (frameData 사용)
                 Part bodyPart = af.GetPart(bodySlotId);
-                Log($"테스트 AF 생성 (커스텀 기반): [{af.Name}], Pilot: [{af.Pilot?.Name ?? "N/A"} ({af.Pilot?.Specialization.ToString() ?? "N/A"})], IsOperational: {af.IsOperational}, " + // SASHA: PilotName -> Name 변경
+                Log($"커스텀 AF 생성 완료: [{af.Name}], Pilot: [{af.Pilot?.Name ?? "N/A"} ({af.Pilot?.Specialization.ToString() ?? "N/A"})], IsOperational: {af.IsOperational}, " + // SASHA: PilotName -> Name 변경
                     $"BodyPartExists: {bodyPart != null}, BodyPartOperational: {bodyPart?.IsOperational}, " +
                     $"TeamID: {af.TeamId}", LogLevel.Debug);
                 // +++ SASHA: 로깅 추가 끝 +++
             }
             // +++ BT 할당 및 블랙보드 초기화 끝 +++
 
-            Log($"--- 커스텀 AF 생성 완료: [{af.Name}] (팀: {af.TeamId}) ---", LogLevel.System);
+            Log($"커스텀 AF 생성 완료: [{af.Name}] (팀: {af.TeamId}, 파일럿: {af.Pilot?.Name ?? "N/A"})", LogLevel.System);
 
             return af;
         }
@@ -1350,10 +1350,10 @@ namespace AF.Tests
 
                 using (StreamWriter writer = new StreamWriter(fullFilename))
                 {
-                    writer.WriteLine($"=== 전투 로그 (필터링됨): {filename} ===");
+                    writer.WriteLine($" 전투 로그 (필터링됨): {filename} ");
                     writer.WriteLine($"생성 시간: {DateTime.Now}");
                     writer.WriteLine($"제외 레벨: {flagsToExclude}"); 
-                    writer.WriteLine(new string('=', 50));
+                    writer.WriteLine(new string('-', 50)); // === 대신 --- 사용
                     writer.WriteLine(); // 빈 줄 (헤더와 로그 내용 구분)
 
                     foreach (var line in filteredLogLines)
@@ -1362,9 +1362,9 @@ namespace AF.Tests
                     }
 
                     writer.WriteLine(); // 빈 줄 (로그 내용과 요약 정보 구분)
-                    writer.WriteLine(new string('=', 50));
+                    writer.WriteLine(new string('-', 50)); // === 대신 --- 사용
                     writer.WriteLine($"필터링된 로그 항목 수: {filteredLogLines.Count}");
-                    writer.WriteLine("=== 전투 로그 종료 ===");
+                    writer.WriteLine(" 전투 로그 종료 ");
                 }
                 Log($"필터링된 전투 로그가 '{fullFilename}'(으)로 저장되었습니다.", LogLevel.System);
             }

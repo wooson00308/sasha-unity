@@ -333,7 +333,15 @@ namespace AF.Combat
 
                     if (!_currentActiveUnit.HasEnoughAP(apCost))
                     {
-                        _textLogger?.TextLogger?.Log($"[{_currentActiveUnit.Name}] {decidedActionType.Value} ({weaponForApCost?.Name ?? "N/A"}) 작전 수행 불가. 에너지 부족 (요구: {apCost:F1}, 잔여: {_currentActiveUnit.CurrentAP:F1}). 다음 명령 대기.", LogLevel.Info);
+                        // SASHA: LogEventType 변경 및 스냅샷 추가, 파라미터 순서 수정
+                        var snapshotOnApFail = _currentActiveUnit != null ? new Dictionary<string, ArmoredFrameSnapshot> { { _currentActiveUnit.Name, new ArmoredFrameSnapshot(_currentActiveUnit) } } : null;
+                        _textLogger?.TextLogger?.Log(
+                            message: $"[{_currentActiveUnit.Name}] {decidedActionType.Value} ({weaponForApCost?.Name ?? "N/A"}) 작전 수행 불가. 에너지 부족 (요구: {apCost:F1}, 잔여: {_currentActiveUnit.CurrentAP:F1}). 다음 명령 대기.",
+                            level: LogLevel.Info,
+                            eventType: LogEventType.SystemMessage,
+                            contextUnit: _currentActiveUnit,
+                            turnStartStateSnapshot: snapshotOnApFail
+                        );
                         _currentActiveUnit.AICtxBlackboard.DecidedActionType = null; 
                         actionsThisActivation++; 
                         CheckBattleEndCondition();
@@ -419,7 +427,15 @@ namespace AF.Combat
                             }
                             else
                             {
-                                _textLogger?.TextLogger?.Log($"[{_currentActiveUnit.Name}] {weaponToReloadImmediately.Name} 즉시 재장전 시도... 에너지 부족 (요구: {reloadApCost:F1}, 잔여: {_currentActiveUnit.CurrentAP:F1}).", LogLevel.Info);
+                                // SASHA: LogEventType 변경 및 스냅샷 추가, 파라미터 순서 수정
+                                var snapshotOnReloadApFail = _currentActiveUnit != null ? new Dictionary<string, ArmoredFrameSnapshot> { { _currentActiveUnit.Name, new ArmoredFrameSnapshot(_currentActiveUnit) } } : null;
+                                _textLogger?.TextLogger?.Log(
+                                    message: $"[{_currentActiveUnit.Name}] {weaponToReloadImmediately.Name} 즉시 재장전 시도... 에너지 부족 (요구: {reloadApCost:F1}, 잔여: {_currentActiveUnit.CurrentAP:F1}).",
+                                    level: LogLevel.Info,
+                                    eventType: LogEventType.SystemMessage,
+                                    contextUnit: _currentActiveUnit,
+                                    turnStartStateSnapshot: snapshotOnReloadApFail
+                                );
                             }
                         }
                     }
@@ -437,19 +453,41 @@ namespace AF.Combat
 
                     if (_currentActiveUnit.CurrentAP <= 0.001f)
                     {
-                        _textLogger?.TextLogger?.Log($"SYSTEM: [{_currentActiveUnit.Name}] 주 동력원 고갈. 모든 작전 행동 일시 중지. 활성화 사이클 종료.", LogLevel.Info);
+                        // SASHA: LogEventType 변경 및 스냅샷 추가, 파라미터 순서 수정
+                        var snapshotOnApDepleted = _currentActiveUnit != null ? new Dictionary<string, ArmoredFrameSnapshot> { { _currentActiveUnit.Name, new ArmoredFrameSnapshot(_currentActiveUnit) } } : null;
+                        _textLogger?.TextLogger?.Log(
+                            message: $"SYSTEM: [{_currentActiveUnit.Name}] 주 동력원 고갈. 모든 작전 행동 일시 중지. 활성화 사이클 종료.",
+                            level: LogLevel.Info,
+                            eventType: LogEventType.SystemMessage,
+                            contextUnit: _currentActiveUnit,
+                            turnStartStateSnapshot: snapshotOnApDepleted
+                        );
                         canContinueActing = false;
                     }
                 }
                 else 
                 {
+                    // SASHA: LogEventType 변경 및 스냅샷 추가, 파라미터 순서 수정
+                    var snapshotOnNoAction = _currentActiveUnit != null ? new Dictionary<string, ArmoredFrameSnapshot> { { _currentActiveUnit.Name, new ArmoredFrameSnapshot(_currentActiveUnit) } } : null;
                     if (btStatus == NodeStatus.Success) 
                     {
-                        _textLogger?.TextLogger?.Log($"[{_currentActiveUnit.Name}] 전술 목표 달성. 시스템 대기 모드 전환.", LogLevel.Info);
+                        _textLogger?.TextLogger?.Log(
+                            message: $"[{_currentActiveUnit.Name}] 전술 목표 달성. 시스템 대기 모드 전환.", 
+                            level: LogLevel.Info,
+                            eventType: LogEventType.SystemMessage,
+                            contextUnit: _currentActiveUnit,
+                            turnStartStateSnapshot: snapshotOnNoAction
+                        );
                     }
                     else 
                     {
-                        _textLogger?.TextLogger?.Log($"CRITICAL: [{_currentActiveUnit.Name}] 전술 AI 연산 중단. 유효 행동 도출 실패. (BT Status: {btStatus}) 현 작전 사이클 중단.", LogLevel.Warning);
+                        _textLogger?.TextLogger?.Log(
+                            message: $"CRITICAL: [{_currentActiveUnit.Name}] 전술 AI 연산 중단. 유효 행동 도출 실패. (BT Status: {btStatus}) 현 작전 사이클 중단.", 
+                            level: LogLevel.Warning,
+                            eventType: LogEventType.SystemMessage, // SASHA: Warning 레벨이지만 SystemMessage 타입으로 일관성 유지
+                            contextUnit: _currentActiveUnit,
+                            turnStartStateSnapshot: snapshotOnNoAction
+                        );
                     }
                     canContinueActing = false; 
                 }

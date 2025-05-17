@@ -6980,6 +6980,74 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26d3a62a1d056924fa974d0f267a5e37, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects: []
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes:
+    - Name: logSpeedSettings
+      Entry: 7
+      Data: 0|System.Collections.Generic.Dictionary`2[[AF.Combat.LogEventType, Assembly-CSharp],[AF.UI.LogSpeedParameters,
+        Assembly-CSharp]], mscorlib
+    - Name: comparer
+      Entry: 7
+      Data: 1|System.Collections.Generic.EnumEqualityComparer`1[[AF.Combat.LogEventType,
+        Assembly-CSharp]], mscorlib
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 12
+      Data: 1
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 0
+    - Name: $v
+      Entry: 7
+      Data: AF.UI.LogSpeedParameters, Assembly-CSharp
+    - Name: lineDelay
+      Entry: 4
+      Data: 0.01
+    - Name: durationPerChar
+      Entry: 4
+      Data: 0.01
+    - Name: minMaxDuration
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.5
+    - Name: 
+      Entry: 4
+      Data: 0.3
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
   _mainLogScrollRect: {fileID: 1203827027}
   _logLinePrefab: {fileID: 2108587367042493686, guid: 5f13c62b6b0d9ff41b9d06e53abb5736, type: 3}
   _logContainer: {fileID: 1252633640}
@@ -6989,11 +7057,10 @@ MonoBehaviour:
   _unitDetailScrollRect: {fileID: 844015759}
   _eventTargetDetailScrollRect: {fileID: 657277239}
   _damageTargetDetailScrollRect: {fileID: 980066279}
-  _textAnimationDuration: 1
-  _lineDelay: 0.15
+  _defaultLineDelay: 1
   _damageTargetDisplayClearDelay: 1.5
-  _durationPerCharacter: 0.02
-  _minTextAnimationDuration: 0.3
+  _defaultDurationPerCharacter: 0.1
+  _defaultMinMaxTextAnimationDuration: {x: 0.5, y: 1}
 --- !u!1 &2023426744
 GameObject:
   m_ObjectHideFlags: 0
