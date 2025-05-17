@@ -12,6 +12,7 @@
     -   **턴 및 사이클 관리 (`ProcessNextTurn`, `CurrentTurn`, `CurrentCycle`)**: 전투는 전체 라운드를 의미하는 **턴(`_currentTurn`)**과, 각 턴 내에서 유닛이 순차적으로 활성화되는 단계를 의미하는 **사이클(`_currentCycle`)**로 구성됩니다. `ProcessNextTurn`은 다음 유닛을 활성화(`GetNextActiveUnit`)하고, 모든 유닛이 현재 턴에서 행동을 마쳤는지(`_actedThisCycle` 확인) 여부에 따라 다음 턴으로 넘어가는 로직을 관리합니다. 새 턴이 시작되면 `RoundStartEvent`가, 턴이 종료되면 `RoundEndEvent`가 발행되며, 이후 `CheckBattleEndCondition()`을 호출합니다. `Reload` 액션의 AP 비용 계산 시에는 `CombatActionExecutor` 내부에서 유닛의 `AICtxBlackboard.WeaponToReload`를 참조할 가능성이 있습니다 (또는 `CombatActionExecutor`가 직접 계산).
     -   **유닛 활성화**: `_currentActiveUnit`으로 현재 활성화된 유닛을 관리하며, 활성화 시작/종료 시 `UnitActivationStartEvent`/`UnitActivationEndEvent`를 발행합니다.
     -   **행동 결정 및 위임 (행동 트리 기반)**: 활성화된 AI 유닛의 `ArmoredFrame.BehaviorTreeRoot.Tick()`을 호출하여 행동을 결정합니다. 유닛은 AP 및 행동 횟수 제한(코드 내 루프 및 조건문으로 관리, `ActionType.None`의 AP 비용이 `0f`로 수정되어 AP 부족으로 인한 의도치 않은 루프 종료 방지) 내에서 여러 행동을 시도할 수 있습니다. 각 행동 시도 후, 유닛의 `ArmoredFrame.AICtxBlackboard`에 기록된 `DecidedActionType` 및 관련 정보(대상, 무기, 목표 위치 등)를 바탕으로 `PerformAction()` (내부적으로 `_actionExecutor.ExecuteAction()`)을 호출하여 실행을 위임합니다. 공격 행동 직후 `AICtxBlackboard.ImmediateReloadWeapon`이 `true`로 설정되어 있다면, `PerformAction()`을 통해 즉시 재장전 액션을 시도합니다. `SupportBT`의 경우, 수리(`RepairAlly`, `RepairSelf`) 또는 방어(`Defend`) 등의 특화 행동이 이 과정을 통해 결정되고 실행될 수 있습니다.
+        -   **주요 시스템 메시지 로깅**: 행동 결정 과정에서 AP 부족으로 행동을 수행할 수 없거나, 행동 트리 실행 후에도 유효한 행동(`DecidedActionType`)이 결정되지 않은 경우, 해당 상황에 대한 로그가 `LogEventType.SystemMessage` 타입으로 기록됩니다. 이때, 해당 시점의 유닛 상태 스냅샷(`ArmoredFrameSnapshot`)이 함께 기록되어 추후 분석에 활용될 수 있습니다.
     -   **상태 관리**: 전투 참가자 목록(`_participants`), 팀 정보(`_teamAssignments`), 그리고 유닛의 상태를 추적하기 위해 `_defendedThisTurn` (턴 당 방어 여부), `_actedThisCycle` (현재 턴/사이클에 행동한 유닛), `_movedThisActivation` (현재 활성화 주기 중 이동 여부), `_defendedThisActivation` (현재 활성화 주기 중 방어 여부) 등의 `HashSet` 컬렉션들을 사용합니다.
     -   **유틸리티**: `GetParticipants()`, `GetAllies(ArmoredFrame unit)`, `GetEnemies(ArmoredFrame unit)`, `HasUnitDefendedThisTurn(ArmoredFrame unit)`, `IsUnitDefeated(ArmoredFrame unit)` 등의 조회 기능을 제공합니다.
 -   **의존성**: `EventBus`, `TextLoggerService`, `ICombatActionExecutor`, `IStatusEffectProcessor`, `IBattleResultEvaluator`, `BehaviorTree` 관련 클래스들, `UnityEngine` (Vector3, Time 등).
@@ -62,7 +63,7 @@
 
 -   **`TextLoggerService` 주요 기능**:
     -   `TextLogger` 인스턴스를 생성(`_textLogger`)하고 `IService`로 래핑하여 `ServiceLocator`를 통해 관리합니다.
-    -   **이벤트 자동 구독**: `EventBus`를 구독하여 전투 관련 이벤트 발생 시 자동으로 `TextLogger.LogEvent` (또는 내부 핸들러)를 호출하여 해당 이벤트를 로그로 기록합니다.
+    -   **이벤트 자동 구독**: `EventBus`를 구독하여 전투 관련 이벤트 발생 시 자동으로 `TextLogger.LogEvent` (또는 내부 핸들러)를 호출하여 해당 이벤트를 로그로 기록합니다. 일부 중요 시스템 메시지(예: AP 부족, 행동 결정 실패)는 `LogEventType.SystemMessage`로 분류되어 기록되며, 이 경우에도 관련 유닛의 스냅샷 정보가 포함될 수 있습니다.
     -   **Flavor Text 관리**: `FlavorTextSO` 에셋들을 `Resources/FlavorTexts` 폴더에서 로드(`LoadFlavorTextTemplates`)하여 `_flavorTextTemplates` (Dictionary<string, List<string>>)에 저장하고, `GetRandomFlavorText`와 `FormatFlavorText`를 통해 이벤트 로그에 무작위 Flavor Text를 삽입합니다. 일부 시스템 메시지(예: "명시적 대기")도 개선된 스타일로 제공합니다.
     -   **팀 컬러 적용 지원**: `CombatTestRunner` 서비스(`_combatTestRunnerCache`)를 참조하여 `GetTeamColoredName` 메서드를 통해 유닛 이름에 팀 색상을 적용한 문자열을 반환합니다. 이는 `TextLogger`의 포맷팅 과정에서 사용될 수 있습니다.
     -   **포맷팅 제어**: `TextLogger`의 `ShowLogLevel`, `ShowTurnPrefix`, `UseIndentation` 프로퍼티 및 자체 `_logActionSummaries`, `_useSpriteIcons` 플래그를 설정하는 public 메서드(`SetShowLogLevel`, `SetLogActionSummaries` 등)를 제공하여 외부에서 로그 포맷팅 방식을 제어할 수 있게 합니다.
@@ -97,11 +98,4 @@
 -   **기존 시스템 (레거시)**: 과거에는 `IPilotBehaviorStrategy` 인터페이스와 그 구현체들(`MeleeCombatBehaviorStrategy` 등)을 사용하여 파일럿의 전문화 타입에 따라 행동 로직을 분리했습니다. 각 전략은 `DetermineAction` 메서드를 통해 행동을 결정했습니다.
 -   **현재 시스템 (행동 트리)**: 현재는 `IPilotBehaviorStrategy` 시스템 대신 **행동 트리(Behavior Tree)** 기반 시스템으로 완전히 전환되었습니다. 이 시스템은 `Assets/AF/Scripts/AI/BehaviorTree/` 경로에 구현되어 있습니다.
     -   **핵심 구성요소**: `BTNode` (기본), `SelectorNode` (OR), `SequenceNode` (AND) 같은 복합 노드와, 실제 조건 검사 및 행동 결정을 담당하는 다양한 잎새 노드(`ConditionNode`, `ActionNode`의 파생 클래스들)로 구성됩니다.
-    -   **주요 노드**: `IsTargetInRangeNode`, `HasEnoughAPNode` (동적 AP 계산), `NeedsReloadNode` (`WeaponToReload` 설정), `AttackTargetNode` (공격 결정), `MoveToTargetNode` (이동 결정), `ReloadWeaponNode` (재장전 실행), `SelectTargetNode` 등 다양한 노드가 구현되어 사용됩니다. 특히 `ReloadWeaponNode`는 재장전 시작 시 `Success`를 반환하여, 재장전 대기 턴 중 다른 행동 탐색이 가능하게 합니다.
-    -   **데이터 공유**: `Blackboard` 클래스 인스턴스(`ArmoredFrame.AICtxBlackboard`)를 통해 노드 간 데이터 공유 및 최종 행동 결정 사항(예: `DecidedActionType`, `CurrentTarget`, `WeaponToReload`, `
-
-## 시스템 흐름 요약
-
-1.  `CombatSimulatorService.StartCombat` 호출로 전투가 시작되며, 각 AI 유닛의 전문화 타입에 따라 적절한 행동 트리(예: `RangedCombatBT`, `MeleeCombatBT`, `DefenderBT`, `SupportBT`, `BasicAttackBT`)가 할당되고 블랙보드가 초기화됩니다.
-2.  `CombatSimulatorService.ProcessNextTurn`이 호출될 때마다 다음 유닛이 활성화됩니다. `Reload` 액션의 AP 비용 계산 시에는 유닛의 `AICtxBlackboard.WeaponToReload`를 참조하거나 `CombatActionExecutor`가 직접 계산합니다.
-3.  활성화된 AI 유닛은 AP와 최대 행동 횟수 제한 내에서 `BehaviorTreeRoot.Tick()`을 반복적으로 호출하여 블랙보드에 행동 결정 사항을 기록하고, `CombatSimulatorService`는 이 결정에 따라 `CombatActionExecutor.Execute()`를 호출하여 실제 행동을 수행합니다. `ActionType.None`의 AP 비용이 `0f`로 처리되면서, AP가 부족하더라도 유닛이 최소한의 행동(대기 등)을 결정할 수 있는 기회를 가질 수 있게 되었습니다.
+    -   **주요 노드**: `IsTargetInRangeNode`, `HasEnoughAPNode` (동적 AP 계산), `NeedsReloadNode` (`WeaponToReload` 설정), `AttackTargetNode` (공격 결정), `MoveToTargetNode` (이동 결정), `ReloadWeaponNode` (재장전 실행), `SelectTargetNode` 등 다양한 노드가 구현되어 사용됩니다. 특히 `

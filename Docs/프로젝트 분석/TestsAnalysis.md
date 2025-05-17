@@ -31,7 +31,7 @@
     -   **디버깅 및 로깅**:
         -   `TextLoggerService`를 활용하여 전투 로그를 기록합니다.
         -   **로그 필터링**: 인스펙터의 `logLevelsToRecord` (`LogLevelFlags`) 옵션을 `TextLoggerService`에 전달하여, 기록 시점부터 특정 레벨의 로그를 제외합니다.
-        -   **로그 파일 저장**: `SaveFilteredLogToFile` 메서드를 통해, 전투 종료 후 필터링된 로그를 파일로 저장합니다. 파일명은 동적으로 생성되며(`BattleLog_{battleId}_{timestamp}.txt`), 저장 시 로그 포맷이 정리됩니다 (색상 태그 제거, 스프라이트 태그 변환). **이 기능은 특히 `InverterNode`와 같이 특정 노드의 오작동으로 인해 발생하는 미묘한 버그를 추적하거나, 여러 턴에 걸친 AI의 판단 과정을 상세히 분석해야 할 때 매우 유용하게 활용되었습니다.**
+        -   **로그 파일 저장**: `SaveFilteredLogToFile` 메서드를 통해, 전투 종료 후 필터링된 로그를 파일로 저장합니다. 파일명은 동적으로 생성되며(`BattleLog_{battleId}_{timestamp}.txt`), 저장 시 로그 포맷이 정리됩니다 (색상 태그 제거, 스프라이트 태그 변환, 로그 파일 시작/종료 표시는 "전투 로그 시작"/"전투 로그 종료" 텍스트 사용). **이 기능은 특히 `InverterNode`와 같이 특정 노드의 오작동으로 인해 발생하는 미묘한 버그를 추적하거나, 여러 턴에 걸친 AI의 판단 과정을 상세히 분석해야 할 때 매우 유용하게 활용되었습니다.**
     -   **결과 검증**: 현재 코드에서는 Unity Test Framework와의 직접적인 연동(Assertion 등)은 명확히 보이지 않습니다. 테스트 결과는 주로 로깅된 내용을 수동으로 확인하거나 외부 도구와 연동하여 검증할 수 있습니다.
 -   **구현 방식**: `IService`를 구현한 MonoBehaviour 싱글톤으로, Unity 에디터 내 특정 씬이나 UI를 통해 실행됩니다. Unity Test Framework의 자동화된 테스트 케이스보다는, 시나리오 기반의 수동/반자동 테스트 및 데이터 생성에 초점을 맞춘 것으로 보입니다.
 -   **의존성**: `Sirenix.OdinInspector`, `AF.Models` (ArmoredFrame, Part, Weapon 등), `AF.Combat` (`CombatSimulatorService`), `AF.Services` (`ServiceLocator`, `EventBusService`, `TextLoggerService`), `AF.Data` (각종 `*SO` 에셋), `Cysharp.Threading.Tasks`, `AF.AI.BehaviorTree` (`BehaviorTreeRunner`, `BehaviorTreeAsset`), `AF.AI.BehaviorTree.PilotBTs`, `System.IO`, `UnityEngine.UI`.
