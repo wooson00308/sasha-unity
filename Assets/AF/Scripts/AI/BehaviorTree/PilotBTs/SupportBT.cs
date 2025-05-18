@@ -33,7 +33,7 @@ namespace AF.AI.BehaviorTree.PilotBTs
                         {
                             new CanMoveThisActivationNode(),
                             new HasEnoughAPNode(CombatActionEvents.ActionType.Move),
-                            new MoveToTargetNode()
+                            new MoveToTargetNode(defaultRepairRange)
                         })
                     }),
                     
@@ -44,7 +44,7 @@ namespace AF.AI.BehaviorTree.PilotBTs
                 // Sequence NEW: Potential Ally Support (Move to nearest ally and Defend)
                 new SequenceNode(new List<BTNode>
                 {
-                    new SelectNearestAllyNode(),
+                    new SelectLowestHealthAllyNode(allyHealthThresholdForRepair, "Body"),
                     new HasValidTargetNode(),
                     new IsTargetAliveNode(),
                     new InverterNode(
@@ -52,7 +52,7 @@ namespace AF.AI.BehaviorTree.PilotBTs
                     ),
                     new CanMoveThisActivationNode(),
                     new HasEnoughAPNode(CombatActionEvents.ActionType.Move),
-                    new MoveToTargetNode(desiredProximityToAlly)
+                    new MoveToTargetNode(defaultRepairRange)
                 }),
 
                 // Sequence 1: Self-preservation (Self-repair first, then defend)
