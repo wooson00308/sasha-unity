@@ -4,7 +4,7 @@ using AF.Models;
 using AF.AI.BehaviorTree; // For BTNode, SelectorNode, SequenceNode, MoveAwayFromTargetNode, IsTargetTooCloseNode etc.
 using AF.AI.BehaviorTree.Actions; // For AttackTargetNode, MoveToTargetNode, ReloadWeaponNode, SelectTargetNode, WaitNode
 using AF.AI.BehaviorTree.Conditions; // IsAnyWeaponReloadingNode 사용을 위해 추가
-// NeedsReloadNode, HasEnoughAPNode, IsTargetInRangeNode, IsTargetAliveNode, HasValidTargetNode are in AF.AI.BehaviorTree namespace based on previous analysis
+using AF.AI.BehaviorTree.Decorators;
 using UnityEngine;
 
 namespace AF.AI.BehaviorTree.PilotBTs
@@ -107,9 +107,17 @@ namespace AF.AI.BehaviorTree.PilotBTs
                             new HasEnoughAPNode(CombatActionEvents.ActionType.Reload),
                             new ReloadWeaponNode()
                         }),
-                        // 2e. 방어 (신규) - 일반 상황에서의 방어는 여기 유지
+                        // 2e. 조건부 방어 (★ Refactor_AI_BT_Defense_AP_Optimization.md 기반 수정)
+                        //    : 이동/공격/재장전 모두 여의치 않고, "이동할 여지가 없었거나 이미 이동했고", 방어는 가능할 때
                         new SequenceNode(new List<BTNode>
                         {
+                            new InverterNode(
+                                new SequenceNode(new List<BTNode> 
+                                {
+                                    new CanMoveThisActivationNode(),
+                                    new HasEnoughAPNode(CombatActionEvents.ActionType.Move)
+                                })
+                            ),
                             new CanDefendThisActivationNode(),
                             new HasEnoughAPNode(CombatActionEvents.ActionType.Defend),
                             new DefendNode()

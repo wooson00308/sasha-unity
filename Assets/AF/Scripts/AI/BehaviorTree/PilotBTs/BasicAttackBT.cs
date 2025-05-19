@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using AF.AI.BehaviorTree.Actions;
 using AF.AI.BehaviorTree; // 통합된 네임스페이스 사용
 using AF.AI.BehaviorTree.Conditions; // IsAnyWeaponReloadingNode 사용을 위해 추가
+using AF.AI.BehaviorTree.Decorators;
 using AF.Combat;
 using AF.Models;
 
@@ -62,6 +63,7 @@ namespace AF.AI.BehaviorTree.PilotBTs
                 new SequenceNode(new List<BTNode>
                 {
                     new SelectTargetNode(),       
+                    new HasValidTargetNode(), // SASHA: SelectTarget 이후에도 유효성 검사 추가 (제안된 문서에 있었음)
                     new SelectorNode(new List<BTNode> 
                     {
                         // 3a. 사거리 내면 바로 공격
@@ -87,12 +89,21 @@ namespace AF.AI.BehaviorTree.PilotBTs
                     new HasEnoughAPNode(CombatActionEvents.ActionType.Reload), // RELOAD_AP_COST 대신 ActionType.Reload
                     new ReloadWeaponNode()       
                 }),
-                // 5. 방어 시퀀스
+                // 5. 조건부 방어 시퀀스 (★ Refactor_AI_BT_Defense_AP_Optimization.md 기반 수정)
+                //    : "이동할 여지가 없었거나 이미 이동을 완료했고", "방어는 가능한" 경우
                 new SequenceNode(new List<BTNode>
                 {
-                    new CanDefendThisActivationNode(),
-                    new HasEnoughAPNode(CombatActionEvents.ActionType.Defend), // DEFEND_AP_COST 대신 ActionType.Defend
-                    new DefendNode()            
+                    // "이번 활성화에 이동할 여지가 없었거나 이미 이동을 했다면" Success
+                    new InverterNode( 
+                        new SequenceNode(new List<BTNode> // "이동할 여지가 있었는가?" 체크
+                        {
+                            new CanMoveThisActivationNode(), // 아직 안 움직였고
+                            new HasEnoughAPNode(CombatActionEvents.ActionType.Move) // 이동할 AP도 있다면
+                        })
+                    ),
+                    new CanDefendThisActivationNode(), // 그리고 이번 활성화에 방어 안했고
+                    new HasEnoughAPNode(CombatActionEvents.ActionType.Defend), // 방어 AP는 있고
+                    new DefendNode()
                 }),
                  // 6. 낮은 탄약 재장전 시퀀스 - 다른 할 일 없을 때 최후의 수단
                 new SequenceNode(new List<BTNode>

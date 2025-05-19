@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 22a52f02a7b532145b564e65f1485e53
+guid: a6dc4480ae1ff2c438fe9e4d1ac4b331
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 6076319773214602169
-    second: istockphoto-1419805801-612x612_0
+      213: 4697227035368179938
+    second: Card X6_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -139,13 +139,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: istockphoto-1419805801-612x612_0
+      name: Card X6_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 612
-        height: 235
+        width: 695
+        height: 399
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -154,8 +154,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 9b37328d3ac635450800000000000000
-      internalID: 6076319773214602169
+      spriteID: 2e84b780a17ef2140800000000000000
+      internalID: 4697227035368179938
       vertices: []
       indices: 
       edges: []
@@ -173,8 +173,7 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable:
-      istockphoto-1419805801-612x612_0: 6076319773214602169
+    nameFileIdTable: {}
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

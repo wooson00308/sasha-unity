@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using AF.AI.BehaviorTree.Actions;
 using AF.AI.BehaviorTree.Conditions;
+using AF.AI.BehaviorTree.Decorators;
 using AF.Combat;
 using AF.Models;
 
@@ -63,9 +64,16 @@ namespace AF.AI.BehaviorTree.PilotBTs
                         })
                     })
                 }),
-                // 방어 행동
+                // 조건부 방어 행동 (★ Refactor_AI_BT_Defense_AP_Optimization.md 기반 수정)
                 new SequenceNode(new List<BTNode>
                 {
+                    new InverterNode(
+                        new SequenceNode(new List<BTNode>
+                        {
+                            new CanMoveThisActivationNode(),
+                            new HasEnoughAPNode(CombatActionEvents.ActionType.Move)
+                        })
+                    ),
                     new CanDefendThisActivationNode(), // 이번 활성화에 방어 행동을 한 적이 없는가?
                     new HasEnoughAPNode(CombatActionEvents.ActionType.Defend),
                     new DefendNode()             // 방어 결정

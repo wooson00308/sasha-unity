@@ -23,32 +23,33 @@ namespace AF.AI.BehaviorTree.PilotBTs
                     new SelectLowestHealthAllyNode(allyHealthThresholdForRepair, "Body"),
                     new HasValidTargetNode(),
                     new IsTargetAliveNode(),
-                    new HasRepairUsesNode(), // <<< Added check for repair uses before attempting ally repair
+                    new HasRepairUsesNode(),
                     new HasEnoughAPNode(CombatActionEvents.ActionType.RepairAlly),
-
-                    new SelectorNode(new List<BTNode>
-                    {
-                        new IsTargetInRepairRangeNode(defaultRepairRange),
-                        new SequenceNode(new List<BTNode>
-                        {
-                            new CanMoveThisActivationNode(),
-                            new HasEnoughAPNode(CombatActionEvents.ActionType.Move),
-                            new MoveToTargetNode(defaultRepairRange)
-                        })
-                    }),
-                    
+                    // 사거리 내에 있을 때만 수리 시도
+                    new IsTargetInRepairRangeNode(defaultRepairRange),
                     new CanRepairTargetPartNode(),
                     new SetRepairAllyActionNode()
                 }),
 
-                // Sequence NEW: Potential Ally Support (Move to nearest ally and Defend)
+                // Sequence NEW: Move to nearest ally if no one needs repair (proximity support)
                 new SequenceNode(new List<BTNode>
                 {
-                    new SelectLowestHealthAllyNode(allyHealthThresholdForRepair, "Body"),
+                    // 1. 수리 대상이 없음을 명확히 (SelectLowestHealthAllyNode 실패 시)
+                    new InverterNode(
+                        new SequenceNode(new List<BTNode>
+                        {
+                            new SelectLowestHealthAllyNode(allyHealthThresholdForRepair, "Body"),
+                            new HasValidTargetNode(),
+                            new IsTargetAliveNode()
+                        })
+                    ),
+                    // 2. 가장 가까운 아군을 타겟팅
+                    new SelectNearestAllyNode(),
                     new HasValidTargetNode(),
                     new IsTargetAliveNode(),
+                    // 3. 이미 충분히 가까우면 이동하지 않음 (2m 기준)
                     new InverterNode(
-                       new IsTargetInRangeNode(desiredProximityToAlly)
+                        new IsTargetInRangeNode(desiredProximityToAlly)
                     ),
                     new CanMoveThisActivationNode(),
                     new HasEnoughAPNode(CombatActionEvents.ActionType.Move),

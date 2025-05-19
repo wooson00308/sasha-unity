@@ -1,0 +1,1123 @@
+ 전투 로그 (필터링됨): BattleLog_edf507bd 
+생성 시간: 2025-05-19 오후 4:04:56
+제외 레벨: Nothing
+--------------------------------------------------
+
+전투 시뮬레이션 시작 준비... (ID: edf507bd)
+[RecalculateStats] 데드아이 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[ArmoredFrame Ctor] 데드아이 initialized. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[RecalculateStats] 데드아이 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[RecalculateStats] 데드아이 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[RecalculateStats] 데드아이 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[RecalculateStats] 데드아이 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[RecalculateStats] 데드아이 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[RecalculateStats] 데드아이 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+테스트 AF 생성 (Assembly 기반): [데드아이], Pilot: [정밀 파일럿 (RangedCombat)], IsOperational: True, BodyPartExists: True, BodyPartOperational: True, TeamID: 0
+테스트 AF 생성 완료: [데드아이] (팀: 0, 파일럿: 정밀 파일럿)
+[RecalculateStats] 저거너트 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[ArmoredFrame Ctor] 저거너트 initialized. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[RecalculateStats] 저거너트 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[RecalculateStats] 저거너트 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[RecalculateStats] 저거너트 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[RecalculateStats] 저거너트 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[RecalculateStats] 저거너트 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[RecalculateStats] 저거너트 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[RecalculateStats] 저거너트 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+테스트 AF 생성 (Assembly 기반): [저거너트], Pilot: [탱크 파일럿 (Defense)], IsOperational: True, BodyPartExists: True, BodyPartOperational: True, TeamID: 0
+테스트 AF 생성 완료: [저거너트] (팀: 0, 파일럿: 탱크 파일럿)
+[RecalculateStats] 워든(사샤전용기체) - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[ArmoredFrame Ctor] 워든(사샤전용기체) initialized. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[RecalculateStats] 워든(사샤전용기체) - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[RecalculateStats] 워든(사샤전용기체) - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[RecalculateStats] 워든(사샤전용기체) - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[RecalculateStats] 워든(사샤전용기체) - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[RecalculateStats] 워든(사샤전용기체) - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[RecalculateStats] 워든(사샤전용기체) - Recalculated. CombinedMaxRepairUses: 3, CurrentRepairUses: 3
+[RecalculateStats] 워든(사샤전용기체) - Recalculated. CombinedMaxRepairUses: 3, CurrentRepairUses: 3
+테스트 AF 생성 (Assembly 기반): [워든(사샤전용기체)], Pilot: [지원형 파일럿 (Support)], IsOperational: True, BodyPartExists: True, BodyPartOperational: True, TeamID: 0
+테스트 AF 생성 완료: [워든(사샤전용기체)] (팀: 0, 파일럿: 지원형 파일럿)
+[RecalculateStats] 뱅가드 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[ArmoredFrame Ctor] 뱅가드 initialized. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[RecalculateStats] 뱅가드 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[RecalculateStats] 뱅가드 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[RecalculateStats] 뱅가드 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[RecalculateStats] 뱅가드 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[RecalculateStats] 뱅가드 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[RecalculateStats] 뱅가드 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[RecalculateStats] 뱅가드 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+테스트 AF 생성 (Assembly 기반): [뱅가드], Pilot: [표준 파일럿 (StandardCombat)], IsOperational: True, BodyPartExists: True, BodyPartOperational: True, TeamID: 1
+테스트 AF 생성 완료: [뱅가드] (팀: 1, 파일럿: 표준 파일럿)
+[RecalculateStats] 스트라이커 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[ArmoredFrame Ctor] 스트라이커 initialized. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[RecalculateStats] 스트라이커 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[RecalculateStats] 스트라이커 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[RecalculateStats] 스트라이커 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[RecalculateStats] 스트라이커 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[RecalculateStats] 스트라이커 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[RecalculateStats] 스트라이커 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[RecalculateStats] 스트라이커 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+테스트 AF 생성 (Assembly 기반): [스트라이커], Pilot: [공격형 파일럿 (MeleeCombat)], IsOperational: True, BodyPartExists: True, BodyPartOperational: True, TeamID: 1
+테스트 AF 생성 완료: [스트라이커] (팀: 1, 파일럿: 공격형 파일럿)
+총 5기 참가 확정. 전투 시뮬레이션 시작.
+전투 시뮬레이터 시작...
+=== 전투 시작 === ID: BATTLE_20250519_160455_7325, 이름: Test Battle 16:04:55
+//==[ Combat Turn 1 Initiated ]==//
+Unit Activation: [데드아이] (AP: 4.0 -> 4.0/4.0)
+[NeedsReloadNode(OutOfAmmo)] 데드아이: No weapon needs reload under current condition. Failure.
+[HasRepairUsesNode] 데드아이: Has no repair uses left (Current: 0). Failure.
+[SelectTargetNode] 데드아이: Selected target: 스트라이커. Selected weapon: 저격 소총. Success.
+[IsTargetInRangeNode] 데드아이 to 스트라이커: Source='저격 소총', Dist=36.1, Range=(8.0-22.0), InRange=False. Result: Failure
+[HasEnoughAPNode] 데드아이 for Move: Has enough AP (Required: 2.9, Current: 4.0). Success.
+[MoveToTargetNode] 데드아이 too far. Moving to weapon range 19.8m.
+[데드아이](이)가 [스트라이커] 방향으로 10.0 만큼 이동. (거리: 26.1m)
+[NeedsReloadNode(OutOfAmmo)] 데드아이: No weapon needs reload under current condition. Failure.
+[HasRepairUsesNode] 데드아이: Has no repair uses left (Current: 0). Failure.
+[SelectTargetNode] 데드아이: Selected target: 스트라이커. Selected weapon: 저격 소총. Success.
+[IsTargetInRangeNode] 데드아이 to 스트라이커: Source='저격 소총', Dist=26.1, Range=(8.0-22.0), InRange=False. Result: Failure
+[NeedsReloadNode(LowAmmo)] 데드아이: No weapon needs reload under current condition. Failure.
+[HasEnoughAPNode] 데드아이 for Defend: Has enough AP (Required: 1.0, Current: 1.1). Success.
+[RecalculateStats] 데드아이 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[데드아이] 방어 태세 돌입. 잔여 동력: 0.1/4.0.
+[NeedsReloadNode(OutOfAmmo)] 데드아이: No weapon needs reload under current condition. Failure.
+[HasRepairUsesNode] 데드아이: Has no repair uses left (Current: 0). Failure.
+[SelectTargetNode] 데드아이: Selected target: 스트라이커. Selected weapon: 저격 소총. Success.
+[IsTargetInRangeNode] 데드아이 to 스트라이커: Source='저격 소총', Dist=26.1, Range=(8.0-22.0), InRange=False. Result: Failure
+[NeedsReloadNode(LowAmmo)] 데드아이: No weapon needs reload under current condition. Failure.
+[데드아이] 전술 목표 달성. 시스템 대기 모드 전환.
+Unit Standby: 데드아이 (Remaining AP: 0.1)
+ 
+ 
+Unit Activation: [저거너트] (AP: 7.0 -> 7.0/7.0)
+[SelectTargetNode] 저거너트: Selected target: 스트라이커. Selected weapon: 중량 캐논. Success.
+[IsTargetInRangeNode] 저거너트 to 스트라이커: Source='중량 캐논', Dist=20.0, Range=(5.0-15.0), InRange=False. Result: Failure
+[HasEnoughAPNode] 저거너트 for Move: Has enough AP (Required: 5.3, Current: 7.0). Success.
+[MoveToTargetNode] 저거너트 too far. Moving to weapon range 13.5m.
+[저거너트](이)가 [스트라이커] 방향으로 2.0 만큼 이동. (거리: 18.0m)
+[SelectTargetNode] 저거너트: Selected target: 스트라이커. Selected weapon: 중량 캐논. Success.
+[IsTargetInRangeNode] 저거너트 to 스트라이커: Source='중량 캐논', Dist=18.0, Range=(5.0-15.0), InRange=False. Result: Failure
+[NeedsReloadNode(OutOfAmmo)] 저거너트: No weapon needs reload under current condition. Failure.
+[NeedsReloadNode(LowAmmo)] 저거너트: No weapon needs reload under current condition. Failure.
+[저거너트] 전술 목표 달성. 시스템 대기 모드 전환.
+Unit Standby: 저거너트 (Remaining AP: 1.7)
+ 
+ 
+Unit Activation: [워든(사샤전용기체)] (AP: 5.0 -> 5.0/5.0)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): Checking ally 데드아이, Part 'Body' Health Ratio: 100.0%. (Threshold: 85.0%)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): Checking ally 저거너트, Part 'Body' Health Ratio: 100.0%. (Threshold: 85.0%)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): No ally found below health threshold (85.0%) for part 'Body'. Failure.
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): Checking ally 데드아이, Part 'Body' Health Ratio: 100.0%. (Threshold: 85.0%)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): Checking ally 저거너트, Part 'Body' Health Ratio: 100.0%. (Threshold: 85.0%)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): No ally found below health threshold (85.0%) for part 'Body'. Failure.
+[SelectTargetNode] 워든(사샤전용기체): Selected target: 스트라이커. Selected weapon: 표준 라이플. Success.
+[HasEnoughAPNode] 워든(사샤전용기체) for None: Has enough AP (Required: 0.0, Current: 5.0). Success.
+[워든(사샤전용기체)] 전술 목표 달성. 시스템 대기 모드 전환.
+Unit Standby: 워든(사샤전용기체) (Remaining AP: 5.0)
+ 
+ 
+Unit Activation: [뱅가드] (AP: 5.0 -> 5.0/5.0)
+[HasRepairUsesNode] 뱅가드: Has no repair uses left (Current: 0). Failure.
+[SelectTargetNode] 뱅가드: Selected target: 저거너트. Selected weapon: 표준 라이플. Success.
+[IsTargetInRangeNode] 뱅가드 to 저거너트: Source='표준 라이플', Dist=29.7, Range=(1.0-10.0), InRange=False. Result: Failure
+[HasEnoughAPNode] 뱅가드 for Move: Has enough AP (Required: 4.1, Current: 5.0). Success.
+[MoveToTargetNode] 뱅가드 too far. Moving to weapon range 9m.
+[뱅가드](이)가 [저거너트] 방향으로 5.0 만큼 이동. (거리: 24.7m)
+[HasRepairUsesNode] 뱅가드: Has no repair uses left (Current: 0). Failure.
+[IsTargetInRangeNode] 뱅가드 to 저거너트: Source='표준 라이플', Dist=24.7, Range=(1.0-10.0), InRange=False. Result: Failure
+[SelectTargetNode] 뱅가드: Selected target: 저거너트. Selected weapon: 표준 라이플. Success.
+[IsTargetInRangeNode] 뱅가드 to 저거너트: Source='표준 라이플', Dist=24.7, Range=(1.0-10.0), InRange=False. Result: Failure
+[NeedsReloadNode(OutOfAmmo)] 뱅가드: No weapon needs reload under current condition. Failure.
+[HasEnoughAPNode] 뱅가드 for Defend: Not enough AP (Required: 1.0, Current: 0.9). Failure.
+[NeedsReloadNode(LowAmmo)] 뱅가드: No weapon needs reload under current condition. Failure.
+[뱅가드] 전술 목표 달성. 시스템 대기 모드 전환.
+Unit Standby: 뱅가드 (Remaining AP: 0.9)
+ 
+ 
+Unit Activation: [스트라이커] (AP: 5.0 -> 5.0/5.0)
+[HasRepairUsesNode] 스트라이커: Has no repair uses left (Current: 0). Failure.
+[SelectTargetNode] 스트라이커: Selected target: 저거너트. Selected weapon: 표준 샷건. Success.
+[IsTargetInRangeNode] 스트라이커 to 저거너트: Source='표준 샷건', Dist=18.0, Range=(0.0-6.0), InRange=False. Result: Failure
+[HasEnoughAPNode] 스트라이커 for Move: Has enough AP (Required: 4.1, Current: 5.0). Success.
+[MoveToTargetNode] 스트라이커 too far. Moving to weapon range 5.4m.
+[스트라이커](이)가 [저거너트] 방향으로 5.0 만큼 이동. (거리: 13.0m)
+[HasRepairUsesNode] 스트라이커: Has no repair uses left (Current: 0). Failure.
+[IsTargetInRangeNode] 스트라이커 to 저거너트: Source='표준 샷건', Dist=13.0, Range=(0.0-6.0), InRange=False. Result: Failure
+[HasEnoughAPNode] 스트라이커 for Defend: Not enough AP (Required: 1.0, Current: 0.9). Failure.
+[스트라이커] 전술 목표 달성. 시스템 대기 모드 전환.
+Unit Standby: 스트라이커 (Remaining AP: 0.9)
+ 
+ 
+//==[ Combat Turn 2 Initiated ]==//
+Unit Activation: [데드아이] (AP: 0.1 -> 2.1/4.0)
+[RecalculateStats] 데드아이 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[데드아이]의 Defense Boost 효과 소멸.
+[NeedsReloadNode(OutOfAmmo)] 데드아이: No weapon needs reload under current condition. Failure.
+[HasRepairUsesNode] 데드아이: Has no repair uses left (Current: 0). Failure.
+[SelectTargetNode] 데드아이: Selected target: 스트라이커. Selected weapon: 저격 소총. Success.
+[IsTargetInRangeNode] 데드아이 to 스트라이커: Source='저격 소총', Dist=22.1, Range=(8.0-22.0), InRange=False. Result: Failure
+[HasEnoughAPNode] 데드아이 for Move: Not enough AP (Required: 2.9, Current: 2.1). Failure.
+[NeedsReloadNode(LowAmmo)] 데드아이: No weapon needs reload under current condition. Failure.
+[HasEnoughAPNode] 데드아이 for Defend: Has enough AP (Required: 1.0, Current: 2.1). Success.
+[RecalculateStats] 데드아이 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[데드아이] 방어 태세 돌입. 잔여 동력: 1.1/4.0.
+[NeedsReloadNode(OutOfAmmo)] 데드아이: No weapon needs reload under current condition. Failure.
+[HasRepairUsesNode] 데드아이: Has no repair uses left (Current: 0). Failure.
+[SelectTargetNode] 데드아이: Selected target: 스트라이커. Selected weapon: 저격 소총. Success.
+[IsTargetInRangeNode] 데드아이 to 스트라이커: Source='저격 소총', Dist=22.1, Range=(8.0-22.0), InRange=False. Result: Failure
+[HasEnoughAPNode] 데드아이 for Move: Not enough AP (Required: 2.9, Current: 1.1). Failure.
+[NeedsReloadNode(LowAmmo)] 데드아이: No weapon needs reload under current condition. Failure.
+[데드아이] 전술 목표 달성. 시스템 대기 모드 전환.
+Unit Standby: 데드아이 (Remaining AP: 1.1)
+ 
+ 
+Unit Activation: [저거너트] (AP: 1.7 -> 4.7/7.0)
+[SelectTargetNode] 저거너트: Selected target: 스트라이커. Selected weapon: 중량 캐논. Success.
+[IsTargetInRangeNode] 저거너트 to 스트라이커: Source='중량 캐논', Dist=13.0, Range=(5.0-15.0), InRange=True. Result: Success
+[HasEnoughAPNode] 저거너트 for Attack: Has enough AP (Required: 2.0, Current: 4.7). Success.
+[AttackTargetNode] 저거너트: Decided to attack 스트라이커 with 중량 캐논. Success.
+중량 캐논의 중량 포탄이 발사됨. (탄약: 5/6)
+[SetDurability_DEBUG] Part: 표준 팔 유닛 (Arm), PrevHP: 85, NewHP_Attempt: 17, ClampedHP: 17, MaxHP: 85
+맹렬한 포화! [스트라이커]의 표준 팔 유닛가 68 피해를 입고 너덜거린다!
+[SelectTargetNode] 저거너트: Selected target: 스트라이커. Selected weapon: 중량 캐논. Success.
+[IsTargetInRangeNode] 저거너트 to 스트라이커: Source='중량 캐논', Dist=13.0, Range=(5.0-15.0), InRange=True. Result: Success
+[HasEnoughAPNode] 저거너트 for Attack: Has enough AP (Required: 2.0, Current: 2.7). Success.
+[AttackTargetNode] 저거너트: Decided to attack 스트라이커 with 중량 캐논. Success.
+중량 캐논의 중량 포탄이 발사됨. (탄약: 4/6)
+[SetDurability_DEBUG] Part: 표준 팔 유닛 (Arm), PrevHP: 85, NewHP_Attempt: 17, ClampedHP: 17, MaxHP: 85
+[스트라이커]의 표준 팔 유닛에 치명적인 일격! 파편이 튄다!
+[SelectTargetNode] 저거너트: Selected target: 스트라이커. Selected weapon: 중량 캐논. Success.
+[IsTargetInRangeNode] 저거너트 to 스트라이커: Source='중량 캐논', Dist=13.0, Range=(5.0-15.0), InRange=True. Result: Success
+[HasEnoughAPNode] 저거너트 for Attack: Not enough AP (Required: 2.0, Current: 0.6). Failure.
+[HasEnoughAPNode] 저거너트 for Move: Not enough AP (Required: 5.3, Current: 0.6). Failure.
+[NeedsReloadNode(OutOfAmmo)] 저거너트: No weapon needs reload under current condition. Failure.
+[NeedsReloadNode(LowAmmo)] 저거너트: No weapon needs reload under current condition. Failure.
+[저거너트] 전술 목표 달성. 시스템 대기 모드 전환.
+Unit Standby: 저거너트 (Remaining AP: 0.6)
+ 
+ 
+Unit Activation: [워든(사샤전용기체)] (AP: 5.0 -> 5.0/5.0)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): Checking ally 데드아이, Part 'Body' Health Ratio: 100.0%. (Threshold: 85.0%)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): Checking ally 저거너트, Part 'Body' Health Ratio: 100.0%. (Threshold: 85.0%)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): No ally found below health threshold (85.0%) for part 'Body'. Failure.
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): Checking ally 데드아이, Part 'Body' Health Ratio: 100.0%. (Threshold: 85.0%)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): Checking ally 저거너트, Part 'Body' Health Ratio: 100.0%. (Threshold: 85.0%)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): No ally found below health threshold (85.0%) for part 'Body'. Failure.
+[SelectTargetNode] 워든(사샤전용기체): Selected target: 스트라이커. Selected weapon: 표준 라이플. Success.
+[HasEnoughAPNode] 워든(사샤전용기체) for None: Has enough AP (Required: 0.0, Current: 5.0). Success.
+[워든(사샤전용기체)] 전술 목표 달성. 시스템 대기 모드 전환.
+Unit Standby: 워든(사샤전용기체) (Remaining AP: 5.0)
+ 
+ 
+Unit Activation: [뱅가드] (AP: 0.9 -> 3.4/5.0)
+[HasRepairUsesNode] 뱅가드: Has no repair uses left (Current: 0). Failure.
+[SelectTargetNode] 뱅가드: Selected target: 저거너트. Selected weapon: 표준 라이플. Success.
+[IsTargetInRangeNode] 뱅가드 to 저거너트: Source='표준 라이플', Dist=24.7, Range=(1.0-10.0), InRange=False. Result: Failure
+[HasEnoughAPNode] 뱅가드 for Move: Not enough AP (Required: 4.1, Current: 3.4). Failure.
+[NeedsReloadNode(OutOfAmmo)] 뱅가드: No weapon needs reload under current condition. Failure.
+[HasEnoughAPNode] 뱅가드 for Defend: Has enough AP (Required: 1.0, Current: 3.4). Success.
+[RecalculateStats] 뱅가드 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[뱅가드] 방어 태세 돌입. 잔여 동력: 2.4/5.0.
+[HasRepairUsesNode] 뱅가드: Has no repair uses left (Current: 0). Failure.
+[IsTargetInRangeNode] 뱅가드 to 저거너트: Source='표준 라이플', Dist=24.7, Range=(1.0-10.0), InRange=False. Result: Failure
+[SelectTargetNode] 뱅가드: Selected target: 저거너트. Selected weapon: 표준 라이플. Success.
+[IsTargetInRangeNode] 뱅가드 to 저거너트: Source='표준 라이플', Dist=24.7, Range=(1.0-10.0), InRange=False. Result: Failure
+[HasEnoughAPNode] 뱅가드 for Move: Not enough AP (Required: 4.1, Current: 2.4). Failure.
+[NeedsReloadNode(OutOfAmmo)] 뱅가드: No weapon needs reload under current condition. Failure.
+[NeedsReloadNode(LowAmmo)] 뱅가드: No weapon needs reload under current condition. Failure.
+[뱅가드] 전술 목표 달성. 시스템 대기 모드 전환.
+Unit Standby: 뱅가드 (Remaining AP: 2.4)
+ 
+ 
+Unit Activation: [스트라이커] (AP: 0.9 -> 3.4/5.0)
+[HasRepairUsesNode] 스트라이커: Has no repair uses left (Current: 0). Failure.
+[SelectTargetNode] 스트라이커: Selected target: 저거너트. Selected weapon: 표준 샷건. Success.
+[IsTargetInRangeNode] 스트라이커 to 저거너트: Source='표준 샷건', Dist=13.0, Range=(0.0-6.0), InRange=False. Result: Failure
+[HasEnoughAPNode] 스트라이커 for Move: Not enough AP (Required: 4.1, Current: 3.4). Failure.
+[HasEnoughAPNode] 스트라이커 for Defend: Has enough AP (Required: 1.0, Current: 3.4). Success.
+[RecalculateStats] 스트라이커 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[스트라이커] 방어 태세 돌입. 잔여 동력: 2.4/5.0.
+[HasRepairUsesNode] 스트라이커: Has no repair uses left (Current: 0). Failure.
+[IsTargetInRangeNode] 스트라이커 to 저거너트: Source='표준 샷건', Dist=13.0, Range=(0.0-6.0), InRange=False. Result: Failure
+[HasEnoughAPNode] 스트라이커 for Move: Not enough AP (Required: 4.1, Current: 2.4). Failure.
+[스트라이커] 전술 목표 달성. 시스템 대기 모드 전환.
+Unit Standby: 스트라이커 (Remaining AP: 2.4)
+ 
+ 
+//==[ Combat Turn 3 Initiated ]==//
+Unit Activation: [데드아이] (AP: 1.1 -> 3.1/4.0)
+[RecalculateStats] 데드아이 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[데드아이]의 Defense Boost 효과 소멸.
+[NeedsReloadNode(OutOfAmmo)] 데드아이: No weapon needs reload under current condition. Failure.
+[HasRepairUsesNode] 데드아이: Has no repair uses left (Current: 0). Failure.
+[SelectTargetNode] 데드아이: Selected target: 스트라이커. Selected weapon: 저격 소총. Success.
+[IsTargetInRangeNode] 데드아이 to 스트라이커: Source='저격 소총', Dist=22.1, Range=(8.0-22.0), InRange=False. Result: Failure
+[HasEnoughAPNode] 데드아이 for Move: Has enough AP (Required: 2.9, Current: 3.1). Success.
+[MoveToTargetNode] 데드아이 too far. Moving to weapon range 19.8m.
+[데드아이](이)가 [스트라이커] 방향으로 2.3 만큼 이동. (거리: 19.8m)
+[NeedsReloadNode(OutOfAmmo)] 데드아이: No weapon needs reload under current condition. Failure.
+[HasRepairUsesNode] 데드아이: Has no repair uses left (Current: 0). Failure.
+[SelectTargetNode] 데드아이: Selected target: 스트라이커. Selected weapon: 저격 소총. Success.
+[IsTargetInRangeNode] 데드아이 to 스트라이커: Source='저격 소총', Dist=19.8, Range=(8.0-22.0), InRange=True. Result: Success
+[HasEnoughAPNode] 데드아이 for Attack: Not enough AP (Required: 2.0, Current: 0.2). Failure.
+[NeedsReloadNode(LowAmmo)] 데드아이: No weapon needs reload under current condition. Failure.
+[HasEnoughAPNode] 데드아이 for Defend: Not enough AP (Required: 1.0, Current: 0.2). Failure.
+[데드아이] 전술 목표 달성. 시스템 대기 모드 전환.
+Unit Standby: 데드아이 (Remaining AP: 0.2)
+ 
+ 
+Unit Activation: [저거너트] (AP: 0.6 -> 3.6/7.0)
+[SelectTargetNode] 저거너트: Selected target: 스트라이커. Selected weapon: 중량 캐논. Success.
+[IsTargetInRangeNode] 저거너트 to 스트라이커: Source='중량 캐논', Dist=13.0, Range=(5.0-15.0), InRange=True. Result: Success
+[HasEnoughAPNode] 저거너트 for Attack: Has enough AP (Required: 2.0, Current: 3.6). Success.
+[AttackTargetNode] 저거너트: Decided to attack 스트라이커 with 중량 캐논. Success.
+중량 캐논의 중량 포탄이 발사됨. (탄약: 3/6)
+스트라이커가 저거너트의 공격을 날렵하게 회피!
+[SelectTargetNode] 저거너트: Selected target: 스트라이커. Selected weapon: 중량 캐논. Success.
+[IsTargetInRangeNode] 저거너트 to 스트라이커: Source='중량 캐논', Dist=13.0, Range=(5.0-15.0), InRange=True. Result: Success
+[HasEnoughAPNode] 저거너트 for Attack: Not enough AP (Required: 2.0, Current: 1.6). Failure.
+[HasEnoughAPNode] 저거너트 for Move: Not enough AP (Required: 5.3, Current: 1.6). Failure.
+[NeedsReloadNode(OutOfAmmo)] 저거너트: No weapon needs reload under current condition. Failure.
+[NeedsReloadNode(LowAmmo)] 저거너트: No weapon needs reload under current condition. Failure.
+[저거너트] 전술 목표 달성. 시스템 대기 모드 전환.
+Unit Standby: 저거너트 (Remaining AP: 1.6)
+ 
+ 
+Unit Activation: [워든(사샤전용기체)] (AP: 5.0 -> 5.0/5.0)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): Checking ally 데드아이, Part 'Body' Health Ratio: 100.0%. (Threshold: 85.0%)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): Checking ally 저거너트, Part 'Body' Health Ratio: 100.0%. (Threshold: 85.0%)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): No ally found below health threshold (85.0%) for part 'Body'. Failure.
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): Checking ally 데드아이, Part 'Body' Health Ratio: 100.0%. (Threshold: 85.0%)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): Checking ally 저거너트, Part 'Body' Health Ratio: 100.0%. (Threshold: 85.0%)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): No ally found below health threshold (85.0%) for part 'Body'. Failure.
+[SelectTargetNode] 워든(사샤전용기체): Selected target: 스트라이커. Selected weapon: 표준 라이플. Success.
+[HasEnoughAPNode] 워든(사샤전용기체) for None: Has enough AP (Required: 0.0, Current: 5.0). Success.
+[워든(사샤전용기체)] 전술 목표 달성. 시스템 대기 모드 전환.
+Unit Standby: 워든(사샤전용기체) (Remaining AP: 5.0)
+ 
+ 
+Unit Activation: [뱅가드] (AP: 2.4 -> 4.9/5.0)
+[RecalculateStats] 뱅가드 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[뱅가드]의 Defense Boost 효과 소멸.
+[HasRepairUsesNode] 뱅가드: Has no repair uses left (Current: 0). Failure.
+[SelectTargetNode] 뱅가드: Selected target: 저거너트. Selected weapon: 표준 라이플. Success.
+[IsTargetInRangeNode] 뱅가드 to 저거너트: Source='표준 라이플', Dist=24.7, Range=(1.0-10.0), InRange=False. Result: Failure
+[HasEnoughAPNode] 뱅가드 for Move: Has enough AP (Required: 4.1, Current: 4.9). Success.
+[MoveToTargetNode] 뱅가드 too far. Moving to weapon range 9m.
+[뱅가드](이)가 [저거너트] 방향으로 5.0 만큼 이동. (거리: 19.7m)
+[HasRepairUsesNode] 뱅가드: Has no repair uses left (Current: 0). Failure.
+[IsTargetInRangeNode] 뱅가드 to 저거너트: Source='표준 라이플', Dist=19.7, Range=(1.0-10.0), InRange=False. Result: Failure
+[SelectTargetNode] 뱅가드: Selected target: 저거너트. Selected weapon: 표준 라이플. Success.
+[IsTargetInRangeNode] 뱅가드 to 저거너트: Source='표준 라이플', Dist=19.7, Range=(1.0-10.0), InRange=False. Result: Failure
+[NeedsReloadNode(OutOfAmmo)] 뱅가드: No weapon needs reload under current condition. Failure.
+[HasEnoughAPNode] 뱅가드 for Defend: Not enough AP (Required: 1.0, Current: 0.8). Failure.
+[NeedsReloadNode(LowAmmo)] 뱅가드: No weapon needs reload under current condition. Failure.
+[뱅가드] 전술 목표 달성. 시스템 대기 모드 전환.
+Unit Standby: 뱅가드 (Remaining AP: 0.8)
+ 
+ 
+Unit Activation: [스트라이커] (AP: 2.4 -> 4.9/5.0)
+[RecalculateStats] 스트라이커 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[스트라이커]의 Defense Boost 효과 소멸.
+[HasRepairUsesNode] 스트라이커: Has no repair uses left (Current: 0). Failure.
+[SelectTargetNode] 스트라이커: Selected target: 저거너트. Selected weapon: 표준 샷건. Success.
+[IsTargetInRangeNode] 스트라이커 to 저거너트: Source='표준 샷건', Dist=13.0, Range=(0.0-6.0), InRange=False. Result: Failure
+[HasEnoughAPNode] 스트라이커 for Move: Has enough AP (Required: 4.1, Current: 4.9). Success.
+[MoveToTargetNode] 스트라이커 too far. Moving to weapon range 5.4m.
+[스트라이커](이)가 [저거너트] 방향으로 5.0 만큼 이동. (거리: 8.0m)
+[HasRepairUsesNode] 스트라이커: Has no repair uses left (Current: 0). Failure.
+[IsTargetInRangeNode] 스트라이커 to 저거너트: Source='표준 샷건', Dist=8.0, Range=(0.0-6.0), InRange=False. Result: Failure
+[HasEnoughAPNode] 스트라이커 for Defend: Not enough AP (Required: 1.0, Current: 0.9). Failure.
+[스트라이커] 전술 목표 달성. 시스템 대기 모드 전환.
+Unit Standby: 스트라이커 (Remaining AP: 0.9)
+ 
+ 
+//==[ Combat Turn 4 Initiated ]==//
+Unit Activation: [데드아이] (AP: 0.2 -> 2.2/4.0)
+[NeedsReloadNode(OutOfAmmo)] 데드아이: No weapon needs reload under current condition. Failure.
+[HasRepairUsesNode] 데드아이: Has no repair uses left (Current: 0). Failure.
+[SelectTargetNode] 데드아이: Selected target: 스트라이커. Selected weapon: 저격 소총. Success.
+[IsTargetInRangeNode] 데드아이 to 스트라이커: Source='저격 소총', Dist=16.4, Range=(8.0-22.0), InRange=True. Result: Success
+[HasEnoughAPNode] 데드아이 for Attack: Has enough AP (Required: 2.0, Current: 2.2). Success.
+[AttackTargetNode] 데드아이: Decided to attack 스트라이커 with 저격 소총. Success.
+저격 소총에서 고정밀 저격탄 발사. (탄약: 4/5)
+스트라이커가 데드아이의 공격을 날렵하게 회피!
+[NeedsReloadNode(OutOfAmmo)] 데드아이: No weapon needs reload under current condition. Failure.
+[HasRepairUsesNode] 데드아이: Has no repair uses left (Current: 0). Failure.
+[SelectTargetNode] 데드아이: Selected target: 스트라이커. Selected weapon: 저격 소총. Success.
+[IsTargetInRangeNode] 데드아이 to 스트라이커: Source='저격 소총', Dist=16.4, Range=(8.0-22.0), InRange=True. Result: Success
+[HasEnoughAPNode] 데드아이 for Attack: Not enough AP (Required: 2.0, Current: 0.2). Failure.
+[HasEnoughAPNode] 데드아이 for Move: Not enough AP (Required: 2.9, Current: 0.2). Failure.
+[NeedsReloadNode(LowAmmo)] 데드아이: No weapon needs reload under current condition. Failure.
+[HasEnoughAPNode] 데드아이 for Defend: Not enough AP (Required: 1.0, Current: 0.2). Failure.
+[데드아이] 전술 목표 달성. 시스템 대기 모드 전환.
+Unit Standby: 데드아이 (Remaining AP: 0.2)
+ 
+ 
+Unit Activation: [저거너트] (AP: 1.6 -> 4.6/7.0)
+[SelectTargetNode] 저거너트: Selected target: 스트라이커. Selected weapon: 중량 캐논. Success.
+[IsTargetInRangeNode] 저거너트 to 스트라이커: Source='중량 캐논', Dist=8.0, Range=(5.0-15.0), InRange=True. Result: Success
+[HasEnoughAPNode] 저거너트 for Attack: Has enough AP (Required: 2.0, Current: 4.6). Success.
+[AttackTargetNode] 저거너트: Decided to attack 스트라이커 with 중량 캐논. Success.
+중량 캐논의 중량 포탄이 발사됨. (탄약: 2/6)
+[SetDurability_DEBUG] Part: 표준 바디 유닛 (Body), PrevHP: 160, NewHP_Attempt: 58, ClampedHP: 58, MaxHP: 160
+CRITICAL HIT! [저거너트]의 공격이 [스트라이커]의 표준 바디 유닛 약점을 피격!
+[SelectTargetNode] 저거너트: Selected target: 스트라이커. Selected weapon: 중량 캐논. Success.
+[IsTargetInRangeNode] 저거너트 to 스트라이커: Source='중량 캐논', Dist=8.0, Range=(5.0-15.0), InRange=True. Result: Success
+[HasEnoughAPNode] 저거너트 for Attack: Has enough AP (Required: 2.0, Current: 2.6). Success.
+[AttackTargetNode] 저거너트: Decided to attack 스트라이커 with 중량 캐논. Success.
+중량 캐논의 중량 포탄이 발사됨. (탄약: 1/6)
+스트라이커가 저거너트의 공격을 날렵하게 회피!
+[SelectTargetNode] 저거너트: Selected target: 스트라이커. Selected weapon: 중량 캐논. Success.
+[IsTargetInRangeNode] 저거너트 to 스트라이커: Source='중량 캐논', Dist=8.0, Range=(5.0-15.0), InRange=True. Result: Success
+[HasEnoughAPNode] 저거너트 for Attack: Not enough AP (Required: 2.0, Current: 0.6). Failure.
+[HasEnoughAPNode] 저거너트 for Move: Not enough AP (Required: 5.3, Current: 0.6). Failure.
+[NeedsReloadNode(OutOfAmmo)] 저거너트: No weapon needs reload under current condition. Failure.
+[NeedsReloadNode(LowAmmo)] 저거너트: Needs reload for '중량 캐논' (Ammo: 1/6). Success.
+[HasEnoughAPNode] 저거너트 for Reload: Not enough AP (Required: 2.0, Current: 0.6). Failure.
+[저거너트] 전술 목표 달성. 시스템 대기 모드 전환.
+Unit Standby: 저거너트 (Remaining AP: 0.6)
+ 
+ 
+Unit Activation: [워든(사샤전용기체)] (AP: 5.0 -> 5.0/5.0)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): Checking ally 데드아이, Part 'Body' Health Ratio: 100.0%. (Threshold: 85.0%)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): Checking ally 저거너트, Part 'Body' Health Ratio: 100.0%. (Threshold: 85.0%)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): No ally found below health threshold (85.0%) for part 'Body'. Failure.
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): Checking ally 데드아이, Part 'Body' Health Ratio: 100.0%. (Threshold: 85.0%)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): Checking ally 저거너트, Part 'Body' Health Ratio: 100.0%. (Threshold: 85.0%)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): No ally found below health threshold (85.0%) for part 'Body'. Failure.
+[SelectTargetNode] 워든(사샤전용기체): Selected target: 스트라이커. Selected weapon: 표준 라이플. Success.
+[HasEnoughAPNode] 워든(사샤전용기체) for None: Has enough AP (Required: 0.0, Current: 5.0). Success.
+[워든(사샤전용기체)] 전술 목표 달성. 시스템 대기 모드 전환.
+Unit Standby: 워든(사샤전용기체) (Remaining AP: 5.0)
+ 
+ 
+Unit Activation: [뱅가드] (AP: 0.8 -> 3.3/5.0)
+[HasRepairUsesNode] 뱅가드: Has no repair uses left (Current: 0). Failure.
+[SelectTargetNode] 뱅가드: Selected target: 저거너트. Selected weapon: 표준 라이플. Success.
+[IsTargetInRangeNode] 뱅가드 to 저거너트: Source='표준 라이플', Dist=19.7, Range=(1.0-10.0), InRange=False. Result: Failure
+[HasEnoughAPNode] 뱅가드 for Move: Not enough AP (Required: 4.1, Current: 3.3). Failure.
+[NeedsReloadNode(OutOfAmmo)] 뱅가드: No weapon needs reload under current condition. Failure.
+[HasEnoughAPNode] 뱅가드 for Defend: Has enough AP (Required: 1.0, Current: 3.3). Success.
+[RecalculateStats] 뱅가드 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[뱅가드] 방어 태세 돌입. 잔여 동력: 2.3/5.0.
+[HasRepairUsesNode] 뱅가드: Has no repair uses left (Current: 0). Failure.
+[IsTargetInRangeNode] 뱅가드 to 저거너트: Source='표준 라이플', Dist=19.7, Range=(1.0-10.0), InRange=False. Result: Failure
+[SelectTargetNode] 뱅가드: Selected target: 저거너트. Selected weapon: 표준 라이플. Success.
+[IsTargetInRangeNode] 뱅가드 to 저거너트: Source='표준 라이플', Dist=19.7, Range=(1.0-10.0), InRange=False. Result: Failure
+[HasEnoughAPNode] 뱅가드 for Move: Not enough AP (Required: 4.1, Current: 2.3). Failure.
+[NeedsReloadNode(OutOfAmmo)] 뱅가드: No weapon needs reload under current condition. Failure.
+[NeedsReloadNode(LowAmmo)] 뱅가드: No weapon needs reload under current condition. Failure.
+[뱅가드] 전술 목표 달성. 시스템 대기 모드 전환.
+Unit Standby: 뱅가드 (Remaining AP: 2.3)
+ 
+ 
+Unit Activation: [스트라이커] (AP: 0.9 -> 3.4/5.0)
+[HasRepairUsesNode] 스트라이커: Has no repair uses left (Current: 0). Failure.
+[SelectTargetNode] 스트라이커: Selected target: 저거너트. Selected weapon: 표준 샷건. Success.
+[IsTargetInRangeNode] 스트라이커 to 저거너트: Source='표준 샷건', Dist=8.0, Range=(0.0-6.0), InRange=False. Result: Failure
+[HasEnoughAPNode] 스트라이커 for Move: Not enough AP (Required: 4.1, Current: 3.4). Failure.
+[HasEnoughAPNode] 스트라이커 for Defend: Has enough AP (Required: 1.0, Current: 3.4). Success.
+[RecalculateStats] 스트라이커 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[스트라이커] 방어 태세 돌입. 잔여 동력: 2.4/5.0.
+[HasRepairUsesNode] 스트라이커: Has no repair uses left (Current: 0). Failure.
+[IsTargetInRangeNode] 스트라이커 to 저거너트: Source='표준 샷건', Dist=8.0, Range=(0.0-6.0), InRange=False. Result: Failure
+[HasEnoughAPNode] 스트라이커 for Move: Not enough AP (Required: 4.1, Current: 2.4). Failure.
+[스트라이커] 전술 목표 달성. 시스템 대기 모드 전환.
+Unit Standby: 스트라이커 (Remaining AP: 2.4)
+ 
+ 
+//==[ Combat Turn 5 Initiated ]==//
+Unit Activation: [데드아이] (AP: 0.2 -> 2.2/4.0)
+[NeedsReloadNode(OutOfAmmo)] 데드아이: No weapon needs reload under current condition. Failure.
+[HasRepairUsesNode] 데드아이: Has no repair uses left (Current: 0). Failure.
+[SelectTargetNode] 데드아이: Selected target: 스트라이커. Selected weapon: 저격 소총. Success.
+[IsTargetInRangeNode] 데드아이 to 스트라이커: Source='저격 소총', Dist=16.4, Range=(8.0-22.0), InRange=True. Result: Success
+[HasEnoughAPNode] 데드아이 for Attack: Has enough AP (Required: 2.0, Current: 2.2). Success.
+[AttackTargetNode] 데드아이: Decided to attack 스트라이커 with 저격 소총. Success.
+저격 소총에서 고정밀 저격탄 발사. (탄약: 3/5)
+[SetDurability_DEBUG] Part: 경량 헤드 유닛 (Head), PrevHP: 40, NewHP_Attempt: -36, ClampedHP: 0, MaxHP: 40
+[HeadPart] Part '경량 헤드 유닛' operational status changed to: False
+[데드아이]의 무기 강타! [스트라이커]의 경량 헤드 유닛 장갑이 찌그러진다!
+[RecalculateStats] 스트라이커 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[스트라이커]의 헤드 유닛 파괴! 센서 기능 정지!
+[NeedsReloadNode(OutOfAmmo)] 데드아이: No weapon needs reload under current condition. Failure.
+[HasRepairUsesNode] 데드아이: Has no repair uses left (Current: 0). Failure.
+[SelectTargetNode] 데드아이: Selected target: 스트라이커. Selected weapon: 저격 소총. Success.
+[IsTargetInRangeNode] 데드아이 to 스트라이커: Source='저격 소총', Dist=16.4, Range=(8.0-22.0), InRange=True. Result: Success
+[HasEnoughAPNode] 데드아이 for Attack: Not enough AP (Required: 2.0, Current: 0.2). Failure.
+[HasEnoughAPNode] 데드아이 for Move: Not enough AP (Required: 2.9, Current: 0.2). Failure.
+[NeedsReloadNode(LowAmmo)] 데드아이: No weapon needs reload under current condition. Failure.
+[HasEnoughAPNode] 데드아이 for Defend: Not enough AP (Required: 1.0, Current: 0.2). Failure.
+[데드아이] 전술 목표 달성. 시스템 대기 모드 전환.
+Unit Standby: 데드아이 (Remaining AP: 0.2)
+ 
+ 
+Unit Activation: [저거너트] (AP: 0.6 -> 3.6/7.0)
+[SelectTargetNode] 저거너트: Selected target: 스트라이커. Selected weapon: 중량 캐논. Success.
+[IsTargetInRangeNode] 저거너트 to 스트라이커: Source='중량 캐논', Dist=8.0, Range=(5.0-15.0), InRange=True. Result: Success
+[HasEnoughAPNode] 저거너트 for Attack: Has enough AP (Required: 2.0, Current: 3.6). Success.
+[AttackTargetNode] 저거너트: Decided to attack 스트라이커 with 중량 캐논. Success.
+중량 캐논의 중량 포탄이 발사됨. (탄약: 0/6)
+스트라이커가 저거너트의 공격을 날렵하게 회피!
+[SelectTargetNode] 저거너트: Selected target: 스트라이커. Selected weapon: 중량 기관총. Success.
+[IsTargetInRangeNode] 저거너트 to 스트라이커: Source='중량 기관총', Dist=8.0, Range=(0.0-9.0), InRange=True. Result: Success
+[HasEnoughAPNode] 저거너트 for Attack: Has enough AP (Required: 0.9, Current: 1.5). Success.
+[AttackTargetNode] 저거너트: Decided to attack 스트라이커 with 중량 기관총. Success.
+중량 기관총의 압도적인 제압 사격 개시. (탄약: 69/70)
+[SetDurability_DEBUG] Part: 표준 바디 유닛 (Body), PrevHP: 58, NewHP_Attempt: 26, ClampedHP: 26, MaxHP: 160
+유효타지만 [스트라이커]의 표준 바디 유닛 장갑이 버텨냈다. (32 피해)
+[SelectTargetNode] 저거너트: Selected target: 스트라이커. Selected weapon: 중량 기관총. Success.
+[IsTargetInRangeNode] 저거너트 to 스트라이커: Source='중량 기관총', Dist=8.0, Range=(0.0-9.0), InRange=True. Result: Success
+[HasEnoughAPNode] 저거너트 for Attack: Not enough AP (Required: 0.9, Current: 0.7). Failure.
+[HasEnoughAPNode] 저거너트 for Move: Not enough AP (Required: 5.3, Current: 0.7). Failure.
+[NeedsReloadNode(OutOfAmmo)] 저거너트: Needs reload for '중량 캐논' (Ammo: 0/6). Success.
+[HasEnoughAPNode] 저거너트 for Reload: Not enough AP (Required: 2.0, Current: 0.7). Failure.
+[NeedsReloadNode(LowAmmo)] 저거너트: Needs reload for '중량 캐논' (Ammo: 0/6). Success.
+[HasEnoughAPNode] 저거너트 for Reload: Not enough AP (Required: 2.0, Current: 0.7). Failure.
+[저거너트] 전술 목표 달성. 시스템 대기 모드 전환.
+Unit Standby: 저거너트 (Remaining AP: 0.7)
+ 
+ 
+Unit Activation: [워든(사샤전용기체)] (AP: 5.0 -> 5.0/5.0)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): Checking ally 데드아이, Part 'Body' Health Ratio: 100.0%. (Threshold: 85.0%)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): Checking ally 저거너트, Part 'Body' Health Ratio: 100.0%. (Threshold: 85.0%)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): No ally found below health threshold (85.0%) for part 'Body'. Failure.
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): Checking ally 데드아이, Part 'Body' Health Ratio: 100.0%. (Threshold: 85.0%)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): Checking ally 저거너트, Part 'Body' Health Ratio: 100.0%. (Threshold: 85.0%)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): No ally found below health threshold (85.0%) for part 'Body'. Failure.
+[SelectTargetNode] 워든(사샤전용기체): Selected target: 스트라이커. Selected weapon: 표준 라이플. Success.
+[HasEnoughAPNode] 워든(사샤전용기체) for None: Has enough AP (Required: 0.0, Current: 5.0). Success.
+[워든(사샤전용기체)] 전술 목표 달성. 시스템 대기 모드 전환.
+Unit Standby: 워든(사샤전용기체) (Remaining AP: 5.0)
+ 
+ 
+Unit Activation: [뱅가드] (AP: 2.3 -> 4.8/5.0)
+[RecalculateStats] 뱅가드 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[뱅가드]의 Defense Boost 효과 소멸.
+[HasRepairUsesNode] 뱅가드: Has no repair uses left (Current: 0). Failure.
+[SelectTargetNode] 뱅가드: Selected target: 저거너트. Selected weapon: 표준 라이플. Success.
+[IsTargetInRangeNode] 뱅가드 to 저거너트: Source='표준 라이플', Dist=19.7, Range=(1.0-10.0), InRange=False. Result: Failure
+[HasEnoughAPNode] 뱅가드 for Move: Has enough AP (Required: 4.1, Current: 4.8). Success.
+[MoveToTargetNode] 뱅가드 too far. Moving to weapon range 9m.
+[뱅가드](이)가 [저거너트] 방향으로 5.0 만큼 이동. (거리: 14.7m)
+[HasRepairUsesNode] 뱅가드: Has no repair uses left (Current: 0). Failure.
+[IsTargetInRangeNode] 뱅가드 to 저거너트: Source='표준 라이플', Dist=14.7, Range=(1.0-10.0), InRange=False. Result: Failure
+[SelectTargetNode] 뱅가드: Selected target: 저거너트. Selected weapon: 표준 라이플. Success.
+[IsTargetInRangeNode] 뱅가드 to 저거너트: Source='표준 라이플', Dist=14.7, Range=(1.0-10.0), InRange=False. Result: Failure
+[NeedsReloadNode(OutOfAmmo)] 뱅가드: No weapon needs reload under current condition. Failure.
+[HasEnoughAPNode] 뱅가드 for Defend: Not enough AP (Required: 1.0, Current: 0.6). Failure.
+[NeedsReloadNode(LowAmmo)] 뱅가드: No weapon needs reload under current condition. Failure.
+[뱅가드] 전술 목표 달성. 시스템 대기 모드 전환.
+Unit Standby: 뱅가드 (Remaining AP: 0.6)
+ 
+ 
+Unit Activation: [스트라이커] (AP: 2.4 -> 4.9/5.0)
+[RecalculateStats] 스트라이커 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[스트라이커]의 Defense Boost 효과 소멸.
+[HasRepairUsesNode] 스트라이커: Has no repair uses left (Current: 0). Failure.
+[SelectTargetNode] 스트라이커: Selected target: 저거너트. Selected weapon: 표준 샷건. Success.
+[IsTargetInRangeNode] 스트라이커 to 저거너트: Source='표준 샷건', Dist=8.0, Range=(0.0-6.0), InRange=False. Result: Failure
+[HasEnoughAPNode] 스트라이커 for Move: Has enough AP (Required: 3.9, Current: 4.9). Success.
+[MoveToTargetNode] 스트라이커 too far. Moving to weapon range 5.4m.
+[스트라이커](이)가 [저거너트] 방향으로 2.6 만큼 이동. (거리: 5.4m)
+[HasRepairUsesNode] 스트라이커: Has no repair uses left (Current: 0). Failure.
+[IsTargetInRangeNode] 스트라이커 to 저거너트: Source='표준 샷건', Dist=5.4, Range=(0.0-6.0), InRange=True. Result: Success
+[HasEnoughAPNode] 스트라이커 for Attack: Not enough AP (Required: 2.1, Current: 0.9). Failure.
+[HasEnoughAPNode] 스트라이커 for Defend: Not enough AP (Required: 1.0, Current: 0.9). Failure.
+[스트라이커] 전술 목표 달성. 시스템 대기 모드 전환.
+Unit Standby: 스트라이커 (Remaining AP: 0.9)
+ 
+ 
+//==[ Combat Turn 6 Initiated ]==//
+Unit Activation: [데드아이] (AP: 0.2 -> 2.2/4.0)
+[NeedsReloadNode(OutOfAmmo)] 데드아이: No weapon needs reload under current condition. Failure.
+[HasRepairUsesNode] 데드아이: Has no repair uses left (Current: 0). Failure.
+[SelectTargetNode] 데드아이: Selected target: 스트라이커. Selected weapon: 저격 소총. Success.
+[IsTargetInRangeNode] 데드아이 to 스트라이커: Source='저격 소총', Dist=14.9, Range=(8.0-22.0), InRange=True. Result: Success
+[HasEnoughAPNode] 데드아이 for Attack: Has enough AP (Required: 2.0, Current: 2.2). Success.
+[AttackTargetNode] 데드아이: Decided to attack 스트라이커 with 저격 소총. Success.
+저격 소총에서 고정밀 저격탄 발사. (탄약: 2/5)
+[SetDurability_DEBUG] Part: 표준 팔 유닛 (Arm), PrevHP: 17, NewHP_Attempt: -97, ClampedHP: 0, MaxHP: 85
+[ArmsPart] Part '표준 팔 유닛' operational status changed to: False
+결정타! [스트라이커]의 표준 팔 유닛에 막대한 피해! (114 피해)
+[RecalculateStats] 스트라이커 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[스트라이커]의 Arm 팔이 절단되어 떨어져 나갔다!
+[NeedsReloadNode(OutOfAmmo)] 데드아이: No weapon needs reload under current condition. Failure.
+[HasRepairUsesNode] 데드아이: Has no repair uses left (Current: 0). Failure.
+[SelectTargetNode] 데드아이: Selected target: 스트라이커. Selected weapon: 저격 소총. Success.
+[IsTargetInRangeNode] 데드아이 to 스트라이커: Source='저격 소총', Dist=14.9, Range=(8.0-22.0), InRange=True. Result: Success
+[HasEnoughAPNode] 데드아이 for Attack: Not enough AP (Required: 2.0, Current: 0.2). Failure.
+[HasEnoughAPNode] 데드아이 for Move: Not enough AP (Required: 2.9, Current: 0.2). Failure.
+[NeedsReloadNode(LowAmmo)] 데드아이: No weapon needs reload under current condition. Failure.
+[HasEnoughAPNode] 데드아이 for Defend: Not enough AP (Required: 1.0, Current: 0.2). Failure.
+[데드아이] 전술 목표 달성. 시스템 대기 모드 전환.
+Unit Standby: 데드아이 (Remaining AP: 0.2)
+ 
+ 
+Unit Activation: [저거너트] (AP: 0.7 -> 3.7/7.0)
+[SelectTargetNode] 저거너트: Selected target: 스트라이커. Selected weapon: 중량 기관총. Success.
+[IsTargetInRangeNode] 저거너트 to 스트라이커: Source='중량 기관총', Dist=5.4, Range=(0.0-9.0), InRange=True. Result: Success
+[HasEnoughAPNode] 저거너트 for Attack: Has enough AP (Required: 0.9, Current: 3.7). Success.
+[AttackTargetNode] 저거너트: Decided to attack 스트라이커 with 중량 기관총. Success.
+중량 기관총의 압도적인 제압 사격 개시. (탄약: 68/70)
+스트라이커가 저거너트의 공격을 날렵하게 회피!
+[스트라이커]의 카운터! ([저거너트]에게)
+표준 샷건이 근거리에 광범위한 산탄을 발사. (탄약: 7/8)
+[저거너트](이)가 [스트라이커]의 반격을 회피! (Dodge)
+[SelectTargetNode] 저거너트: Selected target: 스트라이커. Selected weapon: 중량 기관총. Success.
+[IsTargetInRangeNode] 저거너트 to 스트라이커: Source='중량 기관총', Dist=5.4, Range=(0.0-9.0), InRange=True. Result: Success
+[HasEnoughAPNode] 저거너트 for Attack: Has enough AP (Required: 0.9, Current: 2.8). Success.
+[AttackTargetNode] 저거너트: Decided to attack 스트라이커 with 중량 기관총. Success.
+중량 기관총의 압도적인 제압 사격 개시. (탄약: 67/70)
+예측 기동 성공! 스트라이커이(가) 저거너트의 사격 궤도에서 벗어났다.
+[스트라이커]의 카운터! ([저거너트]에게)
+표준 샷건이 근거리에 광범위한 산탄을 발사. (탄약: 6/8)
+[저거너트](이)가 [스트라이커]의 반격을 회피! (Dodge)
+[SelectTargetNode] 저거너트: Selected target: 스트라이커. Selected weapon: 중량 기관총. Success.
+[IsTargetInRangeNode] 저거너트 to 스트라이커: Source='중량 기관총', Dist=5.4, Range=(0.0-9.0), InRange=True. Result: Success
+[HasEnoughAPNode] 저거너트 for Attack: Has enough AP (Required: 0.9, Current: 1.9). Success.
+[AttackTargetNode] 저거너트: Decided to attack 스트라이커 with 중량 기관총. Success.
+중량 기관총의 압도적인 제압 사격 개시. (탄약: 66/70)
+[SetDurability_DEBUG] Part: 표준 팔 유닛 (Arm), PrevHP: 17, NewHP_Attempt: -15, ClampedHP: 0, MaxHP: 85
+[ArmsPart] Part '표준 팔 유닛' operational status changed to: False
+[스트라이커]의 표준 팔 유닛에 치명적인 일격! 파편이 튄다!
+[RecalculateStats] 스트라이커 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[스트라이커]의 Arm 팔이 절단되어 떨어져 나갔다!
+[스트라이커]의 카운터! ([저거너트]에게)
+표준 샷건이 근거리에 광범위한 산탄을 발사. (탄약: 5/8)
+[저거너트](이)가 [스트라이커]의 반격을 회피! (Dodge)
+[SelectTargetNode] 저거너트: Selected target: 스트라이커. Selected weapon: 중량 기관총. Success.
+[IsTargetInRangeNode] 저거너트 to 스트라이커: Source='중량 기관총', Dist=5.4, Range=(0.0-9.0), InRange=True. Result: Success
+[HasEnoughAPNode] 저거너트 for Attack: Has enough AP (Required: 0.9, Current: 1.0). Success.
+[AttackTargetNode] 저거너트: Decided to attack 스트라이커 with 중량 기관총. Success.
+중량 기관총의 압도적인 제압 사격 개시. (탄약: 65/70)
+부스터 역분사! 스트라이커이(가) 공격을 흘려보냈다.
+[스트라이커]의 카운터! ([저거너트]에게)
+표준 샷건이 근거리에 광범위한 산탄을 발사. (탄약: 4/8)
+[저거너트](이)가 [스트라이커]의 반격을 회피! (Dodge)
+[SelectTargetNode] 저거너트: Selected target: 스트라이커. Selected weapon: 중량 기관총. Success.
+[IsTargetInRangeNode] 저거너트 to 스트라이커: Source='중량 기관총', Dist=5.4, Range=(0.0-9.0), InRange=True. Result: Success
+[HasEnoughAPNode] 저거너트 for Attack: Not enough AP (Required: 0.9, Current: 0.2). Failure.
+[HasEnoughAPNode] 저거너트 for Move: Not enough AP (Required: 5.3, Current: 0.2). Failure.
+[NeedsReloadNode(OutOfAmmo)] 저거너트: Needs reload for '중량 캐논' (Ammo: 0/6). Success.
+[HasEnoughAPNode] 저거너트 for Reload: Not enough AP (Required: 2.0, Current: 0.2). Failure.
+[NeedsReloadNode(LowAmmo)] 저거너트: Needs reload for '중량 캐논' (Ammo: 0/6). Success.
+[HasEnoughAPNode] 저거너트 for Reload: Not enough AP (Required: 2.0, Current: 0.2). Failure.
+[저거너트] 전술 목표 달성. 시스템 대기 모드 전환.
+Unit Standby: 저거너트 (Remaining AP: 0.2)
+ 
+ 
+Unit Activation: [워든(사샤전용기체)] (AP: 5.0 -> 5.0/5.0)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): Checking ally 데드아이, Part 'Body' Health Ratio: 100.0%. (Threshold: 85.0%)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): Checking ally 저거너트, Part 'Body' Health Ratio: 100.0%. (Threshold: 85.0%)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): No ally found below health threshold (85.0%) for part 'Body'. Failure.
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): Checking ally 데드아이, Part 'Body' Health Ratio: 100.0%. (Threshold: 85.0%)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): Checking ally 저거너트, Part 'Body' Health Ratio: 100.0%. (Threshold: 85.0%)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): No ally found below health threshold (85.0%) for part 'Body'. Failure.
+[SelectTargetNode] 워든(사샤전용기체): Selected target: 스트라이커. Selected weapon: 표준 라이플. Success.
+[HasEnoughAPNode] 워든(사샤전용기체) for None: Has enough AP (Required: 0.0, Current: 5.0). Success.
+[워든(사샤전용기체)] 전술 목표 달성. 시스템 대기 모드 전환.
+Unit Standby: 워든(사샤전용기체) (Remaining AP: 5.0)
+ 
+ 
+Unit Activation: [뱅가드] (AP: 0.6 -> 3.1/5.0)
+[HasRepairUsesNode] 뱅가드: Has no repair uses left (Current: 0). Failure.
+[SelectTargetNode] 뱅가드: Selected target: 저거너트. Selected weapon: 표준 라이플. Success.
+[IsTargetInRangeNode] 뱅가드 to 저거너트: Source='표준 라이플', Dist=14.7, Range=(1.0-10.0), InRange=False. Result: Failure
+[HasEnoughAPNode] 뱅가드 for Move: Not enough AP (Required: 4.1, Current: 3.1). Failure.
+[NeedsReloadNode(OutOfAmmo)] 뱅가드: No weapon needs reload under current condition. Failure.
+[HasEnoughAPNode] 뱅가드 for Defend: Has enough AP (Required: 1.0, Current: 3.1). Success.
+[RecalculateStats] 뱅가드 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[뱅가드] 방어 태세 돌입. 잔여 동력: 2.1/5.0.
+[HasRepairUsesNode] 뱅가드: Has no repair uses left (Current: 0). Failure.
+[IsTargetInRangeNode] 뱅가드 to 저거너트: Source='표준 라이플', Dist=14.7, Range=(1.0-10.0), InRange=False. Result: Failure
+[SelectTargetNode] 뱅가드: Selected target: 저거너트. Selected weapon: 표준 라이플. Success.
+[IsTargetInRangeNode] 뱅가드 to 저거너트: Source='표준 라이플', Dist=14.7, Range=(1.0-10.0), InRange=False. Result: Failure
+[HasEnoughAPNode] 뱅가드 for Move: Not enough AP (Required: 4.1, Current: 2.1). Failure.
+[NeedsReloadNode(OutOfAmmo)] 뱅가드: No weapon needs reload under current condition. Failure.
+[NeedsReloadNode(LowAmmo)] 뱅가드: No weapon needs reload under current condition. Failure.
+[뱅가드] 전술 목표 달성. 시스템 대기 모드 전환.
+Unit Standby: 뱅가드 (Remaining AP: 2.1)
+ 
+ 
+Unit Activation: [스트라이커] (AP: 0.9 -> 3.4/5.0)
+[HasRepairUsesNode] 스트라이커: Has no repair uses left (Current: 0). Failure.
+[SelectTargetNode] 스트라이커: Selected target: 저거너트. Selected weapon: 표준 샷건. Success.
+[IsTargetInRangeNode] 스트라이커 to 저거너트: Source='표준 샷건', Dist=5.4, Range=(0.0-6.0), InRange=True. Result: Success
+[HasEnoughAPNode] 스트라이커 for Attack: Has enough AP (Required: 3.2, Current: 3.4). Success.
+[AttackTargetNode] 스트라이커: Decided to attack 저거너트 with 표준 샷건. Success.
+표준 샷건이 근거리에 광범위한 산탄을 발사. (탄약: 3/8)
+저거너트가 스트라이커의 공격을 날렵하게 회피!
+[저거너트]의 카운터! ([스트라이커]에게)
+중량 기관총의 압도적인 제압 사격 개시. (탄약: 64/70)
+[스트라이커](이)가 [저거너트]의 반격을 회피! (Dodge)
+[HasRepairUsesNode] 스트라이커: Has no repair uses left (Current: 0). Failure.
+[IsTargetInRangeNode] 스트라이커 to 저거너트: Source='표준 샷건', Dist=5.4, Range=(0.0-6.0), InRange=True. Result: Success
+[HasEnoughAPNode] 스트라이커 for Attack: Not enough AP (Required: 3.2, Current: 0.3). Failure.
+[HasEnoughAPNode] 스트라이커 for Move: Not enough AP (Required: 2.9, Current: 0.3). Failure.
+[HasEnoughAPNode] 스트라이커 for Defend: Not enough AP (Required: 1.0, Current: 0.3). Failure.
+[스트라이커] 전술 목표 달성. 시스템 대기 모드 전환.
+Unit Standby: 스트라이커 (Remaining AP: 0.3)
+ 
+ 
+//==[ Combat Turn 7 Initiated ]==//
+Unit Activation: [데드아이] (AP: 0.2 -> 2.2/4.0)
+[NeedsReloadNode(OutOfAmmo)] 데드아이: No weapon needs reload under current condition. Failure.
+[HasRepairUsesNode] 데드아이: Has no repair uses left (Current: 0). Failure.
+[SelectTargetNode] 데드아이: Selected target: 스트라이커. Selected weapon: 저격 소총. Success.
+[IsTargetInRangeNode] 데드아이 to 스트라이커: Source='저격 소총', Dist=14.9, Range=(8.0-22.0), InRange=True. Result: Success
+[HasEnoughAPNode] 데드아이 for Attack: Has enough AP (Required: 2.0, Current: 2.2). Success.
+[AttackTargetNode] 데드아이: Decided to attack 스트라이커 with 저격 소총. Success.
+저격 소총에서 고정밀 저격탄 발사. (탄약: 1/5)
+[SetDurability_DEBUG] Part: 표준 바디 유닛 (Body), PrevHP: 26, NewHP_Attempt: -50, ClampedHP: 0, MaxHP: 160
+[BodyPart] Part '표준 바디 유닛' operational status changed to: False
+맹렬한 포화! [스트라이커]의 표준 바디 유닛가 76 피해를 입고 너덜거린다!
+[RecalculateStats] 스트라이커 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+동체 중앙부 대파! [스트라이커]의 시스템 치명적 손상!
+[NeedsReloadNode(OutOfAmmo)] 데드아이: No weapon needs reload under current condition. Failure.
+[HasRepairUsesNode] 데드아이: Has no repair uses left (Current: 0). Failure.
+[SelectTargetNode] 데드아이: Selected target: 뱅가드. Selected weapon: 저격 소총. Success.
+[IsTargetInRangeNode] 데드아이 to 뱅가드: Source='저격 소총', Dist=23.9, Range=(8.0-22.0), InRange=False. Result: Failure
+[HasEnoughAPNode] 데드아이 for Move: Not enough AP (Required: 2.9, Current: 0.2). Failure.
+[NeedsReloadNode(LowAmmo)] 데드아이: Needs reload for '저격 소총' (Ammo: 1/5). Success.
+[HasEnoughAPNode] 데드아이 for Reload: Not enough AP (Required: 1.5, Current: 0.2). Failure.
+[HasEnoughAPNode] 데드아이 for Defend: Not enough AP (Required: 1.0, Current: 0.2). Failure.
+[데드아이] 전술 목표 달성. 시스템 대기 모드 전환.
+Unit Standby: 데드아이 (Remaining AP: 0.2)
+ 
+ 
+Unit Activation: [저거너트] (AP: 0.2 -> 3.2/7.0)
+[SelectTargetNode] 저거너트: Selected target: 뱅가드. Selected weapon: 중량 기관총. Success.
+[IsTargetInRangeNode] 저거너트 to 뱅가드: Source='중량 기관총', Dist=14.7, Range=(0.0-9.0), InRange=False. Result: Failure
+[HasEnoughAPNode] 저거너트 for Move: Not enough AP (Required: 5.3, Current: 3.2). Failure.
+[NeedsReloadNode(OutOfAmmo)] 저거너트: Needs reload for '중량 캐논' (Ammo: 0/6). Success.
+[HasEnoughAPNode] 저거너트 for Reload: Has enough AP (Required: 2.0, Current: 3.2). Success.
+[ReloadWeaponNode] 저거너트: 중량 캐논 재장전 결정. Success.
+[TURN START] 포탄 재장전 시퀀스 가동. (2턴 소요)
+[HasEnoughAPNode] 저거너트 for Defend: Has enough AP (Required: 1.0, Current: 1.2). Success.
+[RecalculateStats] 저거너트 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[저거너트] 방어 태세 돌입. 잔여 동력: 0.2/7.0.
+[SelectTargetNode] 저거너트: Selected target: 뱅가드. Selected weapon: 중량 기관총. Success.
+[IsTargetInRangeNode] 저거너트 to 뱅가드: Source='중량 기관총', Dist=14.7, Range=(0.0-9.0), InRange=False. Result: Failure
+[HasEnoughAPNode] 저거너트 for Move: Not enough AP (Required: 5.3, Current: 0.2). Failure.
+[NeedsReloadNode(OutOfAmmo)] 저거너트: No weapon needs reload under current condition. Failure.
+[NeedsReloadNode(LowAmmo)] 저거너트: No weapon needs reload under current condition. Failure.
+[저거너트] 전술 목표 달성. 시스템 대기 모드 전환.
+Unit Standby: 저거너트 (Remaining AP: 0.2)
+ 
+ 
+Unit Activation: [워든(사샤전용기체)] (AP: 5.0 -> 5.0/5.0)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): Checking ally 데드아이, Part 'Body' Health Ratio: 100.0%. (Threshold: 85.0%)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): Checking ally 저거너트, Part 'Body' Health Ratio: 100.0%. (Threshold: 85.0%)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): No ally found below health threshold (85.0%) for part 'Body'. Failure.
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): Checking ally 데드아이, Part 'Body' Health Ratio: 100.0%. (Threshold: 85.0%)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): Checking ally 저거너트, Part 'Body' Health Ratio: 100.0%. (Threshold: 85.0%)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): No ally found below health threshold (85.0%) for part 'Body'. Failure.
+[SelectTargetNode] 워든(사샤전용기체): Selected target: 뱅가드. Selected weapon: 표준 라이플. Success.
+[HasEnoughAPNode] 워든(사샤전용기체) for None: Has enough AP (Required: 0.0, Current: 5.0). Success.
+[워든(사샤전용기체)] 전술 목표 달성. 시스템 대기 모드 전환.
+Unit Standby: 워든(사샤전용기체) (Remaining AP: 5.0)
+ 
+ 
+Unit Activation: [뱅가드] (AP: 2.1 -> 4.6/5.0)
+[RecalculateStats] 뱅가드 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[뱅가드]의 Defense Boost 효과 소멸.
+[HasRepairUsesNode] 뱅가드: Has no repair uses left (Current: 0). Failure.
+[SelectTargetNode] 뱅가드: Selected target: 저거너트. Selected weapon: 표준 라이플. Success.
+[IsTargetInRangeNode] 뱅가드 to 저거너트: Source='표준 라이플', Dist=14.7, Range=(1.0-10.0), InRange=False. Result: Failure
+[HasEnoughAPNode] 뱅가드 for Move: Has enough AP (Required: 4.1, Current: 4.6). Success.
+[MoveToTargetNode] 뱅가드 too far. Moving to weapon range 9m.
+[뱅가드](이)가 [저거너트] 방향으로 5.0 만큼 이동. (거리: 9.7m)
+[HasRepairUsesNode] 뱅가드: Has no repair uses left (Current: 0). Failure.
+[IsTargetInRangeNode] 뱅가드 to 저거너트: Source='표준 라이플', Dist=9.7, Range=(1.0-10.0), InRange=True. Result: Success
+[HasEnoughAPNode] 뱅가드 for Attack: Not enough AP (Required: 1.2, Current: 0.5). Failure.
+[SelectTargetNode] 뱅가드: Selected target: 저거너트. Selected weapon: 표준 라이플. Success.
+[IsTargetInRangeNode] 뱅가드 to 저거너트: Source='표준 라이플', Dist=9.7, Range=(1.0-10.0), InRange=True. Result: Success
+[HasEnoughAPNode] 뱅가드 for Attack: Not enough AP (Required: 1.2, Current: 0.5). Failure.
+[NeedsReloadNode(OutOfAmmo)] 뱅가드: No weapon needs reload under current condition. Failure.
+[HasEnoughAPNode] 뱅가드 for Defend: Not enough AP (Required: 1.0, Current: 0.5). Failure.
+[NeedsReloadNode(LowAmmo)] 뱅가드: No weapon needs reload under current condition. Failure.
+[뱅가드] 전술 목표 달성. 시스템 대기 모드 전환.
+Unit Standby: 뱅가드 (Remaining AP: 0.5)
+ 
+ 
+//==[ Combat Turn 8 Initiated ]==//
+Unit Activation: [데드아이] (AP: 0.2 -> 2.2/4.0)
+[NeedsReloadNode(OutOfAmmo)] 데드아이: No weapon needs reload under current condition. Failure.
+[HasRepairUsesNode] 데드아이: Has no repair uses left (Current: 0). Failure.
+[SelectTargetNode] 데드아이: Selected target: 뱅가드. Selected weapon: 저격 소총. Success.
+[IsTargetInRangeNode] 데드아이 to 뱅가드: Source='저격 소총', Dist=19.7, Range=(8.0-22.0), InRange=True. Result: Success
+[HasEnoughAPNode] 데드아이 for Attack: Has enough AP (Required: 2.0, Current: 2.2). Success.
+[AttackTargetNode] 데드아이: Decided to attack 뱅가드 with 저격 소총. Success.
+저격 소총에서 고정밀 저격탄 발사. (탄약: 0/5)
+[SetDurability_DEBUG] Part: 표준 헤드 유닛 (Head), PrevHP: 55, NewHP_Attempt: -21, ClampedHP: 0, MaxHP: 55
+[HeadPart] Part '표준 헤드 유닛' operational status changed to: False
+[데드아이]의 무기 강타! [뱅가드]의 표준 헤드 유닛 장갑이 찌그러진다!
+[RecalculateStats] 뱅가드 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[뱅가드]의 헤드 유닛 파괴! 센서 기능 정지!
+[NeedsReloadNode(OutOfAmmo)] 데드아이: Needs reload for '저격 소총' (Ammo: 0/5). Success.
+[HasEnoughAPNode] 데드아이 for Reload: Not enough AP (Required: 1.5, Current: 0.2). Failure.
+[HasRepairUsesNode] 데드아이: Has no repair uses left (Current: 0). Failure.
+[SelectTargetNode] 데드아이: Selected target: 뱅가드. BUT no suitable weapon found. Detailed Reason: Primary weapon (저격 소총) status: not usable (no ammo/reloading). Other usable weapons count: 0. Primary reason for no weapon: Primary '저격 소총' is not usable (e.g., no ammo, reloading).. Setting SelectedWeapon to null.
+[데드아이] 전술 목표 달성. 시스템 대기 모드 전환.
+Unit Standby: 데드아이 (Remaining AP: 0.2)
+ 
+ 
+Unit Activation: [저거너트] (AP: 0.2 -> 3.2/7.0)
+<sprite index=22> [중량 캐논] 재장전 완료까지 1 턴 남음.
+[RecalculateStats] 저거너트 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[저거너트]의 Defense Boost 효과 소멸.
+[HasEnoughAPNode] 저거너트 for Defend: Has enough AP (Required: 1.0, Current: 3.2). Success.
+[RecalculateStats] 저거너트 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[저거너트] 방어 태세 돌입. 잔여 동력: 2.2/7.0.
+[SelectTargetNode] 저거너트: Selected target: 뱅가드. Selected weapon: 중량 기관총. Success.
+[IsTargetInRangeNode] 저거너트 to 뱅가드: Source='중량 기관총', Dist=9.7, Range=(0.0-9.0), InRange=False. Result: Failure
+[HasEnoughAPNode] 저거너트 for Move: Not enough AP (Required: 5.3, Current: 2.2). Failure.
+[NeedsReloadNode(OutOfAmmo)] 저거너트: No weapon needs reload under current condition. Failure.
+[NeedsReloadNode(LowAmmo)] 저거너트: No weapon needs reload under current condition. Failure.
+[저거너트] 전술 목표 달성. 시스템 대기 모드 전환.
+Unit Standby: 저거너트 (Remaining AP: 2.2)
+ 
+ 
+Unit Activation: [워든(사샤전용기체)] (AP: 5.0 -> 5.0/5.0)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): Checking ally 데드아이, Part 'Body' Health Ratio: 100.0%. (Threshold: 85.0%)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): Checking ally 저거너트, Part 'Body' Health Ratio: 100.0%. (Threshold: 85.0%)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): No ally found below health threshold (85.0%) for part 'Body'. Failure.
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): Checking ally 데드아이, Part 'Body' Health Ratio: 100.0%. (Threshold: 85.0%)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): Checking ally 저거너트, Part 'Body' Health Ratio: 100.0%. (Threshold: 85.0%)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): No ally found below health threshold (85.0%) for part 'Body'. Failure.
+[SelectTargetNode] 워든(사샤전용기체): Selected target: 뱅가드. Selected weapon: 표준 라이플. Success.
+[HasEnoughAPNode] 워든(사샤전용기체) for None: Has enough AP (Required: 0.0, Current: 5.0). Success.
+[워든(사샤전용기체)] 전술 목표 달성. 시스템 대기 모드 전환.
+Unit Standby: 워든(사샤전용기체) (Remaining AP: 5.0)
+ 
+ 
+Unit Activation: [뱅가드] (AP: 0.5 -> 3.0/5.0)
+[HasRepairUsesNode] 뱅가드: Has no repair uses left (Current: 0). Failure.
+[SelectTargetNode] 뱅가드: Selected target: 저거너트. Selected weapon: 표준 라이플. Success.
+[IsTargetInRangeNode] 뱅가드 to 저거너트: Source='표준 라이플', Dist=9.7, Range=(1.0-10.0), InRange=True. Result: Success
+[HasEnoughAPNode] 뱅가드 for Attack: Has enough AP (Required: 1.4, Current: 3.0). Success.
+[AttackTargetNode] 뱅가드: Decided to attack 저거너트 with 표준 라이플. Success.
+표준 라이플의 안정적인 점사 실행. (탄약: 19/20)
+저거너트가 뱅가드의 공격을 날렵하게 회피!
+[HasRepairUsesNode] 뱅가드: Has no repair uses left (Current: 0). Failure.
+[IsTargetInRangeNode] 뱅가드 to 저거너트: Source='표준 라이플', Dist=9.7, Range=(1.0-10.0), InRange=True. Result: Success
+[HasEnoughAPNode] 뱅가드 for Attack: Has enough AP (Required: 1.4, Current: 1.6). Success.
+[AttackTargetNode] 뱅가드: Decided to attack 저거너트 with 표준 라이플. Success.
+표준 라이플의 안정적인 점사 실행. (탄약: 18/20)
+저거너트가 뱅가드의 공격을 날렵하게 회피!
+[HasRepairUsesNode] 뱅가드: Has no repair uses left (Current: 0). Failure.
+[IsTargetInRangeNode] 뱅가드 to 저거너트: Source='표준 라이플', Dist=9.7, Range=(1.0-10.0), InRange=True. Result: Success
+[HasEnoughAPNode] 뱅가드 for Attack: Not enough AP (Required: 1.4, Current: 0.2). Failure.
+[SelectTargetNode] 뱅가드: Selected target: 저거너트. Selected weapon: 표준 라이플. Success.
+[IsTargetInRangeNode] 뱅가드 to 저거너트: Source='표준 라이플', Dist=9.7, Range=(1.0-10.0), InRange=True. Result: Success
+[HasEnoughAPNode] 뱅가드 for Attack: Not enough AP (Required: 1.4, Current: 0.2). Failure.
+[HasEnoughAPNode] 뱅가드 for Move: Not enough AP (Required: 3.9, Current: 0.2). Failure.
+[NeedsReloadNode(OutOfAmmo)] 뱅가드: No weapon needs reload under current condition. Failure.
+[HasEnoughAPNode] 뱅가드 for Defend: Not enough AP (Required: 1.0, Current: 0.2). Failure.
+[NeedsReloadNode(LowAmmo)] 뱅가드: No weapon needs reload under current condition. Failure.
+[뱅가드] 전술 목표 달성. 시스템 대기 모드 전환.
+Unit Standby: 뱅가드 (Remaining AP: 0.2)
+ 
+ 
+//==[ Combat Turn 9 Initiated ]==//
+Unit Activation: [데드아이] (AP: 0.2 -> 2.2/4.0)
+[NeedsReloadNode(OutOfAmmo)] 데드아이: Needs reload for '저격 소총' (Ammo: 0/5). Success.
+[HasEnoughAPNode] 데드아이 for Reload: Has enough AP (Required: 1.5, Current: 2.2). Success.
+[ReloadWeaponNode] 데드아이: 저격 소총 재장전 결정. Success.
+[TURN START] 저격용 탄환 삽탄 및 약실 확인.
+[NeedsReloadNode(OutOfAmmo)] 데드아이: No weapon needs reload under current condition. Failure.
+[HasRepairUsesNode] 데드아이: Has no repair uses left (Current: 0). Failure.
+[SelectTargetNode] 데드아이: Selected target: 뱅가드. BUT no suitable weapon found. Detailed Reason: Primary weapon (저격 소총) status: not usable (no ammo/reloading). Other usable weapons count: 0. Primary reason for no weapon: Primary '저격 소총' is not usable (e.g., no ammo, reloading).. Setting SelectedWeapon to null.
+[데드아이] 전술 목표 달성. 시스템 대기 모드 전환.
+Unit Standby: 데드아이 (Remaining AP: 0.7)
+ 
+ 
+Unit Activation: [저거너트] (AP: 2.2 -> 5.2/7.0)
+[TURN END] 중량 캐논 포탄 탑재 완료. (6/6)
+[RecalculateStats] 저거너트 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[저거너트]의 Defense Boost 효과 소멸.
+[SelectTargetNode] 저거너트: Selected target: 뱅가드. Selected weapon: 중량 캐논. Success.
+[IsTargetInRangeNode] 저거너트 to 뱅가드: Source='중량 캐논', Dist=9.7, Range=(5.0-15.0), InRange=True. Result: Success
+[HasEnoughAPNode] 저거너트 for Attack: Has enough AP (Required: 2.0, Current: 5.2). Success.
+[AttackTargetNode] 저거너트: Decided to attack 뱅가드 with 중량 캐논. Success.
+중량 캐논의 중량 포탄이 발사됨. (탄약: 5/6)
+예측 기동 성공! 뱅가드이(가) 저거너트의 사격 궤도에서 벗어났다.
+[뱅가드]의 카운터! ([저거너트]에게)
+표준 라이플의 안정적인 점사 실행. (탄약: 17/20)
+[저거너트](이)가 [뱅가드]의 반격을 회피! (Dodge)
+[SelectTargetNode] 저거너트: Selected target: 뱅가드. Selected weapon: 중량 캐논. Success.
+[IsTargetInRangeNode] 저거너트 to 뱅가드: Source='중량 캐논', Dist=9.7, Range=(5.0-15.0), InRange=True. Result: Success
+[HasEnoughAPNode] 저거너트 for Attack: Has enough AP (Required: 2.0, Current: 3.1). Success.
+[AttackTargetNode] 저거너트: Decided to attack 뱅가드 with 중량 캐논. Success.
+중량 캐논의 중량 포탄이 발사됨. (탄약: 4/6)
+부스터 역분사! 뱅가드이(가) 공격을 흘려보냈다.
+[뱅가드]의 카운터! ([저거너트]에게)
+표준 라이플의 안정적인 점사 실행. (탄약: 16/20)
+[저거너트](이)가 [뱅가드]의 반격을 회피! (Dodge)
+[SelectTargetNode] 저거너트: Selected target: 뱅가드. Selected weapon: 중량 캐논. Success.
+[IsTargetInRangeNode] 저거너트 to 뱅가드: Source='중량 캐논', Dist=9.7, Range=(5.0-15.0), InRange=True. Result: Success
+[HasEnoughAPNode] 저거너트 for Attack: Not enough AP (Required: 2.0, Current: 1.1). Failure.
+[HasEnoughAPNode] 저거너트 for Move: Not enough AP (Required: 5.3, Current: 1.1). Failure.
+[NeedsReloadNode(OutOfAmmo)] 저거너트: No weapon needs reload under current condition. Failure.
+[NeedsReloadNode(LowAmmo)] 저거너트: No weapon needs reload under current condition. Failure.
+[저거너트] 전술 목표 달성. 시스템 대기 모드 전환.
+Unit Standby: 저거너트 (Remaining AP: 1.1)
+ 
+ 
+Unit Activation: [워든(사샤전용기체)] (AP: 5.0 -> 5.0/5.0)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): Checking ally 데드아이, Part 'Body' Health Ratio: 100.0%. (Threshold: 85.0%)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): Checking ally 저거너트, Part 'Body' Health Ratio: 100.0%. (Threshold: 85.0%)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): No ally found below health threshold (85.0%) for part 'Body'. Failure.
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): Checking ally 데드아이, Part 'Body' Health Ratio: 100.0%. (Threshold: 85.0%)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): Checking ally 저거너트, Part 'Body' Health Ratio: 100.0%. (Threshold: 85.0%)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): No ally found below health threshold (85.0%) for part 'Body'. Failure.
+[SelectTargetNode] 워든(사샤전용기체): Selected target: 뱅가드. Selected weapon: 표준 라이플. Success.
+[HasEnoughAPNode] 워든(사샤전용기체) for None: Has enough AP (Required: 0.0, Current: 5.0). Success.
+[워든(사샤전용기체)] 전술 목표 달성. 시스템 대기 모드 전환.
+Unit Standby: 워든(사샤전용기체) (Remaining AP: 5.0)
+ 
+ 
+Unit Activation: [뱅가드] (AP: 0.2 -> 2.7/5.0)
+[HasRepairUsesNode] 뱅가드: Has no repair uses left (Current: 0). Failure.
+[SelectTargetNode] 뱅가드: Selected target: 저거너트. Selected weapon: 표준 라이플. Success.
+[IsTargetInRangeNode] 뱅가드 to 저거너트: Source='표준 라이플', Dist=9.7, Range=(1.0-10.0), InRange=True. Result: Success
+[HasEnoughAPNode] 뱅가드 for Attack: Has enough AP (Required: 1.4, Current: 2.7). Success.
+[AttackTargetNode] 뱅가드: Decided to attack 저거너트 with 표준 라이플. Success.
+표준 라이플의 안정적인 점사 실행. (탄약: 15/20)
+저거너트가 뱅가드의 공격을 날렵하게 회피!
+[저거너트]의 카운터! ([뱅가드]에게)
+중량 캐논의 중량 포탄이 발사됨. (탄약: 3/6)
+[뱅가드](이)가 [저거너트]의 반격을 회피! (Dodge)
+[HasRepairUsesNode] 뱅가드: Has no repair uses left (Current: 0). Failure.
+[IsTargetInRangeNode] 뱅가드 to 저거너트: Source='표준 라이플', Dist=9.7, Range=(1.0-10.0), InRange=True. Result: Success
+[HasEnoughAPNode] 뱅가드 for Attack: Not enough AP (Required: 1.4, Current: 1.4). Failure.
+[SelectTargetNode] 뱅가드: Selected target: 저거너트. Selected weapon: 표준 라이플. Success.
+[IsTargetInRangeNode] 뱅가드 to 저거너트: Source='표준 라이플', Dist=9.7, Range=(1.0-10.0), InRange=True. Result: Success
+[HasEnoughAPNode] 뱅가드 for Attack: Not enough AP (Required: 1.4, Current: 1.4). Failure.
+[HasEnoughAPNode] 뱅가드 for Move: Not enough AP (Required: 3.9, Current: 1.4). Failure.
+[NeedsReloadNode(OutOfAmmo)] 뱅가드: No weapon needs reload under current condition. Failure.
+[HasEnoughAPNode] 뱅가드 for Defend: Has enough AP (Required: 1.0, Current: 1.4). Success.
+[RecalculateStats] 뱅가드 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[뱅가드] 방어 태세 돌입. 잔여 동력: 0.4/5.0.
+[HasRepairUsesNode] 뱅가드: Has no repair uses left (Current: 0). Failure.
+[IsTargetInRangeNode] 뱅가드 to 저거너트: Source='표준 라이플', Dist=9.7, Range=(1.0-10.0), InRange=True. Result: Success
+[HasEnoughAPNode] 뱅가드 for Attack: Not enough AP (Required: 1.4, Current: 0.4). Failure.
+[SelectTargetNode] 뱅가드: Selected target: 저거너트. Selected weapon: 표준 라이플. Success.
+[IsTargetInRangeNode] 뱅가드 to 저거너트: Source='표준 라이플', Dist=9.7, Range=(1.0-10.0), InRange=True. Result: Success
+[HasEnoughAPNode] 뱅가드 for Attack: Not enough AP (Required: 1.4, Current: 0.4). Failure.
+[HasEnoughAPNode] 뱅가드 for Move: Not enough AP (Required: 3.9, Current: 0.4). Failure.
+[NeedsReloadNode(OutOfAmmo)] 뱅가드: No weapon needs reload under current condition. Failure.
+[NeedsReloadNode(LowAmmo)] 뱅가드: No weapon needs reload under current condition. Failure.
+[뱅가드] 전술 목표 달성. 시스템 대기 모드 전환.
+Unit Standby: 뱅가드 (Remaining AP: 0.4)
+ 
+ 
+//==[ Combat Turn 10 Initiated ]==//
+Unit Activation: [데드아이] (AP: 0.7 -> 2.7/4.0)
+<sprite index=22> [저격 소총] 재장전 완료까지 1 턴 남음.
+[NeedsReloadNode(OutOfAmmo)] 데드아이: No weapon needs reload under current condition. Failure.
+[HasRepairUsesNode] 데드아이: Has no repair uses left (Current: 0). Failure.
+[SelectTargetNode] 데드아이: Selected target: 뱅가드. BUT no suitable weapon found. Detailed Reason: Primary weapon (저격 소총) status: not usable (no ammo/reloading). Other usable weapons count: 0. Primary reason for no weapon: Primary '저격 소총' is not usable (e.g., no ammo, reloading).. Setting SelectedWeapon to null.
+[데드아이] 전술 목표 달성. 시스템 대기 모드 전환.
+Unit Standby: 데드아이 (Remaining AP: 2.7)
+ 
+ 
+Unit Activation: [저거너트] (AP: 1.1 -> 4.1/7.0)
+[SelectTargetNode] 저거너트: Selected target: 뱅가드. Selected weapon: 중량 캐논. Success.
+[IsTargetInRangeNode] 저거너트 to 뱅가드: Source='중량 캐논', Dist=9.7, Range=(5.0-15.0), InRange=True. Result: Success
+[HasEnoughAPNode] 저거너트 for Attack: Has enough AP (Required: 2.0, Current: 4.1). Success.
+[AttackTargetNode] 저거너트: Decided to attack 뱅가드 with 중량 캐논. Success.
+중량 캐논의 중량 포탄이 발사됨. (탄약: 2/6)
+[SetDurability_DEBUG] Part: 표준 팔 유닛 (Arm), PrevHP: 85, NewHP_Attempt: 17, ClampedHP: 17, MaxHP: 85
+[저거너트]의 무기 강타! [뱅가드]의 표준 팔 유닛 장갑이 찌그러진다!
+[뱅가드]의 카운터! ([저거너트]에게)
+표준 라이플의 안정적인 점사 실행. (탄약: 14/20)
+[저거너트](이)가 [뱅가드]의 반격을 회피! (Dodge)
+[SelectTargetNode] 저거너트: Selected target: 뱅가드. Selected weapon: 중량 캐논. Success.
+[IsTargetInRangeNode] 저거너트 to 뱅가드: Source='중량 캐논', Dist=9.7, Range=(5.0-15.0), InRange=True. Result: Success
+[HasEnoughAPNode] 저거너트 for Attack: Has enough AP (Required: 2.0, Current: 2.1). Success.
+[AttackTargetNode] 저거너트: Decided to attack 뱅가드 with 중량 캐논. Success.
+중량 캐논의 중량 포탄이 발사됨. (탄약: 1/6)
+[SetDurability_DEBUG] Part: 표준 바디 유닛 (Body), PrevHP: 160, NewHP_Attempt: 92, ClampedHP: 92, MaxHP: 160
+[저거너트]의 무기 강타! [뱅가드]의 표준 바디 유닛 장갑이 찌그러진다!
+[뱅가드]의 카운터! ([저거너트]에게)
+표준 라이플의 안정적인 점사 실행. (탄약: 13/20)
+[저거너트](이)가 [뱅가드]의 반격을 회피! (Dodge)
+[SelectTargetNode] 저거너트: Selected target: 뱅가드. Selected weapon: 중량 캐논. Success.
+[IsTargetInRangeNode] 저거너트 to 뱅가드: Source='중량 캐논', Dist=9.7, Range=(5.0-15.0), InRange=True. Result: Success
+[HasEnoughAPNode] 저거너트 for Attack: Not enough AP (Required: 2.0, Current: 0.1). Failure.
+[HasEnoughAPNode] 저거너트 for Move: Not enough AP (Required: 5.3, Current: 0.1). Failure.
+[NeedsReloadNode(OutOfAmmo)] 저거너트: No weapon needs reload under current condition. Failure.
+[NeedsReloadNode(LowAmmo)] 저거너트: Needs reload for '중량 캐논' (Ammo: 1/6). Success.
+[HasEnoughAPNode] 저거너트 for Reload: Not enough AP (Required: 2.0, Current: 0.1). Failure.
+[저거너트] 전술 목표 달성. 시스템 대기 모드 전환.
+Unit Standby: 저거너트 (Remaining AP: 0.1)
+ 
+ 
+Unit Activation: [워든(사샤전용기체)] (AP: 5.0 -> 5.0/5.0)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): Checking ally 데드아이, Part 'Body' Health Ratio: 100.0%. (Threshold: 85.0%)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): Checking ally 저거너트, Part 'Body' Health Ratio: 100.0%. (Threshold: 85.0%)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): No ally found below health threshold (85.0%) for part 'Body'. Failure.
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): Checking ally 데드아이, Part 'Body' Health Ratio: 100.0%. (Threshold: 85.0%)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): Checking ally 저거너트, Part 'Body' Health Ratio: 100.0%. (Threshold: 85.0%)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): No ally found below health threshold (85.0%) for part 'Body'. Failure.
+[SelectTargetNode] 워든(사샤전용기체): Selected target: 뱅가드. Selected weapon: 표준 라이플. Success.
+[HasEnoughAPNode] 워든(사샤전용기체) for None: Has enough AP (Required: 0.0, Current: 5.0). Success.
+[워든(사샤전용기체)] 전술 목표 달성. 시스템 대기 모드 전환.
+Unit Standby: 워든(사샤전용기체) (Remaining AP: 5.0)
+ 
+ 
+Unit Activation: [뱅가드] (AP: 0.4 -> 2.9/5.0)
+[RecalculateStats] 뱅가드 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[뱅가드]의 Defense Boost 효과 소멸.
+[HasRepairUsesNode] 뱅가드: Has no repair uses left (Current: 0). Failure.
+[SelectTargetNode] 뱅가드: Selected target: 저거너트. Selected weapon: 표준 라이플. Success.
+[IsTargetInRangeNode] 뱅가드 to 저거너트: Source='표준 라이플', Dist=9.7, Range=(1.0-10.0), InRange=True. Result: Success
+[HasEnoughAPNode] 뱅가드 for Attack: Has enough AP (Required: 1.4, Current: 2.9). Success.
+[AttackTargetNode] 뱅가드: Decided to attack 저거너트 with 표준 라이플. Success.
+표준 라이플의 안정적인 점사 실행. (탄약: 12/20)
+부스터 역분사! 저거너트이(가) 공격을 흘려보냈다.
+[저거너트]의 카운터! ([뱅가드]에게)
+중량 캐논의 중량 포탄이 발사됨. (탄약: 0/6)
+[SetDurability_DEBUG] Part: 표준 팔 유닛 (Arm), PrevHP: 17, NewHP_Attempt: -85, ClampedHP: 0, MaxHP: 85
+[ArmsPart] Part '표준 팔 유닛' operational status changed to: False
+[저거너트]의 반격! [뱅가드]의 표준 팔 유닛에 102 피해! <sprite index=15>!!
+[RecalculateStats] 뱅가드 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[뱅가드]의 Arm 팔이 절단되어 떨어져 나갔다!
+[HasRepairUsesNode] 뱅가드: Has no repair uses left (Current: 0). Failure.
+[IsTargetInRangeNode] 뱅가드 to 저거너트: Source='표준 라이플', Dist=9.7, Range=(1.0-10.0), InRange=True. Result: Success
+[HasEnoughAPNode] 뱅가드 for Attack: Not enough AP (Required: 1.7, Current: 1.5). Failure.
+[SelectTargetNode] 뱅가드: Selected target: 저거너트. Selected weapon: 표준 라이플. Success.
+[IsTargetInRangeNode] 뱅가드 to 저거너트: Source='표준 라이플', Dist=9.7, Range=(1.0-10.0), InRange=True. Result: Success
+[HasEnoughAPNode] 뱅가드 for Attack: Not enough AP (Required: 1.7, Current: 1.5). Failure.
+[HasEnoughAPNode] 뱅가드 for Move: Not enough AP (Required: 3.4, Current: 1.5). Failure.
+[NeedsReloadNode(OutOfAmmo)] 뱅가드: No weapon needs reload under current condition. Failure.
+[HasEnoughAPNode] 뱅가드 for Defend: Has enough AP (Required: 1.0, Current: 1.5). Success.
+[RecalculateStats] 뱅가드 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[뱅가드] 방어 태세 돌입. 잔여 동력: 0.5/5.0.
+[HasRepairUsesNode] 뱅가드: Has no repair uses left (Current: 0). Failure.
+[IsTargetInRangeNode] 뱅가드 to 저거너트: Source='표준 라이플', Dist=9.7, Range=(1.0-10.0), InRange=True. Result: Success
+[HasEnoughAPNode] 뱅가드 for Attack: Not enough AP (Required: 1.7, Current: 0.5). Failure.
+[SelectTargetNode] 뱅가드: Selected target: 저거너트. Selected weapon: 표준 라이플. Success.
+[IsTargetInRangeNode] 뱅가드 to 저거너트: Source='표준 라이플', Dist=9.7, Range=(1.0-10.0), InRange=True. Result: Success
+[HasEnoughAPNode] 뱅가드 for Attack: Not enough AP (Required: 1.7, Current: 0.5). Failure.
+[HasEnoughAPNode] 뱅가드 for Move: Not enough AP (Required: 3.4, Current: 0.5). Failure.
+[NeedsReloadNode(OutOfAmmo)] 뱅가드: No weapon needs reload under current condition. Failure.
+[NeedsReloadNode(LowAmmo)] 뱅가드: No weapon needs reload under current condition. Failure.
+[뱅가드] 전술 목표 달성. 시스템 대기 모드 전환.
+Unit Standby: 뱅가드 (Remaining AP: 0.5)
+ 
+ 
+//==[ Combat Turn 11 Initiated ]==//
+Unit Activation: [데드아이] (AP: 2.7 -> 4.0/4.0)
+[TURN END] 저격 소총 저격 준비 완료. (5/5)
+[NeedsReloadNode(OutOfAmmo)] 데드아이: No weapon needs reload under current condition. Failure.
+[HasRepairUsesNode] 데드아이: Has no repair uses left (Current: 0). Failure.
+[SelectTargetNode] 데드아이: Selected target: 뱅가드. Selected weapon: 저격 소총. Success.
+[IsTargetInRangeNode] 데드아이 to 뱅가드: Source='저격 소총', Dist=19.7, Range=(8.0-22.0), InRange=True. Result: Success
+[HasEnoughAPNode] 데드아이 for Attack: Has enough AP (Required: 2.0, Current: 4.0). Success.
+[AttackTargetNode] 데드아이: Decided to attack 뱅가드 with 저격 소총. Success.
+저격 소총에서 고정밀 저격탄 발사. (탄약: 4/5)
+[SetDurability_DEBUG] Part: 표준 바디 유닛 (Body), PrevHP: 92, NewHP_Attempt: 16, ClampedHP: 16, MaxHP: 160
+맹렬한 포화! [뱅가드]의 표준 바디 유닛가 76 피해를 입고 너덜거린다!
+[NeedsReloadNode(OutOfAmmo)] 데드아이: No weapon needs reload under current condition. Failure.
+[HasRepairUsesNode] 데드아이: Has no repair uses left (Current: 0). Failure.
+[SelectTargetNode] 데드아이: Selected target: 뱅가드. Selected weapon: 저격 소총. Success.
+[IsTargetInRangeNode] 데드아이 to 뱅가드: Source='저격 소총', Dist=19.7, Range=(8.0-22.0), InRange=True. Result: Success
+[HasEnoughAPNode] 데드아이 for Attack: Has enough AP (Required: 2.0, Current: 2.0). Success.
+[AttackTargetNode] 데드아이: Decided to attack 뱅가드 with 저격 소총. Success.
+저격 소총에서 고정밀 저격탄 발사. (탄약: 3/5)
+[SetDurability_DEBUG] Part: 표준 팔 유닛 (Arm), PrevHP: 85, NewHP_Attempt: 9, ClampedHP: 9, MaxHP: 85
+[데드아이]의 무기 강타! [뱅가드]의 표준 팔 유닛 장갑이 찌그러진다!
+SYSTEM: [데드아이] 주 동력원 고갈. 모든 작전 행동 일시 중지. 활성화 사이클 종료.
+Unit Standby: 데드아이 (Remaining AP: 0.0)
+ 
+ 
+Unit Activation: [저거너트] (AP: 0.1 -> 3.1/7.0)
+[SelectTargetNode] 저거너트: Selected target: 뱅가드. Selected weapon: 중량 기관총. Success.
+[IsTargetInRangeNode] 저거너트 to 뱅가드: Source='중량 기관총', Dist=9.7, Range=(0.0-9.0), InRange=False. Result: Failure
+[HasEnoughAPNode] 저거너트 for Move: Not enough AP (Required: 5.3, Current: 3.1). Failure.
+[NeedsReloadNode(OutOfAmmo)] 저거너트: Needs reload for '중량 캐논' (Ammo: 0/6). Success.
+[HasEnoughAPNode] 저거너트 for Reload: Has enough AP (Required: 2.0, Current: 3.1). Success.
+[ReloadWeaponNode] 저거너트: 중량 캐논 재장전 결정. Success.
+[TURN START] 포탄 재장전 시퀀스 가동. (2턴 소요)
+[HasEnoughAPNode] 저거너트 for Defend: Has enough AP (Required: 1.0, Current: 1.1). Success.
+[RecalculateStats] 저거너트 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[저거너트] 방어 태세 돌입. 잔여 동력: 0.1/7.0.
+[SelectTargetNode] 저거너트: Selected target: 뱅가드. Selected weapon: 중량 기관총. Success.
+[IsTargetInRangeNode] 저거너트 to 뱅가드: Source='중량 기관총', Dist=9.7, Range=(0.0-9.0), InRange=False. Result: Failure
+[HasEnoughAPNode] 저거너트 for Move: Not enough AP (Required: 5.3, Current: 0.1). Failure.
+[NeedsReloadNode(OutOfAmmo)] 저거너트: No weapon needs reload under current condition. Failure.
+[NeedsReloadNode(LowAmmo)] 저거너트: No weapon needs reload under current condition. Failure.
+[저거너트] 전술 목표 달성. 시스템 대기 모드 전환.
+Unit Standby: 저거너트 (Remaining AP: 0.1)
+ 
+ 
+Unit Activation: [워든(사샤전용기체)] (AP: 5.0 -> 5.0/5.0)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): Checking ally 데드아이, Part 'Body' Health Ratio: 100.0%. (Threshold: 85.0%)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): Checking ally 저거너트, Part 'Body' Health Ratio: 100.0%. (Threshold: 85.0%)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): No ally found below health threshold (85.0%) for part 'Body'. Failure.
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): Checking ally 데드아이, Part 'Body' Health Ratio: 100.0%. (Threshold: 85.0%)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): Checking ally 저거너트, Part 'Body' Health Ratio: 100.0%. (Threshold: 85.0%)
+[SelectLowestHealthAllyNode] 워든(사샤전용기체): No ally found below health threshold (85.0%) for part 'Body'. Failure.
+[SelectTargetNode] 워든(사샤전용기체): Selected target: 뱅가드. Selected weapon: 표준 라이플. Success.
+[HasEnoughAPNode] 워든(사샤전용기체) for None: Has enough AP (Required: 0.0, Current: 5.0). Success.
+[워든(사샤전용기체)] 전술 목표 달성. 시스템 대기 모드 전환.
+Unit Standby: 워든(사샤전용기체) (Remaining AP: 5.0)
+ 
+ 
+Unit Activation: [뱅가드] (AP: 0.5 -> 3.0/5.0)
+[RecalculateStats] 뱅가드 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[뱅가드]의 Defense Boost 효과 소멸.
+[HasRepairUsesNode] 뱅가드: Has no repair uses left (Current: 0). Failure.
+[SelectTargetNode] 뱅가드: Selected target: 저거너트. Selected weapon: 표준 라이플. Success.
+[IsTargetInRangeNode] 뱅가드 to 저거너트: Source='표준 라이플', Dist=9.7, Range=(1.0-10.0), InRange=True. Result: Success
+[HasEnoughAPNode] 뱅가드 for Attack: Has enough AP (Required: 1.7, Current: 3.0). Success.
+[AttackTargetNode] 뱅가드: Decided to attack 저거너트 with 표준 라이플. Success.
+표준 라이플의 안정적인 점사 실행. (탄약: 11/20)
+예측 기동 성공! 저거너트이(가) 뱅가드의 사격 궤도에서 벗어났다.
+[HasRepairUsesNode] 뱅가드: Has no repair uses left (Current: 0). Failure.
+[IsTargetInRangeNode] 뱅가드 to 저거너트: Source='표준 라이플', Dist=9.7, Range=(1.0-10.0), InRange=True. Result: Success
+[HasEnoughAPNode] 뱅가드 for Attack: Not enough AP (Required: 1.7, Current: 1.3). Failure.
+[SelectTargetNode] 뱅가드: Selected target: 저거너트. Selected weapon: 표준 라이플. Success.
+[IsTargetInRangeNode] 뱅가드 to 저거너트: Source='표준 라이플', Dist=9.7, Range=(1.0-10.0), InRange=True. Result: Success
+[HasEnoughAPNode] 뱅가드 for Attack: Not enough AP (Required: 1.7, Current: 1.3). Failure.
+[HasEnoughAPNode] 뱅가드 for Move: Not enough AP (Required: 3.4, Current: 1.3). Failure.
+[NeedsReloadNode(OutOfAmmo)] 뱅가드: No weapon needs reload under current condition. Failure.
+[HasEnoughAPNode] 뱅가드 for Defend: Has enough AP (Required: 1.0, Current: 1.3). Success.
+[RecalculateStats] 뱅가드 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[뱅가드] 방어 태세 돌입. 잔여 동력: 0.3/5.0.
+[HasRepairUsesNode] 뱅가드: Has no repair uses left (Current: 0). Failure.
+[IsTargetInRangeNode] 뱅가드 to 저거너트: Source='표준 라이플', Dist=9.7, Range=(1.0-10.0), InRange=True. Result: Success
+[HasEnoughAPNode] 뱅가드 for Attack: Not enough AP (Required: 1.7, Current: 0.3). Failure.
+[SelectTargetNode] 뱅가드: Selected target: 저거너트. Selected weapon: 표준 라이플. Success.
+[IsTargetInRangeNode] 뱅가드 to 저거너트: Source='표준 라이플', Dist=9.7, Range=(1.0-10.0), InRange=True. Result: Success
+[HasEnoughAPNode] 뱅가드 for Attack: Not enough AP (Required: 1.7, Current: 0.3). Failure.
+[HasEnoughAPNode] 뱅가드 for Move: Not enough AP (Required: 3.4, Current: 0.3). Failure.
+[NeedsReloadNode(OutOfAmmo)] 뱅가드: No weapon needs reload under current condition. Failure.
+[NeedsReloadNode(LowAmmo)] 뱅가드: No weapon needs reload under current condition. Failure.
+[뱅가드] 전술 목표 달성. 시스템 대기 모드 전환.
+Unit Standby: 뱅가드 (Remaining AP: 0.3)
+ 
+ 
+//==[ Combat Turn 12 Initiated ]==//
+Unit Activation: [데드아이] (AP: 0.0 -> 2.0/4.0)
+[NeedsReloadNode(OutOfAmmo)] 데드아이: No weapon needs reload under current condition. Failure.
+[HasRepairUsesNode] 데드아이: Has no repair uses left (Current: 0). Failure.
+[SelectTargetNode] 데드아이: Selected target: 뱅가드. Selected weapon: 저격 소총. Success.
+[IsTargetInRangeNode] 데드아이 to 뱅가드: Source='저격 소총', Dist=19.7, Range=(8.0-22.0), InRange=True. Result: Success
+[HasEnoughAPNode] 데드아이 for Attack: Has enough AP (Required: 2.0, Current: 2.0). Success.
+[AttackTargetNode] 데드아이: Decided to attack 뱅가드 with 저격 소총. Success.
+저격 소총에서 고정밀 저격탄 발사. (탄약: 2/5)
+[SetDurability_DEBUG] Part: 표준 바디 유닛 (Body), PrevHP: 16, NewHP_Attempt: -98, ClampedHP: 0, MaxHP: 160
+[BodyPart] Part '표준 바디 유닛' operational status changed to: False
+CRITICAL HIT! [데드아이]의 공격이 [뱅가드]의 표준 바디 유닛 약점을 피격!
+[RecalculateStats] 뱅가드 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+동체 중앙부 대파! [뱅가드]의 시스템 치명적 손상!
+=== 전투 종료 ===, 결과: Victory
+//==[ Combat Session Terminated ]==//
+전투 프로세스 정리 완료. 이제 로그 저장 시도.
+
+--------------------------------------------------
+필터링된 로그 항목 수: 1114
+ 전투 로그 종료 
