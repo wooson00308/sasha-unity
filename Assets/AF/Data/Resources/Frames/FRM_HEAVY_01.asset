@@ -23,7 +23,7 @@ MonoBehaviour:
   Stat_Durability: 350
   Stat_EnergyEff: 0.45
   Stat_MaxAP: 7
-  Stat_APRecovery: 3
+  Stat_APRecovery: 5
   Stats_MaxRepairUses: 0
   FrameWeight: 80
   Slot_Head: Head

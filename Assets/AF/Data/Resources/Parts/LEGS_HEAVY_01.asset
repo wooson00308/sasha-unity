@@ -17,7 +17,7 @@ MonoBehaviour:
   PartType: 4
   Stat_AttackPower: 0
   Stat_Defense: 0.2
-  Stat_Speed: 2
+  Stat_Speed: 1
   Stat_Accuracy: 0
   Stat_Evasion: 0
   Stat_Durability: 0
