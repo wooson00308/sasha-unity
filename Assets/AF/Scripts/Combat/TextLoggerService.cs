@@ -219,6 +219,13 @@ namespace AF.Combat
         }
         // +++ SASHA: 추가 끝 +++
 
+        // +++ SASHA: ColorizeText 메서드 추가 +++
+        private string ColorizeText(string text, string color)
+        {
+            return $"<color={color}>{text}</color>";
+        }
+        // +++ SASHA: 추가 끝 +++
+
         // +++ Helper method to colorize text (copied from TextLogger.cs) +++
         // --- SASHA: 이 메서드는 GetTeamColoredName으로 대체되었으므로 삭제 ---
         /*
@@ -470,18 +477,30 @@ namespace AF.Combat
         {
             if (ev.IsCounterAttack) return; // 반격 로그는 건너뛰기
 
-            // --- Flavor Text/Log Message 생성 로직 (기존과 동일) ---
-            string logMsg = ""; // Initialize logMsg
+            string logMsg = ""; 
             LogLevel logLevel = ev.Success ? LogLevel.Info : LogLevel.Warning;
-            
-            // 상세 이동 로그 처리
-            if (ev.Action == CombatActionEvents.ActionType.Move && ev.Success)
+            LogEventType entryEventType = LogEventType.ActionCompleted; // 기본값
+
+            if (ev.Action == CombatActionEvents.ActionType.UseAbility && ev.UsedAbilityEffect != null)
+            {
+                entryEventType = LogEventType.AbilityUsed;
+                string prefix = _textLogger.UseIndentation ? "  " : "";
+                string actorNameColored = GetTeamColoredName(ev.Actor.Name, ev.Actor.TeamId);
+                string abilityNameColored = ColorizeText(ev.UsedAbilityEffect.AbilityName, "cyan");
+                string apInfo = $"잔여 동력: {ev.Actor.CurrentAP:F1}/{ev.Actor.CombinedStats.MaxAP:F1}.";
+                string resultText = ev.Success ? "실행 완료" : "실행 실패";
+                string reasonText = string.IsNullOrEmpty(ev.ResultDescription) ? "" : $" (사유: {ev.ResultDescription})";
+
+                // TODO: 어빌리티 아이콘 인덱스 확인 및 적용 필요 (예: <sprite index=21>)
+                string actionIconTag = _useSpriteIcons ? "<sprite index=21> " : ""; 
+
+                logMsg = $"{prefix}{actionIconTag}{actorNameColored} 어빌리티 {abilityNameColored} {resultText}{reasonText}. {apInfo}";
+            }
+            else if (ev.Action == CombatActionEvents.ActionType.Move && ev.Success)
             {
                 string prefix = _textLogger.UseIndentation ? "  " : "";
-                // string actorNameColored = ColorizeText($"[{ev.Actor.Name}]", "yellow"); // 이전 방식
-                string actorNameColored = GetTeamColoredName(ev.Actor.Name, ev.Actor.TeamId); // +++ SASHA: 팀 색상 사용 +++
-                // string targetName = ev.MoveTarget != null ? ColorizeText($"[{ev.MoveTarget.Name}]", "lightblue") : "지정되지 않은 목표"; // 이전 방식
-                string targetName = ev.MoveTarget != null ? GetTeamColoredName(ev.MoveTarget.Name, ev.MoveTarget.TeamId) : "지정되지 않은 목표"; // +++ SASHA: 팀 색상 사용 +++
+                string actorNameColored = GetTeamColoredName(ev.Actor.Name, ev.Actor.TeamId);
+                string targetName = ev.MoveTarget != null ? GetTeamColoredName(ev.MoveTarget.Name, ev.MoveTarget.TeamId) : "지정되지 않은 목표";
                 string distanceText = ev.DistanceMoved.HasValue ? $"{ev.DistanceMoved.Value:F1} 만큼" : "일정 거리만큼";
                 string targetDistanceText = "";
                 if (ev.MoveTarget != null && ev.NewPosition.HasValue)
@@ -497,21 +516,17 @@ namespace AF.Combat
                 string iconTag = _useSpriteIcons ? "<sprite index=10> " : "";
                 logMsg = $"{prefix}{iconTag}{actorNameColored}(이)가 {targetName} 방향으로 {distanceText} 이동{targetDistanceText}";
             }
-            // 방어 로그 처리
             else if (ev.Action == CombatActionEvents.ActionType.Defend && ev.Success)
             {
                 string prefix = _textLogger.UseIndentation ? "  " : "";
-                // string actorNameColored = ColorizeText($"[{ev.Actor.Name}]", "yellow"); // 이전 방식
-                string actorNameColored = GetTeamColoredName(ev.Actor.Name, ev.Actor.TeamId); // +++ SASHA: 팀 색상 사용 +++
+                string actorNameColored = GetTeamColoredName(ev.Actor.Name, ev.Actor.TeamId);
                 string actionIconTag = _useSpriteIcons ? "<sprite index=9> " : "";
                 string apInfo = $"잔여 동력: {ev.Actor.CurrentAP:F1}/{ev.Actor.CombinedStats.MaxAP:F1}.";
                 logMsg = $"{prefix}{actionIconTag}{actorNameColored} 방어 태세 돌입. {apInfo}";
             }
-            // 나머지 일반 액션 (Attack, Reload, 실패 등)
             else if (_logActionSummaries)
             {
-                // string actorNameColored = ColorizeText($"[{ev.Actor.Name}]", "yellow"); // 이전 방식
-                string actorNameColored = GetTeamColoredName(ev.Actor.Name, ev.Actor.TeamId); // +++ SASHA: 팀 색상 사용 +++
+                string actorNameColored = GetTeamColoredName(ev.Actor.Name, ev.Actor.TeamId);
                 string actionName = ev.Action.ToString();
                 string prefix = _textLogger.UseIndentation ? "  " : "";
                 string actionIconTag = "";
@@ -534,10 +549,8 @@ namespace AF.Combat
                     logMsg = $"{prefix}{actionIconTag}[{actorNameColored}] {actionName} 프로토콜 실행 실패. (사유: {reason})";
                 }
             }
-            // --- Log Message 생성 로직 끝 ---
 
-            // +++ 델타 로그 기록 로직 +++
-            if (_textLogger != null && !string.IsNullOrEmpty(logMsg)) // logMsg가 생성되었을 때만 기록
+            if (_textLogger != null && !string.IsNullOrEmpty(logMsg)) 
             {
                 ICombatSimulatorService simulator = null;
                 try { simulator = ServiceLocator.Instance.GetService<ICombatSimulatorService>(); }
@@ -551,25 +564,33 @@ namespace AF.Combat
                     logLevel,
                     currentTurn,
                     currentCycle,
-                    LogEventType.ActionCompleted, // <<< 이벤트 타입 지정
+                    entryEventType, // <<< 수정된 이벤트 타입 사용
                     contextUnit: ev.Actor,
                     shouldUpdateTargetView: true,
                     turnStartStateSnapshot: null
                 );
 
-                // 델타 정보 채우기
+                // 공통 Action 정보 채우기 (모든 액션 완료 시)
                 logEntry.Action_ActorName = ev.Actor.Name;
                 logEntry.Action_Type = ev.Action;
                 logEntry.Action_IsSuccess = ev.Success;
                 logEntry.Action_ResultDescription = ev.ResultDescription;
-                logEntry.Action_TargetName = ev.MoveTarget?.Name; // MoveTarget이 null일 수 있음
+                logEntry.Action_TargetName = ev.MoveTarget?.Name; 
                 logEntry.Action_DistanceMoved = ev.DistanceMoved;
                 logEntry.Action_NewPosition = ev.NewPosition;
                 logEntry.Action_IsCounterAttack = ev.IsCounterAttack;
 
+                // 어빌리티 사용 시 추가 델타 정보 채우기
+                if (entryEventType == LogEventType.AbilityUsed && ev.UsedAbilityEffect != null)
+                {
+                    logEntry.Ability_ActorName = ev.Actor.Name;
+                    logEntry.Ability_Name = ev.UsedAbilityEffect.AbilityName;
+                    logEntry.Ability_TargetInfo = ev.UsedAbilityEffect.TargetType.ToString(); // 필요시 더 상세하게 조합
+                    logEntry.Ability_EffectDetails = ev.UsedAbilityEffect.Description; // 또는 주요 효과 요약
+                }
+
                 _textLogger.AddLogEntryDirectly(logEntry);
             }
-            // +++ 델타 로그 기록 로직 끝 +++
         }
 
         private void HandleWeaponFired(CombatActionEvents.WeaponFiredEvent ev)
@@ -610,12 +631,8 @@ namespace AF.Combat
             }
             if (!useFlavorText)
             {
-                // string attackerColor = ev.IsCounterAttack ? "lightblue" : "yellow"; // 이전 방식
-                // string targetColor = ev.IsCounterAttack ? "yellow" : "lightblue"; // 이전 방식
-                // string attackerNameColored = ColorizeText($"[{ev.Attacker.Name}]", attackerColor); // 이전 방식
-                // string targetNameColored = ColorizeText($"[{ev.Target.Name}]", targetColor); // 이전 방식
-                string attackerNameColored = GetTeamColoredName(ev.Attacker.Name, ev.Attacker.TeamId); // +++ SASHA: 팀 색상 사용 +++
-                string targetNameColored = GetTeamColoredName(ev.Target.Name, ev.Target.TeamId);     // +++ SASHA: 팀 색상 사용 +++
+                string attackerNameColored = GetTeamColoredName(ev.Attacker.Name, ev.Attacker.TeamId);
+                string targetNameColored = GetTeamColoredName(ev.Target.Name, ev.Target.TeamId);
                 string ammoStatus = ev.Weapon.MaxAmmo <= 0 ? "(탄약: ∞)" : $"(탄약: {ev.Weapon.CurrentAmmo}/{ev.Weapon.MaxAmmo})";
                 logMsg = $"{iconTag}{attackerNameColored}의 {ev.Weapon.Name}(이)가 {distance:F1}m 거리에서 {targetNameColored}에게 {hitOrMissText} {ammoStatus}";
             }
@@ -698,10 +715,8 @@ namespace AF.Combat
                 else
                 {
                     // Default message if flavor text fails
-                    // string attackerNameColored = ColorizeText($"[{ev.Source?.Name ?? "Unknown Source"}]", "yellow"); // 이전 방식
-                    // string targetNameColored = ColorizeText($"[{ev.Target.Name}]", "lightblue"); // 이전 방식
-                    string attackerNameColored = GetTeamColoredName(ev.Source?.Name ?? "Unknown Source", ev.Source?.TeamId ?? -1); // +++ SASHA: 팀 색상 +++
-                    string targetNameColored = GetTeamColoredName(ev.Target.Name, ev.Target.TeamId); // +++ SASHA: 팀 색상 +++
+                    string attackerNameColored = GetTeamColoredName(ev.Source?.Name ?? "Unknown Source", ev.Source?.TeamId ?? -1);
+                    string targetNameColored = GetTeamColoredName(ev.Target.Name, ev.Target.TeamId);
                     logMsg = $"{iconTagFlavor}{attackerNameColored}가 {targetNameColored}의 {ev.DamagedPart}에 {ev.DamageDealt:F0} 피해를 입혔습니다.";
                     Debug.LogWarning($"Flavor text not found for key: {templateKey}");
                 }
@@ -767,10 +782,8 @@ namespace AF.Combat
             if (ev.IsCounterAttack)
             {
                 // Construct specific log for counter-attack avoidance (no flavor text)
-                // string counterAttackerNameColored = ColorizeText($"[{ev.Source.Name}]", "yellow"); // Source is the counter-attacker // 이전 방식
-                // string counterTargetNameColored = ColorizeText($"[{ev.Target.Name}]", "lightblue"); // Target is the one avoiding the counter // 이전 방식
-                string counterAttackerNameColored = GetTeamColoredName(ev.Source.Name, ev.Source.TeamId); // +++ SASHA: 팀 색상 +++
-                string counterTargetNameColored = GetTeamColoredName(ev.Target.Name, ev.Target.TeamId);     // +++ SASHA: 팀 색상 +++
+                string counterAttackerNameColored = GetTeamColoredName(ev.Source.Name, ev.Source.TeamId);
+                string counterTargetNameColored = GetTeamColoredName(ev.Target.Name, ev.Target.TeamId);
                 string prefix = _textLogger.UseIndentation ? "    " : ""; 
                 logMsg =
                     $"{prefix}{iconTag}{counterTargetNameColored}(이)가 {counterAttackerNameColored}의 반격을 회피! ({ev.Type})";
@@ -779,13 +792,11 @@ namespace AF.Combat
             {
                 string templateKey = $"DamageAvoided_{ev.Type}"; // e.g., "DamageAvoided_Dodge"
                 var parameters = new Dictionary<string, string>();
-                // parameters.Add("attacker", ev.Source?.Name ?? "알 수 없는 공격자"); // 이전 방식
-                // parameters.Add("target", ev.Target.Name); // Avoider is the target // 이전 방식
-                parameters.Add("attacker", GetTeamColoredName(ev.Source?.Name ?? "알 수 없는 공격자", ev.Source?.TeamId ?? -1, addBrackets: false)); // +++ SASHA: 팀 색상, 대괄호X +++
-                parameters.Add("target", GetTeamColoredName(ev.Target.Name, ev.Target.TeamId, addBrackets: false)); // +++ SASHA: 팀 색상, 대괄호X +++
+                parameters.Add("attacker", GetTeamColoredName(ev.Source?.Name ?? "알 수 없는 공격자", ev.Source?.TeamId ?? -1, addBrackets: false));
+                parameters.Add("target", GetTeamColoredName(ev.Target.Name, ev.Target.TeamId, addBrackets: false));
 
                 string flavorText = GetRandomFlavorText(templateKey);
-                string formattedFlavorLog = FormatFlavorText(flavorText, parameters); // +++ SASHA: 수정된 FormatFlavorText는 단순 치환만 함 +++
+                string formattedFlavorLog = FormatFlavorText(flavorText, parameters);
 
                 if (!string.IsNullOrEmpty(formattedFlavorLog))
                 {
@@ -793,11 +804,8 @@ namespace AF.Combat
                 }
                 else // Fallback
                 {
-                    // Default message if flavor text fails
-                    // string attackerNameColored = ColorizeText($"[{ev.Source?.Name ?? "Unknown Source"}]", "yellow"); // 이전 방식
-                    // string targetNameColored = ColorizeText($"[{ev.Target.Name}]", "lightblue"); // 이전 방식
-                    string attackerNameColored = GetTeamColoredName(ev.Source?.Name ?? "Unknown Source", ev.Source?.TeamId ?? -1); // +++ SASHA: 팀 색상 +++
-                    string targetNameColored = GetTeamColoredName(ev.Target.Name, ev.Target.TeamId); // +++ SASHA: 팀 색상 +++
+                    string attackerNameColored = GetTeamColoredName(ev.Source?.Name ?? "Unknown Source", ev.Source?.TeamId ?? -1);
+                    string targetNameColored = GetTeamColoredName(ev.Target.Name, ev.Target.TeamId);
                     logMsg = $"{iconTag}{targetNameColored}(이)가 {attackerNameColored}의 공격을 회피! ({ev.Type})";
                     Debug.LogWarning($"Flavor text not found for key: {templateKey}");
                 }
@@ -876,11 +884,8 @@ namespace AF.Combat
             }
             else // Fallback
             {
-                // Default message if flavor text fails
-                // string ownerNameColored = ColorizeText($"[{ev.Frame.Name}]", "yellow"); // Owner as yellow // 이전 방식
-                string ownerNameColored = GetTeamColoredName(ev.Frame.Name, ev.Frame.TeamId); // +++ SASHA: 팀 색상 +++
-                // string destroyerInfo = ev.Destroyer != null ? $" by {ColorizeText(ev.Destroyer.Name, "yellow")}" : ""; // Destroyer colored if present // 이전 방식
-                string destroyerInfo = ev.Destroyer != null ? $" by {GetTeamColoredName(ev.Destroyer.Name, ev.Destroyer.TeamId)}" : ""; // +++ SASHA: 팀 색상 +++
+                string ownerNameColored = GetTeamColoredName(ev.Frame.Name, ev.Frame.TeamId);
+                string destroyerInfo = ev.Destroyer != null ? $" by {GetTeamColoredName(ev.Destroyer.Name, ev.Destroyer.TeamId)}" : "";
                 logMsg = $"{iconTag}<color=orange>!!! {ownerNameColored}'s {partTypeString} destroyed!{destroyerInfo}</color>";
                 Debug.LogWarning($"Flavor text not found for key: {templateKey}");
             }
@@ -909,10 +914,10 @@ namespace AF.Combat
 
                  // 델타 정보 채우기
                  logEntry.PartDestroyed_OwnerName = ev.Frame.Name;
-                 logEntry.PartDestroyed_PartType = ev.DestroyedPartType; // Nullable 아님
-                 logEntry.PartDestroyed_DestroyerName = ev.Destroyer?.Name; // Nullable
-                 logEntry.PartDestroyed_SlotId = ev.DestroyedSlotId; // <<< SASHA: SlotId 값 할당
-                 logEntry.PartDestroyed_FrameWasActuallyDestroyed = ev.FrameWasDestroyed; // <<< SASHA: 플래그 값 할당
+                 logEntry.PartDestroyed_PartType = ev.DestroyedPartType;
+                 logEntry.PartDestroyed_DestroyerName = ev.Destroyer?.Name;
+                 logEntry.PartDestroyed_SlotId = ev.DestroyedSlotId;
+                 logEntry.PartDestroyed_FrameWasActuallyDestroyed = ev.FrameWasDestroyed;
 
                  _textLogger.AddLogEntryDirectly(logEntry);
             }
@@ -951,9 +956,8 @@ namespace AF.Combat
             }
             else // Fallback
             {
-                 // string targetNameColored = ColorizeText($"[{ev.Target.Name}]", "lightblue"); // 이전 방식
-                 string targetNameColored = GetTeamColoredName(ev.Target.Name, ev.Target.TeamId); // +++ SASHA: 팀 색상 +++
-                 string sourceInfo = ev.Source != null ? $" ({GetTeamColoredName(ev.Source.Name, ev.Source.TeamId)}에 의해)" : ""; // +++ SASHA: 팀 색상 +++
+                 string targetNameColored = GetTeamColoredName(ev.Target.Name, ev.Target.TeamId);
+                 string sourceInfo = ev.Source != null ? $" ({GetTeamColoredName(ev.Source.Name, ev.Source.TeamId)}에 의해)" : "";
                  logMsg = $"{(_useSpriteIcons ? "<sprite index=4> " : "")}{targetNameColored}: 상태 효과 '{effectName}' 적용됨 {sourceInfo}({durationText})";
                  Debug.LogWarning($"Flavor text not found for key: {templateKey}");
             }
@@ -983,7 +987,7 @@ namespace AF.Combat
                 // 델타 정보 채우기
                 logEntry.StatusApplied_TargetName = ev.Target.Name;
                 logEntry.StatusApplied_SourceName = ev.Source?.Name;
-                logEntry.StatusApplied_EffectType = ev.EffectType; // Nullable 아님
+                logEntry.StatusApplied_EffectType = ev.EffectType;
                 logEntry.StatusApplied_Duration = ev.Duration;
                 logEntry.StatusApplied_Magnitude = ev.Magnitude;
 
@@ -1013,15 +1017,15 @@ namespace AF.Combat
 
             if (!string.IsNullOrEmpty(flavorText))
             {
-                string targetNameColored = GetTeamColoredName(ev.Target.Name, ev.Target.TeamId); // +++ SASHA: 팀 색상 +++
+                string targetNameColored = GetTeamColoredName(ev.Target.Name, ev.Target.TeamId);
                 string templateWithoutTarget = flavorText.Replace("{target}", "");
                 string formattedRestOfString = FormatFlavorText(templateWithoutTarget, parameters);
                 logMsg = $"{iconTag}{targetNameColored}{formattedRestOfString}";
             }
             else // Fallback
             {
-                string targetNameColored = GetTeamColoredName(ev.Target.Name, ev.Target.TeamId); // +++ SASHA: 팀 색상 +++
-                string effectNameColored = $"<color=grey>{effectName}</color>"; // +++ SASHA: 직접 태그 사용 +++
+                string targetNameColored = GetTeamColoredName(ev.Target.Name, ev.Target.TeamId);
+                string effectNameColored = $"<color=grey>{effectName}</color>";
                 logMsg = $"{iconTag}{targetNameColored}의 {effectNameColored} 효과가 {reason}.";
                  Debug.LogWarning($"Flavor text not found for key: {templateKey}. Using default expiration log.");
             }
@@ -1050,7 +1054,7 @@ namespace AF.Combat
 
                 // 델타 정보 채우기
                 logEntry.StatusExpired_TargetName = ev.Target.Name;
-                logEntry.StatusExpired_EffectType = ev.EffectType; // Nullable 아님
+                logEntry.StatusExpired_EffectType = ev.EffectType;
                 logEntry.StatusExpired_WasDispelled = ev.WasDispelled;
 
                 _textLogger.AddLogEntryDirectly(logEntry);
@@ -1093,7 +1097,7 @@ namespace AF.Combat
             }
             else // Fallback
             {
-                string targetNameColored = GetTeamColoredName(ev.Target.Name, ev.Target.TeamId); // +++ SASHA: 팀 색상 +++
+                string targetNameColored = GetTeamColoredName(ev.Target.Name, ev.Target.TeamId);
                 string tickAction = ev.Effect.TickEffectType == TickEffectType.DamageOverTime ? "피해" : "회복";
                 logMsg = $"{tickIconTag}{targetNameColored} < [{effectName}] 틱! ([{ev.Effect.TickValue:F0}] {tickAction})";
                 Debug.LogWarning($"Flavor text not found for key: {templateKey}");
@@ -1215,20 +1219,19 @@ namespace AF.Combat
 
             string defenderNameColored = GetTeamColoredName(ev.Defender.Name, ev.Defender.TeamId);
             string attackerNameColored = GetTeamColoredName(ev.Attacker.Name, ev.Attacker.TeamId);
-            // TODO: TextLogger.cs 의 LogEventType 에 CounterAttackAnnounced 추가 후 아래 라인 수정 필요
-            // 현재는 임시로 SystemMessage 사용
             string message = $"{defenderNameColored}의 <color=lightblue>카운터!</color> ({attackerNameColored}에게)";
 
             var logEntry = new TextLogger.LogEntry(
                 message,
-                LogLevel.Info, // 일반 정보 레벨
-                ev.TurnNumber, // 이벤트에서 턴 번호 가져오기
-                _textLogger.GetCurrentCycleForLogging(), // 현재 사이클 사용 (필요시 CombatContext 등에서 전달받도록 수정 가능)
-                LogEventType.CounterAttackAnnounced, // <<< 타입 변경 
-                contextUnit: ev.Defender, // 카운터 주체가 컨텍스트
+                LogLevel.Info,
+                ev.TurnNumber,
+                _textLogger.GetCurrentCycleForLogging(),
+                LogEventType.CounterAttackAnnounced,
+                contextUnit: ev.Defender,
                 shouldUpdateTargetView: true,
-                turnStartStateSnapshot: null // 이 이벤트는 상태 스냅샷을 가지지 않음
+                turnStartStateSnapshot: null
             );
+            
             
             // 델타 정보 (필요하다면 추가)
             logEntry.Counter_DefenderName = ev.Defender.Name;

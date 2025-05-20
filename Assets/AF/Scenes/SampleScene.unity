@@ -6244,7 +6244,7 @@ MonoBehaviour:
   logActionSummaries: 0
   useSpriteIconsInLog: 0
   logLevelsToRecord: 1
-  safetyBreakTurns: 100
+  safetyBreakTurns: 5
   combatStartButton: {fileID: 1423314143}
   currentBattleId: 
   currentCycle: 0

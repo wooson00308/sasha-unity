@@ -1,11 +1,12 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace AF.Models
 {
     public class BackpackPart : Part
     {
-        public BackpackPart(string name, Stats stats, float durability, float weight)
-            : base(name, PartType.Backpack, stats, durability, weight)
+        public BackpackPart(string name, Stats stats, float durability, float weight, List<string> initialAbilities = null)
+            : base(name, PartType.Backpack, stats, durability, weight, initialAbilities)
         {
             // Backpack-specific initialization, if any
         }

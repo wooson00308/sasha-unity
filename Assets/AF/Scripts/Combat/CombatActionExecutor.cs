@@ -5,6 +5,7 @@ using UnityEngine;
 using AF.EventBus;
 using AF.Models;
 using AF.Models.Abilities;
+using AF.Data;
 
 namespace AF.Combat
 {
@@ -30,7 +31,7 @@ namespace AF.Combat
             Weapon weapon,
             bool isCounter = false,
             bool freeCounter = false,
-            AbilityEffect abilityEffect = null)
+            AbilityEffect abilityEffect = null) // abilityEffect는 AbilityID와 기타 실행에 필요한 정보를 담고 있음
         {
             if (actor == null || !actor.IsOperational)
             {
@@ -51,7 +52,12 @@ namespace AF.Combat
             // +++ 이동 횟수 제한 체크 끝 +++
 
             // === AP 비용 계산 ===
-            float apCost = freeCounter ? 0f : actionType switch
+            float apCost = 0f;
+            // AbilitySO abilitySOForAPCostAndLogging = null; // 더 이상 필요 없음
+
+            // UseAbility의 경우, abilityEffect.SourceSO에서 직접 APCost를 가져오도록 변경
+            // freeCounter는 이 AP 비용 계산보다 우선 적용됨
+            apCost = freeCounter ? 0f : actionType switch
             {
                 CombatActionEvents.ActionType.Attack     => weapon != null ? CalculateAttackAPCost(actor, weapon) : float.MaxValue,
                 CombatActionEvents.ActionType.Move       => CalculateMoveAPCost(actor),
@@ -59,7 +65,7 @@ namespace AF.Combat
                 CombatActionEvents.ActionType.Reload     => weapon != null ? weapon.ReloadAPCost : float.MaxValue,
                 CombatActionEvents.ActionType.RepairAlly => REPAIR_ALLY_AP_COST,
                 CombatActionEvents.ActionType.RepairSelf => REPAIR_SELF_AP_COST,
-                CombatActionEvents.ActionType.UseAbility=> abilityEffect != null ? abilityEffect.APCost : float.MaxValue,
+                CombatActionEvents.ActionType.UseAbility => (abilityEffect != null && abilityEffect.SourceSO != null) ? abilityEffect.SourceSO.APCost : float.MaxValue,
                 CombatActionEvents.ActionType.None       => 0f,
                 _                                        => float.MaxValue
             };
@@ -68,7 +74,7 @@ namespace AF.Combat
             if (!actor.HasEnoughAP(apCost))
             {
                 ctx.Bus.Publish(new CombatActionEvents.ActionCompletedEvent(
-                    actor, actionType, false, "AP 부족", ctx.CurrentTurn, null, null, targetFrame));
+                    actor, actionType, false, $"AP 부족 (요구: {apCost:F1}, 잔여: {actor.CurrentAP:F1})", ctx.CurrentTurn, null, null, targetFrame));
                 return false;
             }
 
@@ -80,6 +86,7 @@ namespace AF.Combat
             string resultDescription = "";
             Vector3? finalPos        = null;
             float?  distMoved        = null;
+            AbilitySO abilitySOForLogging = (actionType == CombatActionEvents.ActionType.UseAbility && abilityEffect != null) ? abilityEffect.SourceSO : null;
 
             try
             {
@@ -197,42 +204,60 @@ namespace AF.Combat
 
                     // ============= 어빌리티 ==========================
                     case CombatActionEvents.ActionType.UseAbility:
-                    {
-                        if (abilityEffect == null)
+                        if (abilitySOForLogging != null && abilityEffect != null && AbilityEffectRegistry.TryGetExecutor(abilitySOForLogging.AbilityID, out var executor))
                         {
-                            success = false;
-                            resultDescription = "Ability data null";
-                            break;
+                            success = executor.Execute(ctx, actor, targetFrame, abilityEffect); // abilityEffect 전달, targetFrame은 target으로 전달됨
+                            resultDescription = success ? 
+                                $"{abilitySOForLogging.AbilityName} 사용 성공" : 
+                                $"{abilitySOForLogging.AbilityName} 사용 실패 (실행기 반환값 false)";
                         }
-                        if (!AbilityEffectRegistry.TryGetExecutor(abilityEffect.AbilityID, out var executor))
+                        else if (abilitySOForLogging == null)
                         {
+                            resultDescription = "어빌리티 정보를 찾을 수 없음 (ID: " + (abilityEffect?.AbilityID ?? "N/A") + ")";
                             success = false;
-                            resultDescription = $"Executor not found for {abilityEffect.AbilityID}";
-                            break;
                         }
-                        ArmoredFrame abilityTarget = abilityEffect.TargetType == AbilityTargetType.Self ? actor : targetFrame;
-                        success = executor.Execute(ctx, actor, abilityTarget, abilityEffect);
-                        resultDescription = success ? $"Ability {abilityEffect.AbilityID} executed" : "Ability failed";
+                        else
+                        {
+                            resultDescription = $"어빌리티 [{abilitySOForLogging.AbilityName} (ID: {abilitySOForLogging.AbilityID})] 실행기 없음";
+                            success = false;
+                        }
                         break;
-                    }
 
                     default:
                         resultDescription = "알 수 없는 행동 타입";
+                        success = false;
                         break;
                 }
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                ctx.Logger.TextLogger.Log($"[{actor.Name}] {actionType} 중 오류: {ex.Message}", LogLevel.Error);
-                resultDescription = $"오류: {ex.Message}";
+                Debug.LogError($"[CombatActionExecutor] 행동 [{actionType}] 실행 중 예외 발생: {e.Message}\n{e.StackTrace}");
+                resultDescription = $"행동 실행 중 오류 발생: {e.Message}";
                 success = false;
             }
-
-            if (success && apCost > 0f) actor.ConsumeAP(apCost);
-
-            ctx.Bus.Publish(new CombatActionEvents.ActionCompletedEvent(
-                actor, actionType, success, resultDescription, ctx.CurrentTurn,
-                finalPos, distMoved, targetFrame, isCounter));
+            finally
+            {
+                // AP 소모 (성공 시에만)
+                if (success)
+                {
+                    actor.ConsumeAP(apCost);
+                }
+                
+                // ActionCompletedEvent
+                var actionCompletedEvent = new CombatActionEvents.ActionCompletedEvent(
+                    actor, 
+                    actionType, 
+                    success, 
+                    resultDescription, 
+                    ctx.CurrentTurn, 
+                    finalPos, 
+                    distMoved, 
+                    targetFrame, 
+                    isCounter,
+                    abilitySOForLogging // 로깅용 AbilitySO 전달
+                );
+                ctx.Bus.Publish(actionCompletedEvent);
+            }
 
             return success;
         }
@@ -275,7 +300,7 @@ namespace AF.Combat
             float atkAcc  = attacker.CombinedStats.Accuracy;
             float tgtEva  = target.CombinedStats.Evasion;
             float baseHit = weapon.Accuracy
-                          + (atkAcc - 1f) * 1f
+                          + (atkAcc - 1f) * 1f 
                           -  tgtEva * 0.5f;
 
             float optRange = weapon.MaxRange * 0.8f;
@@ -298,7 +323,7 @@ namespace AF.Combat
             {
                 // ===== 데미지 계산 & 적용 =====
                 float rawDmg   = weapon.Damage;
-                float calcDmg  = rawDmg * 0.8f;
+                float calcDmg  = rawDmg * 0.8f; 
                 bool  critical = UnityEngine.Random.value <= 0.2f;
                 float  finalD  = critical ? calcDmg * 1.5f : calcDmg;
 
@@ -347,7 +372,7 @@ namespace AF.Combat
             Vector3 cur = actor.Position;
             Vector3 dir = (targetPos - cur).normalized;
             float   dTot= Vector3.Distance(cur, targetPos);
-            float   dMax= actor.CombinedStats.Speed;
+            float   dMax= actor.CombinedStats.Speed; 
             float   dMv = Mathf.Min(dMax, dTot);
 
             if (dMv < 0.1f)
@@ -400,18 +425,30 @@ namespace AF.Combat
             Weapon weapon = null,
             AbilityEffect abilityEffect = null)
         {
-            return actionType switch
+            if (actor == null) return float.MaxValue;
+
+            switch (actionType)
             {
-                CombatActionEvents.ActionType.Attack => weapon != null ? CalculateAttackAPCost(actor, weapon) : float.MaxValue,
-                CombatActionEvents.ActionType.Move => CalculateMoveAPCost(actor),
-                CombatActionEvents.ActionType.Defend => DEFEND_AP_COST,
-                CombatActionEvents.ActionType.Reload => weapon != null ? weapon.ReloadAPCost : float.MaxValue,
-                CombatActionEvents.ActionType.RepairAlly => REPAIR_ALLY_AP_COST,
-                CombatActionEvents.ActionType.RepairSelf => REPAIR_SELF_AP_COST,
-                CombatActionEvents.ActionType.UseAbility => abilityEffect != null ? abilityEffect.APCost : float.MaxValue,
-                CombatActionEvents.ActionType.None => 0f,
-                _ => float.MaxValue
-            };
+                case CombatActionEvents.ActionType.Attack:
+                    return weapon != null ? CalculateAttackAPCost(actor, weapon) : float.MaxValue;
+                case CombatActionEvents.ActionType.Move:
+                    return CalculateMoveAPCost(actor);
+                case CombatActionEvents.ActionType.Defend:
+                    return DEFEND_AP_COST;
+                case CombatActionEvents.ActionType.Reload:
+                    return weapon != null ? weapon.ReloadAPCost : float.MaxValue;
+                case CombatActionEvents.ActionType.RepairAlly:
+                    return REPAIR_ALLY_AP_COST;
+                case CombatActionEvents.ActionType.RepairSelf:
+                    return REPAIR_SELF_AP_COST;
+                case CombatActionEvents.ActionType.UseAbility:
+                    // Execute 메서드와 동일한 로직으로 수정
+                    return (abilityEffect != null && abilityEffect.SourceSO != null) ? abilityEffect.SourceSO.APCost : float.MaxValue;
+                case CombatActionEvents.ActionType.None:
+                    return 0f;
+                default:
+                    return float.MaxValue;
+            }
         }
 
         public float CalculateMoveAPCost(ArmoredFrame unit)
@@ -419,13 +456,13 @@ namespace AF.Combat
             if (unit == null) return float.MaxValue;
             float baseCost  = 1f;
             float weightPen = unit.TotalWeight * 0.005f;
-            float speedBon  = unit.CombinedStats.Speed * 0.075f;
+            float speedBon  = unit.CombinedStats.Speed * 0.075f; 
             return Mathf.Max(0.5f, baseCost + weightPen - speedBon);
         }
 
         public float CalculateAttackAPCost(ArmoredFrame unit, Weapon weapon)
         {
-            if (unit == null || weapon == null) return 999f;
+            if (unit == null || weapon == null) return 999f; 
             float eff = Mathf.Max(0.1f, unit.CombinedStats.EnergyEfficiency);
             return Mathf.Max(0.5f, weapon.BaseAPCost / eff);
         }

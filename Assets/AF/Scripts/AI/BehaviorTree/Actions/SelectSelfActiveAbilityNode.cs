@@ -2,6 +2,8 @@ using System.Linq;
 using AF.Combat;
 using AF.Models;
 using AF.Models.Abilities;
+using AF.Services;
+using UnityEngine;
 
 namespace AF.AI.BehaviorTree.Actions
 {
@@ -12,33 +14,83 @@ namespace AF.AI.BehaviorTree.Actions
     {
         public override NodeStatus Tick(ArmoredFrame agent, Blackboard blackboard, CombatContext context)
         {
-            if (agent == null || blackboard == null) return NodeStatus.Failure;
+            var textLogger = ServiceLocator.Instance?.GetService<TextLoggerService>()?.TextLogger;
+            string nodeName = this.GetType().Name;
 
-            // 이미 Ability 선택돼 있으면 패스
+            if (agent == null)
+            {
+                textLogger?.Log($"[{nodeName}] Agent is null. Failure.", LogLevel.Warning);
+                return NodeStatus.Failure;
+            }
+            if (blackboard == null)
+            {
+                textLogger?.Log($"[{nodeName}] {agent.Name}: Blackboard is null. Failure.", LogLevel.Warning);
+                return NodeStatus.Failure;
+            }
+
+            textLogger?.Log($"[{nodeName}] {agent.Name}: Node Ticked.", LogLevel.Debug);
+
             if (blackboard.SelectedAbility != null)
             {
+                textLogger?.Log($"[{nodeName}] {agent.Name}: Ability '{blackboard.SelectedAbility.AbilityID}' already selected. Success.", LogLevel.Debug);
                 return NodeStatus.Success;
             }
 
-            // 파츠에서 AbilityID 수집
             var abilityIds = agent.Parts?.Values
                                 .SelectMany(p => p.Abilities)
                                 .Distinct();
-            if (abilityIds == null) return NodeStatus.Failure;
+
+            if (abilityIds == null || !abilityIds.Any())
+            {
+                textLogger?.Log($"[{nodeName}] {agent.Name}: No ability IDs found on parts. Failure.", LogLevel.Debug);
+                return NodeStatus.Failure;
+            }
+            textLogger?.Log($"[{nodeName}] {agent.Name}: Found abilities on parts: {string.Join(", ", abilityIds)}. Iterating...", LogLevel.Debug);
 
             foreach (var id in abilityIds)
             {
-                if (!AbilityEffectRegistry.TryGetExecutor(id, out var exec)) continue; // 실행 가능 체크
-                if (!AbilityDatabase.TryGetAbility(id, out var so)) continue;
-                if (!exec.CanExecute(context, agent, agent, so)) continue;
-                // AP 체크는 CanExecute 내부에서도 하지만 중복으로 안전망
-                if (!agent.HasEnoughAP(so.APCost)) continue;
+                textLogger?.Log($"[{nodeName}] {agent.Name}: Checking ability ID: {id}", LogLevel.Debug);
+                if (!AbilityDatabase.TryGetAbility(id, out var so))
+                {
+                    textLogger?.Log($"[{nodeName}] {agent.Name}: AbilitySO for ID '{id}' not found in AbilityDatabase. Skipping.", LogLevel.Debug);
+                    continue;
+                }
+                textLogger?.Log($"[{nodeName}] {agent.Name}: Found AbilitySO: {so.AbilityName} (APCost: {so.APCost})", LogLevel.Debug);
 
-                var effect = new AbilityEffect(so);
+                if (so.AbilityType != Models.AbilityType.Active || so.TargetType != Models.AbilityTargetType.Self)
+                {
+                    textLogger?.Log($"[{nodeName}] {agent.Name}: Ability '{so.AbilityName}' is not Active or not Self-target. Skipping.", LogLevel.Debug);
+                    continue;
+                }
+
+                if (!AbilityEffectRegistry.TryGetExecutor(id, out var exec))
+                {
+                    textLogger?.Log($"[{nodeName}] {agent.Name}: Executor for ID '{id}' not found in AbilityEffectRegistry. Skipping.", LogLevel.Debug);
+                    continue;
+                }
+                textLogger?.Log($"[{nodeName}] {agent.Name}: Found Executor for {so.AbilityName}. Checking CanExecute...", LogLevel.Debug);
+
+                if (!agent.HasEnoughAP(so.APCost))
+                {
+                    textLogger?.Log($"[{nodeName}] {agent.Name}: Not enough AP for '{so.AbilityName}'. Required: {so.APCost}, Current: {agent.CurrentAP}. Skipping.", LogLevel.Debug);
+                    continue;
+                }
+
+                if (!exec.CanExecute(context, agent, agent, so)) // Target is self for Self-Active ability
+                {
+                    textLogger?.Log($"[{nodeName}] {agent.Name}: Executor.CanExecute for '{so.AbilityName}' returned false. Skipping.", LogLevel.Debug);
+                    continue;
+                }
+                textLogger?.Log($"[{nodeName}] {agent.Name}: Executor.CanExecute for '{so.AbilityName}' returned true.", LogLevel.Debug);
+
+                var effect = new AbilityEffect(so); // Create AbilityEffect from SO
                 blackboard.SelectedAbility = effect;
                 blackboard.DecidedActionType = CombatActionEvents.ActionType.UseAbility;
+                textLogger?.Log($"[{nodeName}] {agent.Name}: Selected ability '{so.AbilityName}'. DecidedAction: UseAbility. Success.", LogLevel.Debug);
                 return NodeStatus.Success;
             }
+
+            textLogger?.Log($"[{nodeName}] {agent.Name}: No suitable self-active ability found after checking all. Failure.", LogLevel.Debug);
             return NodeStatus.Failure;
         }
     }

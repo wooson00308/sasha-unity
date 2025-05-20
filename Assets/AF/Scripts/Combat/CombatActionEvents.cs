@@ -1,5 +1,6 @@
 using UnityEngine;
 using AF.Models;
+using AF.Data;
 
 namespace AF.Combat
 {
@@ -60,10 +61,12 @@ namespace AF.Combat
             public readonly float? DistanceMoved;
             public readonly ArmoredFrame MoveTarget; // 이동 목표 대상
             public bool IsCounterAttack { get; private set; }
+            public readonly AbilitySO UsedAbilityEffect;
 
             public ActionCompletedEvent(ArmoredFrame actor, ActionType action, bool success, string resultDescription, int turnNumber,
                                         Vector3? newPosition = null, float? distanceMoved = null, ArmoredFrame moveTarget = null,
-                                        bool isCounterAttack = false)
+                                        bool isCounterAttack = false,
+                                        AbilitySO usedAbilityEffect = null)
             {
                 Actor = actor;
                 Action = action;
@@ -74,6 +77,7 @@ namespace AF.Combat
                 DistanceMoved = distanceMoved;
                 MoveTarget = moveTarget;
                 IsCounterAttack = isCounterAttack;
+                UsedAbilityEffect = usedAbilityEffect;
             }
         }
 

@@ -66,7 +66,7 @@ namespace AF.Models
         /// <summary>
         /// 생성자
         /// </summary>
-        protected Part(string name, PartType type, Stats stats, float durability)
+        protected Part(string name, PartType type, Stats stats, float durability, List<string> initialAbilities = null)
         {
             _name = name;
             _type = type;
@@ -74,7 +74,7 @@ namespace AF.Models
             _maxDurability = durability;
             _currentDurability = durability;
             _isOperational = true;
-            _abilities = new List<string>();
+            _abilities = initialAbilities ?? new List<string>();
         }
 
         /// <summary>
@@ -137,7 +137,7 @@ namespace AF.Models
         /// <summary>
         /// 무게를 받는 생성자 오버로드
         /// </summary>
-        protected Part(string name, PartType type, Stats stats, float durability, float weight)
+        protected Part(string name, PartType type, Stats stats, float durability, float weight, List<string> initialAbilities = null)
         {
             _name = name;
             _type = type;
@@ -145,7 +145,7 @@ namespace AF.Models
             _maxDurability = durability;
             _currentDurability = durability;
             _isOperational = true;
-            _abilities = new List<string>();
+            _abilities = initialAbilities ?? new List<string>();
             _weight = weight; // 전달받은 무게 설정
         }
     }

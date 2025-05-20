@@ -121,6 +121,12 @@ namespace AF.Combat
             public string Counter_DefenderName { get; set; }
             public string Counter_AttackerName { get; set; }
 
+            // +++ AbilityUsed 델타 정보 필드 +++
+            public string Ability_Name { get; set; }
+            public string Ability_ActorName { get; set; }
+            public string Ability_TargetInfo { get; set; }
+            public string Ability_EffectDetails { get; set; }
+
             public LogEntry(string message, LogLevel level, int turnNumber, int cycleNumber,
                             LogEventType eventType,
                             ArmoredFrame contextUnit = null, bool shouldUpdateTargetView = false,
@@ -199,6 +205,12 @@ namespace AF.Combat
                 // +++ 카운터 공격 알림 필드 초기화 +++
                 Counter_DefenderName = null;
                 Counter_AttackerName = null;
+
+                // +++ AbilityUsed 필드 초기화 +++
+                Ability_Name = null;
+                Ability_ActorName = null;
+                Ability_TargetInfo = null;
+                Ability_EffectDetails = null;
             }
         }
 
@@ -559,36 +571,69 @@ namespace AF.Combat
 
         private void LogActionCompleted(CombatActionEvents.ActionCompletedEvent evt)
         {
-            // --- SASHA: 플래그 검사 추가 ---
-            const LogLevel level = LogLevel.Info; // 액션 완료는 Info 레벨로 유지
+            const LogLevel level = LogLevel.Info;
             if (!AllowedLogLevels.HasFlag(ConvertLogLevelToFlag(level))) return;
-            // --- SASHA: 추가 끝 ---
 
-            string apInfo = $"| AP: {evt.Actor.CurrentAP:F1} / {evt.Actor.CombinedStats.MaxAP:F1}"; 
+            string apInfo = $"| AP: {evt.Actor.CurrentAP:F1} / {evt.Actor.CombinedStats.MaxAP:F1}";
             string resultDetails = string.IsNullOrEmpty(evt.ResultDescription) ? "" : $"- {evt.ResultDescription}";
-            
-            // <<< ActionType에 따른 인덱스 태그 선택 >>>
-            string actionSpriteTag = "";
-            switch (evt.Action)
+            string prefix = UseIndentation ? "  >> " : ">> ";
+            string actionSpriteTag = "<sprite index=0>"; // 기본 액션 아이콘 (화살표)
+
+            string message;
+            LogEventType entryEventType = LogEventType.ActionCompleted;
+
+            if (evt.Action == CombatActionEvents.ActionType.UseAbility && evt.UsedAbilityEffect != null)
             {
-                case CombatActionEvents.ActionType.Attack:
-                    actionSpriteTag = "<sprite index=8>"; // ATK 아이콘
-                    break;
-                case CombatActionEvents.ActionType.Defend:
-                    actionSpriteTag = "<sprite index=9>"; // DEF 아이콘
-                    break;
-                case CombatActionEvents.ActionType.Move:
-                    actionSpriteTag = "<sprite index=10>"; // MOVE 아이콘
-                    break;
-                // 다른 ActionType에 대한 태그 추가 가능
+                actionSpriteTag = "<sprite index=21>"; // 어빌리티 아이콘 (새로 지정 필요)
+                message = $"{prefix}{actionSpriteTag} [{ColorizeText(evt.Actor.Name, "yellow")}] 어빌리티 [{ColorizeText(evt.UsedAbilityEffect.AbilityName, "cyan")}] 사용. {resultDetails} {apInfo}";
+                entryEventType = LogEventType.AbilityUsed;
+            }
+            else
+            {
+                switch (evt.Action)
+                {
+                    case CombatActionEvents.ActionType.Attack:
+                        actionSpriteTag = "<sprite index=8>"; // ATK 아이콘
+                        break;
+                    case CombatActionEvents.ActionType.Defend:
+                        actionSpriteTag = "<sprite index=9>"; // DEF 아이콘
+                        break;
+                    case CombatActionEvents.ActionType.Move:
+                        actionSpriteTag = "<sprite index=10>"; // MOVE 아이콘
+                        break;
+                }
+                message = $"{prefix}{actionSpriteTag} [{ColorizeText(evt.Actor.Name, "yellow")}] [{GetActionDescription(evt.Action)}] {resultDetails} {apInfo}";
             }
 
-            // UseIndentation 플래그 확인하여 들여쓰기 적용
-            string prefix = UseIndentation ? "  >> " : ">> "; 
-            // <<< 인덱스 태그 추가 >>>
-            // Log($"{prefix}<sprite index=0> <color=red>-></color> {actionSpriteTag} [{GetActionDescription(evt.Action)}] {resultDetails} {apInfo}", LogLevel.Info);
-            // Actor 이름 색상 추가
-            Log($"{prefix}<sprite index=0> <color=red>-></color> {actionSpriteTag} [{ColorizeText(evt.Actor.Name, "yellow")}] [{GetActionDescription(evt.Action)}] {resultDetails} {apInfo}", level);
+            var entry = new LogEntry(message, level, _turnCounter, _cycleCounter, entryEventType, evt.Actor);
+
+            // 공통 Action 정보 채우기
+            entry.Action_ActorName = evt.Actor?.Name;
+            entry.Action_Type = evt.Action;
+            entry.Action_IsSuccess = evt.Success;
+            entry.Action_ResultDescription = evt.ResultDescription; // 이미 메시지에 포함되어 있지만, 구조화된 데이터로도 저장
+            entry.Action_IsCounterAttack = evt.IsCounterAttack;
+
+            if (evt.Action == CombatActionEvents.ActionType.Move)
+            {
+                entry.Action_TargetName = evt.MoveTarget?.Name; // 이동 목표 대상
+                entry.Action_DistanceMoved = evt.DistanceMoved;
+                entry.Action_NewPosition = evt.NewPosition;
+            }
+
+            // 어빌리티 사용 시 추가 정보 채우기
+            if (entryEventType == LogEventType.AbilityUsed && evt.UsedAbilityEffect != null)
+            {
+                entry.Ability_ActorName = evt.Actor?.Name;
+                entry.Ability_Name = evt.UsedAbilityEffect.AbilityName;
+                // TargetInfo는 UsedAbilityEffect의 TargetType과 evt.ResultDescription 등을 조합해서 만들어야 할 수 있음.
+                // 간단하게 TargetType만 우선 기록하거나, ResultDescription에 상세 내용이 있다면 그것을 활용.
+                entry.Ability_TargetInfo = evt.UsedAbilityEffect.TargetType.ToString(); 
+                entry.Ability_EffectDetails = evt.UsedAbilityEffect.Description; // 또는 주요 효과 요약
+            }
+            
+            _logs.Add(entry);
+            OnLogAdded?.Invoke(FormatLogEntry(entry), entry.Level);
         }
         
         private void LogDamageApplied(CombatActionEvents.DamageAppliedEvent evt)
@@ -792,7 +837,7 @@ namespace AF.Combat
             var markerMapping = new Dictionary<string, string>
             {
                 // 인덱스 태그 형식: "<sprite index=N>"
-                { "<sprite index=0>", "[HIT]" },          // 데미지 적용 / 내구도 감소
+                { "<sprite index=0>", "[ACTION]" },       // 기본 액션 화살표 (새로 정의)
                 { "<sprite index=1>", "[MISS]" },
                 { "<sprite index=2>", "[DESTROYED]" },   // 파츠 파괴 / 유닛 파괴
                 { "<sprite index=3>", "[SYS FAIL]" },      // 시스템 오류 / 무기 고장
@@ -813,6 +858,7 @@ namespace AF.Combat
                 { "<sprite index=18>", "[PART DMG]" },      // 파츠 손상
                 { "<sprite index=19>", "[PART CRIT]" },     // 파츠 위험
                 { "<sprite index=20>", "[PART EMPTY]" },    // 파츠 없음
+                { "<sprite index=21>", "[ABILITY]" },    // 어빌리티 사용 (새로 추가)
                 { "<sprite index=23>", "[COUNTER]" },   // 새 카운터 아이콘
                 // 필요시 추가...
             };
@@ -839,6 +885,7 @@ namespace AF.Combat
                 case CombatActionEvents.ActionType.Attack: return "공격";
                 case CombatActionEvents.ActionType.Defend: return "방어";
                 case CombatActionEvents.ActionType.Move: return "이동";
+                case CombatActionEvents.ActionType.UseAbility: return "어빌리티 사용"; // 추가
                 // case CombatActionEvents.ActionType.Skill: return "스킬 사용";
                 // case CombatActionEvents.ActionType.Wait: return "대기";
                 default: return action.ToString();

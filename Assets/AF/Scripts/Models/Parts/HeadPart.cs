@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace AF.Models
 {
@@ -15,6 +16,11 @@ namespace AF.Models
 
         public HeadPart(string name, Stats stats, float durability, float weight)
             : base(name, PartType.Head, stats, durability, weight)
+        {
+        }
+
+        public HeadPart(string name, Stats stats, float durability, float weight, List<string> initialAbilities = null)
+            : base(name, PartType.Head, stats, durability, weight, initialAbilities)
         {
         }
 

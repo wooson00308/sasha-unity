@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace AF.Models
 {
@@ -8,13 +9,8 @@ namespace AF.Models
     [System.Serializable]
     public class BodyPart : Part
     {
-        public BodyPart(string name, Stats stats, float durability)
-            : base(name, PartType.Body, stats, durability)
-        {
-        }
-
-        public BodyPart(string name, Stats stats, float durability, float weight)
-            : base(name, PartType.Body, stats, durability, weight)
+        public BodyPart(string name, Stats stats, float durability, float weight, List<string> initialAbilities = null)
+            : base(name, PartType.Body, stats, durability, weight, initialAbilities)
         {
         }
 

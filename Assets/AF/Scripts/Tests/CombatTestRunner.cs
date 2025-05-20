@@ -1118,11 +1118,11 @@ namespace AF.Tests
                 // PartSO의 PartType에 따라 적절한 Part 클래스 인스턴스 생성
                 switch (partSO.PartType)
                 {
-                    case PartType.Head: runtimePart = new HeadPart(partSO.PartName ?? partSO.name, partStats, partSO.MaxDurability, partSO.PartWeight); break;
-                    case PartType.Body: runtimePart = new AF.Models.BodyPart(partSO.PartName ?? partSO.name, partStats, partSO.MaxDurability, partSO.PartWeight); break; // Fully qualified
-                    case PartType.Arm: runtimePart = new ArmsPart(partSO.PartName ?? partSO.name, partStats, partSO.MaxDurability, partSO.PartWeight); break;
-                    case PartType.Legs: runtimePart = new LegsPart(partSO.PartName ?? partSO.name, partStats, partSO.MaxDurability, partSO.PartWeight); break;
-                    case PartType.Backpack: runtimePart = new BackpackPart(partSO.PartName, partStats, partSO.MaxDurability, partSO.PartWeight); break;
+                    case PartType.Head: runtimePart = new HeadPart(partSO.PartName ?? partSO.name, partStats, partSO.MaxDurability, partSO.PartWeight, partSO.Abilities); break;
+                    case PartType.Body: runtimePart = new AF.Models.BodyPart(partSO.PartName ?? partSO.name, partStats, partSO.MaxDurability, partSO.PartWeight, partSO.Abilities); break; // Fully qualified
+                    case PartType.Arm: runtimePart = new ArmsPart(partSO.PartName ?? partSO.name, partStats, partSO.MaxDurability, partSO.PartWeight, partSO.Abilities); break;
+                    case PartType.Legs: runtimePart = new LegsPart(partSO.PartName ?? partSO.name, partStats, partSO.MaxDurability, partSO.PartWeight, partSO.Abilities); break;
+                    case PartType.Backpack: runtimePart = new BackpackPart(partSO.PartName, partStats, partSO.MaxDurability, partSO.PartWeight, partSO.Abilities); break;
                     // Backpack 등 다른 파츠 타입 추가 가능
                     default: Debug.LogWarning($"Unhandled PartType '{partSO.PartType}' for PartSO '{partSO.name}'."); break;
                 }
@@ -1187,11 +1187,11 @@ namespace AF.Tests
                 {
                     switch (partSO.PartType)
                     {
-                        case PartType.Head: runtimePart = new HeadPart(partSO.PartName, partStats, partSO.MaxDurability, partSO.PartWeight); break;
-                        case PartType.Body: runtimePart = new AF.Models.BodyPart(partSO.PartName, partStats, partSO.MaxDurability, partSO.PartWeight); break; // Fully qualified
-                        case PartType.Arm: runtimePart = new ArmsPart(partSO.PartName, partStats, partSO.MaxDurability, partSO.PartWeight); break;
-                        case PartType.Legs: runtimePart = new LegsPart(partSO.PartName, partStats, partSO.MaxDurability, partSO.PartWeight); break;
-                        case PartType.Backpack: runtimePart = new BackpackPart(partSO.PartName, partStats, partSO.MaxDurability, partSO.PartWeight); break;
+                        case PartType.Head: runtimePart = new HeadPart(partSO.PartName, partStats, partSO.MaxDurability, partSO.PartWeight, partSO.Abilities); break;
+                        case PartType.Body: runtimePart = new AF.Models.BodyPart(partSO.PartName, partStats, partSO.MaxDurability, partSO.PartWeight, partSO.Abilities); break; // Fully qualified
+                        case PartType.Arm: runtimePart = new ArmsPart(partSO.PartName, partStats, partSO.MaxDurability, partSO.PartWeight, partSO.Abilities); break;
+                        case PartType.Legs: runtimePart = new LegsPart(partSO.PartName, partStats, partSO.MaxDurability, partSO.PartWeight, partSO.Abilities); break;
+                        case PartType.Backpack: runtimePart = new BackpackPart(partSO.PartName, partStats, partSO.MaxDurability, partSO.PartWeight, partSO.Abilities); break;
                         default: Debug.LogWarning($"Unhandled PartType '{partSO.PartType}' for ID '{partId}'."); break;
                     }
                      if (runtimePart != null)

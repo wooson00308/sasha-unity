@@ -16,7 +16,7 @@ namespace AF.Models.Abilities
         static AbilityDatabase()
         {
             // Resources 경로 전체에서 AbilitySO 전부 검색
-            var all = Resources.LoadAll<AbilitySO>("Data/Resources/Abilities");
+            var all = Resources.LoadAll<AbilitySO>("Abilities");
             _abilityMap = all.ToDictionary(a => a.AbilityID, a => a);
         }
 
