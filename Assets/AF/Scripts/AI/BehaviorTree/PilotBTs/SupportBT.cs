@@ -17,6 +17,12 @@ namespace AF.AI.BehaviorTree.PilotBTs
 
             return new SelectorNode(new List<BTNode>
             {
+                // NEW: Self Active Ability Usage (Highest Priority)
+                new SequenceNode(new List<BTNode>
+                {
+                    new SelectSelfActiveAbilityNode(),
+                    new HasEnoughAPNode(CombatActionEvents.ActionType.UseAbility)
+                }),
                 // Sequence 2: Ally Support (Repairing Allies)
                 new SequenceNode(new List<BTNode>
                 {

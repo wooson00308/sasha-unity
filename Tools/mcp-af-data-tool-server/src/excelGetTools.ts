@@ -359,22 +359,28 @@ function registerGetExcelTools(server: any) {
                 const componentDetails: any = {};
 
                 const processEntity = async (entityId: string | null, sheetName: string, idColName: string, entityType: string) => {
+                    console.error(`[ExcelGetTools-Debug] processEntity called with: entityId='${entityId}', sheetName='${sheetName}', idColName='${idColName}', entityType='${entityType}'`);
                     if (!entityId || typeof entityId !== 'string' || entityId.trim() === '') {
                         // console.warn(`[ExcelGetTools] Skipping ${entityType} due to missing or invalid ID.`);
+                        console.error(`[ExcelGetTools-Debug] processEntity returning null due to invalid entityId: '${entityId}'`);
                         return null;
                     }
                     const sheet = workbook.getWorksheet(sheetName);
                     if (!sheet) {
                         console.error(`[ExcelGetTools] Sheet '${sheetName}' not found for ${entityType} ID ${entityId}.`);
+                        console.error(`[ExcelGetTools-Debug] processEntity returning error object: Sheet '${sheetName}' not found.`);
                         return { id: entityId, error: `Sheet '${sheetName}' not found.` };
                     }
                     const header = sheet.getRow(1).values as CellValue[];
                     const data = _findEntityById(sheet, entityId, idColName, header);
+                    console.error(`[ExcelGetTools-Debug] _findEntityById in processEntity for '${entityId}' in '${sheetName}' returned: ${JSON.stringify(data)}`);
                     if (!data) {
                         console.warn(`[ExcelGetTools] ${entityType} with ID '${entityId}' not found in sheet '${sheetName}'.`);
+                        console.error(`[ExcelGetTools-Debug] processEntity returning error object: ${entityType} not found.`);
                         return { id: entityId, error: `${entityType} not found.` };
                     }
                     // console.log(\`[ExcelGetTools] Fetched ${entityType}: \`, data);
+                    console.error(`[ExcelGetTools-Debug] processEntity successfully fetched data for '${entityId}'.`);
                     return data;
                 };
 
@@ -392,34 +398,66 @@ function registerGetExcelTools(server: any) {
                 
                 // Parts
                 const partPromises: Promise<any>[] = [];
-                const partIdColumns = ['PartID_Head', 'PartID_Body', 'PartID_Arms', 'PartID_Legs', 'PartID_Booster', 'PartID_FCS', 'PartID_Generator'];
-                const weaponIdColumns = ['WeaponID_R_Arm', 'WeaponID_L_Arm', 'WeaponID_R_Back', 'WeaponID_L_Back'];
+                // AF_Assemblies 시트의 실제 컬럼 이름으로 수정
+                const partIdColumns = { 
+                    head: 'HeadPartID', 
+                    body: 'BodyPartID', 
+                    // Arms는 Left/Right 구분 필요. 아래에서 별도 처리
+                    legs: 'LegsPartID', 
+                    // Booster, FCS, Generator는 현재 Cobalt_Vanguard에 없으므로, 
+                    // 다른 어셈블리에서 사용된다면 해당 컬럼명 추가 필요.
+                    // 예: booster: 'BoosterPartID', fcs: 'FCS_PartID', generator: 'GeneratorPartID'
+                };
+                // Weapon ID 컬럼도 실제 이름으로 수정
+                const weaponIdColumns = {
+                    weapon1: 'Weapon1ID', // 보통 오른팔 무기
+                    weapon2: 'Weapon2ID', // 보통 왼팔 무기
+                    // 필요하다면 R_Back, L_Back 등 추가
+                };
                 
                 componentDetails.parts = {}; // Initialize parts object
 
-                partIdColumns.forEach(colName => {
+                // 일반 파츠 처리
+                for (const partType in partIdColumns) {
+                    const colName = partIdColumns[partType as keyof typeof partIdColumns];
                     const partId = assemblyData[colName] as string;
                     if (partId && partId.trim() !== '') {
-                        // Extract part type from column name (e.g., "Head" from "PartID_Head")
-                        const partType = colName.replace('PartID_', '').toLowerCase();
                         partPromises.push(processEntity(partId, 'Parts', 'PartID', `part (${partType})`).then(data => {
                             if (data && !data.error) componentDetails.parts[partType] = data;
                             else if (data && data.error) componentDetails.parts[partType] = { id: partId, error: data.error };
                         }));
                     }
-                });
+                }
 
-                weaponIdColumns.forEach(colName => {
+                // 팔 파츠 처리 (좌/우 구분)
+                const leftArmId = assemblyData['LeftArmPartID'] as string;
+                if (leftArmId && leftArmId.trim() !== '') {
+                    partPromises.push(processEntity(leftArmId, 'Parts', 'PartID', 'part (leftarm)').then(data => {
+                        if (data && !data.error) componentDetails.parts['leftarm'] = data;
+                        else if (data && data.error) componentDetails.parts['leftarm'] = { id: leftArmId, error: data.error };
+                    }));
+                }
+                const rightArmId = assemblyData['RightArmPartID'] as string;
+                if (rightArmId && rightArmId.trim() !== '') {
+                    partPromises.push(processEntity(rightArmId, 'Parts', 'PartID', 'part (rightarm)').then(data => {
+                        if (data && !data.error) componentDetails.parts['rightarm'] = data;
+                        else if (data && data.error) componentDetails.parts['rightarm'] = { id: rightArmId, error: data.error };
+                    }));
+                }
+                
+                // 무기 처리
+                for (const weaponSlot in weaponIdColumns) {
+                    const colName = weaponIdColumns[weaponSlot as keyof typeof weaponIdColumns];
                     const weaponId = assemblyData[colName] as string;
                     if (weaponId && weaponId.trim() !== '') {
-                         // Extract weapon slot from column name (e.g., "r_arm" from "WeaponID_R_Arm")
-                        const weaponSlot = colName.replace('WeaponID_', '').toLowerCase();
                         partPromises.push(processEntity(weaponId, 'Weapons', 'WeaponID', `weapon (${weaponSlot})`).then(data => {
-                            if (data && !data.error) componentDetails.parts[weaponSlot] = data; // Store under parts for now, might need a separate weapons category
+                            // 무기는 'parts' 하위가 아닌 별도 카테고리 'weapons'로 관리하거나, 
+                            // 'parts'에 넣되 slot 이름으로 구분 (현재는 weaponSlot으로 parts에 넣고 있음)
+                            if (data && !data.error) componentDetails.parts[weaponSlot] = data; 
                             else if (data && data.error) componentDetails.parts[weaponSlot] = { id: weaponId, error: data.error };
                         }));
                     }
-                });
+                }
 
                 await Promise.all([...componentPromises, ...partPromises]);
                 
@@ -432,17 +470,35 @@ function registerGetExcelTools(server: any) {
                     for (const key in component) {
                         if (key.startsWith('Stat_') && typeof component[key] === 'number') {
                             totalStats[key] = (totalStats[key] || 0) + component[key];
-                        } else if (key === 'Abilities' && typeof component[key] === 'string' && component[key].trim() !== '') {
-                            component[key].split(',').forEach((ability: string) => allAbilities.add(ability.trim()));
-                        } else if (key.startsWith('Ability_') && typeof component[key] === 'string' && component[key].trim() !== '') { // Handle Ability_XXX format
-                            allAbilities.add(component[key].trim());
+                        } else if (key === 'Abilities') {
+                            const abilitiesValue = component[key];
+                            if (typeof abilitiesValue === 'string' && abilitiesValue.trim() !== '') {
+                                abilitiesValue.split(',').forEach((ability: string) => allAbilities.add(ability.trim()));
+                            }
+                        } else if (key.startsWith('Ability_')) { // Handle Ability_XXX format
+                            const abilityValue = component[key];
+                            if (typeof abilityValue === 'string' && abilityValue.trim() !== '') {
+                                allAbilities.add(abilityValue.trim());
+                            }
                         }
                     }
                 };
 
                 accumulateStats(componentDetails.frame);
                 accumulateStats(componentDetails.pilot);
-                Object.values(componentDetails.parts).forEach(part => accumulateStats(part));
+
+                // Define a more specific type for what 'part' could be
+                type ProcessedPart = Record<string, any> | { id: string, error: string };
+
+                Object.values(componentDetails.parts).forEach((partValue) => {
+                    const part = partValue as ProcessedPart; // Cast to the more specific type
+                    // Check if 'error' property does NOT exist or is falsy. Also check if 'id' exists for the error case.
+                    if (part && !(part as { error: string }).error) { 
+                        accumulateStats(part);
+                    } else if (part && (part as { id: string; error: string }).id && (part as { id: string; error: string }).error) {
+                        console.warn(`[ExcelGetTools] Skipping stats accumulation for part ID '${(part as { id: string; error: string }).id}' due to error: ${(part as { id: string; error: string }).error}`);
+                    }
+                });
                 
                 result.totalStats = totalStats;
                 result.allUniqueAbilities = Array.from(allAbilities);

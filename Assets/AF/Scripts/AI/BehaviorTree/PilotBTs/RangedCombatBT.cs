@@ -40,6 +40,12 @@ namespace AF.AI.BehaviorTree.PilotBTs
 
             return new SelectorNode(new List<BTNode>
             {
+                // NEW: Self Active Ability Usage (Highest Priority)
+                new SequenceNode(new List<BTNode>
+                {
+                    new SelectSelfActiveAbilityNode(),
+                    new HasEnoughAPNode(CombatActionEvents.ActionType.UseAbility)
+                }),
                 // 0. 재장전 중 후퇴 시퀀스 (방어 대신)
                 new SequenceNode(new List<BTNode>
                 {

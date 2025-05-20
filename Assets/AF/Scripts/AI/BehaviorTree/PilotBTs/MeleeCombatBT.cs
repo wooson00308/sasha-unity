@@ -18,6 +18,12 @@ namespace AF.AI.BehaviorTree.PilotBTs
             // 3. 모든 행동이 불가능하면 대기
             return new SelectorNode(new List<BTNode>
             {
+                // NEW: Self Active Ability Usage (Highest Priority)
+                new SequenceNode(new List<BTNode>
+                {
+                    new SelectSelfActiveAbilityNode(),
+                    new HasEnoughAPNode(CombatActionEvents.ActionType.UseAbility)
+                }),
                 // 0. 재장전 중 방어 시퀀스
                 new SequenceNode(new List<BTNode>
                 {
