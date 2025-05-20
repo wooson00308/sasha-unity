@@ -27,8 +27,8 @@ namespace AF.AI.BehaviorTree.PilotBTs
             {
                 new SequenceNode(new List<BTNode>
                 {
-                    new AF.AI.BehaviorTree.Actions.SelectSelfActiveAbilityNode(),
-                    new AF.AI.BehaviorTree.HasEnoughAPNode(CombatActionEvents.ActionType.UseAbility)
+                    new SelectSelfActiveAbilityNode(),
+                    new HasEnoughAPNode(CombatActionEvents.ActionType.UseAbility)
                 }),
                 // 0. 재장전 중 방어 시퀀스 (최우선)
                 new SequenceNode(new List<BTNode>

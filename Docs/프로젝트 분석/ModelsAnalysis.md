@@ -178,25 +178,37 @@
 -   **`DecoratorNode.cs` (추상 클래스)**: 단일 자식 노드를 가지고 그 자식 노드의 실행 결과나 조건을 변경하는 역할을 하는 장식 노드의 기본 클래스입니다.
 -   **`ConditionNode.cs` (추상 클래스)**: 특정 조건을 검사하여 `Success` 또는 `Failure`를 반환하는 잎새 노드의 기본 클래스입니다. 예: `IsTargetInRangeNode`, `HasEnoughAPNode`.
 -   **`ActionNode.cs` (추상 클래스)**: 특정 행동을 결정하거나 실행하는 잎새 노드의 기본 클래스입니다. 예: `AttackTargetNode`, `MoveToTargetNode`, `ReloadWeaponNode`.
--   **`Blackboard.cs` (클래스)**: 행동 트리 내에서 노드 간 데이터를 공유하고, AI가 최종적으로 결정한 행동과 관련된 정보(예: `DecidedActionType`, `CurrentTarget`, `SelectedWeapon`, `WeaponToReload`, `IntendedMovePosition`, `ImmediateReloadWeapon`)를 저장하는 데 사용되는 데이터 컨테이너 클래스입니다. 각 `ArmoredFrame`은 `AICtxBlackboard`라는 이름으로 자신만의 `Blackboard` 인스턴스를 가집니다. 추가적으로 `AttackPosition` (공격 목표 위치), `HasReachedTarget` (목표 도달 여부), `IsAlerted` (경계 상태 여부) 등의 명시적 프로퍼티도 포함합니다. `ClearAllData()` 메서드는 제네릭 데이터와 모든 명시적 프로퍼티를 초기화합니다.
+-   **`Blackboard.cs` (클래스)**: 행동 트리 내에서 노드 간 데이터를 공유하고, AI가 최종적으로 결정한 행동과 관련된 정보(예: `DecidedActionType`, `CurrentTarget`, `SelectedWeapon`, `WeaponToReload`, `IntendedMovePosition`, `ImmediateReloadWeapon`, **`SelectedAbility` (`AbilityEffect` 타입)**)를 저장하는 데 사용되는 데이터 컨테이너 클래스입니다. 각 `ArmoredFrame`은 `AICtxBlackboard`라는 이름으로 자신만의 `Blackboard` 인스턴스를 가집니다. 추가적으로 `AttackPosition` (공격 목표 위치), `HasReachedTarget` (목표 도달 여부), `IsAlerted` (경계 상태 여부) 등의 명시적 프로퍼티도 포함합니다. `ClearAllData()` 메서드는 제네릭 데이터와 모든 명시적 프로퍼티를 초기화합니다.
 
-## 보조 모델 및 열거형
+## 8. 어빌리티 관련 모델 (`Assets/AF/Scripts/Models/Abilities/`)
 
--   **`ArmoredFrameSnapshot.cs`**: 특정 시점의 `ArmoredFrame` 상태를 저장하는 구조체입니다. 이름(`Callsign`), 위치, 팀, AP, 내구도, 스탯, 파츠 및 무기 상태 스냅샷(`Dictionary<string, PartSnapshot>`, `List<WeaponSnapshot>`)을 포함합니다. 파츠 스냅샷은 슬롯 ID를 키로 사용하여 접근할 수 있어, `PartDestroyedEvent`의 `PartDestroyed_SlotId`와 연계하여 특정 파츠의 상태를 파악하는 데 용이합니다. 주로 전투 로그 재생 시 사용됩니다.
--   **`PartSnapshot.cs`**: 파츠의 상태 스냅샷 구조체 (이름, 현재/최대 내구도, 작동 여부, 파츠 타입). 슬롯 ID는 `ArmoredFrameSnapshot`의 딕셔너리 키를 통해 알 수 있습니다.
--   **`WeaponSnapshot.cs`**: 무기의 상태 스냅샷 구조체 (이름, 현재/최대 탄약, 재장전 상태, 작동 여부).
--   **`StatusEffect.cs`**: 상태 효과(버프/디버프) 정보를 나타내는 클래스입니다. 효과 이름, 지속 턴, 효과 타입(`StatusEffectEvents.StatusEffectType`), 스탯 변경 정보(`StatToModify`, `ModificationType`, `ModificationValue`), 틱 효과 정보(`TickEffectType`, `TickValue`)를 포함합니다. 모든 생성자에 `EffectType` 파라미터가 추가되었으며, 이를 저장하는 `EffectType` 프로퍼티가 새로 생겼습니다.
--   **`PartSlotDefinition.cs`**: `Frame`에서 사용하는 클래스로, 파츠 슬롯의 식별자와 해당 슬롯에 장착 가능한 파츠 타입(`RequiredPartType`)을 정의합니다.
+이 섹션은 게임 내 다양한 어빌리티의 데이터 구조와 실행 로직을 정의하는 모델들을 설명합니다.
 
--   **열거형 (Enums)**:
-    -   `PartType.cs`: 파츠 종류 (Frame, Body, Head, Arm, Legs, Backpack). `Backpack` 타입은 존재하나, `BackpackPart.cs` 구현체는 현재 프로젝트에 없을 수 있습니다(확인 필요).
-    -   `FrameType.cs`: 프레임 종류 (Light, Standard, Heavy)
-    -   `WeaponType.cs`: 무기 종류 (Melee, MidRange, LongRange)
-    -   `DamageType.cs`: 데미지 종류 (Physical, Energy, Explosive, Piercing, Electric)
-    -   `SpecializationType.cs`: 파일럿 전문화 종류 (StandardCombat, MeleeCombat, RangedCombat, Defense, **Support**, Engineering, Evasion)
-    -   `StatType.cs`: 스탯 종류 (AttackPower, Defense, ... MaxAP, APRecovery)
-    -   `ModificationType.cs`: 스탯 변경 방식 (None, Additive, Multiplicative)
-    -   `TickEffectType.cs`: 턴 기반 효과 종류 (None, DamageOverTime, HealOverTime)
+-   **`AbilityEffect.cs` (클래스)**:
+    -   **역할**: 런타임에 사용될 어빌리티의 구체적인 데이터와 효과 실행을 위한 정보를 담는 클래스입니다. `AbilitySO` (ScriptableObject)로부터 생성되며, 행동 트리 노드에서 생성되어 `Blackboard`를 통해 `CombatActionExecutor`로 전달될 수 있습니다.
+    -   **주요 속성**: `AbilityID` (string), `Type` (`AbilityType`), `TargetType` (`AbilityTargetType`), `EffectType` (`AbilityEffectType`), `EffectParameters` (`Dictionary<string, object>`), `APCost` (float), `SourcePart` (`Part`, 선택적), `SourceSO` (`AbilitySO`, 필수 원본 참조).
+    -   **주요 기능**: `AbilitySO`로부터 데이터를 받아 초기화하며, `GetParameter<T>()` 헬퍼 메서드를 통해 `EffectParameters`의 값을 쉽게 가져올 수 있습니다.
+
+-   **`IAbilityEffectExecutor.cs` (인터페이스)**:
+    -   **역할**: 런타임 어빌리티 효과를 실행하기 위한 공통 인터페이스입니다. `AbilityEffectRegistry`를 통해 특정 `AbilityID`에 매핑된 구현체를 가져와 사용합니다.
+    -   **주요 메서드**:
+        -   `Execute(CombatContext ctx, ArmoredFrame user, ArmoredFrame target, AbilityEffect abilityData)`: 어빌리티 효과를 실행합니다.
+        -   `CanExecute(CombatContext ctx, ArmoredFrame user, ArmoredFrame target, AbilitySO data)`: 어빌리티 실행 가능 여부를 확인합니다.
+
+-   **`AbilityDatabase.cs` (static 클래스)**:
+    -   **역할**: `Resources/Data/Resources/Abilities` 폴더 내의 모든 `AbilitySO` 에셋을 로드하여 `AbilityID`를 키로 하는 딕셔너리에 캐싱합니다. 이를 통해 런타임에 `AbilityID`로 `AbilitySO`를 빠르게 조회할 수 있습니다.
+    -   **주요 메서드**: `TryGetAbility(string abilityId, out AbilitySO so)`.
+
+-   **`AbilityEffectRegistry.cs` (static 클래스)**:
+    -   **역할**: `AbilityID` (string)와 해당 어빌리티의 실제 실행 로직을 담고 있는 `IAbilityEffectExecutor` 구현체 간의 매핑을 관리합니다.
+    -   **주요 메서드**: `TryGetExecutor(string abilityId, out IAbilityEffectExecutor executor)`. (예: `ZoomAbilityExecutor`, `AnalyzeAbilityExecutor` 등이 여기에 등록됨)
+
+-   **열거형**:
+    -   **`AbilityType.cs`**: 어빌리티의 기본 발동 유형 (Passive, Active, Triggered).
+    -   **`AbilityTargetType.cs`**: 어빌리티의 대상 유형 (None, Self, EnemyUnit, AllyUnit, AoE_EnemyUnits 등).
+    -   **`AbilityEffectType.cs`**: 어빌리티가 발생시키는 주요 효과의 종류 (None, StatModifier, ApplyStatusEffect, DirectDamage, DirectHeal, SpawnObject, SpecialAction, Composite, ControlAbilityUsage).
+
+## 9. 보조 모델 및 열거형 (기존 '보조 모델 및 열거형' 섹션에서 어빌리티 외 항목 이동)
 
 ## 시스템 구조 요약
 
@@ -205,11 +217,12 @@
 3.  `Frame`의 슬롯에는 해당 타입의 `Part` 객체를 장착할 수 있습니다.
 4.  `ArmoredFrame`에는 여러 `Weapon` 객체를 장착할 수 있습니다.
 5.  `ArmoredFrame`은 `Pilot` 객체에 의해 조종됩니다.
-6.  **AI 유닛의 경우, `ArmoredFrame`은 `BehaviorTreeRoot` (행동 트리의 루트 노드)와 `AICtxBlackboard` (행동 트리용 데이터 저장소, `ImmediateReloadWeapon` 등 포함)를 가집니다. 이들을 통해 AI 행동이 결정됩니다.**
-7.  `Stats` 클래스는 다양한 객체의 능력치를 표현하며, `CombatContext` **클래스**는 전투 관련 정보를 묶어 전달합니다.
+6.  AI 유닛의 경우, `ArmoredFrame`은 `BehaviorTreeRoot` (행동 트리의 루트 노드)와 `AICtxBlackboard` (행동 트리용 데이터 저장소, `ImmediateReloadWeapon`, **`SelectedAbility` (`AbilityEffect` 타입)** 등 포함)를 가집니다. 이들을 통해 AI 행동이 결정됩니다.
+7.  `Stats` 클래스는 다양한 객체의 능력치를 표현하며, `CombatContext` 클래스는 전투 관련 정보를 묶어 전달합니다.
 8.  전투 중 `ArmoredFrame`의 상태는 `StatusEffect`에 의해 변경될 수 있으며, `ArmoredFrameSnapshot`을 통해 상태를 기록할 수 있습니다. (파츠 스냅샷은 슬롯 ID로 관리)
-9.  각종 열거형은 모델들의 종류와 특성을 구분하는 데 사용됩니다.
+9.  **다양한 어빌리티는 `AbilitySO`에 정의되고, 런타임에는 `AbilityEffect` 객체로 변환되어 `IAbilityEffectExecutor` 구현체를 통해 실행됩니다.**
+10. 각종 열거형은 모델들의 종류와 특성을 구분하는 데 사용됩니다.
 
 ## 결론
 
-`Assets/AF/Scripts/Models` 디렉토리는 Armored Frame 게임의 핵심 데이터 구조를 정의합니다. `ArmoredFrame` 클래스를 중심으로 다양한 구성 요소를 조합하여 게임 유닛을 표현하며(`Callsign` 도입, `IsOperational` 로직 변경점 등 반영), **이제 행동 트리 시스템을 위한 `BTNode` 및 `Blackboard`와 같은 AI 관련 모델도 이 생태계의 중요한 부분을 차지합니다(`ImmediateReloadWeapon` 추가 등).** `Stats` 클래스는 능력치 시스템의 기반을 제공하며, 관련 열거형들은 게임 내 다양한 요소들을 분류하고 정의하는 데 중요한 역할을 합니다. 스냅샷 구조 또한 상세화되어 로그 분석 및 재생에 더욱 유용해졌습니다. 이 모델들은 게임 로직의 다른 부분(전투, UI, 데이터 관리 등)에서 사용될 데이터의 청사진을 제공합니다. 
+`Assets/AF/Scripts/Models` 디렉토리는 Armored Frame 게임의 핵심 데이터 구조를 정의합니다. `ArmoredFrame` 클래스를 중심으로 다양한 구성 요소를 조합하여 게임 유닛을 표현하며(`Callsign` 도입, `IsOperational` 로직 변경점 등 반영), 이제 행동 트리 시스템을 위한 `BTNode` 및 `Blackboard`와 같은 AI 관련 모델도 이 생태계의 중요한 부분을 차지합니다(`ImmediateReloadWeapon` 추가 등). **또한, `AbilityEffect`, `IAbilityEffectExecutor` 및 관련 열거형과 관리 클래스(`AbilityDatabase`, `AbilityEffectRegistry`)를 통해 확장 가능하고 체계적인 어빌리티 시스템의 기반이 마련되었습니다.** `Stats` 클래스는 능력치 시스템의 기반을 제공하며, 관련 열거형들은 게임 내 다양한 요소들을 분류하고 정의하는 데 중요한 역할을 합니다. 스냅샷 구조 또한 상세화되어 로그 분석 및 재생에 더욱 유용해졌습니다. 이 모델들은 게임 로직의 다른 부분(전투, UI, 데이터 관리 등)에서 사용될 데이터의 청사진을 제공합니다. 

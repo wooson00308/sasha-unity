@@ -37,6 +37,10 @@
     -   **`FlavorTextData.cs` (→ `FlavorTexts` 시트)**:
         -   `id` (A), `templateKey` (B), `templateText` (C).
 
+    -   **`AbilityData.cs` (→ `Abilities` 시트)**:
+        -   `AbilityID` (A), `AbilityName` (B), `Description` (C), `AbilityType` (D, *문자열*), `TargetType` (E, *문자열*), `EffectType` (F, *문자열*), `EffectParameters` (G, *문자열*), `APCost` (H), `CooldownTurns` (I), `ActivationCondition` (J, *문자열*), `VisualEffectKey` (K), `SoundEffectKey` (L), `IconID` (M), `Notes` (N).
+        -   `id` 속성은 `AbilityID`를 반환합니다.
+
 -   **`FromExcelRow` 구현**: 각 클래스의 `FromExcelRow` 메서드는 Excel 시트의 컬럼 순서에 맞춰 `row.GetCell(index)`를 호출하여 데이터를 읽고 속성에 할당합니다. 간단한 타입 변환 헬퍼(`GetFloatValue`, `GetIntValue`)를 포함합니다.
 -   **주의사항**: 현재 `DataModels`는 Excel의 Enum 관련 컬럼(`FrameType`, `PartType`, `WeaponType`, `DamageType`, `Specialization`)과 복수 값 컬럼(`Abilities`, `InitialSkills`)을 **단순 문자열**로 읽어옵니다. 이 문자열들은 이후 `ScriptableObjectGenerator`가 호출하는 각 ScriptableObject의 `Apply` 메서드 내에서 실제 Enum 타입으로 파싱되거나 리스트로 분리되어야 합니다.
 
@@ -62,6 +66,7 @@
     -   **[추가 주의!]** 또한, 외부 도구 중 특정 셀에 값을 쓰는 기능(예: `mcp_excel-mcp-server_excel_write_to_sheet`)을 사용할 경우, 단일 셀을 지정하더라도 `range` 매개변수는 `"A1"`과 같은 형식이 아니라 `"A1:A1"`과 같이 콜론으로 시작과 끝 셀을 명시하는 형식을 요구할 수 있습니다. 도구의 정확한 매개변수 형식을 확인하고 사용해야 합니다.
     -   Excel 파일 존재 여부를 확인합니다.
     -   각 데이터 타입(Frame, Part, Weapon, Pilot, Assembly, FlavorText)에 대해 대응하는 `DataModel`과 `ScriptableObject` 타입을 지정하고, 정확한 Excel 시트 이름과 출력 하위 폴더 이름을 명시하여 `GenerateSO<TModel, TSO>` 헬퍼 메서드를 호출합니다.
+    -   **어빌리티 데이터의 경우, `GenerateSO<AbilityData, AbilitySO>(excelFilePath, "Abilities", "Abilities")`와 같이 호출됩니다.**
 -   **`GenerateSO<TModel, TSO>` 헬퍼 메서드**: `ScriptableObjectGenerator.Generate` 메서드를 호출하기 전에 출력 폴더 존재 여부를 확인하고 없으면 생성합니다.
 -   **특징**: 개발자가 에디터 메뉴 클릭 한 번으로 Excel 데이터로부터 모든 관련 ScriptableObject 에셋을 자동으로 생성(또는 업데이트)할 수 있도록 편리한 인터페이스를 제공합니다.
 
@@ -75,10 +80,11 @@
     a.  대응하는 ScriptableObject(`FrameSO`, `PartSO` 등) 인스턴스를 생성합니다.
     b.  생성된 SO의 **`Apply` 메서드**를 리플렉션으로 호출하여 데이터 모델의 정보를 SO 필드로 **변환 및 복사**합니다 (이 단계에서 문자열 Enum 파싱 등이 수행됨).
     c.  데이터 모델의 `id`를 파일명으로 사용하여 `.asset` 파일을 `Assets/AF/Data/Resources/<Type>/` 폴더에 저장합니다.
+    **d. `AbilityData`의 경우, `AbilitySO`의 `Apply` 메서드에서 `IconID`를 사용하여 아이콘 스프라이트를 로드하고 연결합니다.**
 6.  모든 생성이 완료되면 에셋 데이터베이스를 저장하고 새로 고칩니다.
 
 ## 결론
 
-`Assets/ExcelToSO` 시스템은 `AF_Data.xlsx` Excel 파일을 사용하여 게임 데이터를 중앙에서 관리하고, Unity 에디터 메뉴를 통해 이를 `ScriptableObject` 에셋으로 자동 변환하는 강력하고 효율적인 데이터 파이프라인을 구축합니다. `DataModels`는 Excel 시트 구조를 C#으로 표현하고, `ExcelParser`는 데이터 로딩을, `ScriptableObjectGenerator`는 SO 생성 및 `Apply` 메서드 호출을, `DataGeneratorMenu`는 사용자 인터페이스를 제공합니다. 이 시스템은 데이터 기반 개발을 용이하게 하며, 기획/디자인 변경 사항을 코드 수정 없이 게임에 반영할 수 있게 해줍니다.
+`Assets/ExcelToSO` 시스템은 `AF_Data.xlsx` Excel 파일을 사용하여 게임 데이터를 중앙에서 관리하고, Unity 에디터 메뉴를 통해 이를 `ScriptableObject` 에셋으로 자동 변환하는 강력하고 효율적인 데이터 파이프라인을 구축합니다. `DataModels`는 Excel 시트 구조를 C#으로 표현하고, `ExcelParser`는 데이터 로딩을, `ScriptableObjectGenerator`는 SO 생성 및 `Apply` 메서드 호출을, `DataGeneratorMenu`는 사용자 인터페이스를 제공합니다. **이제 어빌리티 데이터(`AbilityData`, `AbilitySO`)도 이 파이프라인에 통합되어 관리됩니다.** 이 시스템은 데이터 기반 개발을 용이하게 하며, 기획/디자인 변경 사항을 코드 수정 없이 게임에 반영할 수 있게 해줍니다.
 
 Excel 데이터로부터 생성된 ScriptableObject 자체의 정의와 데이터 변환 과정에 대한 자세한 분석은 [`ScriptableObjectsAnalysis.md`](./ScriptableObjectsAnalysis.md) 문서를 참조하십시오. 

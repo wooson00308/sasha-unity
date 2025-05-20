@@ -59,12 +59,22 @@
 -   **주요 필드**: `templateKey` (관련 템플릿 그룹화 키), `templateText` (실제 텍스트 템플릿).
 -   **`Apply(FlavorTextData data)` 메서드**: `FlavorTextData` 객체로부터 데이터를 받아 `FlavorTextSO`의 필드를 채웁니다. (`id`는 에셋 파일명으로 사용됨)
 
+### 7. `AbilitySO.cs`
+
+-   **역할**: 어빌리티 데이터를 저장하는 ScriptableObject입니다.
+-   **주요 필드**: `AbilityID`, `AbilityName`, `Description`, `AbilityType` (Enum), `TargetType` (Enum), `EffectType` (Enum), `EffectParametersRaw` (string), `APCost`, `CooldownTurns`, `ActivationConditionRaw` (string), `VisualEffectKey`, `SoundEffectKey`, `Icon` (Sprite), `Notes`.
+-   **`Apply(AbilityData data)` 메서드**: `AbilityData` 객체로부터 데이터를 받아 `AbilitySO`의 필드를 채웁니다.
+    -   `AbilityType`, `TargetType`, `EffectType` 문자열을 각각 대응하는 `AF.Models`의 Enum 타입으로 파싱합니다 (실패 시 경고 로그 및 기본값 사용).
+    -   `IconID` (문자열)를 사용하여 `Assets/AF/Sprites/Icons/Abilities/` 경로에서 해당 스프라이트를 로드하여 `Icon` 필드에 할당합니다 (에디터 전용 로직).
+    -   나머지 필드는 직접 매핑합니다.
+-   **기타**: 에디터 전용 프리뷰 기능 및 `AbilityID` 변경 시 에셋 파일명 자동 변경 기능(`UpdateEditorTitle`)을 포함합니다.
+
 ## 데이터 변환 및 런타임 사용 흐름
 
-1.  **Excel → DataModel**: `ExcelParser`가 `AF_Data.xlsx`를 읽어 각 시트의 행 데이터를 `FrameData`, `PartData` 등의 `DataModels` 객체 리스트로 변환합니다. 이 단계에서는 데이터가 대부분 원시 형태(주로 문자열)로 저장됩니다.
-2.  **DataModel → ScriptableObject**: `ScriptableObjectGenerator`가 `DataModels` 객체 리스트를 순회하며 각 객체에 대해 대응하는 `ScriptableObject`(`FrameSO`, `PartSO` 등) 인스턴스를 생성합니다. 그 후, 각 SO의 **`Apply` 메서드를 호출**하여 `DataModel` 객체의 데이터를 SO 필드로 변환하고 저장합니다. 이 `Apply` 메서드 내에서 문자열 Enum 파싱, 문자열 리스트 변환 등의 **실질적인 데이터 변환**이 이루어집니다.
-3.  **ScriptableObject → 런타임 모델 (게임 실행 시)**: 게임이 실행될 때, `AssemblySO`에 정의된 컴포넌트 ID들을 사용하여 `Resources.Load` 등으로 필요한 `FrameSO`, `PartSO`, `WeaponSO`, `PilotSO` 에셋들을 로드합니다. 로드된 각 SO의 데이터를 기반으로 실제 게임 로직에서 사용될 `AF.Models` 네임스페이스의 런타임 객체(예: `Frame`, `Part`, `Weapon`, `Pilot`)를 **생성**합니다. (이 생성 로직은 현재 분석된 SO 스크립트 내에는 직접적으로 보이지 않으며, 별도의 팩토리 클래스나 `ArmoredFrame` 생성 로직 내에 존재할 것으로 예상됩니다. 예를 들어, 각 SO에 `CreateInstance()` 같은 메서드를 추가하여 구현할 수 있습니다.)
+1.  **Excel → DataModel**: `ExcelParser`가 `AF_Data.xlsx`를 읽어 각 시트의 행 데이터를 `FrameData`, `PartData`, `AbilityData` 등의 `DataModels` 객체 리스트로 변환합니다. 이 단계에서는 데이터가 대부분 원시 형태(주로 문자열)로 저장됩니다.
+2.  **DataModel → ScriptableObject**: `ScriptableObjectGenerator`가 `DataModels` 객체 리스트를 순회하며 각 객체에 대해 대응하는 `ScriptableObject`(`FrameSO`, `PartSO`, `AbilitySO` 등) 인스턴스를 생성합니다. 그 후, 각 SO의 **`Apply` 메서드를 호출**하여 `DataModel` 객체의 데이터를 SO 필드로 변환하고 저장합니다. 이 `Apply` 메서드 내에서 문자열 Enum 파싱, 문자열 리스트 변환, **(AbilitySO의 경우) 아이콘 스프라이트 로드 등의 실질적인 데이터 변환**이 이루어집니다.
+3.  **ScriptableObject → 런타임 모델 (게임 실행 시)**: 게임이 실행될 때, `AssemblySO`에 정의된 컴포넌트 ID들을 사용하여 `Resources.Load` 등으로 필요한 `FrameSO`, `PartSO`, `WeaponSO`, `PilotSO`, **`AbilitySO`** 에셋들을 로드합니다. 로드된 각 SO의 데이터를 기반으로 실제 게임 로직에서 사용될 `AF.Models` 네임스페이스의 런타임 객체(예: `Frame`, `Part`, `Weapon`, `Pilot`, **`AbilityEffect`**)를 **생성**합니다. (이 생성 로직은 현재 분석된 SO 스크립트 내에는 직접적으로 보이지 않으며, 별도의 팩토리 클래스나 `ArmoredFrame` 생성 로직, 또는 어빌리티 사용 로직 내에 존재할 것으로 예상됩니다. 예를 들어, 각 SO에 `CreateInstance()` 같은 메서드를 추가하거나, `AbilityDatabase` 또는 `AbilityEffect` 생성자에서 `AbilitySO`를 사용할 수 있습니다.)
 
 ## 결론
 
-`Assets/AF/Data/ScriptableObjects` 디렉토리의 스크립트들은 Excel 데이터와 실제 게임 로직 사이의 중요한 다리 역할을 합니다. 이들은 Excel에서 가져온 원시 데이터를 Unity 에디터에서 관리하기 쉽고 런타임에 효율적으로 로드할 수 있는 ScriptableObject 형태로 변환하고 저장합니다. 각 SO의 `Apply` 메서드는 데이터 변환의 핵심 로직을 담당하며, 특히 문자열 데이터를 게임 내에서 사용하는 Enum이나 List 등의 타입으로 정확하게 파싱하는 역할을 수행합니다. 최종적으로 이 SO들은 게임 시작 시나 필요할 때 로드되어 런타임에 사용될 `AF.Models` 객체를 생성하는 데 필요한 데이터를 제공합니다. 
+`Assets/AF/Data/ScriptableObjects` 디렉토리의 스크립트들은 Excel 데이터와 실제 게임 로직 사이의 중요한 다리 역할을 합니다. 이들은 Excel에서 가져온 원시 데이터를 Unity 에디터에서 관리하기 쉽고 런타임에 효율적으로 로드할 수 있는 ScriptableObject 형태로 변환하고 저장합니다. 각 SO의 `Apply` 메서드는 데이터 변환의 핵심 로직을 담당하며, 특히 문자열 데이터를 게임 내에서 사용하는 Enum이나 List 등의 타입으로 정확하게 파싱하는 역할을 수행합니다. **이제 `AbilitySO`가 추가되어 어빌리티 관련 데이터도 이 시스템을 통해 일관되게 관리됩니다.** 최종적으로 이 SO들은 게임 시작 시나 필요할 때 로드되어 런타임에 사용될 `AF.Models` 객체를 생성하는 데 필요한 데이터를 제공합니다. 

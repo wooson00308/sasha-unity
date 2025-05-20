@@ -20,9 +20,9 @@
 
 ### 2. 전투 액션 실행 (`ICombatActionExecutor.cs`, `CombatActionExecutor.cs`)
 
--   **역할**: `CombatSimulatorService`로부터 위임받아 실제 전투 액션(공격, 이동, 방어, 재장전, 수리 등)을 수행하고 결과를 반환하며, 관련 이벤트를 발행합니다. `CombatContext`를 통해 전투 상황 정보를 전달받습니다.
--   **주요 기능 (`Execute` 메서드)**: (메소드 시그니처: `Execute(CombatContext ctx, ArmoredFrame actor, ActionType actionType, ArmoredFrame targetFrame, Vector3? targetPosition, Weapon weapon, bool isCounter = false, bool freeCounter = false)`)
-    -   **AP 비용 계산 및 확인**: 행동 타입에 따라 필요한 AP를 계산합니다. `ActionType.None`의 AP 비용은 `0f`로 명시적으로 처리됩니다. `DEFEND_AP_COST`, `REPAIR_ALLY_AP_COST`, `REPAIR_SELF_AP_COST` 등은 `public const` 상수로 정의되어 있으며, 공격(`CalculateAttackAPCost`) 및 이동(`CalculateMoveAPCost`) AP는 별도 메소드로 계산됩니다. `GetActionAPCost` 인터페이스 메서드도 제공됩니다. 행동 주체의 현재 AP가 충분한지 확인하며, 부족 시 실패 처리 및 `ActionCompletedEvent`를 발행합니다.
+-   **역할**: `CombatSimulatorService`로부터 위임받아 실제 전투 액션(공격, 이동, 방어, 재장전, 수리, **어빌리티 사용** 등)을 수행하고 결과를 반환하며, 관련 이벤트를 발행합니다. `CombatContext`를 통해 전투 상황 정보를 전달받습니다.
+-   **주요 기능 (`Execute` 메서드)**: (메소드 시그니처: `Execute(CombatContext ctx, ArmoredFrame actor, ActionType actionType, ArmoredFrame targetFrame, Vector3? targetPosition, Weapon weapon, bool isCounter = false, bool freeCounter = false, AbilityEffect abilityEffect = null)`)
+    -   **AP 비용 계산 및 확인**: 행동 타입에 따라 필요한 AP를 계산합니다. `ActionType.None`의 AP 비용은 `0f`로 명시적으로 처리됩니다. `DEFEND_AP_COST`, `REPAIR_ALLY_AP_COST`, `REPAIR_SELF_AP_COST` 등은 `public const` 상수로 정의되어 있으며, 공격(`CalculateAttackAPCost`) 및 이동(`CalculateMoveAPCost`) AP는 별도 메소드로 계산됩니다. **어빌리티 사용 시에는 `abilityEffect.APCost`를 사용합니다.** `GetActionAPCost` 인터페이스 메서드도 제공됩니다. 행동 주체의 현재 AP가 충분한지 확인하며, 부족 시 실패 처리 및 `ActionCompletedEvent`를 발행합니다.
     -   **이동 횟수 제한**: 이동 액션(`ActionType.Move`)의 경우, `ctx.MovedThisActivation` Set을 확인하여 이미 해당 활성화 주기에 이동했으면 실패 처리합니다.
     -   **액션별 로직 수행**:
         -   **공격 (`ExecuteAttack`)**: 사거리, 탄약, 재장전 상태 확인 -> 명중 판정 -> 데미지 계산 -> 이벤트 발행 (`PartDestroyedEvent` 발생 시 `FrameWasActuallyDestroyed` 플래그 설정 포함) -> 파츠 데미지 적용 -> 반격 시도 (`TryCounterAttack`).
@@ -30,10 +30,11 @@
         -   **방어 (`ApplyDefendStatus`)**: 방어 상태 플래그 설정 (`ctx.DefendedThisTurn` 및 `ctx.DefendedThisActivation` Set에 추가) 및 상태 효과 적용 -> 이벤트 발행.
         -   **재장전 (`ExecuteReload`)**: 무기의 재장전 시작 -> 이벤트 발행.
         -   **수리 (아군/자가)**: `GetMostDamagedPartSlot(actualTarget, ctx)` 메서드로 가장 손상된 파츠를 찾아 (`CombatContext` 전달) `BASE_REPAIR_AMOUNT` 만큼 수리 (`actualTarget.ApplyRepair(targetSlot, BASE_REPAIR_AMOUNT)`). 성공 시 `RepairAppliedEvent` 발행. `GetMostDamagedPartSlot`은 내구도 비율이 가장 낮은 작동 가능한 파츠를 반환하며, 수리할 파츠가 없는 경우 `null`을 반환하여 `Execute` 메서드가 `false`를 반환하도록 유도합니다.
+        -   **어빌리티 사용**: `abilityEffect` 데이터가 유효한지, `AbilityEffectRegistry`에서 해당 어빌리티의 실행자(`IAbilityExecutor`)를 가져올 수 있는지 확인합니다. 대상(`abilityEffect.TargetType`에 따라 `actor` 또는 `targetFrame`)을 결정하고, 가져온 실행자의 `Execute` 메서드를 호출하여 어빌리티를 실행합니다.
     -   **이벤트 발행**: 행동 시작 시 `ActionStartEvent`, 종료 시 `ActionCompletedEvent` (성공 여부, 결과 설명, 최종 위치, 이동 거리 등 포함)를 발행합니다.
     -   **AP 소모**: 행동 성공 및 AP 비용이 있는 경우, 행동 주체의 AP를 소모합니다.
--   **행동 트리 연동 방식**: `CombatSimulatorService`가 행동 트리를 실행한 후, 결정된 액션 정보를 `CombatContext`와 함께 `CombatActionExecutor.Execute()`에 전달하여 실제 행동을 수행합니다. 이 과정에서 `CombatActionExecutor`는 `CombatContext`를 통해 현재 턴, 팀 정보, 다른 유닛 상태 등 전투 전반의 상황을 참조합니다. 예를 들어 `SupportBT`의 경우, `CanRepairTargetPartNode`와 같은 조건 노드가 `Blackboard`의 상태를 변경하고, 이후 `SetRepairAllyActionNode`가 `DecidedActionType`을 `RepairAlly`로 설정하면, `CombatSimulatorService`가 이를 감지하여 `CombatActionExecutor.Execute()`를 호출하게 됩니다.
--   **특징**: 구체적인 전투 액션의 성공/실패 판정, 상태 변화 적용, 결과 이벤트 발행을 담당하는 핵심 로직입니다. AP 비용 상수화, 이동 제한 로직, 구체화된 수리 로직 등이 포함됩니다.
+-   **행동 트리 연동 방식**: `CombatSimulatorService`가 행동 트리를 실행한 후, 결정된 액션 정보를 `CombatContext`와 함께 `CombatActionExecutor.Execute()`에 전달하여 실제 행동을 수행합니다. 이 과정에서 `CombatActionExecutor`는 `CombatContext`를 통해 현재 턴, 팀 정보, 다른 유닛 상태 등 전투 전반의 상황을 참조합니다. 예를 들어 `SupportBT`의 경우, `CanRepairTargetPartNode`와 같은 조건 노드가 `Blackboard`의 상태를 변경하고, 이후 `SetRepairAllyActionNode`가 `DecidedActionType`을 `RepairAlly`로 설정하면, `CombatSimulatorService`가 이를 감지하여 `CombatActionExecutor.Execute()`를 호출하게 됩니다. **어빌리티 사용의 경우, 행동 트리에서 `DecidedActionType`이 `UseAbility`로 설정되고, `AICtxBlackboard.SelectedAbility`에 사용될 `AbilityEffect` 정보가 담기면, `CombatSimulatorService`는 이 정보를 `CombatActionExecutor.Execute()`에 전달합니다.**
+-   **특징**: 구체적인 전투 액션의 성공/실패 판정, 상태 변화 적용, 결과 이벤트 발행을 담당하는 핵심 로직입니다. AP 비용 상수화, 이동 제한 로직, 구체화된 수리 로직, **어빌리티 실행자 연동 로직** 등이 포함됩니다.
 
 ### 3. 텍스트 로깅 (`ITextLogger.cs`, `TextLogger.cs`, `TextLoggerService.cs`)
 

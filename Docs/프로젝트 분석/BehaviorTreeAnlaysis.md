@@ -79,12 +79,14 @@
 -   **`SelectLowestHealthAllyNode` (신규, `SupportBT`용)**: 전투에 참여한 아군 중 현재 체력 비율이 가장 낮은 아군을 찾아 `blackboard.CurrentTarget`에 설정한다. 대상이 없거나 자신뿐이면 `Failure`를 반환한다.
 -   **`SetRepairAllyActionNode` (신규, `SupportBT`용)**: `blackboard.DecidedActionType`을 `RepairAlly`로 설정한다.
 -   **`SelectNearestAllyNode` (신규, `SupportBT`용)**: 자신을 제외한 아군 중 가장 가까운 아군을 찾아 `blackboard.CurrentTarget`에 설정한다. 아군이 없으면 `Failure`를 반환한다.
+-   **`RepairSelfNode` (신규, `BasicAttackBT`용)**: `blackboard.DecidedActionType`을 `RepairSelf`로 설정한다.
+-   **`SelectSelfActiveAbilityNode` (신규, `BasicAttackBT`용)**: 에이전트가 사용 가능한 자신 대상 액티브 어빌리티 중 하나를 선택하여 `blackboard.SelectedAbility`에 설정하고, `blackboard.DecidedActionType`을 `UseAbility`로 설정한다. 어빌리티 실행 가능 여부(`IAbilityEffectExecutor.CanExecute`, AP 비용 포함)를 확인한다. 적합한 어빌리티가 없으면 `Failure`를 반환한다.
 
 ## 4. 핵심 구성 요소: `Blackboard.cs` (데이터 공유 저장소) (`AF.AI.BehaviorTree` 네임스페이스)
 
 행동 트리 내의 여러 노드 간에 데이터를 공유하고, AI가 최종적으로 결정한 행동과 관련된 정보를 저장하는 중앙 데이터 저장소 역할을 한다.
 
--   **주요 데이터 필드**: `CurrentTarget` (현재 목표 대상), `AttackPosition` (공격 목표 위치), `IntendedMovePosition` (목표 이동 위치), `DecidedActionType` (결정된 행동 종류), `SelectedWeapon` (선택된 무기), `WeaponToReload` (재장전할 무기), `ImmediateReloadWeapon` (즉시 재장전 필요 여부 및 대상 무기), `HasReachedTarget` (목표 도달 여부, 기본값 false), `IsAlerted` (경계 상태 여부, 기본값 false) 등을 포함한다. `ImmediateReloadWeapon`은 주로 공격 직후 재장전이 필요할 때 설정된다.
+-   **주요 데이터 필드**: `CurrentTarget` (현재 목표 대상), `AttackPosition` (공격 목표 위치), `IntendedMovePosition` (목표 이동 위치), `DecidedActionType` (결정된 행동 종류), `SelectedWeapon` (선택된 무기), `WeaponToReload` (재장전할 무기), `ImmediateReloadWeapon` (즉시 재장전 필요 여부 및 대상 무기), **`SelectedAbility` (`AbilityEffect` 타입, 사용할 어빌리티)**, `HasReachedTarget` (목표 도달 여부, 기본값 false), `IsAlerted` (경계 상태 여부, 기본값 false) 등을 포함한다. `ImmediateReloadWeapon`은 주로 공격 직후 재장전이 필요할 때 설정된다.
 -   **데이터 접근**: 제네릭 `SetData<T>`, `GetData<T>` 메서드를 통해 다양한 타입의 데이터를 유연하게 저장하고 검색할 수 있다.
 -   **소유 및 초기화**: 각 `ArmoredFrame` 인스턴스는 `AICtxBlackboard`라는 이름으로 자신만의 `Blackboard` 인스턴스를 소유하며, 이 블랙보드는 전투 시작 시 또는 각 유닛의 활성화 시점에 적절히 초기화된다 (`ClearAllData()` 호출 시 명시적 프로퍼티들도 모두 기본값으로 초기화).
 
@@ -121,14 +123,17 @@
 
 ### 6.1. `BasicAttackBT.cs`
 가장 기본적인 공격형 AI 로직을 제공한다. 주요 행동 순서는 다음과 같다:
+- **사용 가능한 자신 대상 액티브 어빌리티 사용 시도 (최우선)**:
+    - `SelectSelfActiveAbilityNode`: 사용 가능한 자신 대상 어빌리티를 `blackboard.SelectedAbility`에 설정하고 `DecidedActionType`을 `UseAbility`로 변경한다.
+    - `HasEnoughAPNode(ActionType.UseAbility)`: 선택된 어빌리티 사용에 충분한 AP가 있는지 확인한다. (AP 비용은 `SelectedAbility.APCost`를 통해 가져옴)
 - 재장전 중 방어
 - 일정 거리 이하로 적 접근 시 거리 벌리기
+- **자가 수리 시도 (체력 낮을 시)**:
+    - `HasRepairUsesNode`: 자가 수리 가능 횟수 확인.
+    - `IsHealthLowNode(0.5f)`: 체력이 50% 이하인지 확인.
+    - `HasEnoughAPNode(ActionType.RepairSelf)`: 자가 수리에 필요한 AP 확인.
+    - `RepairSelfNode`: 행동 타입을 `RepairSelf`로 설정.
 - 즉시 공격 가능한 적 공격
-- 타겟팅 후 교전 (이동 또는 공격)
-- 탄약 소진 시 필수 재장전
-- 일반 방어
-- 낮은 탄약 시 재장전
-- 대기
 
 ### 6.2. `RangedCombatBT.cs` (예상, 현재 파일 내용 기반 추론)
 원거리 교전에 특화된 AI 로직을 제공할 것으로 예상된다. `BasicAttackBT`를 기반으로 하되, 원거리 무기 사용, 적과의 거리 유지 (카이팅), 엄폐물 활용 등의 로직이 강화될 수 있다.
