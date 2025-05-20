@@ -1,6 +1,7 @@
 using AF.Combat;
 using AF.Models;
 using System.Linq;
+using AF.Data;
 
 namespace AF.Models.Abilities
 {
@@ -34,6 +35,12 @@ namespace AF.Models.Abilities
                 turnNumber: ctx?.CurrentTurn ?? 0));
 
             return true;
+        }
+
+        public bool CanExecute(CombatContext ctx, ArmoredFrame user, ArmoredFrame target, AbilitySO data)
+        {
+            if (user == null) return false;
+            return user.IsOperational;
         }
     }
 } 

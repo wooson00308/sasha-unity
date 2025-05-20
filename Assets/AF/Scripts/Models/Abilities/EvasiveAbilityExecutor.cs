@@ -1,5 +1,6 @@
 using AF.Combat;
 using AF.Models;
+using AF.Data;
 
 namespace AF.Models.Abilities
 {
@@ -32,6 +33,13 @@ namespace AF.Models.Abilities
                 duration: -1,
                 magnitude: 0.1f,
                 effectId: "EvasivePassive"));
+            return true;
+        }
+
+        public bool CanExecute(CombatContext ctx, ArmoredFrame user, ArmoredFrame target, AbilitySO data)
+        {
+            if (user == null) return false;
+            if (user.HasStatusEffect("EvasivePassive")) return false;
             return true;
         }
     }

@@ -1,5 +1,6 @@
 using AF.Combat;
 using AF.Models;
+using AF.Data;
 
 namespace AF.Models.Abilities
 {
@@ -27,6 +28,13 @@ namespace AF.Models.Abilities
 
             ctx?.Bus?.Publish(new StatusEffectEvents.StatusEffectAppliedEvent(user, user, StatusEffectEvents.StatusEffectType.Buff_ShieldGenerator, 3, 100f, "EnergyShield"));
             return true;
+        }
+
+        public bool CanExecute(CombatContext ctx, ArmoredFrame user, ArmoredFrame target, AbilitySO data)
+        {
+            if (user == null || data == null) return false;
+            if (user.HasStatusEffect("EnergyShield")) return false;
+            return user.HasEnoughAP(data.APCost);
         }
     }
 } 

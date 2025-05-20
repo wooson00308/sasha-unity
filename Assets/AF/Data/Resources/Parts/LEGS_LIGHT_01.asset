@@ -26,6 +26,7 @@ MonoBehaviour:
   Stat_APRecovery: 0
   MaxDurability: 80
   PartWeight: 90
-  Abilities: []
+  Abilities:
+  - AB_LG_001_Evasive
   Notes: 
   Stat_MaxRepairUses: 0

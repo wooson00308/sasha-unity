@@ -27,7 +27,7 @@ MonoBehaviour:
   MaxDurability: 50
   PartWeight: 60
   Abilities:
-  - RepairKit
+  - AB_BP_004_RepairKit
   Notes: "\uC751\uAE09 \uCC98\uCE58\uC6A9 \uC218\uB9AC \uD0A4\uD2B8\uAC00 \uB0B4\uC7A5\uB41C
     \uBC31\uD329. \uC804\uD22C \uC911 \uC790\uAC00 \uC218\uB9AC \uAC00\uB2A5 \uD69F\uC218\uB97C
     \uB298\uB824\uC900\uB2E4."

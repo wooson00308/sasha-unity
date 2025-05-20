@@ -7,6 +7,7 @@ using AF.Services;
 // using AF.Combat.Behaviors;  // 기존 파일럿 전략 네임스페이스 주석 처리
 using AF.AI.BehaviorTree;      // 새로운 행동 트리 네임스페이스 추가
 using AF.AI.BehaviorTree.PilotBTs; // BasicAttackBT 사용을 위해 추가
+using AF.Models.Abilities;
 using UnityEngine;
 
 namespace AF.Combat
@@ -384,13 +385,17 @@ namespace AF.Combat
                     // 다른 액션 타입(Move, Defend 등)은 weaponForExecution이 null일 수 있음
                     // +++ SASHA: 수정 끝 +++
 
+                    AbilityEffect abilityToUse = decidedActionType.Value == CombatActionEvents.ActionType.UseAbility ? _currentActiveUnit.AICtxBlackboard.SelectedAbility : null;
                     bool actionSuccess = _actionExecutor.Execute(
                         currentActionContext, 
                         _currentActiveUnit, 
                         decidedActionType.Value, 
                         targetFrame, 
                         targetPosition, 
-                        weaponForExecution); // 수정된 weaponForExecution 사용
+                        weaponForExecution,
+                        false,
+                        false,
+                        abilityToUse);
 
                     actionsThisActivation++;
 

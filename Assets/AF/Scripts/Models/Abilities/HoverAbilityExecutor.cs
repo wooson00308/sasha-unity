@@ -1,5 +1,6 @@
 using AF.Combat;
 using AF.Models;
+using AF.Data;
 
 namespace AF.Models.Abilities
 {
@@ -31,6 +32,13 @@ namespace AF.Models.Abilities
                 duration: -1,
                 magnitude: 1f,
                 effectId: "HoverPassive"));
+            return true;
+        }
+
+        public bool CanExecute(CombatContext ctx, ArmoredFrame user, ArmoredFrame target, AbilitySO data)
+        {
+            if (user == null) return false;
+            if (user.HasStatusEffect("HoverPassive")) return false;
             return true;
         }
     }

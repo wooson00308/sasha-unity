@@ -26,6 +26,7 @@ MonoBehaviour:
   Stat_APRecovery: 0
   MaxDurability: 200
   PartWeight: 500
-  Abilities: []
+  Abilities:
+  - AB_BD_001_SelfRepair
   Notes: 
   Stat_MaxRepairUses: 0

@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEngine;
 using AF.EventBus;
 using AF.Models;
+using AF.Models.Abilities;
 
 namespace AF.Combat
 {
@@ -28,7 +29,8 @@ namespace AF.Combat
             Vector3? targetPosition,
             Weapon weapon,
             bool isCounter = false,
-            bool freeCounter = false)
+            bool freeCounter = false,
+            AbilityEffect abilityEffect = null)
         {
             if (actor == null || !actor.IsOperational)
             {
@@ -57,7 +59,8 @@ namespace AF.Combat
                 CombatActionEvents.ActionType.Reload     => weapon != null ? weapon.ReloadAPCost : float.MaxValue,
                 CombatActionEvents.ActionType.RepairAlly => REPAIR_ALLY_AP_COST,
                 CombatActionEvents.ActionType.RepairSelf => REPAIR_SELF_AP_COST,
-                CombatActionEvents.ActionType.None       => 0f, // ActionType.None의 AP 소모는 0으로 명시
+                CombatActionEvents.ActionType.UseAbility=> abilityEffect != null ? abilityEffect.APCost : float.MaxValue,
+                CombatActionEvents.ActionType.None       => 0f,
                 _                                        => float.MaxValue
             };
 
@@ -191,6 +194,27 @@ namespace AF.Combat
                         }
                         break;
                     } // case RepairSelf 끝
+
+                    // ============= 어빌리티 ==========================
+                    case CombatActionEvents.ActionType.UseAbility:
+                    {
+                        if (abilityEffect == null)
+                        {
+                            success = false;
+                            resultDescription = "Ability data null";
+                            break;
+                        }
+                        if (!AbilityEffectRegistry.TryGetExecutor(abilityEffect.AbilityID, out var executor))
+                        {
+                            success = false;
+                            resultDescription = $"Executor not found for {abilityEffect.AbilityID}";
+                            break;
+                        }
+                        ArmoredFrame abilityTarget = abilityEffect.TargetType == AbilityTargetType.Self ? actor : targetFrame;
+                        success = executor.Execute(ctx, actor, abilityTarget, abilityEffect);
+                        resultDescription = success ? $"Ability {abilityEffect.AbilityID} executed" : "Ability failed";
+                        break;
+                    }
 
                     default:
                         resultDescription = "알 수 없는 행동 타입";
@@ -373,7 +397,8 @@ namespace AF.Combat
         public float GetActionAPCost(
             CombatActionEvents.ActionType actionType,
             ArmoredFrame actor,
-            Weapon weapon = null)
+            Weapon weapon = null,
+            AbilityEffect abilityEffect = null)
         {
             return actionType switch
             {
@@ -383,7 +408,8 @@ namespace AF.Combat
                 CombatActionEvents.ActionType.Reload => weapon != null ? weapon.ReloadAPCost : float.MaxValue,
                 CombatActionEvents.ActionType.RepairAlly => REPAIR_ALLY_AP_COST,
                 CombatActionEvents.ActionType.RepairSelf => REPAIR_SELF_AP_COST,
-                CombatActionEvents.ActionType.None => 0f, // ActionType.None의 AP 소모는 0으로 명시
+                CombatActionEvents.ActionType.UseAbility => abilityEffect != null ? abilityEffect.APCost : float.MaxValue,
+                CombatActionEvents.ActionType.None => 0f,
                 _ => float.MaxValue
             };
         }

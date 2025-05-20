@@ -1,5 +1,6 @@
 using UnityEngine;
 using AF.Models; // ArmoredFrame, Weapon 모델 사용
+using AF.Models.Abilities;
 
 namespace AF.Combat
 {
@@ -14,7 +15,8 @@ namespace AF.Combat
             Vector3? targetPosition,
             Weapon weapon, // Weapon 모델 사용을 위해 AF.Models 네임스페이스 필요
             bool isCounter = false,
-            bool freeCounter = false);
+            bool freeCounter = false,
+            AbilityEffect abilityEffect = null);
 
         /// <summary>
         /// 지정된 행동에 필요한 AP 비용을 계산하여 반환합니다.
@@ -26,7 +28,8 @@ namespace AF.Combat
         float GetActionAPCost(
             CombatActionEvents.ActionType actionType,
             ArmoredFrame actor,
-            Weapon weapon = null // Weapon 모델 사용을 위해 AF.Models 네임스페이스 필요
+            Weapon weapon = null,
+            AbilityEffect abilityEffect = null
         );
     }
 } 

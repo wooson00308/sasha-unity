@@ -1,6 +1,6 @@
 using AF.Combat;
 using AF.Models;
-
+using AF.Data;
 namespace AF.Models.Abilities
 {
     /// <summary>
@@ -38,6 +38,13 @@ namespace AF.Models.Abilities
             ctx?.Bus?.Publish(new StatusEffectEvents.StatusEffectAppliedEvent(user, user, StatusEffectEvents.StatusEffectType.Buff_AttackBoost, -1, 1f, "APBoostPassive"));
             ctx?.Bus?.Publish(new StatusEffectEvents.StatusEffectAppliedEvent(user, user, StatusEffectEvents.StatusEffectType.Buff_AttackBoost, -1, 2f, "APBoostRecovery"));
             return true;
+        }
+
+        public bool CanExecute(CombatContext ctx, ArmoredFrame user, ArmoredFrame target, AbilitySO data)
+        {
+            if (user == null || data == null) return false;
+            if (user.HasStatusEffect("APBoostPassive")) return false;
+            return user.HasEnoughAP(data.APCost);
         }
     }
 } 

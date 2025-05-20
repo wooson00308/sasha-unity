@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ede9455cc2412de469ba6656ac8b3064, type: 3}
+  m_Name: AB_HD_001_Zoom
+  m_EditorClassIdentifier: 
+  AbilityID: AB_HD_001_Zoom
+  AbilityName: "\uC815\uBC00 \uC870\uC900"
+  Description: "1\uD134 \uB3D9\uC548 \uC790\uC2E0\uC758 \uBA85\uC911\uB960\uC744
+    30% \uC99D\uAC00\uC2DC\uD0B5\uB2C8\uB2E4."
+  AbilityType: 1
+  TargetType: 1
+  EffectType: 1
+  EffectParametersRaw: Stat:Accuracy,ModType:Additive,Value:0.3,Duration:1
+  APCost: 2
+  CooldownTurns: 3
+  ActivationConditionRaw: Always
+  VisualEffectKey: VFX_Zoom
+  SoundEffectKey: SFX_Zoom
+  Icon: {fileID: 0}
+  Notes: "\uC561\uD2F0\uBE0C \uC0AC\uC6A9\uD615 \uBA85\uC911\uB960 \uBC84\uD504"

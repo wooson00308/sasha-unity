@@ -2,6 +2,7 @@ using AF.Combat;
 using AF.Models;
 using UnityEngine; // Debug.Log 용
 using AF.Services;
+using AF.Models.Abilities;
 
 namespace AF.AI.BehaviorTree
 {
@@ -38,12 +39,14 @@ namespace AF.AI.BehaviorTree
             // _actionType에 따라 필요한 AP 계산
             // 이제 CombatActionExecutor의 GetActionAPCost를 직접 사용한다.
             // Reload의 경우, blackboard.WeaponToReload를 weapon 파라미터로 전달한다.
-            actualRequiredAP = context.ActionExecutor.GetActionAPCost(_actionType, agent, 
+            AbilityEffect abil = _actionType == CombatActionEvents.ActionType.UseAbility ? blackboard.SelectedAbility : null;
+            actualRequiredAP = context.ActionExecutor.GetActionAPCost(_actionType, agent,
                 (_actionType == CombatActionEvents.ActionType.Attack) 
                     ? blackboard.SelectedWeapon 
                     : (_actionType == CombatActionEvents.ActionType.Reload)
-                        ? blackboard.WeaponToReload // Reload 시 WeaponToReload 사용
-                        : null);
+                        ? blackboard.WeaponToReload 
+                        : null,
+                abil);
 
             // AP 계산 결과가 float.MaxValue이면 (GetActionAPCost에서 오류 또는 유효하지 않은 조건 시 반환 가능)
             // 또는 Reload인데 WeaponToReload가 null이면 실패로 처리한다.

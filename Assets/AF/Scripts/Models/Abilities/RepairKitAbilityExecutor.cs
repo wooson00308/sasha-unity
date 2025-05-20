@@ -1,6 +1,7 @@
 using System.Linq;
 using AF.Combat;
 using AF.Models;
+using AF.Data;
 
 namespace AF.Models.Abilities
 {
@@ -41,6 +42,16 @@ namespace AF.Models.Abilities
 
             ctx?.Bus?.Publish(new CombatActionEvents.RepairAppliedEvent(user, user, CombatActionEvents.ActionType.RepairSelf, damaged, repaired, ctx?.CurrentTurn ?? 0));
             return true;
+        }
+
+        public bool CanExecute(CombatContext ctx, ArmoredFrame user, ArmoredFrame target, AbilitySO data)
+        {
+            if (user == null || data == null) return false;
+            int uses = user.ActiveStatusEffects.Count(e => e.EffectName == "RepairKitUsed");
+            if (uses >= MAX_USES) return false;
+            // any damaged part?
+            bool damaged = user.Parts.Values.Any(p => p.CurrentDurability < p.MaxDurability);
+            return damaged && user.HasEnoughAP(data.APCost);
         }
     }
 } 

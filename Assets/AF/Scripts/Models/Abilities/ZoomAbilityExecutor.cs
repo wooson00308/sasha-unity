@@ -1,5 +1,6 @@
 using AF.Combat;
 using AF.Models;
+using AF.Data;
 
 namespace AF.Models.Abilities
 {
@@ -40,6 +41,13 @@ namespace AF.Models.Abilities
                 effectId: "ZoomBuff"));
 
             return true;
+        }
+
+        public bool CanExecute(CombatContext ctx, ArmoredFrame user, ArmoredFrame target, AbilitySO data)
+        {
+            if (user == null || data == null) return false;
+            if (user.HasStatusEffect("ZoomBuff")) return false;
+            return user.HasEnoughAP(data.APCost);
         }
     }
 } 

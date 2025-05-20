@@ -26,6 +26,7 @@ MonoBehaviour:
   Stat_APRecovery: 0
   MaxDurability: 60
   PartWeight: 80
-  Abilities: []
+  Abilities:
+  - AB_AR_001_QuickReload
   Notes: 
   Stat_MaxRepairUses: 0

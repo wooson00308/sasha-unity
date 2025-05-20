@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ede9455cc2412de469ba6656ac8b3064, type: 3}
+  m_Name: AB_BP_001_RepairUnit
+  m_EditorClassIdentifier: 
+  AbilityID: AB_BP_001_RepairUnit
+  AbilityName: "\uC218\uB9AC \uC720\uB2DB \uAC00\uB3D9"
+  Description: "\uC120\uD0DD\uD55C \uC544\uAD70 \uC720\uB2DB\uC758 \uD2B9\uC815 \uD30C\uCE20
+    \uB0B4\uAD6C\uB3C4\uB97C 25 \uD68C\uBCF5\uD569\uB2C8\uB2E4."
+  AbilityType: 1
+  TargetType: 5
+  EffectType: 4
+  EffectParametersRaw: Amount:25
+  APCost: 4
+  CooldownTurns: 5
+  ActivationConditionRaw: Always
+  VisualEffectKey: VFX_RepairUnit
+  SoundEffectKey: SFX_RepairUnit
+  Icon: {fileID: 0}
+  Notes: "\uC544\uAD70 \uC9C0\uC6D0 \uC561\uD2F0\uBE0C \uC5B4\uBE4C\uB9AC\uD2F0"

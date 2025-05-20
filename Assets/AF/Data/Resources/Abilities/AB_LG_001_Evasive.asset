@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ede9455cc2412de469ba6656ac8b3064, type: 3}
+  m_Name: AB_LG_001_Evasive
+  m_EditorClassIdentifier: 
+  AbilityID: AB_LG_001_Evasive
+  AbilityName: "\uD68C\uD53C \uAE30\uB3D9 \uC2DC\uC2A4\uD15C"
+  Description: "\uAE30\uCCB4\uC758 \uAE30\uBCF8 \uD68C\uD53C\uC728\uC744 10% \uC601\uAD6C\uC801\uC73C\uB85C
+    \uC99D\uAC00\uC2DC\uD0B5\uB2C8\uB2E4."
+  AbilityType: 0
+  TargetType: 1
+  EffectType: 1
+  EffectParametersRaw: Stat:Evasion,ModType:Additive,Value:0.1
+  APCost: 0
+  CooldownTurns: 0
+  ActivationConditionRaw: Always
+  VisualEffectKey: VFX_Evasive
+  SoundEffectKey: SFX_Evasive
+  Icon: {fileID: 0}
+  Notes: "\uC0DD\uC874\uB825 \uC99D\uB300 \uD328\uC2DC\uBE0C"

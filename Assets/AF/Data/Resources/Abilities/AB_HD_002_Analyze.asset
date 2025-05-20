@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ede9455cc2412de469ba6656ac8b3064, type: 3}
+  m_Name: AB_HD_002_Analyze
+  m_EditorClassIdentifier: 
+  AbilityID: AB_HD_002_Analyze
+  AbilityName: "\uC801 \uBD84\uC11D"
+  Description: "\uC120\uD0DD\uD55C \uC801 \uC720\uB2DB\uC5D0\uAC8C 2\uD134 \uB3D9\uC548
+    '\uC7A5\uAC11 \uC57D\uD654' \uB514\uBC84\uD504\uB97C \uBD80\uC5EC\uD558\uC5EC
+    \uBC29\uC5B4\uB825\uC744 20% \uAC10\uC18C\uC2DC\uD0B5\uB2C8\uB2E4."
+  AbilityType: 1
+  TargetType: 2
+  EffectType: 2
+  EffectParametersRaw: StatusID:Debuff_ArmorBreak,Duration:2,Value:0.2
+  APCost: 3
+  CooldownTurns: 4
+  ActivationConditionRaw: Always
+  VisualEffectKey: VFX_Analyze
+  SoundEffectKey: SFX_Analyze
+  Icon: {fileID: 0}
+  Notes: "\uD0C0\uAC9F\uD305 \uB514\uBC84\uD504 \uC5B4\uBE4C\uB9AC\uD2F0"
