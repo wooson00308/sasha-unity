@@ -401,7 +401,7 @@ namespace AF.Models
             // 3. 파일럿 스탯 (TODO: 파일럿의 GetTotalStats() 결과를 newStats에 합산해야 함)
             if (_pilot != null)
             {
-                // newStats.Add(_pilot.GetTotalStats()); // Stats.Add() 사용 가정
+                newStats.Add(_pilot.GetTotalStats()); // Stats.Add() 사용 가정
             }
             
             // 4. 무기 스탯 (선택적 - 현재는 무기 자체 스탯이 기체 스탯에 직접 영향주지 않음)

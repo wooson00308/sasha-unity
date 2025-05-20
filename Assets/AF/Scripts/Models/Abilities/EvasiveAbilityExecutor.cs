@@ -1,0 +1,38 @@
+using AF.Combat;
+using AF.Models;
+
+namespace AF.Models.Abilities
+{
+    /// <summary>
+    /// "AB_LG_001_Evasive" : 영구적으로 Evasion +10%.
+    /// 전투 개시 시 1회만 적용되면 충분하므로 중복 검사 후 무한 버프 부여.
+    /// </summary>
+    public class EvasiveAbilityExecutor : IAbilityEffectExecutor
+    {
+        public const string ABILITY_ID = "AB_LG_001_Evasive";
+
+        public bool Execute(CombatContext ctx, ArmoredFrame user, ArmoredFrame target, AbilityEffect abilityData)
+        {
+            if (user == null) return false;
+            if (user.HasStatusEffect("EvasivePassive")) return false;
+
+            var buff = new StatusEffect(
+                effectName: "EvasivePassive",
+                durationTurns: -1, // 영구
+                effectType: StatusEffectEvents.StatusEffectType.Buff_SpeedBoost, // 임시 재활용
+                statToModify: StatType.Evasion,
+                modType: ModificationType.Additive,
+                modValue: 0.1f);
+
+            user.AddStatusEffect(buff);
+            ctx?.Bus?.Publish(new StatusEffectEvents.StatusEffectAppliedEvent(
+                target: user,
+                source: user,
+                effectType: StatusEffectEvents.StatusEffectType.Buff_SpeedBoost,
+                duration: -1,
+                magnitude: 0.1f,
+                effectId: "EvasivePassive"));
+            return true;
+        }
+    }
+} 
