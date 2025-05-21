@@ -396,8 +396,38 @@ function registerGetExcelTools(server) {
                 if (!component || component.error)
                     return;
                 for (const key in component) {
-                    if (key.startsWith('Stat_') && typeof component[key] === 'number') {
-                        totalStats[key] = (totalStats[key] || 0) + component[key];
+                    if (key.startsWith('Stat_')) {
+                        const statValue = component[key];
+                        let numericValue = null;
+                        if (statValue !== null && typeof statValue !== 'undefined') {
+                            if (typeof statValue === 'number') {
+                                numericValue = statValue;
+                            }
+                            else if (typeof statValue === 'string') {
+                                const parsed = parseFloat(statValue);
+                                if (!isNaN(parsed)) {
+                                    numericValue = parsed;
+                                }
+                                else {
+                                    // console.warn(`[ExcelGetTools] Stat '${key}' value '${statValue}' is a string but not a valid number. Skipping.`);
+                                }
+                            }
+                            else if (typeof statValue === 'object' && statValue.richText) {
+                                // Handle RichText case if necessary, though stats are usually not RichText
+                                let textContent = "";
+                                statValue.richText.forEach(rt => textContent += rt.text);
+                                const parsed = parseFloat(textContent.trim());
+                                if (!isNaN(parsed)) {
+                                    numericValue = parsed;
+                                }
+                                else {
+                                    // console.warn(`[ExcelGetTools] Stat '${key}' RichText value '${textContent}' is not a valid number. Skipping.`);
+                                }
+                            }
+                        }
+                        if (numericValue !== null) {
+                            totalStats[key] = (totalStats[key] || 0) + numericValue;
+                        }
                     }
                     else if (key === 'Abilities') {
                         const abilitiesValue = component[key];

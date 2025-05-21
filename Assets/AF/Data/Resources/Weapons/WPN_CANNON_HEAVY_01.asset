@@ -16,14 +16,14 @@ MonoBehaviour:
   WeaponName: "\uC911\uB7C9 \uCE90\uB17C"
   WeaponType: 2
   DamageType: 2
-  BaseDamage: 85
+  BaseDamage: 90
   Accuracy: 0.75
   Range: 15
   MinRange: 5
   AttackSpeed: 0.5
   OverheatPerShot: 0.2
   AmmoCapacity: 6
-  BaseAPCost: 7
+  BaseAPCost: 6
   ReloadAPCost: 2
   ReloadTurns: 2
   SpecialEffects: []

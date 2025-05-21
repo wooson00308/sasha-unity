@@ -31,7 +31,8 @@ namespace AF.Combat
             Weapon weapon,
             bool isCounter = false,
             bool freeCounter = false,
-            AbilityEffect abilityEffect = null) // abilityEffect는 AbilityID와 기타 실행에 필요한 정보를 담고 있음
+            AbilityEffect abilityEffect = null,
+            string explicitTargetPartSlotId = null) // 인터페이스와 동일하게 파라미터 추가
         {
             if (actor == null || !actor.IsOperational)
             {
@@ -128,7 +129,7 @@ namespace AF.Combat
                     case CombatActionEvents.ActionType.RepairAlly:
                     {
                         ArmoredFrame actualTarget = targetFrame; 
-                        ctx.Logger?.TextLogger?.Log($"[EXECUTOR_REPAIR_ALLY_START] Actor: {actor?.Name}, Target: {actualTarget?.Name}, Target IsOp: {actualTarget?.IsOperational}", LogLevel.Debug);
+                        ctx.Logger?.TextLogger?.Log($"[EXECUTOR_REPAIR_ALLY_START] Actor: {actor?.Name}, Target: {actualTarget?.Name}, Target IsOp: {actualTarget?.IsOperational}, ExplicitPartSlot: {explicitTargetPartSlotId ?? "N/A"}", LogLevel.Debug);
 
                         if (actualTarget == null || actualTarget == actor || !actualTarget.IsOperational)
                         {
@@ -138,35 +139,46 @@ namespace AF.Combat
                         }
                         else
                         {
-                            string targetSlot = GetMostDamagedPartSlot(actualTarget, ctx);
-                            ctx.Logger?.TextLogger?.Log($"  [EXECUTOR_REPAIR_ALLY_INFO] TargetSlot for {actualTarget.Name}: {targetSlot ?? "NULL"}", LogLevel.Debug);
+                            string targetSlotToRepair = explicitTargetPartSlotId; // AI가 지정한 파츠를 우선 사용
 
-                            if (targetSlot != null)
+                            if (string.IsNullOrEmpty(targetSlotToRepair))
+                            {
+                                // AI가 지정하지 않았으면 가장 손상된 파츠 자동 선택 (기존 로직)
+                                targetSlotToRepair = GetMostDamagedPartSlot(actualTarget, ctx);
+                                ctx.Logger?.TextLogger?.Log($"  [EXECUTOR_REPAIR_ALLY_INFO] Explicit part slot not provided. Auto-selected TargetSlot for {actualTarget.Name}: {targetSlotToRepair ?? "NULL"}", LogLevel.Debug);
+                            }
+                            else
+                            {
+                                ctx.Logger?.TextLogger?.Log($"  [EXECUTOR_REPAIR_ALLY_INFO] Using explicitly provided TargetSlot for {actualTarget.Name}: {targetSlotToRepair}", LogLevel.Debug);
+                            }
+
+                            if (targetSlotToRepair != null) // 이제 targetSlotToRepair 변수 사용
                             {
                                 float repairAmount = BASE_REPAIR_AMOUNT; 
-                                float repairedAmount = actualTarget.ApplyRepair(targetSlot, repairAmount);
-                                ctx.Logger?.TextLogger?.Log($"  [EXECUTOR_REPAIR_ALLY_INFO] ApplyRepair called. RepairedAmount: {repairedAmount}", LogLevel.Debug);
+                                float repairedAmount = actualTarget.ApplyRepair(targetSlotToRepair, repairAmount);
+                                ctx.Logger?.TextLogger?.Log($"  [EXECUTOR_REPAIR_ALLY_INFO] ApplyRepair called on slot '{targetSlotToRepair}'. RepairedAmount: {repairedAmount}", LogLevel.Debug);
 
                                 if (repairedAmount > 0)
                                 {
                                     success = true;
-                                    resultDescription = $"{actualTarget.Name}의 {targetSlot} 파츠를 {repairedAmount:F1} 만큼 수리";
+                                    resultDescription = $"{actualTarget.Name}의 {targetSlotToRepair} 파츠를 {repairedAmount:F1} 만큼 수리";
                                     ctx.Bus.Publish(new CombatActionEvents.RepairAppliedEvent(
-                                        actor, actualTarget, actionType, targetSlot, repairedAmount, ctx.CurrentTurn));
+                                        actor, actualTarget, actionType, targetSlotToRepair, repairedAmount, ctx.CurrentTurn));
                                     ctx.Logger?.TextLogger?.Log($"  [EXECUTOR_REPAIR_ALLY_SUCCESS] Desc: {resultDescription}", LogLevel.Debug);
+                                    actor.DecrementRepairUses(); // 수리 성공 시에만 차감
                                 }
                                 else
                                 {
                                     success = false; 
-                                    resultDescription = $"{actualTarget.Name}의 {targetSlot} 파츠는 수리 불필요";
-                                    ctx.Logger?.TextLogger?.Log($"  [EXECUTOR_REPAIR_ALLY_FAIL] Reason: No repair needed or ApplyRepair failed. Desc: {resultDescription}", LogLevel.Debug);
+                                    resultDescription = $"{actualTarget.Name}의 {targetSlotToRepair} 파츠는 수리 불필요 또는 실패";
+                                    ctx.Logger?.TextLogger?.Log($"  [EXECUTOR_REPAIR_ALLY_FAIL] Reason: No repair needed or ApplyRepair failed on slot '{targetSlotToRepair}'. Desc: {resultDescription}", LogLevel.Debug);
                                 }
                             }
                             else
                             {
                                 success = false;
-                                resultDescription = $"{actualTarget.Name}에 수리할 파츠 없음";
-                                ctx.Logger?.TextLogger?.Log($"  [EXECUTOR_REPAIR_ALLY_FAIL] Reason: No target slot found. Desc: {resultDescription}", LogLevel.Debug);
+                                resultDescription = $"{actualTarget.Name}에 수리할 파츠 없음 (지정되지도, 자동으로 찾아지지도 않음)";
+                                ctx.Logger?.TextLogger?.Log($"  [EXECUTOR_REPAIR_ALLY_FAIL] Reason: No target slot found (neither explicit nor auto-selected). Desc: {resultDescription}", LogLevel.Debug);
                             }
                         }
                         break;
@@ -187,6 +199,7 @@ namespace AF.Combat
                                 resultDescription = $"자가 수리: {targetSlot} 파츠 {repairedAmount:F1} 회복";
                                 ctx.Bus.Publish(new CombatActionEvents.RepairAppliedEvent(
                                     actor, selfTarget, actionType, targetSlot, repairedAmount, ctx.CurrentTurn));
+                                actor.DecrementRepairUses();
                             }
                             else
                             {

@@ -9,17 +9,37 @@ namespace AF.AI.BehaviorTree.Actions
     public class SelectLowestHealthAllyNode : BTNode
     {
         private readonly float healthThresholdPercentage;
-        private readonly string partSlotToConsider;
+        private readonly Dictionary<string, float> partWeights;
 
-        public SelectLowestHealthAllyNode(float healthThresholdPercentage = 0.8f, string partSlotToConsider = "Body")
+        /// <summary>
+        /// 가장 손상된 아군을 선택합니다. 파츠별 가중치를 적용하여 우선순위를 결정합니다.
+        /// </summary>
+        /// <param name="healthThresholdPercentage">이 체력 비율 미만인 파츠만 고려합니다.</param>
+        /// <param name="partWeights">파츠 슬롯 ID와 가중치(높을수록 우선). null이면 기본 가중치 사용.</param>
+        public SelectLowestHealthAllyNode(float healthThresholdPercentage = 0.8f, Dictionary<string, float> partWeights = null)
         {
             this.healthThresholdPercentage = healthThresholdPercentage;
-            this.partSlotToConsider = string.IsNullOrEmpty(partSlotToConsider) ? "Body" : partSlotToConsider;
+            this.partWeights = partWeights ?? GetDefaultPartWeights();
+        }
+
+        private Dictionary<string, float> GetDefaultPartWeights()
+        {
+            // 실제 SlotIdentifier 문자열을 키로 사용
+            return new Dictionary<string, float>
+            {
+                { "Body", 1.0f },
+                { "Head", 0.8f },
+                { "Arm_Left", 0.7f },
+                { "Arm_Right", 0.7f },
+                { "Legs", 0.6f },
+                { "Backpack", 0.4f }
+                // Frame은 Parts 딕셔너리에 없으므로 제거
+            };
         }
 
         public override NodeStatus Tick(ArmoredFrame agent, Blackboard blackboard, CombatContext context)
         {
-            var logger = context?.Logger?.TextLogger; // Get logger instance
+            var logger = context?.Logger?.TextLogger;
 
             if (context == null || agent == null || blackboard == null)
             {
@@ -32,75 +52,76 @@ namespace AF.AI.BehaviorTree.Actions
             {
                 foreach (var participant in context.Participants)
                 {
-                    if (participant != null && participant != agent && context.TeamAssignments.TryGetValue(participant, out int participantTeamId) && participantTeamId == agentTeamId)
+                    if (participant != null && participant != agent && 
+                        context.TeamAssignments.TryGetValue(participant, out int participantTeamId) && 
+                        participantTeamId == agentTeamId && participant.IsOperational)
                     {
                         allies.Add(participant);
                     }
                 }
             }
             
-            ArmoredFrame mostDamagedAlly = null;
-            float highestDamageTakenOnPart = 0f;
+            ArmoredFrame mostDamagedAllyOverall = null;
+            Part mostCriticalPartToRepairObject = null; // Part 객체 저장
+            string mostCriticalPartSlotId = null; // Slot ID 문자열 저장
+            float highestWeightedDamageScore = 0f;
 
-            if (allies == null || allies.Count == 0)
+            if (allies.Count == 0)
             {
                 blackboard.CurrentTarget = null;
-                logger?.Log($"[{this.GetType().Name}] {agent.Name}: No allies found. Failure.", LogLevel.Debug);
-                return NodeStatus.Failure; // No allies
+                blackboard.TargetPartSlot = null;
+                logger?.Log($"[{this.GetType().Name}] {agent.Name}: No operational allies found. Failure.", LogLevel.Debug);
+                return NodeStatus.Failure;
             }
 
             foreach (var ally in allies)
             {
-                if (ally == agent) // Self check
+                if (!ally.IsOperational) { continue; }
+
+                // ally.Parts는 Dictionary<string, Part> 형태 (string은 SlotIdentifier)
+                foreach (var partEntry in ally.Parts) 
                 {
-                    continue; 
-                }
+                    string slotIdentifier = partEntry.Key; // 실제 슬롯 ID (e.g., "Arm_Left")
+                    Part part = partEntry.Value;
 
-                if (!ally.IsOperational)
-                {
-                    logger?.Log($"[{this.GetType().Name}] {agent.Name}: Skipping ally {ally.Name} because they are not operational.", LogLevel.Debug);
-                    continue;
-                }
-
-                Part partToExamine = ally.GetPart(partSlotToConsider);
-                if (partToExamine == null || Mathf.Approximately(partToExamine.MaxDurability, 0f))
-                {
-                    logger?.Log($"[{this.GetType().Name}] {agent.Name}: Ally {ally.Name} has no part '{partSlotToConsider}' or part has 0 max durability. Skipping.", LogLevel.Debug);
-                    continue;
-                }
-
-                float currentHealthRatio = partToExamine.CurrentDurability / partToExamine.MaxDurability;
-                
-                // Log the health ratio for the ally being considered
-                logger?.Log($"[{this.GetType().Name}] {agent.Name}: Checking ally {ally.Name}, Part '{partSlotToConsider}' Health Ratio: {currentHealthRatio * 100:F1}%. (Threshold: {healthThresholdPercentage * 100:F1}%)", LogLevel.Debug);
-
-                // Check if below threshold
-                if (currentHealthRatio < healthThresholdPercentage)
-                {
-                    float damageTakenOnPart = partToExamine.MaxDurability - partToExamine.CurrentDurability;
-                    logger?.Log($"[{this.GetType().Name}] {agent.Name}: Ally {ally.Name} (Part: '{partSlotToConsider}') is below threshold. Damage taken on part: {damageTakenOnPart:F1}. Current highest: {highestDamageTakenOnPart:F1}", LogLevel.Debug);
-
-                    // And if this ally's part has taken more damage than previously found ones
-                    if (damageTakenOnPart > highestDamageTakenOnPart)
+                    if (part == null || !part.IsOperational || Mathf.Approximately(part.MaxDurability, 0f) || part.CurrentDurability >= part.MaxDurability)
                     {
-                        highestDamageTakenOnPart = damageTakenOnPart;
-                        mostDamagedAlly = ally;
-                        logger?.Log($"[{this.GetType().Name}] {agent.Name}: New most damaged ally candidate: {ally.Name} (Part: '{partSlotToConsider}', Damage: {damageTakenOnPart:F1})", LogLevel.Debug);
+                        continue;
+                    }
+
+                    float currentHealthRatio = part.CurrentDurability / part.MaxDurability;
+
+                    if (currentHealthRatio < healthThresholdPercentage)
+                    {
+                        float damageTaken = part.MaxDurability - part.CurrentDurability;
+                        // slotIdentifier를 사용해 가중치 조회
+                        float weight = partWeights.TryGetValue(slotIdentifier, out float w) ? w : 0.5f; 
+                        float weightedDamageScore = damageTaken * weight;
+
+                        if (weightedDamageScore > highestWeightedDamageScore)
+                        {
+                            highestWeightedDamageScore = weightedDamageScore;
+                            mostDamagedAllyOverall = ally;
+                            mostCriticalPartToRepairObject = part; // Part 객체 저장
+                            mostCriticalPartSlotId = slotIdentifier; // Slot ID 저장
+                        }
                     }
                 }
             }
 
-            if (mostDamagedAlly != null)
+            if (mostDamagedAllyOverall != null && mostCriticalPartToRepairObject != null && mostCriticalPartSlotId != null)
             {
-                blackboard.CurrentTarget = mostDamagedAlly;
-                float finalPartHealthRatio = (mostDamagedAlly.GetPart(partSlotToConsider).CurrentDurability / mostDamagedAlly.GetPart(partSlotToConsider).MaxDurability) * 100f;
-                logger?.Log($"[{this.GetType().Name}] {agent.Name}: Selected ally {mostDamagedAlly.Name} (Part: '{partSlotToConsider}', Damage Taken: {highestDamageTakenOnPart:F1}, Current Part Health: {finalPartHealthRatio:F1}%). Success.", LogLevel.Debug);
+                blackboard.CurrentTarget = mostDamagedAllyOverall;
+                blackboard.TargetPartSlot = mostCriticalPartSlotId; // 실제 Slot ID를 Blackboard에 저장
+                float finalPartHealthRatio = (mostCriticalPartToRepairObject.CurrentDurability / mostCriticalPartToRepairObject.MaxDurability) * 100f;
+                logger?.Log($"[{this.GetType().Name}] {agent.Name}: Selected ally {mostDamagedAllyOverall.Name} to repair part '{mostCriticalPartSlotId}' (Type: {mostCriticalPartToRepairObject.Type}, WeightedScore: {highestWeightedDamageScore:F1}, Current Part Health: {finalPartHealthRatio:F1}%). Success.", LogLevel.Debug);
                 return NodeStatus.Success;
             }
             else
             {
-                blackboard.CurrentTarget = null; // No suitable ally found
-                logger?.Log($"[{this.GetType().Name}] {agent.Name}: No ally found below health threshold ({healthThresholdPercentage * 100:F1}%) for part '{partSlotToConsider}'. Failure.", LogLevel.Debug);
+                blackboard.CurrentTarget = null;
+                blackboard.TargetPartSlot = null;
+                logger?.Log($"[{this.GetType().Name}] {agent.Name}: No ally found with any part below health threshold ({healthThresholdPercentage * 100:F1}%) considering weights. Failure.", LogLevel.Debug);
                 return NodeStatus.Failure;
             }
         }

@@ -85,7 +85,15 @@ function registerUpdateExcelTools(server) {
                 return { isError: true, content: [{ type: "text", text: `Entity ID '${args.entityId}' not found in column '${args.idColumnName}' of sheet '${args.sheetName}'. Check logs for details.` }] };
             }
             const valueToSet = args.newValue === "" ? null : args.newValue;
-            worksheet.getCell(targetRowNumber, actualStatColNumber).value = valueToSet;
+            // Try to parse to float if it's a number, otherwise keep as string
+            let finalValue = valueToSet;
+            if (valueToSet !== null && valueToSet.trim() !== "") {
+                const parsedNum = parseFloat(valueToSet);
+                if (!isNaN(parsedNum)) {
+                    finalValue = parsedNum;
+                }
+            }
+            worksheet.getCell(targetRowNumber, actualStatColNumber).value = finalValue;
             await workbook.xlsx.writeFile(excelFilePath);
             return { content: [{ type: "text", text: `Successfully updated stat '${args.statColumnName}' for entity '${args.entityId}' in sheet '${args.sheetName}' to '${args.newValue}'.` }] };
         }

@@ -16,7 +16,8 @@ namespace AF.Combat
             Weapon weapon, // Weapon 모델 사용을 위해 AF.Models 네임스페이스 필요
             bool isCounter = false,
             bool freeCounter = false,
-            AbilityEffect abilityEffect = null);
+            AbilityEffect abilityEffect = null,
+            string explicitTargetPartSlotId = null); // AI가 지정한 특정 수리 파츠 슬롯 ID
 
         /// <summary>
         /// 지정된 행동에 필요한 AP 비용을 계산하여 반환합니다.

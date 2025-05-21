@@ -12,7 +12,7 @@ namespace AF.AI.BehaviorTree
     public class HasEnoughAPNode : ConditionNode
     {
         private CombatActionEvents.ActionType _actionType;
-        // private float _requiredAP; // 이 필드는 더 이상 사용하지 않음
+        private float _specificApCost = -1f; // 특정 AP 비용을 저장할 필드, 기본값 -1f
 
         /// <summary>
         /// HasEnoughAPNode를 생성합니다.
@@ -21,7 +21,13 @@ namespace AF.AI.BehaviorTree
         public HasEnoughAPNode(CombatActionEvents.ActionType actionType)
         {
             _actionType = actionType;
-            // _requiredAP = requiredAP; // 이 할당은 제거
+        }
+
+        // 특정 AP 비용을 받는 새 생성자
+        public HasEnoughAPNode(CombatActionEvents.ActionType actionType, float specificApCost)
+        {
+            _actionType = actionType;
+            _specificApCost = specificApCost;
         }
 
         public override NodeStatus Tick(ArmoredFrame agent, Blackboard blackboard, CombatContext context)
@@ -36,21 +42,29 @@ namespace AF.AI.BehaviorTree
                 return NodeStatus.Failure;
             }
 
-            // _actionType에 따라 필요한 AP 계산
-            // 이제 CombatActionExecutor의 GetActionAPCost를 직접 사용한다.
-            // Reload의 경우, blackboard.WeaponToReload를 weapon 파라미터로 전달한다.
-            actualRequiredAP = context.ActionExecutor.GetActionAPCost(_actionType, agent,
-                (_actionType == CombatActionEvents.ActionType.Attack) 
-                    ? blackboard.SelectedWeapon 
-                    : (_actionType == CombatActionEvents.ActionType.Reload)
-                        ? blackboard.WeaponToReload 
-                        : null,
-                _actionType == CombatActionEvents.ActionType.UseAbility ? blackboard.SelectedAbility : null);
+            // _specificApCost가 유효한 값(0 이상)으로 설정되었는지 확인
+            if (_specificApCost >= 0f)
+            {
+                actualRequiredAP = _specificApCost;
+            }
+            else
+            {
+                // _actionType에 따라 필요한 AP 계산
+                // 이제 CombatActionExecutor의 GetActionAPCost를 직접 사용한다.
+                // Reload의 경우, blackboard.WeaponToReload를 weapon 파라미터로 전달한다.
+                actualRequiredAP = context.ActionExecutor.GetActionAPCost(_actionType, agent,
+                    (_actionType == CombatActionEvents.ActionType.Attack) 
+                        ? blackboard.SelectedWeapon 
+                        : (_actionType == CombatActionEvents.ActionType.Reload)
+                            ? blackboard.WeaponToReload 
+                            : null,
+                    _actionType == CombatActionEvents.ActionType.UseAbility ? blackboard.SelectedAbility : null);
+            }
 
             // AP 계산 결과가 float.MaxValue이면 (GetActionAPCost에서 오류 또는 유효하지 않은 조건 시 반환 가능)
             // 또는 Reload인데 WeaponToReload가 null이면 실패로 처리한다.
             if (actualRequiredAP == float.MaxValue || 
-                (_actionType == CombatActionEvents.ActionType.Reload && blackboard.WeaponToReload == null))
+                (_actionType == CombatActionEvents.ActionType.Reload && blackboard.WeaponToReload == null && _specificApCost < 0f)) // specificCost가 없을 때만 Reload && WeaponToReload null 체크
             {
                 string failureReason = (_actionType == CombatActionEvents.ActionType.Reload && blackboard.WeaponToReload == null)
                                         ? "WeaponToReload is null for Reload AP check."

@@ -116,7 +116,16 @@ function registerUpdateExcelTools(server: any) {
                 }
 
                 const valueToSet = args.newValue === "" ? null : args.newValue;
-                worksheet.getCell(targetRowNumber, actualStatColNumber).value = valueToSet;
+                // Try to parse to float if it's a number, otherwise keep as string
+                let finalValue: string | number | null = valueToSet;
+                if (valueToSet !== null && valueToSet.trim() !== "") {
+                    const parsedNum = parseFloat(valueToSet);
+                    if (!isNaN(parsedNum)) {
+                        finalValue = parsedNum;
+                    }
+                }
+
+                worksheet.getCell(targetRowNumber, actualStatColNumber).value = finalValue;
 
                 await workbook.xlsx.writeFile(excelFilePath);
 

@@ -20,19 +20,12 @@ namespace AF.Models.Abilities
             var buff = new StatusEffect(
                 effectName: "EvasivePassive",
                 durationTurns: -1, // 영구
-                effectType: StatusEffectEvents.StatusEffectType.Buff_SpeedBoost, // 임시 재활용
+                effectType: StatusEffectEvents.StatusEffectType.Buff_EvasionBoost, // 수정된 EffectType 사용
                 statToModify: StatType.Evasion,
                 modType: ModificationType.Additive,
                 modValue: 0.1f);
 
             user.AddStatusEffect(buff);
-            ctx?.Bus?.Publish(new StatusEffectEvents.StatusEffectAppliedEvent(
-                target: user,
-                source: user,
-                effectType: StatusEffectEvents.StatusEffectType.Buff_SpeedBoost,
-                duration: -1,
-                magnitude: 0.1f,
-                effectId: "EvasivePassive"));
             return true;
         }
 

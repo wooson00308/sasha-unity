@@ -25,13 +25,6 @@ namespace AF.Models.Abilities
                 modValue: 1f);
 
             user.AddStatusEffect(buff);
-            ctx?.Bus?.Publish(new StatusEffectEvents.StatusEffectAppliedEvent(
-                target: user,
-                source: user,
-                effectType: StatusEffectEvents.StatusEffectType.Buff_SpeedBoost,
-                duration: -1,
-                magnitude: 1f,
-                effectId: "HoverPassive"));
             return true;
         }
 

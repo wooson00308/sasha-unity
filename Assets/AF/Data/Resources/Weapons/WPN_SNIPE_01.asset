@@ -23,7 +23,7 @@ MonoBehaviour:
   AttackSpeed: 0.4
   OverheatPerShot: 0.25
   AmmoCapacity: 5
-  BaseAPCost: 7
+  BaseAPCost: 6
   ReloadAPCost: 1.5
   ReloadTurns: 2
   SpecialEffects: []

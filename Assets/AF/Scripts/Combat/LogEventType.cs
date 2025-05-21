@@ -21,7 +21,8 @@ namespace AF.Combat
         PartDestroyed,      // (델타 정보 저장 대상)
         StatusEffectApplied,// (델타 정보 저장 대상)
         StatusEffectExpired,// (델타 정보 저장 대상)
-        StatusEffectTicked, // (델타 정보 저장 대상)
+        StatusEffectTicked, // 틱 효과 로그 타입 추가
+        StatusEffectRemoved, // 상태 이상 제거 로그 타입 추가
         RepairApplied,      // (델타 정보 저장 대상)
         CounterAttackAnnounced, // (델타 정보 저장 대상)
         AbilityUsed         // (델타 정보 저장 대상)

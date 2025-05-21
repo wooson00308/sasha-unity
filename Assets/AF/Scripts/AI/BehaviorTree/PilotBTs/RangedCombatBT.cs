@@ -2,8 +2,8 @@ using System.Collections.Generic;
 using AF.Combat;
 using AF.Models;
 using AF.AI.BehaviorTree; // For BTNode, SelectorNode, SequenceNode, MoveAwayFromTargetNode, IsTargetTooCloseNode etc.
-using AF.AI.BehaviorTree.Actions; // For AttackTargetNode, MoveToTargetNode, ReloadWeaponNode, SelectTargetNode, WaitNode
-using AF.AI.BehaviorTree.Conditions; // IsAnyWeaponReloadingNode 사용을 위해 추가
+using AF.AI.BehaviorTree.Actions; // For AttackTargetNode, MoveToTargetNode, ReloadWeaponNode, SelectTargetNode, WaitNode, ConfirmAbilityUsageNode
+using AF.AI.BehaviorTree.Conditions; // IsAnyWeaponReloadingNode, HasSelectedWeaponNode, NeedsReloadNode 사용을 위해 추가
 using AF.AI.BehaviorTree.Decorators;
 using UnityEngine;
 
@@ -38,25 +38,19 @@ namespace AF.AI.BehaviorTree.PilotBTs
                 isTargetTooCloseNode = new IsTargetTooCloseNode(); // 기본 동작 사용
             }
 
-            return new SelectorNode(new List<BTNode>
+            return new SelectorNode(new List<BTNode> // Root Selector
             {
-                // NEW: Self Active Ability Usage (Highest Priority)
-                new SequenceNode(new List<BTNode>
-                {
-                    new SelectSelfActiveAbilityNode(),
-                    new HasEnoughAPNode(CombatActionEvents.ActionType.UseAbility)
-                }),
                 // 0. 재장전 중 후퇴 시퀀스 (방어 대신)
                 new SequenceNode(new List<BTNode>
                 {
-                    new IsAnyWeaponReloadingNode(),
-                    new HasValidTargetNode(), // 후퇴하려면 타겟이 필요
+                    new IsAnyWeaponReloadingNode(), // 현재 어떤 무기든 재장전 애니메이션/타이머가 돌고 있는지
+                    new HasValidTargetNode(), 
                     new CanMoveThisActivationNode(),
                     new HasEnoughAPNode(CombatActionEvents.ActionType.Move),
                     new MoveAwayFromTargetNode()
                 }),
 
-                // 1. OutOfAmmo Reload Sequence (Still highest practical priority for RELOAD DECISION)
+                // 1. OutOfAmmo Reload Sequence (탄약이 완전히 바닥났을 때 최우선 재장전)
                 new SequenceNode(new List<BTNode>
                 {
                     new NeedsReloadNode(ReloadCondition.OutOfAmmo),
@@ -64,7 +58,7 @@ namespace AF.AI.BehaviorTree.PilotBTs
                     new ReloadWeaponNode()
                 }),
 
-                // NEW: Self-Repair Sequence (High Priority Survival)
+                // 2. Self-Repair Sequence
                 new SequenceNode(new List<BTNode>
                 {
                     new HasRepairUsesNode(),
@@ -73,14 +67,31 @@ namespace AF.AI.BehaviorTree.PilotBTs
                     new RepairSelfNode()
                 }),
 
-                // 2. Main Combat Logic (Select Target FIRST, then decide action)
+                // 3. Main Combat Logic Sequence
                 new SequenceNode(new List<BTNode>
                 {
+                    // 3a. 자기 버프 사용 시도 
+                    new SelectorNode(new List<BTNode>
+                    {
+                        new SequenceNode(new List<BTNode> // 실제 버프 사용 결정 시퀀스
+                        {
+                            new SelectSelfActiveAbilityNode(), // SelectedAbility만 설정
+                            new HasSelectedWeaponNode(), 
+                            new InverterNode(new IsAnyWeaponReloadingNode()), 
+                            new InverterNode(new NeedsReloadNode(ReloadCondition.OutOfAmmo)), 
+                            new ConfirmAbilityUsageNode() // 모든 조건 만족 시 DecidedActionType을 UseAbility로 설정
+                        }),
+                        new WaitNode() // 위 시퀀스 실패 시 (버프 사용 안 함) Success 반환하여 다음으로 진행
+                    }),
+
+                    // 3b. 타겟 선택 (버프 사용 여부와 관계없이 진행)
                     new SelectTargetNode(),      
                     new HasValidTargetNode(),    
+
+                    // 3c. 선택된 타겟에 대한 행동 결정 (SelectorNode)
                     new SelectorNode(new List<BTNode> 
                     {
-                        // 2a. Kiting: Move Away If Too Close
+                        // Kiting: Move Away If Too Close
                         new SequenceNode(new List<BTNode>
                         {
                             new HasValidTargetNode(),
@@ -89,7 +100,7 @@ namespace AF.AI.BehaviorTree.PilotBTs
                             new HasEnoughAPNode(CombatActionEvents.ActionType.Move),
                             new MoveAwayFromTargetNode()
                         }),
-                        // 2b. Attack: If Target In Range and NOT Too Close
+                        // Attack: If Target In Range and NOT Too Close
                         new SequenceNode(new List<BTNode>
                         {
                             new HasValidTargetNode(),
@@ -97,7 +108,7 @@ namespace AF.AI.BehaviorTree.PilotBTs
                             new HasEnoughAPNode(CombatActionEvents.ActionType.Attack),
                             new AttackTargetNode()
                         }),
-                        // 2c. Reposition: Move To Target If Target Is Too Far
+                        // Reposition: Move To Target If Target Is Too Far
                         new SequenceNode(new List<BTNode>
                         {
                             new HasValidTargetNode(),
@@ -105,16 +116,14 @@ namespace AF.AI.BehaviorTree.PilotBTs
                             new HasEnoughAPNode(CombatActionEvents.ActionType.Move),
                             new MoveToTargetNode()
                         }),
-                        // 2d. LowAmmo Reload Sequence (Moved higher in action consideration)
-                        // 만약 공격/이동 다 여의치 않고 탄약이 적다면 재장전 시도
+                        // LowAmmo Reload Sequence (탄약이 적을 때 재장전)
                         new SequenceNode(new List<BTNode>
                         {
                             new NeedsReloadNode(ReloadCondition.LowAmmo),
                             new HasEnoughAPNode(CombatActionEvents.ActionType.Reload),
                             new ReloadWeaponNode()
                         }),
-                        // 2e. 조건부 방어 (★ Refactor_AI_BT_Defense_AP_Optimization.md 기반 수정)
-                        //    : 이동/공격/재장전 모두 여의치 않고, "이동할 여지가 없었거나 이미 이동했고", 방어는 가능할 때
+                        // 조건부 방어
                         new SequenceNode(new List<BTNode>
                         {
                             new InverterNode(
@@ -131,13 +140,8 @@ namespace AF.AI.BehaviorTree.PilotBTs
                     })
                 }),
 
-                // 3. Fallback: Wait if nothing else to do
-                // 위 로직에서 아무것도 결정되지 않으면 기본 대기
-                // 명시적 WaitNode 대신, Selector가 모두 실패하면 Success를 반환하도록 하거나,
-                // 혹은 정말 아무것도 할 게 없을 때를 위한 낮은 우선순위의 WaitNode를 둘 수 있음.
-                // 현재 구조에서는 Main Combat Logic Sequence가 성공하면 이쪽으로 오지 않음.
-                // SelectTargetNode가 실패하는 경우 (예: 모든 적이 쓰러짐) 등에는 이쪽으로 올 수 있음.
-                new WaitNode() // 기본 생성자 사용
+                // 4. Fallback: Wait if nothing else to do
+                new WaitNode() 
             });
         }
     }

@@ -22,7 +22,7 @@ MonoBehaviour:
   Stat_Evasion: 0.1
   Stat_Durability: 250
   Stat_EnergyEff: 0.4
-  Stat_MaxAP: 8
+  Stat_MaxAP: 9
   Stat_APRecovery: 4.5
   Stats_MaxRepairUses: 0
   FrameWeight: 60

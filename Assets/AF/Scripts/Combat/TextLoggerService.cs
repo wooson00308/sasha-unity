@@ -486,15 +486,9 @@ namespace AF.Combat
                 entryEventType = LogEventType.AbilityUsed;
                 string prefix = _textLogger.UseIndentation ? "  " : "";
                 string actorNameColored = GetTeamColoredName(ev.Actor.Name, ev.Actor.TeamId);
-                string abilityNameColored = ColorizeText(ev.UsedAbilityEffect.AbilityName, "cyan");
-                string apInfo = $"잔여 동력: {ev.Actor.CurrentAP:F1}/{ev.Actor.CombinedStats.MaxAP:F1}.";
-                string resultText = ev.Success ? "실행 완료" : "실행 실패";
-                string reasonText = string.IsNullOrEmpty(ev.ResultDescription) ? "" : $" (사유: {ev.ResultDescription})";
-
-                // TODO: 어빌리티 아이콘 인덱스 확인 및 적용 필요 (예: <sprite index=21>)
-                string actionIconTag = _useSpriteIcons ? "<sprite index=21> " : ""; 
-
-                logMsg = $"{prefix}{actionIconTag}{actorNameColored} 어빌리티 {abilityNameColored} {resultText}{reasonText}. {apInfo}";
+                string abilityNameColored = ColorizeText(ev.UsedAbilityEffect.AbilityName, "#AFEEEE");
+                string resultText = ev.Success ? ColorizeText("가동 성공", "green") : ColorizeText("가동 실패", "red");
+                logMsg = $"{prefix}{actorNameColored} 어빌리티 프로토콜 {abilityNameColored} {resultText}.";
             }
             else if (ev.Action == CombatActionEvents.ActionType.Move && ev.Success)
             {

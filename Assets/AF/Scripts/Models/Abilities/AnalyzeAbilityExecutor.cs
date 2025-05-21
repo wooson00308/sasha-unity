@@ -32,14 +32,6 @@ namespace AF.Models.Abilities
 
             target.AddStatusEffect(debuff);
 
-            ctx?.Bus?.Publish(new StatusEffectEvents.StatusEffectAppliedEvent(
-                target: target,
-                source: user,
-                effectType: StatusEffectEvents.StatusEffectType.Debuff_DefenseReduced,
-                duration: 2,
-                magnitude: -0.2f,
-                effectId: "ArmorBreakDebuff"));
-
             return true;
         }
 

@@ -13,45 +13,60 @@ namespace AF.Models.Abilities
         public const string ABILITY_ID = "AB_BP_004_RepairKit";
         private const float REPAIR_AMOUNT = 50f;
         private const int MAX_USES = 3;
+        private const float HEALTH_THRESHOLD_FOR_KIT = 0.5f; // 체력 50% 미만일 때만 사용 고려
 
         public bool Execute(CombatContext ctx, ArmoredFrame user, ArmoredFrame target, AbilityEffect abilityData)
         {
             if (user == null) return false;
 
-            // uses 카운트는 user.AICtxBlackboard 또는 별도 딕셔너리로 추적 (간단히 StatusEffect 스택으로 관리)
-            int currentUses = 0;
-            foreach (var eff in user.ActiveStatusEffects)
-            {
-                if (eff.EffectName == "RepairKitUsed") currentUses++;
-            }
-            if (currentUses >= MAX_USES) return false; // 더 이상 사용 불가
+            int currentUses = user.ActiveStatusEffects.Count(e => e.EffectName == "RepairKitUsed");
+            if (currentUses >= MAX_USES) return false; 
 
-            string damaged = user.Parts
+            string damagedPartSlot = user.Parts
                 .Where(kvp => kvp.Value.CurrentDurability < kvp.Value.MaxDurability)
                 .OrderBy(kvp => kvp.Value.CurrentDurability / kvp.Value.MaxDurability)
                 .Select(kvp => kvp.Key)
                 .FirstOrDefault();
-            if (string.IsNullOrEmpty(damaged)) return false;
+            if (string.IsNullOrEmpty(damagedPartSlot)) return false;
 
-            float repaired = user.ApplyRepair(damaged, REPAIR_AMOUNT);
-            if (repaired <= 0f) return false;
+            float repairedAmount = user.ApplyRepair(damagedPartSlot, REPAIR_AMOUNT);
+            if (repairedAmount <= 0f) return false;
 
-            // 사용 기록용 StatusEffect (영구)
-            var useMark = new StatusEffect("RepairKitUsed", -1, StatusEffectEvents.StatusEffectType.Buff_RepairField, StatType.None, ModificationType.None, 0f);
+            var useMark = new StatusEffect(
+                effectName: "RepairKitUsed", 
+                durationTurns: -1, 
+                effectType: StatusEffectEvents.StatusEffectType.Buff_Utility,
+                statToModify: StatType.None, 
+                modType: ModificationType.None,
+                modValue: 0f);
             user.AddStatusEffect(useMark);
 
-            ctx?.Bus?.Publish(new CombatActionEvents.RepairAppliedEvent(user, user, CombatActionEvents.ActionType.RepairSelf, damaged, repaired, ctx?.CurrentTurn ?? 0));
+            ctx?.Bus?.Publish(new CombatActionEvents.RepairAppliedEvent(user, user, CombatActionEvents.ActionType.RepairSelf, damagedPartSlot, repairedAmount, ctx?.CurrentTurn ?? 0));
             return true;
         }
 
         public bool CanExecute(CombatContext ctx, ArmoredFrame user, ArmoredFrame target, AbilitySO data)
         {
             if (user == null || data == null) return false;
+
+            // 사용 횟수 체크
             int uses = user.ActiveStatusEffects.Count(e => e.EffectName == "RepairKitUsed");
             if (uses >= MAX_USES) return false;
-            // any damaged part?
-            bool damaged = user.Parts.Values.Any(p => p.CurrentDurability < p.MaxDurability);
-            return damaged && user.HasEnoughAP(data.APCost);
+
+            // AP 체크
+            if (!user.HasEnoughAP(data.APCost)) return false;
+
+            // 체력 조건 체크 (ArmoredFrame의 새 프로퍼티 사용)
+            if (user.CurrentDurabilityRatio >= HEALTH_THRESHOLD_FOR_KIT)
+            {
+                return false; // 체력이 설정된 기준치 이상이면 사용 안 함
+            }
+
+            // 손상된 파츠가 하나라도 있는지 체크
+            bool hasDamagedPart = user.Parts.Values.Any(p => p.CurrentDurability < p.MaxDurability);
+            if (!hasDamagedPart) return false;
+            
+            return true;
         }
     }
 } 

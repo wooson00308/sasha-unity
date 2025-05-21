@@ -287,7 +287,10 @@ namespace AF.Combat
             {
                 if (w.IsReloading) { w.CheckReloadCompletion(_currentTurn); }
             }
-            _statusProcessor.Tick(MakeCtx(), _currentActiveUnit);
+            // 현재 활성화된 유닛에게 CombatContext를 미리 설정하여 StatusEffect 핸들러들이 참조할 수 있도록 함
+            CombatContext unitCtx = MakeCtx();
+            _currentActiveUnit.CurrentCombatContext = unitCtx;
+            _statusProcessor.Tick(unitCtx, _currentActiveUnit);
 
             // --- 행동 트리 실행 로직 시작 ---
             _currentActiveUnit.AICtxBlackboard.ClearAllData(); 
@@ -398,6 +401,12 @@ namespace AF.Combat
                 // +++ SASHA: 수정 끝 +++
 
                 AbilityEffect abilityToUse = decidedActionType.Value == CombatActionEvents.ActionType.UseAbility ? blackboard.SelectedAbility : null;
+                string explicitPartSlotForRepair = null;
+                if (decidedActionType.Value == CombatActionEvents.ActionType.RepairAlly)
+                {
+                    explicitPartSlotForRepair = blackboard.RepairTargetPartSlotId;
+                }
+
                 bool actionSuccess = _actionExecutor.Execute(
                     currentActionContext, 
                     _currentActiveUnit, 
@@ -405,9 +414,11 @@ namespace AF.Combat
                     targetFrame, 
                     targetPosition, 
                     weaponForExecution,
-                    false,
-                    false,
-                    abilityToUse);
+                    false, // isCounter
+                    false, // freeCounter
+                    abilityToUse,
+                    explicitPartSlotForRepair // 새로 추가된 파라미터 전달
+                );
 
                 actionsThisActivation++;
 

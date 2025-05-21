@@ -108,6 +108,9 @@ namespace AF.Services
 
             // 전투 시뮬레이터 서비스 등록 (인터페이스 타입으로 등록)
             ServiceLocator.Instance.RegisterService<ICombatSimulatorService>(new CombatSimulatorService());
+
+            // +++ 상태 효과 프로세서 서비스 등록 추가 +++
+            ServiceLocator.Instance.RegisterService<IStatusEffectProcessor>(new StatusEffectProcessor());
         }
         
         private void OnDestroy()

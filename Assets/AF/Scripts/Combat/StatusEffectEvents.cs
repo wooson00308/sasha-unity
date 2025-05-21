@@ -16,10 +16,15 @@ namespace AF.Combat
             // 긍정적 효과
             Buff_AttackBoost,
             Buff_DefenseBoost,
+            Buff_RepairOverTime,
             Buff_AccuracyBoost,
             Buff_SpeedBoost,
             Buff_RepairField,
             Buff_ShieldGenerator,
+            Buff_MaxAPBoost,         // MaxAP 증가
+            Buff_APRecoveryBoost,    // AP 회복량 증가
+            Buff_EvasionBoost,       // 회피율 증가
+            Buff_Utility,            // 기타 유틸리티/마커용 (선택적)
             
             // 부정적 효과
             Debuff_Stunned,
@@ -27,6 +32,7 @@ namespace AF.Combat
             Debuff_AccuracyReduced,
             Debuff_DefenseReduced,
             Debuff_Immobilized,
+            Debuff_DamageOverTime,
             Debuff_SystemCorruption,
             Debuff_WeaponJammed,
             Debuff_Burning,

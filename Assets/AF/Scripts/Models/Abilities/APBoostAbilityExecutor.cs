@@ -14,12 +14,13 @@ namespace AF.Models.Abilities
         {
             if (user == null) return false;
             if (user.HasStatusEffect("APBoostPassive")) return false;
+            if (user.HasStatusEffect("APBoostRecovery")) return false;
 
             // MaxAP +1
             var maxApBuff = new StatusEffect(
                 effectName: "APBoostPassive",
                 durationTurns: -1,
-                effectType: StatusEffectEvents.StatusEffectType.Buff_AttackBoost, // 임시
+                effectType: StatusEffectEvents.StatusEffectType.Buff_MaxAPBoost,
                 statToModify: StatType.MaxAP,
                 modType: ModificationType.Additive,
                 modValue: 1f);
@@ -29,21 +30,19 @@ namespace AF.Models.Abilities
             var recoveryBuff = new StatusEffect(
                 effectName: "APBoostRecovery",
                 durationTurns: -1,
-                effectType: StatusEffectEvents.StatusEffectType.Buff_AttackBoost,
+                effectType: StatusEffectEvents.StatusEffectType.Buff_APRecoveryBoost,
                 statToModify: StatType.APRecovery,
                 modType: ModificationType.Additive,
                 modValue: 2f);
             user.AddStatusEffect(recoveryBuff);
 
-            ctx?.Bus?.Publish(new StatusEffectEvents.StatusEffectAppliedEvent(user, user, StatusEffectEvents.StatusEffectType.Buff_AttackBoost, -1, 1f, "APBoostPassive"));
-            ctx?.Bus?.Publish(new StatusEffectEvents.StatusEffectAppliedEvent(user, user, StatusEffectEvents.StatusEffectType.Buff_AttackBoost, -1, 2f, "APBoostRecovery"));
             return true;
         }
 
         public bool CanExecute(CombatContext ctx, ArmoredFrame user, ArmoredFrame target, AbilitySO data)
         {
             if (user == null || data == null) return false;
-            if (user.HasStatusEffect("APBoostPassive")) return false;
+            if (user.HasStatusEffect("APBoostPassive") || user.HasStatusEffect("APBoostRecovery")) return false;
             return user.HasEnoughAP(data.APCost);
         }
     }

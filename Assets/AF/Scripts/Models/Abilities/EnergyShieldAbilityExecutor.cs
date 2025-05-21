@@ -21,12 +21,11 @@ namespace AF.Models.Abilities
                 effectName: "EnergyShield",
                 durationTurns: 3,
                 effectType: StatusEffectEvents.StatusEffectType.Buff_ShieldGenerator,
-                statToModify: StatType.None, // 데미지 흡수량은 별도 로직 필요
+                statToModify: StatType.None,
                 modType: ModificationType.None,
-                modValue: 0f);
+                modValue: 100f);
             user.AddStatusEffect(shield);
 
-            ctx?.Bus?.Publish(new StatusEffectEvents.StatusEffectAppliedEvent(user, user, StatusEffectEvents.StatusEffectType.Buff_ShieldGenerator, 3, 100f, "EnergyShield"));
             return true;
         }
 

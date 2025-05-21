@@ -30,9 +30,15 @@ namespace AF.AI.BehaviorTree.Actions
 
             textLogger?.Log($"[{nodeName}] {agent.Name}: Node Ticked.", LogLevel.Debug);
 
+            if (blackboard.SelectedAbility != null && blackboard.DecidedActionType == CombatActionEvents.ActionType.UseAbility)
+            {
+                textLogger?.Log($"[{nodeName}] {agent.Name}: Ability '{blackboard.SelectedAbility.AbilityID}' already set to be used. Success.", LogLevel.Debug);
+                return NodeStatus.Success;
+            }
+
             if (blackboard.SelectedAbility != null)
             {
-                textLogger?.Log($"[{nodeName}] {agent.Name}: Ability '{blackboard.SelectedAbility.AbilityID}' already selected. Success.", LogLevel.Debug);
+                textLogger?.Log($"[{nodeName}] {agent.Name}: An ability '{blackboard.SelectedAbility.AbilityID}' is already on blackboard. Assuming it will be handled. Success.", LogLevel.Debug);
                 return NodeStatus.Success;
             }
 
@@ -76,17 +82,16 @@ namespace AF.AI.BehaviorTree.Actions
                     continue;
                 }
 
-                if (!exec.CanExecute(context, agent, agent, so)) // Target is self for Self-Active ability
+                if (!exec.CanExecute(context, agent, agent, so))
                 {
                     textLogger?.Log($"[{nodeName}] {agent.Name}: Executor.CanExecute for '{so.AbilityName}' returned false. Skipping.", LogLevel.Debug);
                     continue;
                 }
                 textLogger?.Log($"[{nodeName}] {agent.Name}: Executor.CanExecute for '{so.AbilityName}' returned true.", LogLevel.Debug);
 
-                var effect = new AbilityEffect(so); // Create AbilityEffect from SO
+                var effect = new AbilityEffect(so);
                 blackboard.SelectedAbility = effect;
-                blackboard.DecidedActionType = CombatActionEvents.ActionType.UseAbility;
-                textLogger?.Log($"[{nodeName}] {agent.Name}: Selected ability '{so.AbilityName}'. DecidedAction: UseAbility. Success.", LogLevel.Debug);
+                textLogger?.Log($"[{nodeName}] {agent.Name}: Selected ability '{so.AbilityName}' on blackboard. (ActionType NOT set yet). Success.", LogLevel.Debug);
                 return NodeStatus.Success;
             }
 

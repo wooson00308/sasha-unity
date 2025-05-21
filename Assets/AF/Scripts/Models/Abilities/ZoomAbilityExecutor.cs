@@ -24,21 +24,13 @@ namespace AF.Models.Abilities
 
             var zoomBuff = new StatusEffect(
                 effectName: "ZoomBuff",
-                durationTurns: 1,
+                durationTurns: 2,
                 effectType: StatusEffectEvents.StatusEffectType.Buff_AccuracyBoost,
                 statToModify: StatType.Accuracy,
                 modType: ModificationType.Additive,
                 modValue: 0.3f);
 
             user.AddStatusEffect(zoomBuff);
-
-            ctx?.Bus?.Publish(new StatusEffectEvents.StatusEffectAppliedEvent(
-                target: user,
-                source: user,
-                effectType: StatusEffectEvents.StatusEffectType.Buff_AccuracyBoost,
-                duration: 1,
-                magnitude: 0.3f,
-                effectId: "ZoomBuff"));
 
             return true;
         }
@@ -47,7 +39,16 @@ namespace AF.Models.Abilities
         {
             if (user == null || data == null) return false;
             if (user.HasStatusEffect("ZoomBuff")) return false;
-            return user.HasEnoughAP(data.APCost);
+            if (!user.HasEnoughAP(data.APCost)) return false;
+
+            // 주무기가 사용 가능한 상태인지 확인
+            Weapon primaryWeapon = user.GetPrimaryWeapon();
+            if (primaryWeapon == null || primaryWeapon.IsReloading || !primaryWeapon.HasAmmo())
+            {
+                return false; // 주무기 발사 불가능하면 정밀 조준 사용 불가
+            }
+
+            return true;
         }
     }
 } 

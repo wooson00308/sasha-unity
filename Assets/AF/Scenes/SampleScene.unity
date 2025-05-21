@@ -6243,8 +6243,8 @@ MonoBehaviour:
   useLogIndentation: 0
   logActionSummaries: 0
   useSpriteIconsInLog: 0
-  logLevelsToRecord: 1
-  safetyBreakTurns: 5
+  logLevelsToRecord: 0
+  safetyBreakTurns: 100
   combatStartButton: {fileID: 1423314143}
   currentBattleId: 
   currentCycle: 0

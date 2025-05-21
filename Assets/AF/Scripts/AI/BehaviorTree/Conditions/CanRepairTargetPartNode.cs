@@ -1,6 +1,5 @@
 using AF.Combat;
 using AF.Models;
-using System.Linq; // Required for Linq operations like Any()
 using UnityEngine;
 
 namespace AF.AI.BehaviorTree.Conditions
@@ -14,38 +13,35 @@ namespace AF.AI.BehaviorTree.Conditions
 
         public override NodeStatus Tick(ArmoredFrame agent, Blackboard blackboard, CombatContext context)
         {
-            if (blackboard == null || blackboard.CurrentTarget == null || !blackboard.CurrentTarget.IsOperational || context == null)
+            var logger = context?.Logger?.TextLogger;
+
+            if (blackboard == null || blackboard.CurrentTarget == null || !blackboard.CurrentTarget.IsOperational || string.IsNullOrEmpty(blackboard.TargetPartSlot))
             {
+                // logger?.Log($"[BT] {agent?.Name} - CanRepairTargetPartNode: Pre-conditions not met (Null BB, Target, or TargetPartSlot). RESULT: FAILURE", LogLevel.Debug);
                 return NodeStatus.Failure;
             }
 
-            ArmoredFrame targetToRepair = blackboard.CurrentTarget;
-            var textLogger = context.Logger?.TextLogger;
+            ArmoredFrame targetAlly = blackboard.CurrentTarget;
+            string targetPartSlotId = blackboard.TargetPartSlot;
 
-            bool canRepair = false;
-            if (targetToRepair.Parts != null)
+            if (targetAlly.Parts.TryGetValue(targetPartSlotId, out Part partToRepair))
             {
-                foreach (var partEntry in targetToRepair.Parts)
+                // logger?.Log($"[BT DEBUG] {agent?.Name} checking part {targetPartSlotId} on {targetAlly.Name}. IsOperational: {partToRepair.IsOperational}, CurrentHP: {partToRepair.CurrentDurability}, MaxHP: {partToRepair.MaxDurability}", LogLevel.Debug);
+                if (partToRepair.IsOperational && partToRepair.CurrentDurability < partToRepair.MaxDurability)
                 {
-                    Part part = partEntry.Value;
-                    textLogger?.Log($"  [BT PART_CHECK] Agent: {agent?.Name}, Target: {targetToRepair.Name}, Part: {partEntry.Key}, Op: {part.IsOperational}, CurHP: {part.CurrentDurability}, MaxHP: {part.MaxDurability}", LogLevel.Debug);
-                    if (part.IsOperational && part.CurrentDurability < part.MaxDurability)
-                    {
-                        canRepair = true;
-                        break; 
-                    }
+                    // logger?.Log($"[BT] {agent?.Name} - CanRepairTargetPartNode: Target {targetAlly.Name}'s part '{targetPartSlotId}' IS repairable. RESULT: SUCCESS", LogLevel.Debug);
+                    return NodeStatus.Success;
                 }
-            }
-
-            if (canRepair)
-            {
-                textLogger?.Log($"[BT] {agent?.Name} - CanRepairTargetPartNode: Target {targetToRepair.Name} HAS repairable parts. RESULT: SUCCESS", LogLevel.Debug);
-                return NodeStatus.Success;
+                else
+                {
+                    // logger?.Log($"[BT] {agent?.Name} - CanRepairTargetPartNode: Target {targetAlly.Name}'s part '{targetPartSlotId}' is NOT repairable (fully repaired or destroyed). RESULT: FAILURE", LogLevel.Debug);
+                    return NodeStatus.Failure;
+                }
             }
             else
             {
-                textLogger?.Log($"[BT] {agent?.Name} - CanRepairTargetPartNode: Target {targetToRepair.Name} has NO repairable parts. RESULT: FAILURE", LogLevel.Debug);
-                return NodeStatus.Failure;
+                // logger?.Log($"[BT] {agent?.Name} - CanRepairTargetPartNode: Target {targetAlly.Name} does not have part slot '{targetPartSlotId}'. RESULT: FAILURE", LogLevel.Debug);
+                return NodeStatus.Failure; // Target part slot not found on the ally
             }
         }
     }

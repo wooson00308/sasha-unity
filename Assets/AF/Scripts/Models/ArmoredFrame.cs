@@ -4,6 +4,7 @@ using System.Linq;
 using AF.EventBus; // 이벤트 버스 사용 가정
 using AF.Services; // 서비스 로케이터 사용 가정
 using AF.Combat; // 네임스페이스 추가
+using AF.Combat.Handlers; // 핸들러 접근을 위해 추가
 using UnityEngine;
 using AF.AI.BehaviorTree; // <<< 행동 트리 네임스페이스 추가
 
@@ -81,6 +82,31 @@ namespace AF.Models
         /// </summary>
         private int _currentRepairUses;
 
+        // ──────────────────────────────────────────────────────────────
+        // 실드(흡수 HP) 관련
+        // ──────────────────────────────────────────────────────────────
+        [NonSerialized]
+        private float _currentShieldHP; // EnergyShield 등 실드용 임시 HP
+
+        /// <summary>
+        /// 현재 실드(흡수 HP) 양을 반환합니다.
+        /// </summary>
+        public float CurrentShieldHP => _currentShieldHP;
+
+        /// <summary>
+        /// 실드를 추가합니다. (음수면 무시)
+        /// </summary>
+        public void AddShield(float amount)
+        {
+            if (amount <= 0f) return;
+            _currentShieldHP += amount;
+        }
+
+        /// <summary>
+        /// 실드를 모두 제거합니다.
+        /// </summary>
+        public void ClearShield() => _currentShieldHP = 0f;
+
         // 이벤트 버스 (생성자나 메서드에서 주입받거나 서비스 로케이터로 가져옴)
         private EventBus.EventBus _eventBus;
 
@@ -93,6 +119,9 @@ namespace AF.Models
         public BTNode BehaviorTreeRoot { get; set; } // BTNode 정의 후 주석 해제. AF.AI.BehaviorTree.BTNode로 사용 예정
         public Blackboard AICtxBlackboard { get; private set; }
         // +++ 행동 트리 및 블랙보드 참조 끝 +++
+
+        // +++ 현재 전투 컨텍스트 참조 필드 추가 +++
+        public CombatContext CurrentCombatContext { get; set; } // 외부(CombatSimulatorService)에서 설정
 
         /// <summary>
         /// 기체가 파괴되었는지 여부를 반환합니다.
@@ -116,6 +145,19 @@ namespace AF.Models
         public IReadOnlyList<StatusEffect> ActiveStatusEffects => _activeStatusEffects.AsReadOnly();
         public float CurrentAP => _currentAP;
         public float TotalWeight => _totalWeight;
+
+        /// <summary>
+        /// 현재 모든 파츠의 내구도 총합 대비 현재 내구도 총합의 비율을 반환합니다.
+        /// </summary>
+        public float CurrentDurabilityRatio
+        {
+            get
+            {
+                if (CombinedStats.Durability <= 0f) return 0f; 
+                return GetCurrentAggregatedHP() / CombinedStats.Durability;
+            }
+        }
+
         public Vector3? IntendedMovePosition { get; set; }
 
         /// <summary>
@@ -133,15 +175,16 @@ namespace AF.Models
             // +++ 블랙보드 초기화 끝 +++
 
             // 이벤트 버스 인스턴스 가져오기 (서비스 로케이터 사용 예시)
-            if (ServiceLocator.Instance != null && ServiceLocator.Instance.HasService<EventBusService>())
+            if (ServiceLocator.Instance != null)
             {
+                if (ServiceLocator.Instance.HasService<EventBusService>())
                 _eventBus = ServiceLocator.Instance.GetService<EventBusService>().Bus;
-                textLoggerService = ServiceLocator.Instance.GetService<TextLoggerService>(); // Get TextLoggerService
+                if (ServiceLocator.Instance.HasService<TextLoggerService>())
+                    textLoggerService = ServiceLocator.Instance.GetService<TextLoggerService>();
             }
             else
             {
-                Debug.LogError($"ArmoredFrame({Name}): EventBusService를 찾을 수 없습니다!");
-                // _eventBus = new EventBus.EventBus(); // 임시 폴백 또는 예외 처리
+                Debug.LogError($"ArmoredFrame({Name}): ServiceLocator.Instance is null!");
             }
 
             _activeStatusEffects = new List<StatusEffect>(); // 상태 효과 리스트 초기화
@@ -207,15 +250,14 @@ namespace AF.Models
         /// <returns>제거된 파츠 또는 null</returns>
         public Part DetachPart(string slotIdentifier)
         {
+            if (string.IsNullOrEmpty(slotIdentifier)) return null;
             if (_parts.TryGetValue(slotIdentifier, out Part part))
             {
                 _parts.Remove(slotIdentifier);
-                RecalculateStats(); // 파츠 제거 후 스탯 재계산
-                CheckOperationalStatus(); // <<< 기체 작동 상태 재확인
-                // TODO: PartDetachedEvent 발행 고려
+                RecalculateStats(); 
+                CheckOperationalStatus(); 
                 return part;
             }
-            // Debug.LogWarning($"ArmoredFrame({Name}): 제거할 파츠가 슬롯 '{slotIdentifier}'에 없습니다.");
             return null;
         }
 
@@ -279,20 +321,64 @@ namespace AF.Models
             if (effect == null) return;
 
             var existingEffect = _activeStatusEffects.FirstOrDefault(e => e.EffectName == effect.EffectName);
+            bool newEffectAdded = false;
+            StatusEffect effectToProcess = null;
+
             if (existingEffect != null)
             {
-                // 이미 같은 효과가 있으면 지속 시간만 갱신 (또는 가장 긴 시간으로 설정 등 정책 결정 필요)
                 existingEffect.DurationTurns = Math.Max(existingEffect.DurationTurns, effect.DurationTurns); 
+                // 재적용 시에도 OnApply를 호출할지 여부는 기획에 따라 결정 (일단 호출한다고 가정)
+                effectToProcess = existingEffect;
             }
             else
             {
                 _activeStatusEffects.Add(effect);
-                // TODO: StatusEffectAppliedEvent 발행 고려
+                newEffectAdded = true;
+                effectToProcess = effect;
             }
             
-            // 상태 효과 적용 후 스탯/상태 재계산 필요 시 호출
+            // OnApply 핸들러 즉시 호출
+            if (effectToProcess != null)
+            {
+                if (ServiceLocator.Instance != null && ServiceLocator.Instance.HasService<IStatusEffectProcessor>())
+                {
+                    var statusEffectProcessor = ServiceLocator.Instance.GetService<IStatusEffectProcessor>();
+                    var handler = statusEffectProcessor.GetHandler(effectToProcess.EffectType);
+                    if (handler != null)
+                    {
+                        // CurrentCombatContext가 설정되어 있다는 가정 하에 사용
+                        // 전투 상황이 아닐 때(예: 테스트 설정 중) CurrentCombatContext가 null일 수 있으므로 방어 코드 추가
+                        if (CurrentCombatContext != null) 
+                        {
+                           handler.OnApply(CurrentCombatContext, this, effectToProcess);
+                        }
+                        else
+                        {
+                            // CombatContext 없이 호출하거나, 필수적인 경우 경고/에러 처리
+                            // 이 경우 OnApply 핸들러가 CombatContext 없이도 최소한의 동작을 하거나,
+                            // CombatContext가 반드시 필요한 핸들러라면 문제가 될 수 있음.
+                            // 지금은 일단 CombatContext가 있는 경우에만 호출하도록 함.
+                            Debug.LogWarning($"ArmoredFrame({Name}): CurrentCombatContext is null. OnApply for {effectToProcess.EffectName} might not work as expected outside of active combat simulation.");
+                            // 또는 빈 컨텍스트로라도 호출? handler.OnApply(new CombatContext(...minimal args...), this, effectToProcess);
+                            // 아니면, OnApply 시그니처를 CombatContext ctx = null 로 변경? -> 핸들러 구현체들이 모두 수정되어야 함
+                        }
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning($"ArmoredFrame({Name}): IStatusEffectProcessor service not found. Cannot call OnApply for {effectToProcess.EffectName}.");
+                }
+            }
+
             RecalculateStats(); 
             CheckOperationalStatus();
+
+            // StatusEffectAppliedEvent 발행은 핸들러의 OnApply 내부에서 처리하는 것을 권장
+            // 또는 여기서 발행한다면, 핸들러 호출 이후에 하는 것이 적절
+            if (newEffectAdded || effectToProcess != null) // 효과가 실제로 추가/갱신되었을 때
+            {
+                 _eventBus?.Publish(new StatusEffectEvents.StatusEffectAppliedEvent(this, null /*source?*/, effectToProcess.EffectType, effectToProcess.DurationTurns, effectToProcess.ModificationValue, effectToProcess.EffectName));
+            }
         }
 
         /// <summary>
@@ -300,14 +386,36 @@ namespace AF.Models
         /// </summary>
         public void RemoveStatusEffect(string effectName)
         {
-            int removedCount = _activeStatusEffects.RemoveAll(e => e.EffectName == effectName);
-            if (removedCount > 0)
+            StatusEffect effectToRemove = _activeStatusEffects.FirstOrDefault(e => e.EffectName == effectName);
+
+            if (effectToRemove != null)
             {
-                 // TODO: StatusEffectRemovedEvent 발행 고려
+                if (ServiceLocator.Instance != null && ServiceLocator.Instance.HasService<IStatusEffectProcessor>())
+                {
+                    var statusEffectProcessor = ServiceLocator.Instance.GetService<IStatusEffectProcessor>();
+                    var handler = statusEffectProcessor.GetHandler(effectToRemove.EffectType);
+                    if (handler != null)
+                    {
+                        if (CurrentCombatContext != null)
+            {
+                            handler.OnRemove(CurrentCombatContext, this, effectToRemove); 
+                        }
+                        else
+                        {
+                            Debug.LogWarning($"ArmoredFrame({Name}): CurrentCombatContext is null. OnRemove for {effectToRemove.EffectName} might not work as expected outside of active combat simulation.");
+                        }
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning($"ArmoredFrame({Name}): IStatusEffectProcessor service not found. Cannot call OnRemove for {effectName}.");
+                }
+
+                _activeStatusEffects.Remove(effectToRemove); 
                  
-                 // 상태 효과 제거 후 스탯/상태 재계산 필요 시 호출
                  RecalculateStats(); 
                  CheckOperationalStatus();
+                _eventBus?.Publish(new StatusEffectEvents.StatusEffectExpiredEvent(this, effectToRemove.EffectType, effectToRemove.EffectName, true));
             }
         }
 
@@ -322,58 +430,20 @@ namespace AF.Models
         /// <summary>
         /// 상태 효과의 남은 턴 수를 감소시키고, 만료된 효과를 제거하며, 틱 효과 이벤트를 발행합니다.
         /// </summary>
-        public void TickStatusEffects()
+        public void TickStatusEffects() // 이 메서드는 StatusEffectProcessor로 옮겨졌습니다.
         {
-            List<StatusEffect> expiredEffects = new List<StatusEffect>();
-            List<StatusEffect> effectsToTick = new List<StatusEffect>(_activeStatusEffects); // 반복 중 컬렉션 변경 방지 위해 복사
-
-            foreach (var effect in effectsToTick)
-            {
-                // 1. 틱 효과 처리 (지속 시간 감소 전에 처리해야 0턴 남은 효과도 마지막 틱 적용 가능)
-                if (effect.TickEffectType != TickEffectType.None && effect.TickValue != 0f)
-                {
-                    // 이벤트 버스를 통해 StatusEffectTickEvent 발행 (정식 클래스 이름 사용)
-                    _eventBus?.Publish(new StatusEffectEvents.StatusEffectTickEvent(this, effect)); 
-                }
-                
-                // 2. 지속 시간 감소 (영구 지속(-1) 효과 제외)
-                if (effect.DurationTurns > 0)
-                {
-                    effect.DurationTurns--;
-                }
-
-                // 3. 만료된 효과 처리
-                if (effect.DurationTurns == 0) // 0이 되면 이번 턴까지만 유효하고 다음 턴 전에 제거
-                {
-                    expiredEffects.Add(effect);
-                }
-            }
-
-            // 만료된 효과 실제 제거
-            bool requiresRecalculation = false;
-            foreach (var expired in expiredEffects)
-            {
-                if (_activeStatusEffects.Remove(expired))
-                {
-                    requiresRecalculation = true;
-                    // TODO: StatusEffectExpiredEvent 발행 고려
-                    // _eventBus?.Publish(new StatusEffectExpiredEvent(this, expired.EffectType...));
-                }
-            }
-
-            // 상태 효과 만료로 스탯/상태 변경 가능성 있을 시 재계산
-            if (requiresRecalculation)
-            {
-                RecalculateStats();
-                CheckOperationalStatus();
-            }
+            // 이 로직은 StatusEffectProcessor로 옮겨졌습니다.
+            // ArmoredFrame은 더 이상 자체적으로 상태 효과를 Tick하지 않습니다.
+            // 만약 CombatSimulatorService 등 외부에서 이 메서드를 직접 호출하고 있다면, 
+            // 해당 호출부를 ServiceLocator.Instance.GetService<IStatusEffectProcessor>().Tick(ctx, this)로 변경해야 합니다.
+            Debug.LogWarning($"ArmoredFrame.TickStatusEffects() is deprecated and was called on {Name}. Use IStatusEffectProcessor.Tick() instead.");
         }
 
         /// <summary>
         /// 모든 파츠, 프레임, 파일럿의 스탯을 합산하여 _combinedStats를 업데이트합니다.
         /// Evasion 스탯은 무게/속도 기반 계산 + 파일럿 보너스로 특별 계산됩니다.
         /// </summary>
-        private void RecalculateStats()
+        public void RecalculateStats()
         {
             Stats newStats = new Stats(); // 기본값으로 초기화
 
@@ -404,7 +474,18 @@ namespace AF.Models
                 newStats.Add(_pilot.GetTotalStats()); // Stats.Add() 사용 가정
             }
             
-            // 4. 무기 스탯 (선택적 - 현재는 무기 자체 스탯이 기체 스탯에 직접 영향주지 않음)
+            // 4. 상태 효과에 의한 스탯 변동 적용
+            if (_activeStatusEffects != null && _activeStatusEffects.Count > 0)
+            {
+                foreach (var eff in _activeStatusEffects)
+                {
+                    if (eff == null) continue;
+                    if (eff.StatToModify == StatType.None || eff.ModificationType == ModificationType.None) continue;
+                    newStats.ApplyModifier(eff.StatToModify, eff.ModificationType, eff.ModificationValue);
+                }
+            }
+
+            // 5. 무기 스탯 (선택적 - 현재는 무기 자체 스탯이 기체 스탯에 직접 영향주지 않음)
             // foreach (var weapon in _equippedWeapons) { ... }
 
             // 최종 계산된 스탯을 _combinedStats에 할당
@@ -472,81 +553,89 @@ namespace AF.Models
         /// <param name="isCritical">치명타 여부</param>
         /// <param name="isCounterAttack">반격 여부</param>
         /// <returns>해당 파츠가 이 공격으로 파괴되었는지 여부</returns>
-        public bool ApplyDamage(string targetSlotIdentifier, float damageAmount, int currentTurn, ArmoredFrame source = null, bool isCritical = false, bool isCounterAttack = false)
+        public bool ApplyDamage(string targetSlotIdentifier, float damageAmount, int currentTurn, ArmoredFrame source = null, bool isCritical = false, bool isCounterAttack = false, float armorPiercing = 0f, float shieldPiercing = 0f)
         {
+            // DamageResult 구조체 사용 제거, bool 반환 (partWasDestroyedThisHit)을 기본으로 사용
+            bool partWasDestroyedThisHit = false;
+            bool frameWasUltimatelyDestroyed = false; // 프레임 파괴 여부 추적용
+
             if (string.IsNullOrEmpty(targetSlotIdentifier) || !_parts.ContainsKey(targetSlotIdentifier))
             {
-                // 슬롯이 없거나 유효하지 않으면 몸통(Body)을 기본 타겟으로 (게임 규칙에 따라 변경 가능)
                 targetSlotIdentifier = _parts.FirstOrDefault(p => p.Value.Type == PartType.Body).Key ?? _parts.Keys.FirstOrDefault();
                 if (string.IsNullOrEmpty(targetSlotIdentifier))
                 {
                     Debug.LogError($"{Name}: 유효한 타겟 슬롯을 찾을 수 없어 데미지 적용 불가.");
-                    return false; // 데미지 적용 실패
+                    return false; 
                 }
             }
 
             Part targetPart = _parts[targetSlotIdentifier];
             if (targetPart == null || targetPart.IsDestroyed)
             {
-                // 이미 파괴된 파츠이거나 존재하지 않는 파츠에 대한 처리 (예: 데미지 무시 또는 다른 파츠로 전이)
-                // 현재는 몸통이 아니라면 데미지 무효, 몸통이라면 _isOperational 체크로 이어짐
                 if (targetPart != null && targetPart.Type != PartType.Body)
                 {
                     Debug.LogWarning($"{Name}: 이미 파괴된 파츠({targetPart.Name})에 대한 공격 시도. 데미지 무효.");
-                    return false; // 데미지 적용 안 함 (몸통 아니면)
+                    return false; 
                 }
-                // 몸통이 이미 파괴되었다면 기체 파괴 로직으로 이어짐
             }
 
-            // 이벤트 발행 준비 (데미지 적용 전)
-            var preDamageEvent = new CombatActionEvents.PreDamageApplicationEvent(this, targetPart, damageAmount, currentTurn);
+            // PreDamageApplicationEvent 생성자 인자 수정 (9개 -> 4개)
+            var preDamageEvent = new CombatActionEvents.PreDamageApplicationEvent(this, targetPart, damageAmount, currentTurn /*, source, isCritical, isCounterAttack, armorPiercing, shieldPiercing*/);
             _eventBus?.Publish(preDamageEvent);
-
-            // 수정된 데미지 (이벤트 핸들러에 의해 변경될 수 있음)
             float finalDamage = preDamageEvent.ModifiedDamage;
 
-
-            bool wasDestroyedThisHit = false;
-            if (targetPart != null && !targetPart.IsDestroyed) // 파괴되지 않은 파츠에만 데미지 적용
+            // ──────────────────────────────────────────────────────────────
+            // 1단계: 실드로 데미지 흡수
+            // ──────────────────────────────────────────────────────────────
+            if (_currentShieldHP > 0f && finalDamage > 0f)
             {
-                wasDestroyedThisHit = targetPart.ApplyDamage(finalDamage);
+                float absorbed = Mathf.Min(finalDamage, _currentShieldHP);
+                _currentShieldHP -= absorbed;
+                finalDamage -= absorbed;
 
-                // 이벤트 발행 (데미지 적용 후)
-                _eventBus?.Publish(new CombatActionEvents.DamageAppliedEvent(
-                    source: source, // 전달받은 source 사용
-                    target: this,
-                    damagedPart: targetPart,
-                    damageDealt: finalDamage,
-                    isCritical: isCritical, // 전달받은 isCritical 사용
-                    wasDestroyed: wasDestroyedThisHit,
-                    turnNumber: currentTurn,
-                    partCurrentDurability: targetPart.CurrentDurability,
-                    partMaxDurability: targetPart.MaxDurability,
-                    isCounterAttack: isCounterAttack // 전달받은 isCounterAttack 사용
-                ));
+                // 실드가 전부 소모되면 상태 효과 제거 (효과 이름이 EnergyShield 고정 가정)
+                if (_currentShieldHP <= 0.001f)
+                {
+                    _currentShieldHP = 0f;
+                    if (HasStatusEffect("EnergyShield"))
+                    {
+                        RemoveStatusEffect("EnergyShield");
+                    }
+                }
+
+                // 실드가 데미지를 완전히 흡수했다면 파츠 데미지 처리 생략
+                if (finalDamage <= 0.001f)
+                {
+                    return false;
+                }
             }
 
+            if (targetPart != null && !targetPart.IsDestroyed) 
+            {
+                partWasDestroyedThisHit = targetPart.ApplyDamage(finalDamage);
+                // DamageAppliedEvent 생성자 인자 확인 및 사용 (기존 10개 인자 유지)
+                _eventBus?.Publish(new CombatActionEvents.DamageAppliedEvent(source, this, targetPart, finalDamage, isCritical, partWasDestroyedThisHit, currentTurn, targetPart.CurrentDurability, targetPart.MaxDurability, isCounterAttack));
+            }
+            else if (targetPart != null && targetPart.IsDestroyed)
+            {
+                partWasDestroyedThisHit = true; // 이미 파괴된 상태였음
+            }
 
-            // 몸통 파츠가 파괴되었는지 또는 모든 파츠가 파괴되었는지 등 기체 운용 상태 확인
             CheckOperationalStatus();
+            frameWasUltimatelyDestroyed = !_isOperational; // CheckOperationalStatus 이후 상태 반영
 
-
-            // 만약 이번 공격으로 파츠가 파괴되었다면, 스탯과 무게를 즉시 재계산
-            if (wasDestroyedThisHit)
+            if (partWasDestroyedThisHit && (targetPart == null || targetPart.IsOperational == false)) 
             {
                 RecalculateStats();
-                Debug.Log($"{Name}의 {targetPart.Name} 파츠가 파괴되어 스탯 재계산됨.");
+                Debug.Log($"{Name}의 {targetPart?.Name ?? targetSlotIdentifier} 파츠가 파괴되어 스탯 재계산됨.");
             }
 
-            // 기체가 파괴되었다면 추가 처리 (예: 파괴 이벤트 발행)
-            if (!_isOperational)
+            if (frameWasUltimatelyDestroyed)
             {
                 Debug.Log($"{Name}이(가) 파괴되었습니다!");
-                _eventBus?.Publish(new CombatSessionEvents.UnitDefeatedEvent(this, currentTurn, null)); // 패배 이벤트 발행
-                return true; // 기체 파괴됨
+                _eventBus?.Publish(new CombatSessionEvents.UnitDefeatedEvent(this, currentTurn, source)); 
             }
-
-            return wasDestroyedThisHit; // 파츠가 이 공격으로 파괴되었는지 여부 반환
+            return partWasDestroyedThisHit; // 파츠가 이번 공격으로 파괴되었는지 여부 반환
         }
 
         /// <summary>
@@ -554,10 +643,9 @@ namespace AF.Models
         /// </summary>
         public void RecoverAPOnTurnStart()
         {
-            if (!_isOperational) return; // 작동 불능 상태면 회복 안 함
-            
+            if (!_isOperational) return;
             float recoveredAP = _combinedStats.APRecovery;
-            _currentAP = Mathf.Min(_currentAP + recoveredAP, _combinedStats.MaxAP); // MaxAP를 넘지 않도록
+            _currentAP = Mathf.Min(_currentAP + recoveredAP, _combinedStats.MaxAP);
         }
 
         /// <summary>
@@ -567,8 +655,7 @@ namespace AF.Models
         /// <returns>AP 소모 성공 여부</returns>
         public bool ConsumeAP(float amount)
         {
-            if (amount <= 0) return true; // 0 이하 소모는 항상 성공
-            
+            if (amount <= 0) return true; 
             if (_currentAP >= amount)
             {
                 _currentAP -= amount;
@@ -577,7 +664,7 @@ namespace AF.Models
             else
             {
                 Debug.LogWarning($"ArmoredFrame({Name}): AP 부족! (현재: {_currentAP}, 필요: {amount})");
-                return false; // AP 부족으로 소모 실패
+                return false; 
             }
         }
 
@@ -588,12 +675,7 @@ namespace AF.Models
         /// <returns>AP 충분 여부</returns>
         public bool HasEnoughAP(float requiredAmount)
         {
-            // 추가: AP 소모량이 0 또는 음수이면 항상 가능
-            if (requiredAmount <= 0) 
-            {
-                return true;
-            }
-            // 부동 소수점 오차 감안하여 비교
+            if (requiredAmount <= 0) { return true; }
             return _currentAP > requiredAmount - 0.001f; 
         }
 
@@ -605,66 +687,32 @@ namespace AF.Models
         /// <returns>실제로 수리된 양. 수리할 필요가 없거나 파츠가 없으면 0을 반환합니다.</returns>
         public float ApplyRepair(string targetSlotIdentifier, float repairAmount)
         {
-            if (string.IsNullOrEmpty(targetSlotIdentifier) || repairAmount <= 0)
-            {
-                return 0f;
-            }
-
+            if (string.IsNullOrEmpty(targetSlotIdentifier) || repairAmount <= 0) { return 0f; }
             Part partToRepair = GetPart(targetSlotIdentifier);
-
-            if (partToRepair == null || !partToRepair.IsOperational || partToRepair.CurrentDurability >= partToRepair.MaxDurability)
-            {
-                return 0f; // 수리할 파츠가 없거나, 작동 불능이거나, 이미 최대 내구도인 경우
-            }
-
+            if (partToRepair == null || !partToRepair.IsOperational || partToRepair.CurrentDurability >= partToRepair.MaxDurability) { return 0f; }
             float maxDurability = partToRepair.MaxDurability;
             float currentDurability = partToRepair.CurrentDurability;
-
-            float targetDurability = currentDurability + repairAmount; // 목표 내구도 계산
-            float actualRepairAmount = Mathf.Min(repairAmount, maxDurability - currentDurability); // 실제 수리될 양 계산
-
-            // SetDurability 호출하고 상태 변경 여부 확인
-            bool? statusChanged = partToRepair.SetDurability(targetDurability);
-
-            // 상태가 변경되었고, 그 상태가 '작동 가능(true)'이면 후속 처리
+            float actualRepairAmount = Mathf.Min(repairAmount, maxDurability - currentDurability);
+            bool? statusChanged = partToRepair.SetDurability(currentDurability + actualRepairAmount); 
             if (statusChanged.HasValue && statusChanged.Value)
             {
-                // 파츠가 수리되어 작동 가능 상태가 되면, 전체 스탯 및 작동 상태 재계산 필요
                 RecalculateStats();
                 CheckOperationalStatus();
-                // TODO: PartRepairedEvent 같은 이벤트 발행 고려 가능
                 Debug.Log($"ArmoredFrame({Name}): {targetSlotIdentifier} 파츠 수리 완료. 작동 가능 상태로 복구됨.");
             }
-
-            return actualRepairAmount; // 실제 수리된 양 반환
+            return actualRepairAmount; 
         }
-
-        // TODO: 수리 메서드 (Repair)도 슬롯 기반으로 수정 필요
-        // public void RepairPart(string slotIdentifier, float amount) { ... } // ApplyRepair로 대체 가능
-        // public void RepairAllParts(float amount) { ... } // 필요하다면 구현
 
         /// <summary>
         /// 기체의 위치를 설정합니다. (CombatTestRunner 등 외부 설정용)
         /// </summary>
-        public void SetPosition(Vector3 newPosition)
-        {
-            _position = newPosition;
-        }
+        public void SetPosition(Vector3 newPosition) { _position = newPosition; }
 
-        public void EndTurn()
-        {
-            // 현재 턴 종료 로직 (예: AP 초기화 등)
-        }
+        public void EndTurn() { }
 
         public Weapon GetPrimaryWeapon()
         {
-            if (EquippedWeapons == null || EquippedWeapons.Count == 0)
-            {
-                return null;
-            }
-
-            // Return the first operational weapon found in the list.
-            // More sophisticated logic (e.g., designated primary slot, highest damage) could be added later.
+            if (EquippedWeapons == null || EquippedWeapons.Count == 0) { return null; }
             return EquippedWeapons.FirstOrDefault(weapon => weapon != null && weapon.IsOperational);
         }
 
@@ -675,16 +723,9 @@ namespace AF.Models
         public float GetCurrentAggregatedHP()
         {
             float currentHP = 0f;
-            if (_parts != null) // _parts는 Dictionary<string, Part>
+            if (_parts != null) 
             {
-                foreach (var partKvp in _parts)
-                {
-                    Part part = partKvp.Value;
-                    if (part != null)
-                    {
-                        currentHP += part.CurrentDurability;
-                    }
-                }
+                foreach (var partKvp in _parts) { if (partKvp.Value != null) { currentHP += partKvp.Value.CurrentDurability; } }
             }
             return currentHP;
         }
@@ -692,20 +733,11 @@ namespace AF.Models
         /// <summary>
         /// 현재 남은 수리 횟수를 반환합니다.
         /// </summary>
-        public int GetCurrentRepairUses()
-        {
-            return _currentRepairUses;
-        }
+        public int GetCurrentRepairUses() { return _currentRepairUses; }
 
         /// <summary>
         /// 수리 횟수를 1 감소시킵니다.
         /// </summary>
-        public void DecrementRepairUses()
-        {
-            if (_currentRepairUses > 0)
-            {
-                _currentRepairUses--;
-            }
-        }
+        public void DecrementRepairUses() { if (_currentRepairUses > 0) { _currentRepairUses--; } }
     }
 } 
