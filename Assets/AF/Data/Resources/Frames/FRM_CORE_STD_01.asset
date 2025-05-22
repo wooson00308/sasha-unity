@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 81ce1fb27f51bd147be5441db5347c5c, type: 3}
+  m_Name: FRM_CORE_STD_01
+  m_EditorClassIdentifier: 
+  FrameID: FRM_CORE_STD_01
+  FrameName: "\uCF54\uC5B4 \uD45C\uC900 \uD504\uB808\uC784"
+  FrameType: 1
+  Stat_AttackPower: 0
+  Stat_Defense: 3
+  Stat_Speed: 5
+  Stat_Accuracy: 0
+  Stat_Evasion: 0.1
+  Stat_Durability: 250
+  Stat_EnergyEff: 0.45
+  Stat_MaxAP: 9
+  Stat_APRecovery: 4.5
+  Stats_MaxRepairUses: 0
+  FrameWeight: 60
+  Slot_Head: Head
+  Slot_Body: Body
+  Slot_Arm_L: Arm_Left
+  Slot_Arm_R: Arm_Right
+  Slot_Legs: Legs
+  Slot_Backpack: Backpack
+  Slot_Weapon_1: WeaponSlot_R
+  Slot_Weapon_2: WeaponSlot_L
+  Notes: "\uCF54\uC5B4 \uB2E4\uC774\uB098\uBBF9\uC2A4 \uAE30\uBCF8 \uD45C\uC900 \uD504\uB808\uC784"

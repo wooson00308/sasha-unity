@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ecd9d45bb68cd6e4899907f3144afa8d, type: 3}
+  m_Name: WPN_CORE_AR_01
+  m_EditorClassIdentifier: 
+  WeaponID: WPN_CORE_AR_01
+  WeaponName: "\uCF54\uC5B4 \uD45C\uC900 \uB77C\uC774\uD50C"
+  WeaponType: 1
+  DamageType: 0
+  BaseDamage: 65
+  Accuracy: 0.85
+  Range: 10
+  MinRange: 1
+  AttackSpeed: 1.2
+  OverheatPerShot: 0.08
+  AmmoCapacity: 25
+  BaseAPCost: 4
+  ReloadAPCost: 1
+  ReloadTurns: 1
+  SpecialEffects: []
+  AttackFlavorKey: Attack_WPN_CORE_AR_01
+  ReloadFlavorKey: Reload_WPN_CORE_AR_01
+  Notes: "\uCF54\uC5B4 \uB2E4\uC774\uB098\uBBF9\uC2A4 \uD45C\uC900 \uB3CC\uACA9 \uC18C\uCD1D.
+    \uADE0\uD615 \uC7A1\uD78C \uC131\uB2A5."
+  Weight: 1

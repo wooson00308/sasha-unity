@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5fd8c816985b1e4ba3eee2c446bc307, type: 3}
+  m_Name: BODY_AEGIS_HVY_03
+  m_EditorClassIdentifier: 
+  PartID: BODY_AEGIS_HVY_03
+  PartName: "\uC774\uC9C0\uC2A4 \uC694\uC0C8 \uBC14\uB514"
+  PartType: 1
+  Stat_AttackPower: 0
+  Stat_Defense: 3.5
+  Stat_Speed: 0
+  Stat_Accuracy: 0
+  Stat_Evasion: 0
+  Stat_Durability: 300
+  Stat_EnergyEff: 0.35
+  Stat_MaxAP: 0
+  Stat_APRecovery: 0
+  MaxDurability: 300
+  PartWeight: 700
+  Abilities:
+  - AB_BD_001_SelfRepair
+  - AB_BP_004_RepairKit
+  Notes: "\uC774\uC9C0\uC2A4 \uC694\uC0C8\uD654 \uBC14\uB514 \uC720\uB2DB. \uC790\uAC00
+    \uC218\uB9AC \uAE30\uB2A5 \uD0D1\uC7AC."
+  Stat_MaxRepairUses: 0

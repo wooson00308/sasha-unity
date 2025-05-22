@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5fd8c816985b1e4ba3eee2c446bc307, type: 3}
+  m_Name: LEGS_AEGIS_HVY_04
+  m_EditorClassIdentifier: 
+  PartID: LEGS_AEGIS_HVY_04
+  PartName: "\uC774\uC9C0\uC2A4 \uC218\uD638 \uB2E4\uB9AC"
+  PartType: 4
+  Stat_AttackPower: 0
+  Stat_Defense: 0.13
+  Stat_Speed: 1.7
+  Stat_Accuracy: 0
+  Stat_Evasion: 0.02
+  Stat_Durability: 160
+  Stat_EnergyEff: 0.45
+  Stat_MaxAP: 0
+  Stat_APRecovery: 0
+  MaxDurability: 160
+  PartWeight: 190
+  Abilities: []
+  Notes: "\uC774\uC9C0\uC2A4 \uC218\uD638\uC790 \uB2E4\uB9AC \uC720\uB2DB. \uC774\uB3D9
+    \uC18D\uB3C4 \uAC10\uC18C."
+  Stat_MaxRepairUses: 0

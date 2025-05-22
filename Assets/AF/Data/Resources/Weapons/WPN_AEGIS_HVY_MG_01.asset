@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ecd9d45bb68cd6e4899907f3144afa8d, type: 3}
+  m_Name: WPN_AEGIS_HVY_MG_01
+  m_EditorClassIdentifier: 
+  WeaponID: WPN_AEGIS_HVY_MG_01
+  WeaponName: "\uC774\uC9C0\uC2A4 \uC911\uB7C9 \uAE30\uAD00\uCD1D"
+  WeaponType: 1
+  DamageType: 0
+  BaseDamage: 35
+  Accuracy: 0.68
+  Range: 10
+  MinRange: 0
+  AttackSpeed: 2.2
+  OverheatPerShot: 0.07
+  AmmoCapacity: 80
+  BaseAPCost: 4
+  ReloadAPCost: 2
+  ReloadTurns: 2
+  SpecialEffects: []
+  AttackFlavorKey: Attack_WPN_AEGIS_HVY_MG_01
+  ReloadFlavorKey: Reload_WPN_AEGIS_HVY_MG_01
+  Notes: "\uC774\uC9C0\uC2A4 \uC911\uACF5\uC5C5 \uC81C\uC555\uC6A9 \uAE30\uAD00\uCD1D.
+    \uB300\uC6A9\uB7C9 \uD0C4\uCC3D."
+  Weight: 1

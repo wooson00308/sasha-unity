@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5fd8c816985b1e4ba3eee2c446bc307, type: 3}
+  m_Name: HEAD_AEGIS_HVY_04
+  m_EditorClassIdentifier: 
+  PartID: HEAD_AEGIS_HVY_04
+  PartName: "\uC774\uC9C0\uC2A4 \uC218\uD638 \uD5E4\uB4DC"
+  PartType: 2
+  Stat_AttackPower: 0
+  Stat_Defense: 0.12
+  Stat_Speed: 0
+  Stat_Accuracy: 0.8
+  Stat_Evasion: 0
+  Stat_Durability: 0
+  Stat_EnergyEff: 0.45
+  Stat_MaxAP: 0
+  Stat_APRecovery: 0
+  MaxDurability: 70
+  PartWeight: 52
+  Abilities: []
+  Notes: "\uC774\uC9C0\uC2A4 \uC218\uD638\uC790 \uD5E4\uB4DC \uC720\uB2DB. \uC2DC\uC57C
+    \uD655\uBCF4 \uBC0F \uBC29\uC5B4 \uBCF4\uC870."
+  Stat_MaxRepairUses: 0

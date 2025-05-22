@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6bcd9b4e12eae264cae0069bcfc78b67, type: 3}
+  m_Name: ASM_CORE_VANGUARD_01
+  m_EditorClassIdentifier: 
+  AssemblyID: ASM_CORE_VANGUARD_01
+  AFName: "\uCF54\uC5B4 \uBC45\uAC00\uB4DC"
+  TeamID: 0
+  FrameID: FRM_CORE_STD_01
+  PilotID: PILOT_STD_COMBAT_01
+  HeadPartID: HEAD_CORE_STD_01
+  BodyPartID: BODY_CORE_STD_01
+  LeftArmPartID: ARM_CORE_STD_01
+  RightArmPartID: ARM_CORE_STD_01
+  LegsPartID: LEGS_CORE_STD_01
+  BackpackPartID: BK_CORE_STD_01
+  Weapon1ID: WPN_CORE_AR_01
+  Weapon2ID: WPN_CORE_AXE_01
+  Notes: "\uCF54\uC5B4 \uB2E4\uC774\uB098\uBBF9\uC2A4 \uAE30\uBCF8 \uC591\uC0B0\uD615
+    \uAE30\uCCB4. \uADE0\uD615 \uC7A1\uD78C \uC131\uB2A5."

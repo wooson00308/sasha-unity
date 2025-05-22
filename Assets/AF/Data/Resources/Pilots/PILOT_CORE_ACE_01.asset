@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59ba4f4a449962942b26a35564da0fac, type: 3}
+  m_Name: PILOT_CORE_ACE_01
+  m_EditorClassIdentifier: 
+  PilotID: PILOT_CORE_ACE_01
+  PilotName: "[\uC624\uBA54\uAC00] \uB4C0\uD06C"
+  Stat_AttackPower: 8
+  Stat_Defense: 7
+  Stat_Speed: 7
+  Stat_Accuracy: 0.9
+  Stat_Evasion: 0.3
+  Stat_Durability: 0
+  Stat_EnergyEff: 0.55
+  Stat_MaxAP: 1
+  Stat_APRecovery: 1
+  Stat_MaxRepairUses: 0
+  Specialization: 0
+  InitialLevel: 5
+  InitialSkills: []
+  Notes: "\uCF54\uC5B4 \uB2E4\uC774\uB098\uBBF9\uC2A4\uC758 \uCD5C\uC815\uC608 \uC5D0\uC774\uC2A4
+    \uD30C\uC77C\uB7FF. \uC5B4\uB5A4 \uC0C1\uD669\uC5D0\uB3C4 \uB300\uCC98 \uAC00\uB2A5\uD55C
+    \uB9CC\uB2A5 \uD30C\uC77C\uB7FF."

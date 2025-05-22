@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6bcd9b4e12eae264cae0069bcfc78b67, type: 3}
+  m_Name: ASM_HELIOS_ICARUS_01
+  m_EditorClassIdentifier: 
+  AssemblyID: ASM_HELIOS_ICARUS_01
+  AFName: "\uD5EC\uB9AC\uC624\uC2A4 \uC774\uCE74\uB8E8\uC2A4"
+  TeamID: 0
+  FrameID: FRM_HELIOS_LGT_01
+  PilotID: PILOT_HELIOS_ACE_01
+  HeadPartID: HEAD_HELIOS_LGT_04
+  BodyPartID: BODY_HELIOS_LGT_04
+  LeftArmPartID: ARM_HELIOS_LGT_04
+  RightArmPartID: ARM_HELIOS_LGT_04
+  LegsPartID: LEGS_HELIOS_LGT_04
+  BackpackPartID: BK_HELIOS_LGT_04
+  Weapon1ID: WPN_HELIOS_SNIPE_01
+  Weapon2ID: WPN_HELIOS_LASER_RIFLE_01
+  Notes: "\uD5EC\uB9AC\uC624\uC2A4 \uD56D\uACF5 \uCD5C\uC815\uC608 \uC5D0\uC774\uC2A4
+    \uAE30\uCCB4. \uC2E0\uCD9C\uADC0\uBAB0\uD55C \uC6C0\uC9C1\uC784\uACFC \uC815\uBC00
+    \uD0C0\uACA9."

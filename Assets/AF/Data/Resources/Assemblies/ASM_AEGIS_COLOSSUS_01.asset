@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6bcd9b4e12eae264cae0069bcfc78b67, type: 3}
+  m_Name: ASM_AEGIS_COLOSSUS_01
+  m_EditorClassIdentifier: 
+  AssemblyID: ASM_AEGIS_COLOSSUS_01
+  AFName: "\uC774\uC9C0\uC2A4 \uCF5C\uB85C\uC11C\uC2A4"
+  TeamID: 0
+  FrameID: FRM_AEGIS_HVY_01
+  PilotID: PILOT_DEFENSE_01
+  HeadPartID: HEAD_AEGIS_HVY_02
+  BodyPartID: BODY_AEGIS_HVY_02
+  LeftArmPartID: ARM_AEGIS_HVY_02
+  RightArmPartID: ARM_AEGIS_HVY_02
+  LegsPartID: LEGS_AEGIS_HVY_02
+  BackpackPartID: 
+  Weapon1ID: WPN_AEGIS_HVY_CANNON_01
+  Weapon2ID: WPN_AEGIS_HVY_MG_01
+  Notes: "\uC774\uC9C0\uC2A4 \uC911\uACF5\uC5C5 \uC591\uC0B0\uD615 \uC911\uC7A5\uAC11
+    \uAE30\uCCB4. \uB192\uC740 \uB0B4\uAD6C\uB3C4\uC640 \uD654\uB825."

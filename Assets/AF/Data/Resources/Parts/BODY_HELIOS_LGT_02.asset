@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5fd8c816985b1e4ba3eee2c446bc307, type: 3}
+  m_Name: BODY_HELIOS_LGT_02
+  m_EditorClassIdentifier: 
+  PartID: BODY_HELIOS_LGT_02
+  PartName: "\uD5EC\uB9AC\uC624\uC2A4 \uACE0\uC18D \uBC14\uB514"
+  PartType: 1
+  Stat_AttackPower: 0
+  Stat_Defense: 0.1
+  Stat_Speed: 1.5
+  Stat_Accuracy: 0
+  Stat_Evasion: 0.1
+  Stat_Durability: 120
+  Stat_EnergyEff: 0.6
+  Stat_MaxAP: 0
+  Stat_APRecovery: 0
+  MaxDurability: 120
+  PartWeight: 280
+  Abilities: []
+  Notes: "\uD5EC\uB9AC\uC624\uC2A4 \uACE0\uC18D \uAE30\uB3D9 \uBC14\uB514 \uC720\uB2DB.
+    \uADF9\uD55C\uC758 \uACBD\uB7C9\uD654."
+  Stat_MaxRepairUses: 0

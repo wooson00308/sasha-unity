@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6bcd9b4e12eae264cae0069bcfc78b67, type: 3}
+  m_Name: ASM_CORE_GUARDIAN_01
+  m_EditorClassIdentifier: 
+  AssemblyID: ASM_CORE_GUARDIAN_01
+  AFName: "\uCF54\uC5B4 \uAC00\uB514\uC5B8"
+  TeamID: 0
+  FrameID: FRM_CORE_STD_01
+  PilotID: PILOT_SUPPORT_01
+  HeadPartID: HEAD_CORE_STD_02
+  BodyPartID: BODY_CORE_STD_02
+  LeftArmPartID: ARM_CORE_STD_02
+  RightArmPartID: ARM_CORE_STD_02
+  LegsPartID: LEGS_CORE_STD_02
+  BackpackPartID: BK_AEGIS_HVY_04
+  Weapon1ID: WPN_CORE_AR_01
+  Weapon2ID: WPN_HELIOS_LASER_RIFLE_01
+  Notes: "\uCF54\uC5B4 \uB2E4\uC774\uB098\uBBF9\uC2A4 \uC544\uAD70 \uC9C0\uC6D0\uD615
+    \uAE30\uCCB4. \uC548\uC815\uC801\uC778 \uBC29\uC5B4 \uBC0F \uC218\uB9AC \uB2A5\uB825."

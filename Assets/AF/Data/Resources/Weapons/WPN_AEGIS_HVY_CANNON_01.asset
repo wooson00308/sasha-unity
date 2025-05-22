@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ecd9d45bb68cd6e4899907f3144afa8d, type: 3}
+  m_Name: WPN_AEGIS_HVY_CANNON_01
+  m_EditorClassIdentifier: 
+  WeaponID: WPN_AEGIS_HVY_CANNON_01
+  WeaponName: "\uC774\uC9C0\uC2A4 \uC911\uB7C9 \uCE90\uB17C"
+  WeaponType: 2
+  DamageType: 2
+  BaseDamage: 120
+  Accuracy: 0.7
+  Range: 18
+  MinRange: 6
+  AttackSpeed: 0.4
+  OverheatPerShot: 0.25
+  AmmoCapacity: 5
+  BaseAPCost: 7
+  ReloadAPCost: 2
+  ReloadTurns: 3
+  SpecialEffects: []
+  AttackFlavorKey: Attack_WPN_AEGIS_HVY_CANNON_01
+  ReloadFlavorKey: Reload_WPN_AEGIS_HVY_CANNON_01
+  Notes: "\uC774\uC9C0\uC2A4 \uC911\uACF5\uC5C5 \uC8FC\uB825 \uC7A5\uAC70\uB9AC \uD3EC.
+    \uB290\uB9AC\uC9C0\uB9CC \uAC15\uB825\uD55C \uD3ED\uBC1C \uB370\uBBF8\uC9C0."
+  Weight: 1

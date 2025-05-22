@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 81ce1fb27f51bd147be5441db5347c5c, type: 3}
+  m_Name: FRM_AEGIS_HVY_01
+  m_EditorClassIdentifier: 
+  FrameID: FRM_AEGIS_HVY_01
+  FrameName: "\uC774\uC9C0\uC2A4 \uC911\uB7C9 \uD504\uB808\uC784"
+  FrameType: 2
+  Stat_AttackPower: 0
+  Stat_Defense: 8
+  Stat_Speed: 2
+  Stat_Accuracy: 0
+  Stat_Evasion: 0
+  Stat_Durability: 380
+  Stat_EnergyEff: 0.4
+  Stat_MaxAP: 12
+  Stat_APRecovery: 5
+  Stats_MaxRepairUses: 0
+  FrameWeight: 85
+  Slot_Head: Head
+  Slot_Body: Body
+  Slot_Arm_L: Arm_Left
+  Slot_Arm_R: Arm_Right
+  Slot_Legs: Legs
+  Slot_Backpack: Backpack
+  Slot_Weapon_1: WeaponSlot_R
+  Slot_Weapon_2: 
+  Notes: "\uC774\uC9C0\uC2A4 \uC911\uACF5\uC5C5 \uAE30\uBCF8 \uC911\uB7C9 \uD504\uB808\uC784.
+    \uB192\uC740 \uBC29\uC5B4\uB825\uACFC \uB0B4\uAD6C\uB3C4."

@@ -1,0 +1,554 @@
+ 전투 로그 (필터링됨): BattleLog_2695058c 
+생성 시간: 2025-05-22 오후 2:51:35
+제외 레벨: Nothing
+--------------------------------------------------
+
+전투 시뮬레이션 시작 준비... (ID: 2695058c)
+[RecalculateStats] [이지스] 브루트 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[ArmoredFrame Ctor] [이지스] 브루트 initialized. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[RecalculateStats] [이지스] 브루트 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[RecalculateStats] [이지스] 브루트 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[RecalculateStats] [이지스] 브루트 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[RecalculateStats] [이지스] 브루트 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[RecalculateStats] [이지스] 브루트 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[RecalculateStats] [이지스] 브루트 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[RecalculateStats] [이지스] 브루트 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[RecalculateStats] [이지스] 브루트 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+테스트 AF 생성 (Assembly 기반): [[이지스] 브루트], Pilot: [방어 전문 파일럿 (Defense)], IsOperational: True, BodyPartExists: True, BodyPartOperational: True, TeamID: 0
+테스트 AF 생성 완료: [[이지스] 브루트] (팀: 0, 파일럿: 방어 전문 파일럿)
+[RecalculateStats] [코어] 가디언 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[ArmoredFrame Ctor] [코어] 가디언 initialized. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[RecalculateStats] [코어] 가디언 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[RecalculateStats] [코어] 가디언 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[RecalculateStats] [코어] 가디언 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[RecalculateStats] [코어] 가디언 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[RecalculateStats] [코어] 가디언 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[RecalculateStats] [코어] 가디언 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[RecalculateStats] [코어] 가디언 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[RecalculateStats] [코어] 가디언 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[RecalculateStats] [코어] 가디언 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+테스트 AF 생성 (Assembly 기반): [[코어] 가디언], Pilot: [지원 전문 파일럿 (Support)], IsOperational: True, BodyPartExists: True, BodyPartOperational: True, TeamID: 1
+테스트 AF 생성 완료: [[코어] 가디언] (팀: 1, 파일럿: 지원 전문 파일럿)
+총 2기 참가 확정. 전투 시뮬레이션 시작.
+전투 시뮬레이터 시작...
+=== 전투 시작 === ID: BATTLE_20250522_145134_4557, 이름: Test Battle 14:51:34
+//==[ Combat Turn 1 Initiated ]==//
+Unit Activation: [[이지스] 브루트] (AP: 12.0 -> 12.0/12.0)
+[ProcessNextTurn] [이지스] 브루트: Running Behavior Tree: SelectorNode
+[SelectSelfActiveAbilityNode] [이지스] 브루트: Node Ticked.
+[SelectSelfActiveAbilityNode] [이지스] 브루트: No ability IDs found on parts. Failure.
+[SelectTargetNode] [이지스] 브루트: Selected target: [코어] 가디언. Selected weapon: 이지스 중량 캐논. Success.
+[IsTargetInRangeNode] [이지스] 브루트 to [코어] 가디언: Source='이지스 중량 캐논', Dist=14.1, Range=(6.0-18.0), InRange=True. Result: Success
+[HasEnoughAPNode] [이지스] 브루트 for Attack: Has enough AP (Required: 1.4, Current: 12.0). Success.
+[AttackTargetNode] [이지스] 브루트: Decided to attack [코어] 가디언 with 이지스 중량 캐논. Success.
+[[이지스] 브루트]의 이지스 중량 캐논(이)가 14.1m 거리에서 [[코어] 가디언]에게 명중! (탄약: 4/5)
+[SetDurability_DEBUG] Part: 코어 강화 다리 (Legs), PrevHP: 130, NewHP_Attempt: 34, ClampedHP: 34, MaxHP: 130
+맹렬한 포화! [[코어] 가디언]의 코어 강화 다리가 96 피해를 입고 너덜거린다!
+Unit Standby: [이지스] 브루트 (Remaining AP: 10.6)
+ 
+ 
+Unit Activation: [[코어] 가디언] (AP: 9.0 -> 9.0/9.0)
+[ProcessNextTurn] [코어] 가디언: Running Behavior Tree: SelectorNode
+[NeedsReloadNode(OutOfAmmo)] [코어] 가디언: No weapon needs reload under current condition. Failure.
+[HasRepairUsesNode] [코어] 가디언: Has no repair uses left (Current: 0). Failure.
+[SelectLowestHealthAllyNode] [코어] 가디언: No operational allies found. Failure.
+[SupportBT.allySupportSelector] Repair sequences failed. Trying to approach ally.
+[BT] [코어] 가디언 - SelectNearestAllyNode: No allies found. RESULT: FAILURE
+[SupportBT.RootSelector] Ally support failed. Trying to attack enemy.
+[SelectTargetNode] [코어] 가디언: Selected target: [이지스] 브루트. Selected weapon: 코어 표준 라이플. Success.
+[MoveToTargetNode] [코어] 가디언 too far. Moving to weapon range 9m.
+[IsTargetInRangeNode] [코어] 가디언 to [이지스] 브루트: Source='코어 표준 라이플', Dist=14.1, Range=(1.0-10.0), InRange=False. Result: Failure
+[SelectSelfActiveAbilityNode] [코어] 가디언: Node Ticked.
+[SelectSelfActiveAbilityNode] [코어] 가디언: Found abilities on parts: AB_BP_001_RepairUnit. Iterating...
+[SelectSelfActiveAbilityNode] [코어] 가디언: Checking ability ID: AB_BP_001_RepairUnit
+[SelectSelfActiveAbilityNode] [코어] 가디언: Found AbilitySO: 수리 유닛 가동 (APCost: 4)
+[SelectSelfActiveAbilityNode] [코어] 가디언: Ability '수리 유닛 가동' is not Active or not Self-target. Skipping.
+[SelectSelfActiveAbilityNode] [코어] 가디언: No suitable self-active ability found after checking all. Failure.
+[[코어] 가디언](이)가 [[이지스] 브루트] 방향으로 5.1 만큼 이동. (거리: 9.0m)
+Unit Standby: [코어] 가디언 (Remaining AP: 3.9)
+ 
+ 
+//==[ Combat Turn 2 Initiated ]==//
+Unit Activation: [[이지스] 브루트] (AP: 10.6 -> 12.0/12.0)
+[ProcessNextTurn] [이지스] 브루트: Running Behavior Tree: SelectorNode
+[SelectSelfActiveAbilityNode] [이지스] 브루트: Node Ticked.
+[SelectSelfActiveAbilityNode] [이지스] 브루트: No ability IDs found on parts. Failure.
+[SelectTargetNode] [이지스] 브루트: Selected target: [코어] 가디언. Selected weapon: 이지스 중량 캐논. Success.
+[IsTargetInRangeNode] [이지스] 브루트 to [코어] 가디언: Source='이지스 중량 캐논', Dist=9.0, Range=(6.0-18.0), InRange=True. Result: Success
+[HasEnoughAPNode] [이지스] 브루트 for Attack: Has enough AP (Required: 1.4, Current: 12.0). Success.
+[AttackTargetNode] [이지스] 브루트: Decided to attack [코어] 가디언 with 이지스 중량 캐논. Success.
+[[이지스] 브루트]의 이지스 중량 캐논(이)가 9.0m 거리에서 [[코어] 가디언]에게 명중! (탄약: 3/5)
+[SetDurability_DEBUG] Part: 코어 강화 팔 (Arm), PrevHP: 90, NewHP_Attempt: -54, ClampedHP: 0, MaxHP: 90
+[ArmsPart] Part '코어 강화 팔' operational status changed to: False
+급소 강타! [[코어] 가디언]의 코어 강화 팔에서 스파크가 터진다! (144 피해)
+[RecalculateStats] [코어] 가디언 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[[코어] 가디언]의 Arm 팔이 절단되어 떨어져 나갔다!
+[[코어] 가디언]의 카운터! ([[이지스] 브루트]에게)
+[[코어] 가디언]의 코어 표준 라이플(이)가 9.0m 거리에서 [[이지스] 브루트]에게 명중! (탄약: 24/25)
+[SetDurability_DEBUG] Part: 이지스 강화 헤드 (Head), PrevHP: 75, NewHP_Attempt: 23, ClampedHP: 23, MaxHP: 75
+[[코어] 가디언]의 반격! [[이지스] 브루트]의 이지스 강화 헤드에 52 피해!
+Unit Standby: [이지스] 브루트 (Remaining AP: 10.6)
+ 
+ 
+Unit Activation: [[코어] 가디언] (AP: 3.9 -> 9.0/9.0)
+[ProcessNextTurn] [코어] 가디언: Running Behavior Tree: SelectorNode
+[NeedsReloadNode(OutOfAmmo)] [코어] 가디언: No weapon needs reload under current condition. Failure.
+[HasRepairUsesNode] [코어] 가디언: Has no repair uses left (Current: 0). Failure.
+[SelectLowestHealthAllyNode] [코어] 가디언: No operational allies found. Failure.
+[SupportBT.allySupportSelector] Repair sequences failed. Trying to approach ally.
+[BT] [코어] 가디언 - SelectNearestAllyNode: No allies found. RESULT: FAILURE
+[SupportBT.RootSelector] Ally support failed. Trying to attack enemy.
+[SelectTargetNode] [코어] 가디언: Selected target: [이지스] 브루트. Selected weapon: 코어 표준 라이플. Success.
+[MoveToTargetNode] [코어] 가디언 already in weapon range of [이지스] 브루트. No move.
+[IsTargetInRangeNode] [코어] 가디언 to [이지스] 브루트: Source='코어 표준 라이플', Dist=9.0, Range=(1.0-10.0), InRange=True. Result: Success
+[AttackTargetNode] [코어] 가디언: Decided to attack [이지스] 브루트 with 코어 표준 라이플. Success.
+[[코어] 가디언]의 코어 표준 라이플(이)가 9.0m 거리에서 [[이지스] 브루트]에게 명중! (탄약: 23/25)
+[SetDurability_DEBUG] Part: 이지스 강화 헤드 (Head), PrevHP: 23, NewHP_Attempt: -29, ClampedHP: 0, MaxHP: 75
+[HeadPart] Part '이지스 강화 헤드' operational status changed to: False
+[[이지스] 브루트]의 이지스 강화 헤드에 치명적인 일격! 파편이 튄다!
+[RecalculateStats] [이지스] 브루트 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[[이지스] 브루트]의 헤드 유닛 파괴! 센서 기능 정지!
+[[이지스] 브루트]의 카운터! ([[코어] 가디언]에게)
+[[이지스] 브루트]의 이지스 중량 캐논(이)가 9.0m 거리에서 [[코어] 가디언]에게 빗나갔다! (탄약: 2/5)
+[[코어] 가디언](이)가 [[이지스] 브루트]의 반격을 회피! (Dodge)
+Unit Standby: [코어] 가디언 (Remaining AP: 8.3)
+ 
+ 
+//==[ Combat Turn 3 Initiated ]==//
+Unit Activation: [[이지스] 브루트] (AP: 10.6 -> 12.0/12.0)
+[ProcessNextTurn] [이지스] 브루트: Running Behavior Tree: SelectorNode
+[SelectSelfActiveAbilityNode] [이지스] 브루트: Node Ticked.
+[SelectSelfActiveAbilityNode] [이지스] 브루트: No ability IDs found on parts. Failure.
+[SelectTargetNode] [이지스] 브루트: Selected target: [코어] 가디언. Selected weapon: 이지스 중량 캐논. Success.
+[IsTargetInRangeNode] [이지스] 브루트 to [코어] 가디언: Source='이지스 중량 캐논', Dist=9.0, Range=(6.0-18.0), InRange=True. Result: Success
+[HasEnoughAPNode] [이지스] 브루트 for Attack: Has enough AP (Required: 1.6, Current: 12.0). Success.
+[AttackTargetNode] [이지스] 브루트: Decided to attack [코어] 가디언 with 이지스 중량 캐논. Success.
+[[이지스] 브루트]의 이지스 중량 캐논(이)가 9.0m 거리에서 [[코어] 가디언]에게 빗나갔다! (탄약: 1/5)
+[코어] 가디언가 [이지스] 브루트의 공격을 날렵하게 회피!
+[[코어] 가디언]의 카운터! ([[이지스] 브루트]에게)
+[[코어] 가디언]의 코어 표준 라이플(이)가 9.0m 거리에서 [[이지스] 브루트]에게 명중! (탄약: 22/25)
+[SetDurability_DEBUG] Part: 이지스 강화 팔 (Arm), PrevHP: 130, NewHP_Attempt: 78, ClampedHP: 78, MaxHP: 130
+[[코어] 가디언]의 반격! [[이지스] 브루트]의 이지스 강화 팔에 52 피해!
+Unit Standby: [이지스] 브루트 (Remaining AP: 10.4)
+ 
+ 
+Unit Activation: [[코어] 가디언] (AP: 8.3 -> 9.0/9.0)
+[ProcessNextTurn] [코어] 가디언: Running Behavior Tree: SelectorNode
+[NeedsReloadNode(OutOfAmmo)] [코어] 가디언: No weapon needs reload under current condition. Failure.
+[HasRepairUsesNode] [코어] 가디언: Has no repair uses left (Current: 0). Failure.
+[SelectLowestHealthAllyNode] [코어] 가디언: No operational allies found. Failure.
+[SupportBT.allySupportSelector] Repair sequences failed. Trying to approach ally.
+[BT] [코어] 가디언 - SelectNearestAllyNode: No allies found. RESULT: FAILURE
+[SupportBT.RootSelector] Ally support failed. Trying to attack enemy.
+[SelectTargetNode] [코어] 가디언: Selected target: [이지스] 브루트. Selected weapon: 코어 표준 라이플. Success.
+[MoveToTargetNode] [코어] 가디언 already in weapon range of [이지스] 브루트. No move.
+[IsTargetInRangeNode] [코어] 가디언 to [이지스] 브루트: Source='코어 표준 라이플', Dist=9.0, Range=(1.0-10.0), InRange=True. Result: Success
+[AttackTargetNode] [코어] 가디언: Decided to attack [이지스] 브루트 with 코어 표준 라이플. Success.
+[[코어] 가디언]의 코어 표준 라이플(이)가 9.0m 거리에서 [[이지스] 브루트]에게 명중! (탄약: 21/25)
+[SetDurability_DEBUG] Part: 이지스 강화 팔 (Arm), PrevHP: 130, NewHP_Attempt: 78, ClampedHP: 78, MaxHP: 130
+[[코어] 가디언]의 무기 강타! [[이지스] 브루트]의 이지스 강화 팔 장갑이 찌그러진다!
+[[이지스] 브루트]의 카운터! ([[코어] 가디언]에게)
+[[이지스] 브루트]의 이지스 중량 캐논(이)가 9.0m 거리에서 [[코어] 가디언]에게 빗나갔다! (탄약: 0/5)
+[[코어] 가디언](이)가 [[이지스] 브루트]의 반격을 회피! (Dodge)
+Unit Standby: [코어] 가디언 (Remaining AP: 8.3)
+ 
+ 
+//==[ Combat Turn 4 Initiated ]==//
+Unit Activation: [[이지스] 브루트] (AP: 10.4 -> 12.0/12.0)
+[ProcessNextTurn] [이지스] 브루트: Running Behavior Tree: SelectorNode
+[SelectSelfActiveAbilityNode] [이지스] 브루트: Node Ticked.
+[SelectSelfActiveAbilityNode] [이지스] 브루트: No ability IDs found on parts. Failure.
+[SelectTargetNode] [이지스] 브루트: Selected target: [코어] 가디언. Selected weapon: 이지스 중량 기관총. Success.
+[IsTargetInRangeNode] [이지스] 브루트 to [코어] 가디언: Source='이지스 중량 기관총', Dist=9.0, Range=(0.0-10.0), InRange=True. Result: Success
+[HasEnoughAPNode] [이지스] 브루트 for Attack: Has enough AP (Required: 0.9, Current: 12.0). Success.
+[AttackTargetNode] [이지스] 브루트: Decided to attack [코어] 가디언 with 이지스 중량 기관총. Success.
+[[이지스] 브루트]의 이지스 중량 기관총(이)가 9.0m 거리에서 [[코어] 가디언]에게 빗나갔다! (탄약: 79/80)
+예측 기동 성공! [코어] 가디언이(가) [이지스] 브루트의 사격 궤도에서 벗어났다.
+[[코어] 가디언]의 카운터! ([[이지스] 브루트]에게)
+[[코어] 가디언]의 코어 표준 라이플(이)가 9.0m 거리에서 [[이지스] 브루트]에게 명중! (탄약: 20/25)
+[SetDurability_DEBUG] Part: 이지스 강화 팔 (Arm), PrevHP: 78, NewHP_Attempt: 26, ClampedHP: 26, MaxHP: 130
+[[코어] 가디언]의 반격! [[이지스] 브루트]의 이지스 강화 팔에 52 피해!
+Unit Standby: [이지스] 브루트 (Remaining AP: 11.1)
+ 
+ 
+Unit Activation: [[코어] 가디언] (AP: 8.3 -> 9.0/9.0)
+[ProcessNextTurn] [코어] 가디언: Running Behavior Tree: SelectorNode
+[NeedsReloadNode(OutOfAmmo)] [코어] 가디언: No weapon needs reload under current condition. Failure.
+[HasRepairUsesNode] [코어] 가디언: Has no repair uses left (Current: 0). Failure.
+[SelectLowestHealthAllyNode] [코어] 가디언: No operational allies found. Failure.
+[SupportBT.allySupportSelector] Repair sequences failed. Trying to approach ally.
+[BT] [코어] 가디언 - SelectNearestAllyNode: No allies found. RESULT: FAILURE
+[SupportBT.RootSelector] Ally support failed. Trying to attack enemy.
+[SelectTargetNode] [코어] 가디언: Selected target: [이지스] 브루트. Selected weapon: 코어 표준 라이플. Success.
+[MoveToTargetNode] [코어] 가디언 already in weapon range of [이지스] 브루트. No move.
+[IsTargetInRangeNode] [코어] 가디언 to [이지스] 브루트: Source='코어 표준 라이플', Dist=9.0, Range=(1.0-10.0), InRange=True. Result: Success
+[AttackTargetNode] [코어] 가디언: Decided to attack [이지스] 브루트 with 코어 표준 라이플. Success.
+[[코어] 가디언]의 코어 표준 라이플(이)가 9.0m 거리에서 [[이지스] 브루트]에게 명중! (탄약: 19/25)
+[SetDurability_DEBUG] Part: 이지스 강화 팔 (Arm), PrevHP: 78, NewHP_Attempt: 26, ClampedHP: 26, MaxHP: 130
+[[코어] 가디언]의 무기 강타! [[이지스] 브루트]의 이지스 강화 팔 장갑이 찌그러진다!
+[[이지스] 브루트]의 카운터! ([[코어] 가디언]에게)
+[[이지스] 브루트]의 이지스 중량 기관총(이)가 9.0m 거리에서 [[코어] 가디언]에게 빗나갔다! (탄약: 78/80)
+[[코어] 가디언](이)가 [[이지스] 브루트]의 반격을 회피! (Dodge)
+Unit Standby: [코어] 가디언 (Remaining AP: 8.3)
+ 
+ 
+//==[ Combat Turn 5 Initiated ]==//
+Unit Activation: [[이지스] 브루트] (AP: 11.1 -> 12.0/12.0)
+[ProcessNextTurn] [이지스] 브루트: Running Behavior Tree: SelectorNode
+[SelectSelfActiveAbilityNode] [이지스] 브루트: Node Ticked.
+[SelectSelfActiveAbilityNode] [이지스] 브루트: No ability IDs found on parts. Failure.
+[SelectTargetNode] [이지스] 브루트: Selected target: [코어] 가디언. Selected weapon: 이지스 중량 기관총. Success.
+[IsTargetInRangeNode] [이지스] 브루트 to [코어] 가디언: Source='이지스 중량 기관총', Dist=9.0, Range=(0.0-10.0), InRange=True. Result: Success
+[HasEnoughAPNode] [이지스] 브루트 for Attack: Has enough AP (Required: 0.9, Current: 12.0). Success.
+[AttackTargetNode] [이지스] 브루트: Decided to attack [코어] 가디언 with 이지스 중량 기관총. Success.
+[[이지스] 브루트]의 이지스 중량 기관총(이)가 9.0m 거리에서 [[코어] 가디언]에게 빗나갔다! (탄약: 77/80)
+[코어] 가디언가 [이지스] 브루트의 공격을 날렵하게 회피!
+[[코어] 가디언]의 카운터! ([[이지스] 브루트]에게)
+[[코어] 가디언]의 코어 표준 라이플(이)가 9.0m 거리에서 [[이지스] 브루트]에게 명중! (탄약: 18/25)
+[SetDurability_DEBUG] Part: 이지스 강화 팔 (Arm), PrevHP: 26, NewHP_Attempt: -26, ClampedHP: 0, MaxHP: 130
+[ArmsPart] Part '이지스 강화 팔' operational status changed to: False
+[[코어] 가디언]의 반격! [[이지스] 브루트]의 이지스 강화 팔에 52 피해!
+[RecalculateStats] [이지스] 브루트 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[[이지스] 브루트]의 Arm 팔이 절단되어 떨어져 나갔다!
+Unit Standby: [이지스] 브루트 (Remaining AP: 11.1)
+ 
+ 
+Unit Activation: [[코어] 가디언] (AP: 8.3 -> 9.0/9.0)
+[ProcessNextTurn] [코어] 가디언: Running Behavior Tree: SelectorNode
+[NeedsReloadNode(OutOfAmmo)] [코어] 가디언: No weapon needs reload under current condition. Failure.
+[HasRepairUsesNode] [코어] 가디언: Has no repair uses left (Current: 0). Failure.
+[SelectLowestHealthAllyNode] [코어] 가디언: No operational allies found. Failure.
+[SupportBT.allySupportSelector] Repair sequences failed. Trying to approach ally.
+[BT] [코어] 가디언 - SelectNearestAllyNode: No allies found. RESULT: FAILURE
+[SupportBT.RootSelector] Ally support failed. Trying to attack enemy.
+[SelectTargetNode] [코어] 가디언: Selected target: [이지스] 브루트. Selected weapon: 코어 표준 라이플. Success.
+[MoveToTargetNode] [코어] 가디언 already in weapon range of [이지스] 브루트. No move.
+[IsTargetInRangeNode] [코어] 가디언 to [이지스] 브루트: Source='코어 표준 라이플', Dist=9.0, Range=(1.0-10.0), InRange=True. Result: Success
+[AttackTargetNode] [코어] 가디언: Decided to attack [이지스] 브루트 with 코어 표준 라이플. Success.
+[[코어] 가디언]의 코어 표준 라이플(이)가 9.0m 거리에서 [[이지스] 브루트]에게 명중! (탄약: 17/25)
+[SetDurability_DEBUG] Part: 이지스 강화 팔 (Arm), PrevHP: 26, NewHP_Attempt: -26, ClampedHP: 0, MaxHP: 130
+[ArmsPart] Part '이지스 강화 팔' operational status changed to: False
+[[코어] 가디언]의 무기 강타! [[이지스] 브루트]의 이지스 강화 팔 장갑이 찌그러진다!
+[RecalculateStats] [이지스] 브루트 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[[이지스] 브루트]의 Arm 팔이 절단되어 떨어져 나갔다!
+[[이지스] 브루트]의 카운터! ([[코어] 가디언]에게)
+[[이지스] 브루트]의 이지스 중량 기관총(이)가 9.0m 거리에서 [[코어] 가디언]에게 빗나갔다! (탄약: 76/80)
+[[코어] 가디언](이)가 [[이지스] 브루트]의 반격을 회피! (Dodge)
+Unit Standby: [코어] 가디언 (Remaining AP: 8.3)
+ 
+ 
+//==[ Combat Turn 6 Initiated ]==//
+Unit Activation: [[이지스] 브루트] (AP: 11.1 -> 12.0/12.0)
+[ProcessNextTurn] [이지스] 브루트: Running Behavior Tree: SelectorNode
+[SelectSelfActiveAbilityNode] [이지스] 브루트: Node Ticked.
+[SelectSelfActiveAbilityNode] [이지스] 브루트: No ability IDs found on parts. Failure.
+[HasRepairUsesNode] [이지스] 브루트: Has no repair uses left (Current: 0). Failure.
+[HasEnoughAPNode] [이지스] 브루트 for Defend: Has enough AP (Required: 1.0, Current: 12.0). Success.
+[이지스] 브루트 기체 장갑 강화. 방어력 상승. (효과: 150 %, 지속시간: 1턴)
+[RecalculateStats] [이지스] 브루트 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[[이지스] 브루트]에게 Defense Boost 효과 발생!
+[[이지스] 브루트] 방어 태세 돌입. 잔여 동력: 11.0/12.0.
+Unit Standby: [이지스] 브루트 (Remaining AP: 11.0)
+ 
+ 
+Unit Activation: [[코어] 가디언] (AP: 8.3 -> 9.0/9.0)
+[ProcessNextTurn] [코어] 가디언: Running Behavior Tree: SelectorNode
+[NeedsReloadNode(OutOfAmmo)] [코어] 가디언: No weapon needs reload under current condition. Failure.
+[HasRepairUsesNode] [코어] 가디언: Has no repair uses left (Current: 0). Failure.
+[SelectLowestHealthAllyNode] [코어] 가디언: No operational allies found. Failure.
+[SupportBT.allySupportSelector] Repair sequences failed. Trying to approach ally.
+[BT] [코어] 가디언 - SelectNearestAllyNode: No allies found. RESULT: FAILURE
+[SupportBT.RootSelector] Ally support failed. Trying to attack enemy.
+[SelectTargetNode] [코어] 가디언: Selected target: [이지스] 브루트. Selected weapon: 코어 표준 라이플. Success.
+[MoveToTargetNode] [코어] 가디언 already in weapon range of [이지스] 브루트. No move.
+[IsTargetInRangeNode] [코어] 가디언 to [이지스] 브루트: Source='코어 표준 라이플', Dist=9.0, Range=(1.0-10.0), InRange=True. Result: Success
+[AttackTargetNode] [코어] 가디언: Decided to attack [이지스] 브루트 with 코어 표준 라이플. Success.
+[[코어] 가디언]의 코어 표준 라이플(이)가 9.0m 거리에서 [[이지스] 브루트]에게 명중! (탄약: 16/25)
+[SetDurability_DEBUG] Part: 이지스 강화 바디 (Body), PrevHP: 250, NewHP_Attempt: 172, ClampedHP: 172, MaxHP: 250
+급소 강타! [[이지스] 브루트]의 이지스 강화 바디에서 스파크가 터진다! (78 피해)
+[[이지스] 브루트]의 카운터! ([[코어] 가디언]에게)
+[[이지스] 브루트]의 이지스 중량 기관총(이)가 9.0m 거리에서 [[코어] 가디언]에게 빗나갔다! (탄약: 75/80)
+[[코어] 가디언](이)가 [[이지스] 브루트]의 반격을 회피! (Dodge)
+Unit Standby: [코어] 가디언 (Remaining AP: 8.3)
+ 
+ 
+//==[ Combat Turn 7 Initiated ]==//
+Unit Activation: [[이지스] 브루트] (AP: 11.0 -> 12.0/12.0)
+[이지스] 브루트 기체 장갑 강화 효과 만료.
+[이지스] 브루트 기체 장갑 강화 효과 해제.
+[RecalculateStats] [이지스] 브루트 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[[이지스] 브루트]의 Defense Boost 효과 소멸.
+[ProcessNextTurn] [이지스] 브루트: Running Behavior Tree: SelectorNode
+[SelectSelfActiveAbilityNode] [이지스] 브루트: Node Ticked.
+[SelectSelfActiveAbilityNode] [이지스] 브루트: No ability IDs found on parts. Failure.
+[HasRepairUsesNode] [이지스] 브루트: Has no repair uses left (Current: 0). Failure.
+[HasEnoughAPNode] [이지스] 브루트 for Defend: Has enough AP (Required: 1.0, Current: 12.0). Success.
+[이지스] 브루트 기체 장갑 강화. 방어력 상승. (효과: 150 %, 지속시간: 1턴)
+[RecalculateStats] [이지스] 브루트 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[[이지스] 브루트]에게 Defense Boost 효과 발생!
+[[이지스] 브루트] 방어 태세 돌입. 잔여 동력: 11.0/12.0.
+Unit Standby: [이지스] 브루트 (Remaining AP: 11.0)
+ 
+ 
+Unit Activation: [[코어] 가디언] (AP: 8.3 -> 9.0/9.0)
+[ProcessNextTurn] [코어] 가디언: Running Behavior Tree: SelectorNode
+[NeedsReloadNode(OutOfAmmo)] [코어] 가디언: No weapon needs reload under current condition. Failure.
+[HasRepairUsesNode] [코어] 가디언: Has no repair uses left (Current: 0). Failure.
+[SelectLowestHealthAllyNode] [코어] 가디언: No operational allies found. Failure.
+[SupportBT.allySupportSelector] Repair sequences failed. Trying to approach ally.
+[BT] [코어] 가디언 - SelectNearestAllyNode: No allies found. RESULT: FAILURE
+[SupportBT.RootSelector] Ally support failed. Trying to attack enemy.
+[SelectTargetNode] [코어] 가디언: Selected target: [이지스] 브루트. Selected weapon: 코어 표준 라이플. Success.
+[MoveToTargetNode] [코어] 가디언 already in weapon range of [이지스] 브루트. No move.
+[IsTargetInRangeNode] [코어] 가디언 to [이지스] 브루트: Source='코어 표준 라이플', Dist=9.0, Range=(1.0-10.0), InRange=True. Result: Success
+[AttackTargetNode] [코어] 가디언: Decided to attack [이지스] 브루트 with 코어 표준 라이플. Success.
+[[코어] 가디언]의 코어 표준 라이플(이)가 9.0m 거리에서 [[이지스] 브루트]에게 명중! (탄약: 15/25)
+[SetDurability_DEBUG] Part: 이지스 강화 바디 (Body), PrevHP: 172, NewHP_Attempt: 120, ClampedHP: 120, MaxHP: 250
+[[이지스] 브루트]의 이지스 강화 바디에 경미한 손상. (52 피해)
+[[이지스] 브루트]의 카운터! ([[코어] 가디언]에게)
+[[이지스] 브루트]의 이지스 중량 기관총(이)가 9.0m 거리에서 [[코어] 가디언]에게 빗나갔다! (탄약: 74/80)
+[[코어] 가디언](이)가 [[이지스] 브루트]의 반격을 회피! (Dodge)
+Unit Standby: [코어] 가디언 (Remaining AP: 8.3)
+ 
+ 
+//==[ Combat Turn 8 Initiated ]==//
+Unit Activation: [[이지스] 브루트] (AP: 11.0 -> 12.0/12.0)
+[이지스] 브루트 기체 장갑 강화 효과 만료.
+[이지스] 브루트 기체 장갑 강화 효과 해제.
+[RecalculateStats] [이지스] 브루트 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[[이지스] 브루트]의 Defense Boost 효과 소멸.
+[ProcessNextTurn] [이지스] 브루트: Running Behavior Tree: SelectorNode
+[SelectSelfActiveAbilityNode] [이지스] 브루트: Node Ticked.
+[SelectSelfActiveAbilityNode] [이지스] 브루트: No ability IDs found on parts. Failure.
+[HasRepairUsesNode] [이지스] 브루트: Has no repair uses left (Current: 0). Failure.
+[HasEnoughAPNode] [이지스] 브루트 for Defend: Has enough AP (Required: 1.0, Current: 12.0). Success.
+[이지스] 브루트 기체 장갑 강화. 방어력 상승. (효과: 150 %, 지속시간: 1턴)
+[RecalculateStats] [이지스] 브루트 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[[이지스] 브루트]에게 Defense Boost 효과 발생!
+[[이지스] 브루트] 방어 태세 돌입. 잔여 동력: 11.0/12.0.
+Unit Standby: [이지스] 브루트 (Remaining AP: 11.0)
+ 
+ 
+Unit Activation: [[코어] 가디언] (AP: 8.3 -> 9.0/9.0)
+[ProcessNextTurn] [코어] 가디언: Running Behavior Tree: SelectorNode
+[NeedsReloadNode(OutOfAmmo)] [코어] 가디언: No weapon needs reload under current condition. Failure.
+[HasRepairUsesNode] [코어] 가디언: Has no repair uses left (Current: 0). Failure.
+[SelectLowestHealthAllyNode] [코어] 가디언: No operational allies found. Failure.
+[SupportBT.allySupportSelector] Repair sequences failed. Trying to approach ally.
+[BT] [코어] 가디언 - SelectNearestAllyNode: No allies found. RESULT: FAILURE
+[SupportBT.RootSelector] Ally support failed. Trying to attack enemy.
+[SelectTargetNode] [코어] 가디언: Selected target: [이지스] 브루트. Selected weapon: 코어 표준 라이플. Success.
+[MoveToTargetNode] [코어] 가디언 already in weapon range of [이지스] 브루트. No move.
+[IsTargetInRangeNode] [코어] 가디언 to [이지스] 브루트: Source='코어 표준 라이플', Dist=9.0, Range=(1.0-10.0), InRange=True. Result: Success
+[AttackTargetNode] [코어] 가디언: Decided to attack [이지스] 브루트 with 코어 표준 라이플. Success.
+[[코어] 가디언]의 코어 표준 라이플(이)가 9.0m 거리에서 [[이지스] 브루트]에게 명중! (탄약: 14/25)
+[SetDurability_DEBUG] Part: 이지스 강화 다리 (Legs), PrevHP: 150, NewHP_Attempt: 98, ClampedHP: 98, MaxHP: 150
+맹렬한 포화! [[이지스] 브루트]의 이지스 강화 다리가 52 피해를 입고 너덜거린다!
+[[이지스] 브루트]의 카운터! ([[코어] 가디언]에게)
+[[이지스] 브루트]의 이지스 중량 기관총(이)가 9.0m 거리에서 [[코어] 가디언]에게 빗나갔다! (탄약: 73/80)
+[[코어] 가디언](이)가 [[이지스] 브루트]의 반격을 회피! (Dodge)
+Unit Standby: [코어] 가디언 (Remaining AP: 8.3)
+ 
+ 
+//==[ Combat Turn 9 Initiated ]==//
+Unit Activation: [[이지스] 브루트] (AP: 11.0 -> 12.0/12.0)
+[이지스] 브루트 기체 장갑 강화 효과 만료.
+[이지스] 브루트 기체 장갑 강화 효과 해제.
+[RecalculateStats] [이지스] 브루트 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[[이지스] 브루트]의 Defense Boost 효과 소멸.
+[ProcessNextTurn] [이지스] 브루트: Running Behavior Tree: SelectorNode
+[SelectSelfActiveAbilityNode] [이지스] 브루트: Node Ticked.
+[SelectSelfActiveAbilityNode] [이지스] 브루트: No ability IDs found on parts. Failure.
+[HasRepairUsesNode] [이지스] 브루트: Has no repair uses left (Current: 0). Failure.
+[HasEnoughAPNode] [이지스] 브루트 for Defend: Has enough AP (Required: 1.0, Current: 12.0). Success.
+[이지스] 브루트 기체 장갑 강화. 방어력 상승. (효과: 150 %, 지속시간: 1턴)
+[RecalculateStats] [이지스] 브루트 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[[이지스] 브루트]에게 Defense Boost 효과 발생!
+[[이지스] 브루트] 방어 태세 돌입. 잔여 동력: 11.0/12.0.
+Unit Standby: [이지스] 브루트 (Remaining AP: 11.0)
+ 
+ 
+Unit Activation: [[코어] 가디언] (AP: 8.3 -> 9.0/9.0)
+[ProcessNextTurn] [코어] 가디언: Running Behavior Tree: SelectorNode
+[NeedsReloadNode(OutOfAmmo)] [코어] 가디언: No weapon needs reload under current condition. Failure.
+[HasRepairUsesNode] [코어] 가디언: Has no repair uses left (Current: 0). Failure.
+[SelectLowestHealthAllyNode] [코어] 가디언: No operational allies found. Failure.
+[SupportBT.allySupportSelector] Repair sequences failed. Trying to approach ally.
+[BT] [코어] 가디언 - SelectNearestAllyNode: No allies found. RESULT: FAILURE
+[SupportBT.RootSelector] Ally support failed. Trying to attack enemy.
+[SelectTargetNode] [코어] 가디언: Selected target: [이지스] 브루트. Selected weapon: 코어 표준 라이플. Success.
+[MoveToTargetNode] [코어] 가디언 already in weapon range of [이지스] 브루트. No move.
+[IsTargetInRangeNode] [코어] 가디언 to [이지스] 브루트: Source='코어 표준 라이플', Dist=9.0, Range=(1.0-10.0), InRange=True. Result: Success
+[AttackTargetNode] [코어] 가디언: Decided to attack [이지스] 브루트 with 코어 표준 라이플. Success.
+[[코어] 가디언]의 코어 표준 라이플(이)가 9.0m 거리에서 [[이지스] 브루트]에게 명중! (탄약: 13/25)
+[SetDurability_DEBUG] Part: 이지스 강화 다리 (Legs), PrevHP: 98, NewHP_Attempt: 46, ClampedHP: 46, MaxHP: 150
+맹렬한 포화! [[이지스] 브루트]의 이지스 강화 다리가 52 피해를 입고 너덜거린다!
+[[이지스] 브루트]의 카운터! ([[코어] 가디언]에게)
+[[이지스] 브루트]의 이지스 중량 기관총(이)가 9.0m 거리에서 [[코어] 가디언]에게 빗나갔다! (탄약: 72/80)
+[[코어] 가디언](이)가 [[이지스] 브루트]의 반격을 회피! (Dodge)
+Unit Standby: [코어] 가디언 (Remaining AP: 8.3)
+ 
+ 
+//==[ Combat Turn 10 Initiated ]==//
+Unit Activation: [[이지스] 브루트] (AP: 11.0 -> 12.0/12.0)
+[이지스] 브루트 기체 장갑 강화 효과 만료.
+[이지스] 브루트 기체 장갑 강화 효과 해제.
+[RecalculateStats] [이지스] 브루트 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[[이지스] 브루트]의 Defense Boost 효과 소멸.
+[ProcessNextTurn] [이지스] 브루트: Running Behavior Tree: SelectorNode
+[SelectSelfActiveAbilityNode] [이지스] 브루트: Node Ticked.
+[SelectSelfActiveAbilityNode] [이지스] 브루트: No ability IDs found on parts. Failure.
+[HasRepairUsesNode] [이지스] 브루트: Has no repair uses left (Current: 0). Failure.
+[HasEnoughAPNode] [이지스] 브루트 for Defend: Has enough AP (Required: 1.0, Current: 12.0). Success.
+[이지스] 브루트 기체 장갑 강화. 방어력 상승. (효과: 150 %, 지속시간: 1턴)
+[RecalculateStats] [이지스] 브루트 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[[이지스] 브루트]에게 Defense Boost 효과 발생!
+[[이지스] 브루트] 방어 태세 돌입. 잔여 동력: 11.0/12.0.
+Unit Standby: [이지스] 브루트 (Remaining AP: 11.0)
+ 
+ 
+Unit Activation: [[코어] 가디언] (AP: 8.3 -> 9.0/9.0)
+[ProcessNextTurn] [코어] 가디언: Running Behavior Tree: SelectorNode
+[NeedsReloadNode(OutOfAmmo)] [코어] 가디언: No weapon needs reload under current condition. Failure.
+[HasRepairUsesNode] [코어] 가디언: Has no repair uses left (Current: 0). Failure.
+[SelectLowestHealthAllyNode] [코어] 가디언: No operational allies found. Failure.
+[SupportBT.allySupportSelector] Repair sequences failed. Trying to approach ally.
+[BT] [코어] 가디언 - SelectNearestAllyNode: No allies found. RESULT: FAILURE
+[SupportBT.RootSelector] Ally support failed. Trying to attack enemy.
+[SelectTargetNode] [코어] 가디언: Selected target: [이지스] 브루트. Selected weapon: 코어 표준 라이플. Success.
+[MoveToTargetNode] [코어] 가디언 already in weapon range of [이지스] 브루트. No move.
+[IsTargetInRangeNode] [코어] 가디언 to [이지스] 브루트: Source='코어 표준 라이플', Dist=9.0, Range=(1.0-10.0), InRange=True. Result: Success
+[AttackTargetNode] [코어] 가디언: Decided to attack [이지스] 브루트 with 코어 표준 라이플. Success.
+[[코어] 가디언]의 코어 표준 라이플(이)가 9.0m 거리에서 [[이지스] 브루트]에게 명중! (탄약: 12/25)
+[SetDurability_DEBUG] Part: 이지스 강화 다리 (Legs), PrevHP: 46, NewHP_Attempt: -6, ClampedHP: 0, MaxHP: 150
+[LegsPart] Part '이지스 강화 다리' operational status changed to: False
+[[이지스] 브루트]의 이지스 강화 다리에 치명적인 일격! 파편이 튄다!
+[RecalculateStats] [이지스] 브루트 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[[이지스] 브루트]의 다리 파괴! 기동력 상실!
+[[이지스] 브루트]의 카운터! ([[코어] 가디언]에게)
+[[이지스] 브루트]의 이지스 중량 기관총(이)가 9.0m 거리에서 [[코어] 가디언]에게 빗나갔다! (탄약: 71/80)
+[[코어] 가디언](이)가 [[이지스] 브루트]의 반격을 회피! (Dodge)
+Unit Standby: [코어] 가디언 (Remaining AP: 8.3)
+ 
+ 
+//==[ Combat Turn 11 Initiated ]==//
+Unit Activation: [[이지스] 브루트] (AP: 11.0 -> 12.0/12.0)
+[이지스] 브루트 기체 장갑 강화 효과 만료.
+[이지스] 브루트 기체 장갑 강화 효과 해제.
+[RecalculateStats] [이지스] 브루트 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[[이지스] 브루트]의 Defense Boost 효과 소멸.
+[ProcessNextTurn] [이지스] 브루트: Running Behavior Tree: SelectorNode
+[SelectSelfActiveAbilityNode] [이지스] 브루트: Node Ticked.
+[SelectSelfActiveAbilityNode] [이지스] 브루트: No ability IDs found on parts. Failure.
+[HasRepairUsesNode] [이지스] 브루트: Has no repair uses left (Current: 0). Failure.
+[HasEnoughAPNode] [이지스] 브루트 for Defend: Has enough AP (Required: 1.0, Current: 12.0). Success.
+[이지스] 브루트 기체 장갑 강화. 방어력 상승. (효과: 150 %, 지속시간: 1턴)
+[RecalculateStats] [이지스] 브루트 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[[이지스] 브루트]에게 Defense Boost 효과 발생!
+[[이지스] 브루트] 방어 태세 돌입. 잔여 동력: 11.0/12.0.
+Unit Standby: [이지스] 브루트 (Remaining AP: 11.0)
+ 
+ 
+Unit Activation: [[코어] 가디언] (AP: 8.3 -> 9.0/9.0)
+[ProcessNextTurn] [코어] 가디언: Running Behavior Tree: SelectorNode
+[NeedsReloadNode(OutOfAmmo)] [코어] 가디언: No weapon needs reload under current condition. Failure.
+[HasRepairUsesNode] [코어] 가디언: Has no repair uses left (Current: 0). Failure.
+[SelectLowestHealthAllyNode] [코어] 가디언: No operational allies found. Failure.
+[SupportBT.allySupportSelector] Repair sequences failed. Trying to approach ally.
+[BT] [코어] 가디언 - SelectNearestAllyNode: No allies found. RESULT: FAILURE
+[SupportBT.RootSelector] Ally support failed. Trying to attack enemy.
+[SelectTargetNode] [코어] 가디언: Selected target: [이지스] 브루트. Selected weapon: 코어 표준 라이플. Success.
+[MoveToTargetNode] [코어] 가디언 already in weapon range of [이지스] 브루트. No move.
+[IsTargetInRangeNode] [코어] 가디언 to [이지스] 브루트: Source='코어 표준 라이플', Dist=9.0, Range=(1.0-10.0), InRange=True. Result: Success
+[AttackTargetNode] [코어] 가디언: Decided to attack [이지스] 브루트 with 코어 표준 라이플. Success.
+[[코어] 가디언]의 코어 표준 라이플(이)가 9.0m 거리에서 [[이지스] 브루트]에게 명중! (탄약: 11/25)
+[SetDurability_DEBUG] Part: 이지스 강화 바디 (Body), PrevHP: 120, NewHP_Attempt: 68, ClampedHP: 68, MaxHP: 250
+[[이지스] 브루트]의 이지스 강화 바디에 경미한 손상. (52 피해)
+[[이지스] 브루트]의 카운터! ([[코어] 가디언]에게)
+[[이지스] 브루트]의 이지스 중량 기관총(이)가 9.0m 거리에서 [[코어] 가디언]에게 빗나갔다! (탄약: 70/80)
+[[코어] 가디언](이)가 [[이지스] 브루트]의 반격을 회피! (Dodge)
+Unit Standby: [코어] 가디언 (Remaining AP: 8.3)
+ 
+ 
+//==[ Combat Turn 12 Initiated ]==//
+Unit Activation: [[이지스] 브루트] (AP: 11.0 -> 12.0/12.0)
+[이지스] 브루트 기체 장갑 강화 효과 만료.
+[이지스] 브루트 기체 장갑 강화 효과 해제.
+[RecalculateStats] [이지스] 브루트 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[[이지스] 브루트]의 Defense Boost 효과 소멸.
+[ProcessNextTurn] [이지스] 브루트: Running Behavior Tree: SelectorNode
+[SelectSelfActiveAbilityNode] [이지스] 브루트: Node Ticked.
+[SelectSelfActiveAbilityNode] [이지스] 브루트: No ability IDs found on parts. Failure.
+[HasRepairUsesNode] [이지스] 브루트: Has no repair uses left (Current: 0). Failure.
+[HasEnoughAPNode] [이지스] 브루트 for Defend: Has enough AP (Required: 1.0, Current: 12.0). Success.
+[이지스] 브루트 기체 장갑 강화. 방어력 상승. (효과: 150 %, 지속시간: 1턴)
+[RecalculateStats] [이지스] 브루트 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[[이지스] 브루트]에게 Defense Boost 효과 발생!
+[[이지스] 브루트] 방어 태세 돌입. 잔여 동력: 11.0/12.0.
+Unit Standby: [이지스] 브루트 (Remaining AP: 11.0)
+ 
+ 
+Unit Activation: [[코어] 가디언] (AP: 8.3 -> 9.0/9.0)
+[ProcessNextTurn] [코어] 가디언: Running Behavior Tree: SelectorNode
+[NeedsReloadNode(OutOfAmmo)] [코어] 가디언: No weapon needs reload under current condition. Failure.
+[HasRepairUsesNode] [코어] 가디언: Has no repair uses left (Current: 0). Failure.
+[SelectLowestHealthAllyNode] [코어] 가디언: No operational allies found. Failure.
+[SupportBT.allySupportSelector] Repair sequences failed. Trying to approach ally.
+[BT] [코어] 가디언 - SelectNearestAllyNode: No allies found. RESULT: FAILURE
+[SupportBT.RootSelector] Ally support failed. Trying to attack enemy.
+[SelectTargetNode] [코어] 가디언: Selected target: [이지스] 브루트. Selected weapon: 코어 표준 라이플. Success.
+[MoveToTargetNode] [코어] 가디언 already in weapon range of [이지스] 브루트. No move.
+[IsTargetInRangeNode] [코어] 가디언 to [이지스] 브루트: Source='코어 표준 라이플', Dist=9.0, Range=(1.0-10.0), InRange=True. Result: Success
+[AttackTargetNode] [코어] 가디언: Decided to attack [이지스] 브루트 with 코어 표준 라이플. Success.
+[[코어] 가디언]의 코어 표준 라이플(이)가 9.0m 거리에서 [[이지스] 브루트]에게 명중! (탄약: 10/25)
+[SetDurability_DEBUG] Part: 이지스 강화 바디 (Body), PrevHP: 68, NewHP_Attempt: 16, ClampedHP: 16, MaxHP: 250
+[[이지스] 브루트]의 이지스 강화 바디에 경미한 손상. (52 피해)
+[[이지스] 브루트]의 카운터! ([[코어] 가디언]에게)
+[[이지스] 브루트]의 이지스 중량 기관총(이)가 9.0m 거리에서 [[코어] 가디언]에게 빗나갔다! (탄약: 69/80)
+[[코어] 가디언](이)가 [[이지스] 브루트]의 반격을 회피! (Dodge)
+Unit Standby: [코어] 가디언 (Remaining AP: 8.3)
+ 
+ 
+//==[ Combat Turn 13 Initiated ]==//
+Unit Activation: [[이지스] 브루트] (AP: 11.0 -> 12.0/12.0)
+[이지스] 브루트 기체 장갑 강화 효과 만료.
+[이지스] 브루트 기체 장갑 강화 효과 해제.
+[RecalculateStats] [이지스] 브루트 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[[이지스] 브루트]의 Defense Boost 효과 소멸.
+[ProcessNextTurn] [이지스] 브루트: Running Behavior Tree: SelectorNode
+[SelectSelfActiveAbilityNode] [이지스] 브루트: Node Ticked.
+[SelectSelfActiveAbilityNode] [이지스] 브루트: No ability IDs found on parts. Failure.
+[HasRepairUsesNode] [이지스] 브루트: Has no repair uses left (Current: 0). Failure.
+[HasEnoughAPNode] [이지스] 브루트 for Defend: Has enough AP (Required: 1.0, Current: 12.0). Success.
+[이지스] 브루트 기체 장갑 강화. 방어력 상승. (효과: 150 %, 지속시간: 1턴)
+[RecalculateStats] [이지스] 브루트 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+[[이지스] 브루트]에게 Defense Boost 효과 발생!
+[[이지스] 브루트] 방어 태세 돌입. 잔여 동력: 11.0/12.0.
+Unit Standby: [이지스] 브루트 (Remaining AP: 11.0)
+ 
+ 
+Unit Activation: [[코어] 가디언] (AP: 8.3 -> 9.0/9.0)
+[ProcessNextTurn] [코어] 가디언: Running Behavior Tree: SelectorNode
+[NeedsReloadNode(OutOfAmmo)] [코어] 가디언: No weapon needs reload under current condition. Failure.
+[HasRepairUsesNode] [코어] 가디언: Has no repair uses left (Current: 0). Failure.
+[SelectLowestHealthAllyNode] [코어] 가디언: No operational allies found. Failure.
+[SupportBT.allySupportSelector] Repair sequences failed. Trying to approach ally.
+[BT] [코어] 가디언 - SelectNearestAllyNode: No allies found. RESULT: FAILURE
+[SupportBT.RootSelector] Ally support failed. Trying to attack enemy.
+[SelectTargetNode] [코어] 가디언: Selected target: [이지스] 브루트. Selected weapon: 코어 표준 라이플. Success.
+[MoveToTargetNode] [코어] 가디언 already in weapon range of [이지스] 브루트. No move.
+[IsTargetInRangeNode] [코어] 가디언 to [이지스] 브루트: Source='코어 표준 라이플', Dist=9.0, Range=(1.0-10.0), InRange=True. Result: Success
+[AttackTargetNode] [코어] 가디언: Decided to attack [이지스] 브루트 with 코어 표준 라이플. Success.
+[[코어] 가디언]의 코어 표준 라이플(이)가 9.0m 거리에서 [[이지스] 브루트]에게 명중! (탄약: 9/25)
+[SetDurability_DEBUG] Part: 이지스 강화 바디 (Body), PrevHP: 16, NewHP_Attempt: -36, ClampedHP: 0, MaxHP: 250
+[BodyPart] Part '이지스 강화 바디' operational status changed to: False
+[[코어] 가디언]의 공격이 [[이지스] 브루트]의 이지스 강화 바디에 스쳤다. (52 피해)
+[RecalculateStats] [이지스] 브루트 - Recalculated. CombinedMaxRepairUses: 0, CurrentRepairUses: 0
+동체 중앙부 대파! [[이지스] 브루트]의 시스템 치명적 손상!
+=== 전투 종료 ===, 결과: Defeat
+//==[ Combat Session Terminated ]==//
+전투 프로세스 정리 완료. 이제 로그 저장 시도.
+
+--------------------------------------------------
+필터링된 로그 항목 수: 545
+ 전투 로그 종료 

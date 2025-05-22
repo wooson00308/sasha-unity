@@ -61,52 +61,45 @@ namespace AF.AI.BehaviorTree
             if (closestTarget != null)
             {
                 blackboard.CurrentTarget = closestTarget;
-                float distanceToTargetSqr = (closestTarget.Position - agent.Position).sqrMagnitude;
+                // float distanceToTargetSqr = (closestTarget.Position - agent.Position).sqrMagnitude; // 이제 SelectedWeapon 로직에서 거리 제곱근 대신 거리 사용
 
                 Weapon weaponToUse = null;
-                Weapon primaryWeapon = agent.GetPrimaryWeapon();
+                // Weapon primaryWeapon = agent.GetPrimaryWeapon(); // 이제 primaryWeapon 변수 대신 직접 접근
 
-                // Filter for generally usable weapons
+                // 필터링: 사용 가능하고 재장전 중이 아닌 무기
                 var usableWeapons = agent.EquippedWeapons
                     .Where(w => w != null && w.IsOperational && w.HasAmmo() && !w.IsReloading)
                     .ToList();
 
-                // 1. Check primary weapon if it's usable and in range
-                if (primaryWeapon != null && usableWeapons.Contains(primaryWeapon))
+                if (!usableWeapons.Any())
                 {
-                    bool primaryInRange = distanceToTargetSqr >= (primaryWeapon.MinRange * primaryWeapon.MinRange) &&
-                                          distanceToTargetSqr <= (primaryWeapon.MaxRange * primaryWeapon.MaxRange);
-                    if (primaryInRange)
-                    {
-                        weaponToUse = primaryWeapon;
-                    }
+                    // 사용할 무기가 전혀 없으면 실패
+                    var textLoggerWarning = ServiceLocator.Instance?.GetService<TextLoggerService>()?.TextLogger;
+                    textLoggerWarning?.Log($"[{this.GetType().Name}] {agent.Name}: Selected target: {closestTarget.Name}. BUT no usable weapons found. Setting SelectedWeapon to null. Failure.", LogLevel.Debug);
+                    blackboard.SelectedWeapon = null; 
+                    return NodeStatus.Failure;
                 }
 
-                // 2. If primary not suitable or not in range, check other usable weapons in range
+                // **수정된 무기 선택 로직:**
+                // 1. 현재 사거리 내에서 가장 적합한 무기 (예: 주무기 우선, 없으면 다른 무기)
+                weaponToUse = usableWeapons
+                    .Where(w => {
+                        float dist = Vector3.Distance(agent.Position, closestTarget.Position);
+                        return dist >= w.MinRange && dist <= w.MaxRange;
+                    })
+                    .OrderByDescending(w => w == agent.GetPrimaryWeapon()) // 주무기 우선
+                    .ThenByDescending(w => w.Damage) // 같은 우선순위면 공격력 높은 무기
+                    .FirstOrDefault();
+
+                // 2. 사거리 내 무기가 없다면, 사거리에 관계없이 사용 가능한 무기 선택 (예: 주무기 우선, 없으면 다른 무기)
                 if (weaponToUse == null)
                 {
                     weaponToUse = usableWeapons
-                        .Where(w => w != primaryWeapon && // Exclude primary if already checked or not usable
-                                    distanceToTargetSqr >= (w.MinRange * w.MinRange) &&
-                                    distanceToTargetSqr <= (w.MaxRange * w.MaxRange))
-                        .FirstOrDefault(); // Or some other ordering like highest damage, etc.
+                         .OrderByDescending(w => w == agent.GetPrimaryWeapon()) // 주무기 우선
+                         .ThenByDescending(w => w.Damage) // 같은 우선순위면 공격력 높은 무기
+                         .FirstOrDefault(); // 사거리 관계없이 첫 번째 사용 가능 무기 선택 (또는 다른 기준)
                 }
 
-                // 3. If still no weapon, check primary weapon if usable (regardless of range)
-                if (weaponToUse == null && primaryWeapon != null && usableWeapons.Contains(primaryWeapon))
-                {
-                    weaponToUse = primaryWeapon;
-                }
-                
-                // 4. If still no weapon, check other usable weapons (regardless of range)
-                if (weaponToUse == null)
-                {
-                    weaponToUse = usableWeapons
-                        .Where(w => w != primaryWeapon) // Exclude primary if already checked or not usable
-                        .FirstOrDefault();
-                }
-                
-                // If after all checks, weaponToUse is still null, it means no operational, loaded weapon is available at all.
 
                 if (weaponToUse != null)
                 {
@@ -117,28 +110,9 @@ namespace AF.AI.BehaviorTree
                 }
                 else
                 {
-                    string reason = "No operational, loaded weapon available after all checks.";
-                    var primaryStatus = primaryWeapon == null ? "null" : 
-                                        usableWeapons.Contains(primaryWeapon) ? "usable" : "not usable (no ammo/reloading)";
-                    var usableWeaponCount = usableWeapons.Count(w => w != primaryWeapon);
-
-                    reason = $"Primary weapon ({primaryWeapon?.Name ?? "N/A"}) status: {primaryStatus}. Other usable weapons count: {usableWeaponCount}.";
-                    
-                    if (primaryWeapon != null && !usableWeapons.Contains(primaryWeapon))
-                    {
-                        reason += $" Primary reason for no weapon: Primary '{primaryWeapon.Name}' is not usable (e.g., no ammo, reloading).";
-                    }
-                    else if (usableWeapons.All(w => w == primaryWeapon && weaponToUse == null)) // Only primary was usable, but it wasn't chosen (e.g. out of range and no other option)
-                    {
-                        reason += " Only primary was usable but potentially out of range, and no other options.";
-                    }
-                    else if (!usableWeapons.Any())
-                    {
-                        reason += " No weapons are currently usable (e.g., all reloading or out of ammo).";
-                    }
-
+                     // 이 경우는 usableWeapons.Any() 체크에서 이미 걸러지겠지만, 혹시 모를 안전 장치
                     var textLoggerWarning = ServiceLocator.Instance?.GetService<TextLoggerService>()?.TextLogger;
-                    textLoggerWarning?.Log($"[{this.GetType().Name}] {agent.Name}: Selected target: {closestTarget.Name}. BUT no suitable weapon found. Detailed Reason: {reason}. Setting SelectedWeapon to null.", LogLevel.Debug);
+                     textLoggerWarning?.Log($"[{this.GetType().Name}] {agent.Name}: Selected target: {closestTarget.Name}. BUT no suitable weapon found (after all checks). Setting SelectedWeapon to null. Failure.", LogLevel.Debug);
                     blackboard.SelectedWeapon = null; 
                     return NodeStatus.Failure;
                 }
@@ -146,6 +120,8 @@ namespace AF.AI.BehaviorTree
             else
             {
                 // 위에서 potentialTargets.Count == 0 체크로 이 경우는 거의 없겠지만, 안전 장치
+                var textLoggerWarning = ServiceLocator.Instance?.GetService<TextLoggerService>()?.TextLogger;
+                 textLoggerWarning?.Log($"[{this.GetType().Name}] {agent.Name}: No potential targets found. Setting CurrentTarget to null. Failure.", LogLevel.Debug);
                 blackboard.CurrentTarget = null;
                 return NodeStatus.Failure;
             }

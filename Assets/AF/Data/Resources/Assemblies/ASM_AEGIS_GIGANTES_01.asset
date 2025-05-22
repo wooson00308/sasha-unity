@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6bcd9b4e12eae264cae0069bcfc78b67, type: 3}
+  m_Name: ASM_AEGIS_GIGANTES_01
+  m_EditorClassIdentifier: 
+  AssemblyID: ASM_AEGIS_GIGANTES_01
+  AFName: "\uC774\uC9C0\uC2A4 \uAE30\uAC04\uD14C\uC2A4"
+  TeamID: 0
+  FrameID: FRM_AEGIS_HVY_01
+  PilotID: PILOT_AEGIS_ACE_01
+  HeadPartID: HEAD_AEGIS_HVY_03
+  BodyPartID: BODY_AEGIS_HVY_03
+  LeftArmPartID: ARM_AEGIS_HVY_03
+  RightArmPartID: ARM_AEGIS_HVY_03
+  LegsPartID: LEGS_AEGIS_HVY_03
+  BackpackPartID: BK_AEGIS_HVY_04
+  Weapon1ID: WPN_AEGIS_HVY_CANNON_01
+  Weapon2ID: WPN_AEGIS_SHTGN_01
+  Notes: "\uC774\uC9C0\uC2A4 \uC911\uACF5\uC5C5 \uCD5C\uC815\uC608 \uC5D0\uC774\uC2A4
+    \uAE30\uCCB4. \uC555\uB3C4\uC801\uC778 \uBC29\uC5B4 \uBC0F \uC544\uAD70 \uC9C0\uC6D0
+    \uB2A5\uB825."

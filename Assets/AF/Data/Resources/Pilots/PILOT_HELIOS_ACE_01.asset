@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59ba4f4a449962942b26a35564da0fac, type: 3}
+  m_Name: PILOT_HELIOS_ACE_01
+  m_EditorClassIdentifier: 
+  PilotID: PILOT_HELIOS_ACE_01
+  PilotName: "[\uD32C\uD140] \uC81C\uD2B8"
+  Stat_AttackPower: 6
+  Stat_Defense: 4
+  Stat_Speed: 9
+  Stat_Accuracy: 0.95
+  Stat_Evasion: 0.45
+  Stat_Durability: 0
+  Stat_EnergyEff: 0.6
+  Stat_MaxAP: 1
+  Stat_APRecovery: 0.8
+  Stat_MaxRepairUses: 0
+  Specialization: 6
+  InitialLevel: 5
+  InitialSkills: []
+  Notes: "\uD5EC\uB9AC\uC624\uC2A4 \uD56D\uACF5\uC758 \uCD5C\uC815\uC608 \uC5D0\uC774\uC2A4
+    \uD30C\uC77C\uB7FF. \uC2E0\uCD9C\uADC0\uBAB0\uD55C \uAE30\uB3D9\uC131\uACFC \uC815\uBC00
+    \uD0C0\uACA9 \uB2A5\uB825."

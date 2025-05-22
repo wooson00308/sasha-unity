@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5fd8c816985b1e4ba3eee2c446bc307, type: 3}
+  m_Name: LEGS_HELIOS_LGT_04
+  m_EditorClassIdentifier: 
+  PartID: LEGS_HELIOS_LGT_04
+  PartName: "\uD5EC\uB9AC\uC624\uC2A4 \uC720\uB839 \uB2E4\uB9AC"
+  PartType: 4
+  Stat_AttackPower: 0
+  Stat_Defense: 0
+  Stat_Speed: 3.5
+  Stat_Accuracy: 0
+  Stat_Evasion: 1.8
+  Stat_Durability: 85
+  Stat_EnergyEff: 0.6
+  Stat_MaxAP: 0
+  Stat_APRecovery: 0
+  MaxDurability: 85
+  PartWeight: 80
+  Abilities:
+  - AB_LG_001_Evasive
+  - AB_BP_004_RepairKit
+  Notes: "\uD5EC\uB9AC\uC624\uC2A4 \uC720\uB839 \uB2E4\uB9AC \uC720\uB2DB. \uD2B9\uC218
+    \uD68C\uD53C \uC2DC\uC2A4\uD15C \uB0B4\uC7A5."
+  Stat_MaxRepairUses: 0

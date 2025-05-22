@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5fd8c816985b1e4ba3eee2c446bc307, type: 3}
+  m_Name: HEAD_HELIOS_LGT_03
+  m_EditorClassIdentifier: 
+  PartID: HEAD_HELIOS_LGT_03
+  PartName: "\uD5EC\uB9AC\uC624\uC2A4 \uC815\uBC00 \uD5E4\uB4DC"
+  PartType: 2
+  Stat_AttackPower: 0
+  Stat_Defense: 0.05
+  Stat_Speed: 0
+  Stat_Accuracy: 1.3
+  Stat_Evasion: 0.15
+  Stat_Durability: 0
+  Stat_EnergyEff: 0.57
+  Stat_MaxAP: 0
+  Stat_APRecovery: 0
+  MaxDurability: 48
+  PartWeight: 33
+  Abilities:
+  - AB_HD_001_Zoom
+  - AB_BP_004_RepairKit
+  Notes: "\uD5EC\uB9AC\uC624\uC2A4 \uC815\uBC00 \uD0C0\uACA9 \uD5E4\uB4DC \uC720\uB2DB.
+    \uC6D0\uAC70\uB9AC \uC870\uC900 \uAC15\uD654."
+  Stat_MaxRepairUses: 0
