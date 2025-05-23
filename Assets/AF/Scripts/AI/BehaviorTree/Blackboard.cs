@@ -26,6 +26,9 @@ namespace AF.AI.BehaviorTree
         public string TargetPartSlot { get; set; }
         public string RepairTargetPartSlotId { get; set; }
 
+        // +++ 실패한 노드 추적 (멀티액션 최적화) +++
+        public HashSet<string> FailedNodesThisActivation { get; set; } = new HashSet<string>();
+
         // 향후 AI가 특정 상태나 플래그를 기억해야 할 때 사용할 수 있는 일반적인 값들
         public bool HasReachedTarget { get; set; } = false;
         public bool IsAlerted { get; set; } = false;
@@ -75,6 +78,7 @@ namespace AF.AI.BehaviorTree
             RepairTargetPartSlotId = null;
             HasReachedTarget = false;
             IsAlerted = false;
+            FailedNodesThisActivation.Clear();
         }
     }
 } 

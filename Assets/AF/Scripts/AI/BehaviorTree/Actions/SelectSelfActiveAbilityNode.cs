@@ -28,6 +28,13 @@ namespace AF.AI.BehaviorTree.Actions
                 return NodeStatus.Failure;
             }
 
+            string nodeKey = nodeName; // 같은 노드 타입은 같은 조건을 체크하므로
+            if (blackboard.FailedNodesThisActivation?.Contains(nodeKey) == true)
+            {
+                textLogger?.Log($"[{nodeName}] {agent.Name}: Node already failed this activation. Skipping. Failure.", LogLevel.Debug);
+                return NodeStatus.Failure;
+            }
+
             textLogger?.Log($"[{nodeName}] {agent.Name}: Node Ticked.", LogLevel.Debug);
 
             if (blackboard.SelectedAbility != null && blackboard.DecidedActionType == CombatActionEvents.ActionType.UseAbility)
@@ -107,6 +114,14 @@ namespace AF.AI.BehaviorTree.Actions
             }
 
             textLogger?.Log($"[{nodeName}] {agent.Name}: No suitable self-active ability found after checking all. Failure.", LogLevel.Debug);
+            
+            // +++ 실패 추적 기록 +++
+            if (blackboard.FailedNodesThisActivation != null)
+            {
+                blackboard.FailedNodesThisActivation.Add(nodeKey);
+            }
+            // +++ 실패 추적 기록 끝 +++
+            
             return NodeStatus.Failure;
         }
     }

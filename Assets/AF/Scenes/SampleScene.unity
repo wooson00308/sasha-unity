@@ -6162,27 +6162,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerSquadSetups:
   - useCustomAssembly: 0
-    customAFName: "\uCF54\uC5B4 \uC624\uB514\uC138\uC6B0\uC2A4"
-    assembly: {fileID: 11400000, guid: 73c0634859cc52c46aad4fe6598d4313, type: 2}
-    teamId: 0
-    teamColorPreview: {r: 0.3, g: 0.8, b: 0.9, a: 1}
-    startPosition: {x: 0, y: 0, z: 0}
-    customFrame: {fileID: 11400000, guid: 2282a7e72fc85f54680a9c915984189c, type: 2}
-    customHead: {fileID: 11400000, guid: 6a02a0fb0fca73f489a8193f876daf3f, type: 2}
-    customBody: {fileID: 11400000, guid: ec2ec947d3e852844b17ba7dd7f88458, type: 2}
-    customArms: {fileID: 11400000, guid: 0864ef455a0ad0842a1ca2e9121efba0, type: 2}
-    customLegs: {fileID: 11400000, guid: 3a5f7dcc9a6eb1b459130cbe8b72b19a, type: 2}
-    customWeaponR1: {fileID: 11400000, guid: e0138cbee493fbf4cbf037ddceb87f8d, type: 2}
-    customWeaponL1: {fileID: 11400000, guid: 098a64a2905c3004a9dd91684d7752af, type: 2}
-    customPilot: {fileID: 11400000, guid: e4c60061ae1e5ac45ae8c50db7532043, type: 2}
-    callsign: "[\uC624\uBA54\uAC00] \uC624\uB514\uC138\uC6B0\uC2A4"
-  afSetups:
-  - useCustomAssembly: 0
     customAFName: "\uD5EC\uB9AC\uC624\uC2A4 \uC774\uCE74\uB8E8\uC2A4"
     assembly: {fileID: 11400000, guid: cd2bb0accb43a1d47b4210833770fff4, type: 2}
-    teamId: 1
+    teamId: 0
     teamColorPreview: {r: 0.3, g: 0.8, b: 0.9, a: 1}
-    startPosition: {x: 40, y: 0, z: 40}
+    startPosition: {x: -10, y: 0, z: -10}
     customFrame: {fileID: 11400000, guid: e5d4bccc03f25cc4e9f52b320821c39e, type: 2}
     customHead: {fileID: 11400000, guid: 40e65271543a29e44ba2015033a5291a, type: 2}
     customBody: {fileID: 11400000, guid: 2b4653f2b31574745a5aa78c9fe55189, type: 2}
@@ -6191,15 +6175,61 @@ MonoBehaviour:
     customWeaponR1: {fileID: 11400000, guid: 833a34c5175cf704a8568d35526a3510, type: 2}
     customWeaponL1: {fileID: 11400000, guid: d27b3dd19afbaac4c8b2caac8c3dfdc4, type: 2}
     customPilot: {fileID: 11400000, guid: 57fa670997d1fd341a9f8e6cb2dc1feb, type: 2}
-    callsign: "[\uD32C\uD140] \uC81C\uD2B8"
+    callsign: "[\uD32C\uD140] \uC774\uCE74\uB8E8\uC2A4"
+  - useCustomAssembly: 0
+    customAFName: "\uC774\uC9C0\uC2A4 \uAE30\uAC04\uD14C\uC2A4"
+    assembly: {fileID: 11400000, guid: 84c23faecb0823a41b23d4362903f47c, type: 2}
+    teamId: 0
+    teamColorPreview: {r: 0.3, g: 0.8, b: 0.9, a: 1}
+    startPosition: {x: 0, y: 0, z: 0}
+    customFrame: {fileID: 11400000, guid: 2f3ab135c4ee9f04f9d7766182558530, type: 2}
+    customHead: {fileID: 11400000, guid: d2c922a49b7d8df41b3c0e4cf1f551d0, type: 2}
+    customBody: {fileID: 11400000, guid: dbd261696a1933b4e89a186e97f5b169, type: 2}
+    customArms: {fileID: 11400000, guid: a9661a722dcbe2542b77ec3bdd9ca442, type: 2}
+    customLegs: {fileID: 11400000, guid: 7b4a85ff94f543747bb816bce1149890, type: 2}
+    customWeaponR1: {fileID: 11400000, guid: 7fe3d8808773a7c4ea65ebcfe4c64f2c, type: 2}
+    customWeaponL1: {fileID: 11400000, guid: 328a63a0c361d734fa7757b86086e2f1, type: 2}
+    customPilot: {fileID: 11400000, guid: 6ae7bb242a8a9724296dd5f39c2c76ab, type: 2}
+    callsign: "[\uC544\uC774\uC5B8\uC6D4] \uAE30\uAC04\uD14C\uC2A4"
+  afSetups:
+  - useCustomAssembly: 0
+    customAFName: "\uD5EC\uB9AC\uC624\uC2A4 \uD15C\uD398\uC2A4\uD2B8"
+    assembly: {fileID: 11400000, guid: 12a0061268f5a5f4991cc855b43fb6a2, type: 2}
+    teamId: 1
+    teamColorPreview: {r: 0.9, g: 0.2, b: 0.2, a: 1}
+    startPosition: {x: 40, y: 0, z: 40}
+    customFrame: {fileID: 11400000, guid: e5d4bccc03f25cc4e9f52b320821c39e, type: 2}
+    customHead: {fileID: 11400000, guid: e5e71499617ee4245a31fdd7d868e4be, type: 2}
+    customBody: {fileID: 11400000, guid: c4cab3d7c7b8aeb419b1ffef594e58ca, type: 2}
+    customArms: {fileID: 11400000, guid: bea0a4ed6d535ac449e5133b588a8bbd, type: 2}
+    customLegs: {fileID: 11400000, guid: c1c14043743ae5f469e7c8a111484d50, type: 2}
+    customWeaponR1: {fileID: 11400000, guid: d27b3dd19afbaac4c8b2caac8c3dfdc4, type: 2}
+    customWeaponL1: {fileID: 11400000, guid: e0138cbee493fbf4cbf037ddceb87f8d, type: 2}
+    customPilot: {fileID: 11400000, guid: cdd1a8108797cab46a4133199710bc44, type: 2}
+    callsign: "\uD15C\uD398\uC2A4\uD2B8"
+  - useCustomAssembly: 0
+    customAFName: "\uCF54\uC5B4 \uBC45\uAC00\uB4DC"
+    assembly: {fileID: 11400000, guid: eca37032251a18147ac582f69542cfe7, type: 2}
+    teamId: 1
+    teamColorPreview: {r: 0.3, g: 0.8, b: 0.9, a: 1}
+    startPosition: {x: 30, y: 0, z: 10}
+    customFrame: {fileID: 11400000, guid: 2282a7e72fc85f54680a9c915984189c, type: 2}
+    customHead: {fileID: 11400000, guid: db8ed535c8c4a4c4b99daca793792d5c, type: 2}
+    customBody: {fileID: 11400000, guid: 4a9718c89ab0758409de742abaa27942, type: 2}
+    customArms: {fileID: 11400000, guid: 02c72f476e95df54baf995d51652dc20, type: 2}
+    customLegs: {fileID: 11400000, guid: 6a2efbdd029d66546ac354f7d2fbcab3, type: 2}
+    customWeaponR1: {fileID: 11400000, guid: 098a64a2905c3004a9dd91684d7752af, type: 2}
+    customWeaponL1: {fileID: 11400000, guid: 23f2a3a7b78fb0248a186a91ed9bc5e8, type: 2}
+    customPilot: {fileID: 11400000, guid: 5a750f1bfd80fd844a293f9a5f018d67, type: 2}
+    callsign: "\uBCB5\uAC00\uB4DC"
   logCombatDetails: 0
   showLogLevelPrefix: 0
   showTurnPrefix: 0
   useLogIndentation: 0
   logActionSummaries: 0
   useSpriteIconsInLog: 0
-  logLevelsToRecord: 0
-  safetyBreakTurns: 10
+  logLevelsToRecord: 1
+  safetyBreakTurns: 30
   combatStartButton: {fileID: 1423314143}
   currentBattleId: 
   currentCycle: 0

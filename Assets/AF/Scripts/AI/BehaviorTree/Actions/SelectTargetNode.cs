@@ -81,23 +81,21 @@ namespace AF.AI.BehaviorTree
                 }
 
                 // **수정된 무기 선택 로직:**
-                // 1. 현재 사거리 내에서 가장 적합한 무기 (예: 주무기 우선, 없으면 다른 무기)
+                // 1. 현재 사거리 내에서 가장 강한 무기 선택
                 weaponToUse = usableWeapons
                     .Where(w => {
                         float dist = Vector3.Distance(agent.Position, closestTarget.Position);
                         return dist >= w.MinRange && dist <= w.MaxRange;
                     })
-                    .OrderByDescending(w => w == agent.GetPrimaryWeapon()) // 주무기 우선
-                    .ThenByDescending(w => w.Damage) // 같은 우선순위면 공격력 높은 무기
+                    .OrderByDescending(w => w.Damage) // 데미지 최우선! (주무기 상관없이)
                     .FirstOrDefault();
 
-                // 2. 사거리 내 무기가 없다면, 사거리에 관계없이 사용 가능한 무기 선택 (예: 주무기 우선, 없으면 다른 무기)
+                // 2. 사거리 내 무기가 없다면, 사거리에 관계없이 가장 강한 무기 선택
                 if (weaponToUse == null)
                 {
                     weaponToUse = usableWeapons
-                         .OrderByDescending(w => w == agent.GetPrimaryWeapon()) // 주무기 우선
-                         .ThenByDescending(w => w.Damage) // 같은 우선순위면 공격력 높은 무기
-                         .FirstOrDefault(); // 사거리 관계없이 첫 번째 사용 가능 무기 선택 (또는 다른 기준)
+                         .OrderByDescending(w => w.Damage) // 데미지 최우선! (주무기 상관없이)
+                         .FirstOrDefault();
                 }
 
 

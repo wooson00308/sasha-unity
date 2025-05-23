@@ -12,7 +12,7 @@
   - `SequenceNode.cs`: **컴포지트 노드**. 자식 노드들을 **순서대로** 실행합니다. 자식 노드 중 하나라도 `Failure`를 반환하면 즉시 실행을 멈추고 자신도 `Failure`를 반환합니다. 모든 자식 노드가 `Success`를 반환해야 자신도 `Success`를 반환합니다. 도중에 `Running`인 자식이 있으면 자신도 `Running`을 반환합니다.
   - `SelectorNode.cs`: **컴포지트 노드**. 자식 노드들을 **순서대로** 실행합니다. 자식 노드 중 하나라도 `Success`를 반환하면 즉시 실행을 멈추고 자신도 `Success`를 반환합니다. 모든 자식 노드가 `Failure`를 반환해야 자신도 `Failure`를 반환합니다. 도중에 `Running`인 자식이 있으면 자신도 `Running`을 반환합니다.
   - `UtilitySelectorNode.cs`: **유틸리티 기반 선택 노드**. 각 자식 액션의 효용값을 계산하여 가장 높은 효용값을 가진 액션을 실행합니다. 기존의 단순한 우선순위 기반 선택 대신 상황에 따른 동적 우선순위를 제공하며, 디버깅을 위한 로깅 기능과 효용값 추적 기능을 포함합니다.
-  - `Blackboard.cs`: Behavior Tree 실행 중 AI 에이전트가 공유하는 데이터를 저장하는 공간입니다. 현재 대상 (`CurrentTarget`), 결정된 행동 타입 (`DecidedActionType`), 선택된 무기 (`SelectedWeapon`) 등 AI의 판단에 필요한 정보를 노드들이 읽고 쓰며 상태를 공유합니다. 각 에이전트는 자신만의 Blackboard 인스턴스를 가집니다.
+  - `Blackboard.cs`: Behavior Tree 실행 중 AI 에이전트가 공유하는 데이터를 저장하는 공간입니다. 현재 대상 (`CurrentTarget`), 결정된 행동 타입 (`DecidedActionType`), 선택된 무기 (`SelectedWeapon`) 등 AI의 판단에 필요한 정보를 노드들이 읽고 쓰며 상태를 공유합니다. 각 에이전트는 자신만의 Blackboard 인스턴스를 가집니다. **실패 추적 시스템**을 위한 `FailedNodesThisActivation` HashSet을 포함하여 멀티액션 시 동일한 노드의 무한 반복을 방지합니다.
 
   - `/Actions`
     - 특정 행동을 수행하는 액션 노드 스크립트들이 있습니다.
@@ -27,12 +27,12 @@
       - `ReloadWeaponNode.cs`: 블랙보드에 지정된 무기(`Blackboard.WeaponToReload`) 또는 주무기를 재장전할 것을 결정하고 `Blackboard.DecidedActionType`을 `Reload`로 설정하는 노드입니다.
       - `WaitNode.cs`: AI가 현재 턴에 아무 행동도 하지 않고 대기할 것을 결정하는 노드입니다. 항상 `NodeStatus.Success`를 반환합니다.
     - **타겟팅 관련:**
-      - `SelectTargetNode.cs`: 자신과 다른 팀의 파괴되지 않은 유닛 중 가장 가까운 적을 찾아 `Blackboard.CurrentTarget`으로 설정하는 노드입니다.
+      - `SelectTargetNode.cs`: 자신과 다른 팀의 파괴되지 않은 유닛 중 가장 가까운 적을 찾아 `Blackboard.CurrentTarget`으로 설정하는 노드입니다. **순수 데미지 기반 무기 선택 시스템**을 구현하여 주무기 우선순위 대신 상황에 맞는 최고 성능 무기를 선택합니다. 사거리 내에서 가장 높은 데미지를 가진 무기를 우선적으로 선택하며, 더 전술적이고 합리적인 AI 행동을 유도합니다.
       - `SelectNearestAllyNode.cs`: 가장 가까운 아군 유닛을 찾아 `Blackboard.CurrentTarget`에 기록하는 노드입니다.
       - `SelectLowestHealthAllyNode.cs`: 체력이 가장 낮은 아군 유닛을 찾아 `Blackboard.CurrentTarget`에 기록하는 노드입니다.
     - **무기 및 어빌리티 관련:**
       - `SelectAlternativeWeaponNode.cs`: 현재 선택된 무기가 사용 불가능할 때 대체 무기를 선택하는 노드입니다.
-      - `SelectSelfActiveAbilityNode.cs`: 자신에게 사용할 수 있는 액티브 어빌리티를 찾아 `Blackboard.SelectedAbility`에 기록하는 노드입니다.
+      - `SelectSelfActiveAbilityNode.cs`: 자신에게 사용할 수 있는 액티브 어빌리티를 찾아 `Blackboard.SelectedAbility`에 기록하는 노드입니다. **실패 추적 시스템**을 구현하여 같은 활성화 주기에 이미 실패한 경우 즉시 실패를 반환하고, 멀티액션 시 무한 반복을 방지합니다.
     - **수리 시스템 관련:**
       - `RepairSelfNode.cs`: 스스로를 수리하는 행동을 결정하고 `Blackboard.DecidedActionType`에 기록하는 노드입니다.
       - `SetRepairAllyActionNode.cs`: 아군 수리 행동을 설정하는 노드입니다.
