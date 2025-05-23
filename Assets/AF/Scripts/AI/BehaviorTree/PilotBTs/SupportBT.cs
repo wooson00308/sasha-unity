@@ -1,6 +1,8 @@
 using AF.AI.BehaviorTree.Actions;
 using AF.AI.BehaviorTree.Conditions;
 using AF.AI.BehaviorTree.Decorators;
+using AF.AI.BehaviorTree; // 통합된 네임스페이스 사용
+using AF.AI.BehaviorTree.Evaluators; // Evaluators 네임스페이스 사용
 using AF.Combat;
 using AF.Models;
 using System.Collections.Generic;
@@ -145,6 +147,9 @@ namespace AF.AI.BehaviorTree.PilotBTs
                         new RepairSelfNode()
                     }),
 
+                    // SASHA 신규: 지원 전문 유틸리티 기반 전술 결정
+                    CreateSupportTacticalUtilitySelector(defaultRepairRange, allyHealthThresholdForRepair),
+
                     // --- 아군 수리 및 지원 로직 그룹 (새로 추가된 Selector) ---
                     allySupportSelector,
 
@@ -153,6 +158,7 @@ namespace AF.AI.BehaviorTree.PilotBTs
                     {
                         new LogMessageNode("[SupportBT.RootSelector] Ally support failed. Trying to attack enemy."), // 디버그 로그 추가
                         new SelectTargetNode(), // 공격할 적 찾기
+                        new SelectAlternativeWeaponNode(), // 추가: 선택된 무기 사용 불가 시 다른 무기 선택
                         new HasValidTargetNode(), // 적 찾았는지 확인
                         new MoveToTargetNode(), // 적에게 접근 (무기 사거리 내에서 멈추는 로직은 MoveToTargetNode에 포함된다고 가정)
                         new IsTargetInRangeNode(), // 선택된 무기 사거리 안에 있는지 체크 (무기 사거리 사용)
@@ -215,6 +221,92 @@ namespace AF.AI.BehaviorTree.PilotBTs
                     new WaitNode() // (이것으로 턴 종료)
                 }
             );
+        }
+
+        /// <summary>
+        /// 지원 전문 유틸리티 선택기를 생성합니다.
+        /// 아군 지원과 자기 생존의 균형을 맞추는 전술 결정을 합니다.
+        /// </summary>
+        private static UtilitySelectorNode CreateSupportTacticalUtilitySelector(float repairRange, float allyHealthThreshold)
+        {
+            var utilityActions = new List<IUtilityAction>();
+
+            // 1. 아군 수리 (최우선 지원 활동)
+            var allyRepairSequence = new SequenceNode(new List<BTNode>
+            {
+                new SelectLowestHealthAllyNode(allyHealthThreshold, null),
+                new HasValidTargetNode(checkTargetPartSlot: true),
+                new IsTargetInRepairRangeNode(repairRange),
+                new HasRepairUsesNode(),
+                new HasEnoughAPNode(CombatActionEvents.ActionType.RepairAlly),
+                new CanRepairTargetPartNode(),
+                new SetRepairAllyActionNode()
+            });
+
+            var allyRepairEvaluator = new CompositeUtilityEvaluator(new IUtilityEvaluator[]
+            {
+                new AllyRepairUtilityEvaluator(allyHealthThreshold), // 아군 수리 필요성 평가
+                new APEfficiencyEvaluator(CombatActionEvents.ActionType.RepairAlly, baseUtility: 0.6f, apThreshold: 4f)
+            }, new float[] { 0.9f, 0.1f }); // 지원 우선 90%, AP 효율성 10%
+
+            utilityActions.Add(new BTNodeUtilityAction(allyRepairSequence, allyRepairEvaluator, "Ally Repair"));
+
+            // 2. 아군에게 접근 (수리 준비)
+            var allyApproachSequence = new SequenceNode(new List<BTNode>
+            {
+                new SelectLowestHealthAllyNode(allyHealthThreshold, null),
+                new HasValidTargetNode(checkTargetPartSlot: true),
+                new InverterNode(new IsTargetInRepairRangeNode(repairRange)),
+                new CanMoveThisActivationNode(),
+                new HasEnoughAPNode(CombatActionEvents.ActionType.Move),
+                new MoveToTargetNode(repairRange * 0.8f)
+            });
+
+            var allyApproachEvaluator = new CompositeUtilityEvaluator(new IUtilityEvaluator[]
+            {
+                new AllyApproachUtilityEvaluator(repairRange, allyHealthThreshold), // 아군 접근 필요성 평가
+                new APEfficiencyEvaluator(CombatActionEvents.ActionType.Move, baseUtility: 0.5f, apThreshold: 4f)
+            }, new float[] { 0.8f, 0.2f }); // 접근 필요성 80%, AP 효율성 20%
+
+            utilityActions.Add(new BTNodeUtilityAction(allyApproachSequence, allyApproachEvaluator, "Ally Approach"));
+
+            // 3. 지원 어빌리티 사용 (에너지 실드 등)
+            var supportAbilitySequence = new SequenceNode(new List<BTNode>
+            {
+                new SelectSelfActiveAbilityNode(),
+                new HasSelectedWeaponNode(),
+                new InverterNode(new IsAnyWeaponReloadingNode()),
+                new HasEnoughAPNode(CombatActionEvents.ActionType.UseAbility),
+                new ConfirmAbilityUsageNode()
+            });
+
+            var supportAbilityEvaluator = new CompositeUtilityEvaluator(new IUtilityEvaluator[]
+            {
+                new AbilityUtilityEvaluator(), // 어빌리티 상황 평가
+                new APEfficiencyEvaluator(CombatActionEvents.ActionType.UseAbility, baseUtility: 0.4f, apThreshold: 5f)
+            }, new float[] { 0.7f, 0.3f }); // 상황적 필요성 70%, AP 효율성 30%
+
+            utilityActions.Add(new BTNodeUtilityAction(supportAbilitySequence, supportAbilityEvaluator, "Support Ability"));
+
+            // 4. 방어적 공격 (자기 방어용)
+            var defensiveAttackSequence = new SequenceNode(new List<BTNode>
+            {
+                new SelectTargetNode(),
+                new HasValidTargetNode(),
+                new IsTargetInRangeNode(),
+                new HasEnoughAPNode(CombatActionEvents.ActionType.Attack),
+                new AttackTargetNode()
+            });
+
+            var defensiveAttackEvaluator = new CompositeUtilityEvaluator(new IUtilityEvaluator[]
+            {
+                new SupportDefensiveAttackUtilityEvaluator(), // 방어적 공격 평가
+                new APEfficiencyEvaluator(CombatActionEvents.ActionType.Attack, baseUtility: 0.3f, apThreshold: 6f)
+            }, new float[] { 0.6f, 0.4f }); // 방어적 판단 60%, AP 효율성 40%
+
+            utilityActions.Add(new BTNodeUtilityAction(defensiveAttackSequence, defensiveAttackEvaluator, "Defensive Attack"));
+
+            return new UtilitySelectorNode(utilityActions, enableDebugLogging: true);
         }
 
         // 임시 로그 노드

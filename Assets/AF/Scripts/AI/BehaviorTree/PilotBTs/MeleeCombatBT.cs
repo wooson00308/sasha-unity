@@ -1,9 +1,12 @@
 using System.Collections.Generic;
 using AF.AI.BehaviorTree.Actions;
+using AF.AI.BehaviorTree; // 통합된 네임스페이스 사용
 using AF.AI.BehaviorTree.Conditions;
 using AF.AI.BehaviorTree.Decorators;
 using AF.Combat;
 using AF.Models;
+using UnityEngine;
+using AF.AI.BehaviorTree.Evaluators; // Evaluators 네임스페이스 사용
 
 namespace AF.AI.BehaviorTree.PilotBTs
 {
@@ -22,7 +25,8 @@ namespace AF.AI.BehaviorTree.PilotBTs
                 new SequenceNode(new List<BTNode>
                 {
                     new SelectSelfActiveAbilityNode(),
-                    new HasEnoughAPNode(CombatActionEvents.ActionType.UseAbility)
+                    new HasEnoughAPNode(CombatActionEvents.ActionType.UseAbility),
+                    new ConfirmAbilityUsageNode()
                 }),
                 // 0. 재장전 중 방어 시퀀스
                 new SequenceNode(new List<BTNode>
@@ -40,6 +44,10 @@ namespace AF.AI.BehaviorTree.PilotBTs
                     new HasEnoughAPNode(CombatActionEvents.ActionType.RepairSelf),
                     new RepairSelfNode()
                 }),
+
+                // SASHA 신규: 근접전 특화 유틸리티 기반 전술 결정
+                CreateMeleeTacticalUtilitySelector(),
+
                 // 1. 타겟팅 및 교전 시도
                 new SequenceNode(new List<BTNode>
                 {
@@ -87,6 +95,68 @@ namespace AF.AI.BehaviorTree.PilotBTs
                 // 모든 행동이 불가능할 경우 대기
                 new WaitNode()
             });
+        }
+
+        /// <summary>
+        /// 근접전 특화 유틸리티 선택기를 생성합니다.
+        /// 적극적인 근접 공격과 체력 관리에 특화된 전술 결정을 합니다.
+        /// </summary>
+        private static UtilitySelectorNode CreateMeleeTacticalUtilitySelector()
+        {
+            var utilityActions = new List<IUtilityAction>();
+
+            // 1. 공격적 근접 어빌리티 사용 (정밀 조준 등)
+            var meleeAbilitySequence = new SequenceNode(new List<BTNode>
+            {
+                new SelectSelfActiveAbilityNode(),
+                new HasEnoughAPNode(CombatActionEvents.ActionType.UseAbility),
+                new ConfirmAbilityUsageNode()
+            });
+
+            var meleeAbilityEvaluator = new CompositeUtilityEvaluator(new IUtilityEvaluator[]
+            {
+                new AbilityUtilityEvaluator(), // 어빌리티 상황 평가
+                new APEfficiencyEvaluator(CombatActionEvents.ActionType.UseAbility, baseUtility: 0.5f, apThreshold: 4f)
+            }, new float[] { 0.7f, 0.3f }); // 상황적 필요성 70%, AP 효율성 30%
+
+            utilityActions.Add(new BTNodeUtilityAction(meleeAbilitySequence, meleeAbilityEvaluator, "Melee Ability"));
+
+            // 2. 적극적 근접 공격
+            var aggressiveAttackSequence = new SequenceNode(new List<BTNode>
+            {
+                new HasValidTargetNode(),     
+                new IsTargetInRangeNode(),   
+                new IsSelectedWeaponUsableForAttackNode(),
+                new HasEnoughAPNode(CombatActionEvents.ActionType.Attack),
+                new AttackTargetNode()       
+            });
+
+            var aggressiveAttackEvaluator = new CompositeUtilityEvaluator(new IUtilityEvaluator[]
+            {
+                new MeleeAttackUtilityEvaluator(), // 근접전 특화 공격 평가
+                new APEfficiencyEvaluator(CombatActionEvents.ActionType.Attack, baseUtility: 0.7f, apThreshold: 3f)
+            }, new float[] { 0.8f, 0.2f }); // 근접 공격 우선 80%, AP 효율성 20%
+
+            utilityActions.Add(new BTNodeUtilityAction(aggressiveAttackSequence, aggressiveAttackEvaluator, "Aggressive Melee Attack"));
+
+            // 3. 적극적 접근 이동
+            var aggressiveMoveSequence = new SequenceNode(new List<BTNode>
+            {
+                new HasValidTargetNode(),
+                new CanMoveThisActivationNode(),
+                new HasEnoughAPNode(CombatActionEvents.ActionType.Move),
+                new MoveToTargetNode()
+            });
+
+            var aggressiveMoveEvaluator = new CompositeUtilityEvaluator(new IUtilityEvaluator[]
+            {
+                new MeleeApproachUtilityEvaluator(), // 근접전 접근 평가
+                new APEfficiencyEvaluator(CombatActionEvents.ActionType.Move, baseUtility: 0.6f, apThreshold: 4f)
+            }, new float[] { 0.7f, 0.3f }); // 접근 필요성 70%, AP 효율성 30%
+
+            utilityActions.Add(new BTNodeUtilityAction(aggressiveMoveSequence, aggressiveMoveEvaluator, "Aggressive Approach"));
+
+            return new UtilitySelectorNode(utilityActions, enableDebugLogging: true);
         }
     }
 } 

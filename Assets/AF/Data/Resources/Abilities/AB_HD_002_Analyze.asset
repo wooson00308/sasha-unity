@@ -20,7 +20,7 @@ MonoBehaviour:
   AbilityType: 1
   TargetType: 2
   EffectType: 2
-  EffectParametersRaw: StatusID:Debuff_ArmorBreak,Duration:2,Value:0.2
+  EffectParametersRaw: StatusID:Debuff_ArmorBreak,Duration:4,Value:0.2
   APCost: 3
   CooldownTurns: 4
   ActivationConditionRaw: Always

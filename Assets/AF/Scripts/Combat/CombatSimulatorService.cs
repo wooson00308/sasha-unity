@@ -472,6 +472,29 @@ namespace AF.Combat
                     _textLogger?.TextLogger?.Log($"WARNING: [{_currentActiveUnit.Name}]의 행동 {decidedActionType.Value} 실행 프로토콜 인터럽트 발생.", LogLevel.Warning);
                 }
 
+                // === 행동 실행 후 블랙보드 클리어 (SASHA FIX) ===
+                // 행동이 성공하든 실패하든 현재 결정된 행동과 관련 데이터를 클리어하여
+                // 다음 행동 트리 실행 시 새로운 결정을 내리도록 함
+                blackboard.DecidedActionType = null;
+                if (decidedActionType.Value == CombatActionEvents.ActionType.UseAbility)
+                {
+                    blackboard.SelectedAbility = null;
+                }
+                else if (decidedActionType.Value == CombatActionEvents.ActionType.Attack)
+                {
+                    blackboard.SelectedWeapon = null;
+                    blackboard.CurrentTarget = null;
+                }
+                else if (decidedActionType.Value == CombatActionEvents.ActionType.Move)
+                {
+                    blackboard.IntendedMovePosition = null;
+                }
+                else if (decidedActionType.Value == CombatActionEvents.ActionType.Reload)
+                {
+                    blackboard.WeaponToReload = null;
+                }
+                // === 블랙보드 클리어 끝 ===
+
                 CheckBattleEndCondition();
                 if (!_isInCombat) 
                 {

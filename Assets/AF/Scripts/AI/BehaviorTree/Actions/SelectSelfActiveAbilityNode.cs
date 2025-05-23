@@ -38,8 +38,19 @@ namespace AF.AI.BehaviorTree.Actions
 
             if (blackboard.SelectedAbility != null)
             {
-                textLogger?.Log($"[{nodeName}] {agent.Name}: An ability '{blackboard.SelectedAbility.AbilityID}' is already on blackboard. Assuming it will be handled. Success.", LogLevel.Debug);
-                return NodeStatus.Success;
+                var existingAbility = blackboard.SelectedAbility;
+                if (AbilityEffectRegistry.TryGetExecutor(existingAbility.AbilityID, out var existingExec) &&
+                    existingExec.CanExecute(context, agent, agent, existingAbility.SourceSO) &&
+                    agent.HasEnoughAP(existingAbility.SourceSO.APCost))
+                {
+                    textLogger?.Log($"[{nodeName}] {agent.Name}: Existing ability '{existingAbility.AbilityID}' still usable. Success.", LogLevel.Debug);
+                    return NodeStatus.Success;
+                }
+                else
+                {
+                    textLogger?.Log($"[{nodeName}] {agent.Name}: Existing ability '{existingAbility.AbilityID}' no longer usable. Clearing and selecting new one.", LogLevel.Debug);
+                    blackboard.SelectedAbility = null;
+                }
             }
 
             var abilityIds = agent.Parts?.Values

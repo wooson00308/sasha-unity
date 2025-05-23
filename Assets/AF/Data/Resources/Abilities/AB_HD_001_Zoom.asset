@@ -19,7 +19,7 @@ MonoBehaviour:
   AbilityType: 1
   TargetType: 1
   EffectType: 1
-  EffectParametersRaw: Stat:Accuracy,ModType:Additive,Value:0.3,Duration:1
+  EffectParametersRaw: Stat:Accuracy,ModType:Additive,Value:0.3,Duration:3
   APCost: 2
   CooldownTurns: 3
   ActivationConditionRaw: Always

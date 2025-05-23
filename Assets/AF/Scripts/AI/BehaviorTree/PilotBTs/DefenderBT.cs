@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using AF.AI.BehaviorTree.Actions;
-using AF.AI.BehaviorTree; // 통합된 네임스페이스 사용
+using AF.AI.BehaviorTree.Evaluators;
 using AF.AI.BehaviorTree.Conditions;
 using AF.AI.BehaviorTree.Decorators;
 using AF.Combat;
@@ -55,10 +55,14 @@ namespace AF.AI.BehaviorTree.PilotBTs
                     new ReloadWeaponNode()
                 }),
 
+                // SASHA 신규: 방어 전문 유틸리티 기반 전술 결정
+                CreateDefensiveTacticalUtilitySelector(),
+
                 // 2. 타겟팅 및 교전 시퀀스 (공격 또는 이동) - 3
                 new SequenceNode(new List<BTNode>
                 {
                     new SelectTargetNode(),
+                    new SelectAlternativeWeaponNode(),
                     new HasValidTargetNode(),
                     new SelectorNode(new List<BTNode>
                     {
@@ -105,6 +109,68 @@ namespace AF.AI.BehaviorTree.PilotBTs
                 // 7. 대기 노드 (최후) - 6
                 new WaitNode()
             });
+        }
+
+        /// <summary>
+        /// 방어 전문 유틸리티 선택기를 생성합니다.
+        /// 생존과 방어를 최우선으로 하는 보수적인 전술 결정을 합니다.
+        /// </summary>
+        private static UtilitySelectorNode CreateDefensiveTacticalUtilitySelector()
+        {
+            var utilityActions = new List<IUtilityAction>();
+
+            // 1. 방어적 어빌리티 사용 (에너지 실드 등 생존 어빌리티 우선)
+            var defensiveAbilitySequence = new SequenceNode(new List<BTNode>
+            {
+                new SelectSelfActiveAbilityNode(),
+                new HasEnoughAPNode(CombatActionEvents.ActionType.UseAbility),
+                new ConfirmAbilityUsageNode()
+            });
+
+            var defensiveAbilityEvaluator = new CompositeUtilityEvaluator(new IUtilityEvaluator[]
+            {
+                new AbilityUtilityEvaluator(), // 어빌리티 상황 평가
+                new APEfficiencyEvaluator(CombatActionEvents.ActionType.UseAbility, baseUtility: 0.3f, apThreshold: 6f)
+            }, new float[] { 0.8f, 0.2f }); // 상황적 필요성 80%, AP 효율성 20% (방어적)
+
+            utilityActions.Add(new BTNodeUtilityAction(defensiveAbilitySequence, defensiveAbilityEvaluator, "Defensive Ability"));
+
+            // 2. 보수적 공격 (안전한 상황에서만)
+            var conservativeAttackSequence = new SequenceNode(new List<BTNode>
+            {
+                new HasValidTargetNode(),     
+                new IsTargetInRangeNode(),   
+                new IsSelectedWeaponUsableForAttackNode(),
+                new HasEnoughAPNode(CombatActionEvents.ActionType.Attack),
+                new AttackTargetNode()       
+            });
+
+            // 방어자는 더 보수적인 공격 평가 (체력이 충분할 때만 적극적)
+            var conservativeAttackEvaluator = new CompositeUtilityEvaluator(new IUtilityEvaluator[]
+            {
+                new DefensiveAttackUtilityEvaluator(), // 방어적 공격 평가
+                new APEfficiencyEvaluator(CombatActionEvents.ActionType.Attack, baseUtility: 0.6f, apThreshold: 5f)
+            }, new float[] { 0.7f, 0.3f }); // 방어적 판단 70%, AP 효율성 30%
+
+            utilityActions.Add(new BTNodeUtilityAction(conservativeAttackSequence, conservativeAttackEvaluator, "Conservative Attack"));
+
+            // 3. 전술적 방어 (적극적 방어 자세)
+            var tacticalDefenseSequence = new SequenceNode(new List<BTNode>
+            {
+                new CanDefendThisActivationNode(),
+                new HasEnoughAPNode(CombatActionEvents.ActionType.Defend),
+                new DefendNode()
+            });
+
+            var tacticalDefenseEvaluator = new CompositeUtilityEvaluator(new IUtilityEvaluator[]
+            {
+                new DefensiveUtilityEvaluator(), // 방어 상황 평가
+                new APEfficiencyEvaluator(CombatActionEvents.ActionType.Defend, baseUtility: 0.4f, apThreshold: 4f)
+            }, new float[] { 0.6f, 0.4f }); // 방어 필요성 60%, AP 효율성 40%
+
+            utilityActions.Add(new BTNodeUtilityAction(tacticalDefenseSequence, tacticalDefenseEvaluator, "Tactical Defense"));
+
+            return new UtilitySelectorNode(utilityActions, enableDebugLogging: true);
         }
     }
 } 

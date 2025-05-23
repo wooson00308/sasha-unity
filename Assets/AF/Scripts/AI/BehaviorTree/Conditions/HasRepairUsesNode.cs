@@ -25,16 +25,15 @@ namespace AF.AI.BehaviorTree.Conditions
                 return NodeStatus.Failure;
             }
 
-            int repairUses = agent.GetCurrentRepairUses();
-            // Check if the agent has repair uses left
-            if (repairUses > 0)
+            // ArmoredFrame에 수리 횟수가 남아 있는지 확인
+            if (agent.GetCurrentRepairUses() > 0)
             {
-                logger?.Log($"[{this.GetType().Name}] {agent.Name}: Has {repairUses} repair uses remaining. Success.", LogLevel.Debug);
+                logger?.Log($"[{this.GetType().Name}] {agent.Name}: Has {agent.GetCurrentRepairUses()} repair uses remaining. Success.", LogLevel.Debug);
                 return NodeStatus.Success; // Repair uses available
             }
             else
             {
-                logger?.Log($"[{this.GetType().Name}] {agent.Name}: Has no repair uses left (Current: {repairUses}). Failure.", LogLevel.Debug);
+                logger?.Log($"[{this.GetType().Name}] {agent.Name}: Has no repair uses left (Current: {agent.GetCurrentRepairUses()}). Failure.", LogLevel.Debug);
                 return NodeStatus.Failure; // No repair uses left
             }
         }

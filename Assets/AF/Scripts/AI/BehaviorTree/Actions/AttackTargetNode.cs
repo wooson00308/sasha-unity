@@ -48,13 +48,6 @@ namespace AF.AI.BehaviorTree
                 return NodeStatus.Failure;
             }
 
-            // 4. 무기 준비 상태 확인 (탄약, 재장전 등)
-            if (!selectedWeapon.IsOperational || selectedWeapon.IsReloading || !selectedWeapon.HasAmmo())
-            {
-                actualLogger?.Log($"[{this.GetType().Name}] {agent.Name}: Attack failed - Weapon '{selectedWeapon.Name}' is not ready (Operational: {selectedWeapon.IsOperational}, Reloading: {selectedWeapon.IsReloading}, Ammo: {selectedWeapon.HasAmmo()}).", LogLevel.Debug);
-                return NodeStatus.Failure;
-            }
-
             // (옵션) 5. AP 및 사거리 검사 - 이 책임은 다른 Condition 노드에 맡기는 것이 일반적임
             // float requiredAP = context.ActionExecutor.CalculateAttackAPCost(agent, selectedWeapon); // 예시, 실제 AP 계산기 필요
             // if (!agent.HasEnoughAP(requiredAP)) return NodeStatus.Failure;

@@ -21,8 +21,8 @@ MonoBehaviour:
   AbilityType: 1
   TargetType: 1
   EffectType: 2
-  EffectParametersRaw: StatusID:Buff_EnergyShield,Duration:3,Value:100
-  APCost: 5
+  EffectParametersRaw: StatusID:Buff_EnergyShield,Duration:5,Value:100
+  APCost: 3
   CooldownTurns: 5
   ActivationConditionRaw: Always
   VisualEffectKey: VFX_EnergyShield
