@@ -1,6 +1,7 @@
 using UnityEngine;
 using AF.Models; // ArmoredFrame, Weapon 모델 사용
 using AF.Models.Abilities;
+using AF.AI.BehaviorTree;
 
 namespace AF.Combat
 {
@@ -29,8 +30,17 @@ namespace AF.Combat
         float GetActionAPCost(
             CombatActionEvents.ActionType actionType,
             ArmoredFrame actor,
+            AF.AI.BehaviorTree.Blackboard blackboard,
             Weapon weapon = null,
             AbilityEffect abilityEffect = null
         );
+
+        /// <summary>
+        /// 지정된 거리만큼 이동하는 데 필요한 AP 비용을 계산합니다.
+        /// </summary>
+        /// <param name="unit">이동할 유닛입니다.</param>
+        /// <param name="distance">이동할 거리입니다.</param>
+        /// <returns>계산된 AP 비용</returns>
+        float CalculateMoveAPCost(ArmoredFrame unit, float distance);
     }
 } 

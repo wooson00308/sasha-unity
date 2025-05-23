@@ -52,13 +52,24 @@ namespace AF.AI.BehaviorTree
                 // _actionType에 따라 필요한 AP 계산
                 // 이제 CombatActionExecutor의 GetActionAPCost를 직접 사용한다.
                 // Reload의 경우, blackboard.WeaponToReload를 weapon 파라미터로 전달한다.
-                actualRequiredAP = context.ActionExecutor.GetActionAPCost(_actionType, agent,
-                    (_actionType == CombatActionEvents.ActionType.Attack) 
-                        ? blackboard.SelectedWeapon 
-                        : (_actionType == CombatActionEvents.ActionType.Reload)
-                            ? blackboard.WeaponToReload 
-                            : null,
-                    _actionType == CombatActionEvents.ActionType.UseAbility ? blackboard.SelectedAbility : null);
+                
+                // Move ActionType일 때 실제 이동 거리 기반 AP 계산
+                if (_actionType == CombatActionEvents.ActionType.Move && blackboard.IntendedMovePosition.HasValue)
+                {
+                    float moveDistance = Vector3.Distance(agent.Position, blackboard.IntendedMovePosition.Value);
+                    actualRequiredAP = context.ActionExecutor.CalculateMoveAPCost(agent, moveDistance);
+                }
+                else
+                {
+                    // 기존 로직 사용
+                    actualRequiredAP = context.ActionExecutor.GetActionAPCost(_actionType, agent, blackboard,
+                        (_actionType == CombatActionEvents.ActionType.Attack) 
+                            ? blackboard.SelectedWeapon 
+                            : (_actionType == CombatActionEvents.ActionType.Reload)
+                                ? blackboard.WeaponToReload 
+                                : null,
+                        _actionType == CombatActionEvents.ActionType.UseAbility ? blackboard.SelectedAbility : null);
+                }
             }
 
             // AP 계산 결과가 float.MaxValue이면 (GetActionAPCost에서 오류 또는 유효하지 않은 조건 시 반환 가능)

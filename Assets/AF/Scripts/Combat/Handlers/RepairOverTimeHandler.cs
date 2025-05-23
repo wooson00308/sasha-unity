@@ -12,7 +12,7 @@ namespace AF.Combat.Handlers
     {
         public void OnApply(CombatContext ctx, ArmoredFrame target, StatusEffect effect)
         {
-            ctx.Logger.TextLogger.Log($"<color=#00FFFF>{target.Name}</color> 기체에 <color=green>나노 수리봇</color> 활성화. (틱당 회복량: {effect.TickValue}, 지속시간: {effect.DurationTurns}턴)", LogLevel.Info, LogEventType.StatusEffectApplied);
+            ctx.Logger.TextLogger.Log($"기체에 <color=green>나노 수리봇</color> 활성화. (틱당 회복량: {effect.TickValue}, 지속시간: {effect.DurationTurns}턴)", LogLevel.Info, LogEventType.StatusEffectApplied);
         }
 
         public void OnTick(CombatContext ctx, ArmoredFrame target, StatusEffect effect)
@@ -42,18 +42,18 @@ namespace AF.Combat.Handlers
                 // OnTick의 로그는 너무 빈번할 수 있으므로, 실제 회복이 발생했을 때 상태 효과 Tick 이벤트만 발생시킴.
                 // 필요하다면 여기에 로그 추가 가능 (예: $"{target.Name}의 {targetPartSlot} 부위 {actualRepairedAmount}만큼 수리됨.")
                 ctx.Bus.Publish(new StatusEffectEvents.StatusEffectTickEvent(target, effect));
-                ctx.Logger.TextLogger.Log($"<color=#00FFFF>{target.Name}</color> 나노 수리봇 작동: 기체 내구도 <color=green>{actualRepairedAmount} 회복</color>.", LogLevel.Info, LogEventType.StatusEffectTicked);
+                ctx.Logger.TextLogger.Log($"나노 수리봇 작동: 기체 내구도 <color=green>{actualRepairedAmount} 회복</color>.", LogLevel.Info, LogEventType.StatusEffectTicked);
             }
         }
 
         public void OnExpire(CombatContext ctx, ArmoredFrame target, StatusEffect effect)
         {
-            ctx.Logger.TextLogger.Log($"<color=#00FFFF>{target.Name}</color> 기체 나노 수리봇 활동 <color=yellow>종료</color>.", LogLevel.Info, LogEventType.StatusEffectExpired);
+            ctx.Logger.TextLogger.Log($"기체 나노 수리봇 활동 <color=yellow>종료</color>.", LogLevel.Info, LogEventType.StatusEffectExpired);
         }
 
         public void OnRemove(CombatContext ctx, ArmoredFrame target, StatusEffect effect)
         {
-            ctx.Logger.TextLogger.Log($"<color=#00FFFF>{target.Name}</color> 기체 나노 수리봇 <color=red>강제 비활성화</color>.", LogLevel.Info, LogEventType.StatusEffectRemoved);
+            ctx.Logger.TextLogger.Log($"<color=#00FFFF>{target.Name}</color> 기체 나노 수리봇 <color=red>강제 비활성화</color>.", LogLevel.Debug, LogEventType.StatusEffectRemoved);
         }
     }
 } 

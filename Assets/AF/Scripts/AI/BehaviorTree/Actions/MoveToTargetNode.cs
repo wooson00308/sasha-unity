@@ -103,32 +103,56 @@ namespace AF.AI.BehaviorTree.Actions
                     return NodeStatus.Success;
                 }
                 
-                // ... (rest of original move logic: calculate IntendedMovePosition based on weapon ranges) ...
+                // ⭐ 핵심: 스마트한 이동 거리 계산
+                float desiredDistance = maxRange * 0.9f; // 목표 거리
+                float requiredMoveDistance = Mathf.Max(0, distanceToTarget - desiredDistance);
+                
+                // AP 기반 최대 이동 가능 거리 계산
+                float maxMoveDistance = CalculateMaxMoveDistanceForCurrentAP(agent, context);
+                float actualMoveDistance = Mathf.Min(requiredMoveDistance, maxMoveDistance);
+                
+                // 이동할 필요 없으면 성공
+                if (actualMoveDistance < 0.1f) 
+                {
+                    textLogger?.Log($"[{GetType().Name}] {agent.Name} no significant move needed (actual: {actualMoveDistance:F1}m). Success.", LogLevel.Debug);
+                    blackboard.IntendedMovePosition = null;
+                    blackboard.DecidedActionType = null;
+                    return NodeStatus.Success;
+                }
+
                 Vector3 directionToTargetNormalized = (blackboard.CurrentTarget.Position - agent.Position).normalized;
                 if (directionToTargetNormalized == Vector3.zero) { /* Failsafe from above */ directionToTargetNormalized = Vector3.forward; }
 
-                Vector3 calculatedIntendedPosition;
-                if (distanceToTarget > maxRange) 
-                {
-                    float targetDist = Mathf.Max(0f, maxRange * 0.9f); 
-                    calculatedIntendedPosition = blackboard.CurrentTarget.Position - directionToTargetNormalized * targetDist;
-                    textLogger?.Log($"[{GetType().Name}] {agent.Name} too far. Moving to weapon range {targetDist}m.", LogLevel.Debug);
-                }
-                else if (distanceToTarget < minRange && minRange > 0.1f) 
-                {
-                    float targetDist = minRange * 1.05f; 
-                    calculatedIntendedPosition = blackboard.CurrentTarget.Position - directionToTargetNormalized * targetDist;
-                    textLogger?.Log($"[{GetType().Name}] {agent.Name} too close. Adjusting to weapon range {targetDist}m.", LogLevel.Debug);
-                }
-                else 
-                {
-                    calculatedIntendedPosition = blackboard.CurrentTarget.Position;
-                    textLogger?.Log($"[{GetType().Name}] {agent.Name} moving to target default weapon pos.", LogLevel.Debug);
-                }
+                Vector3 calculatedIntendedPosition = agent.Position + directionToTargetNormalized * actualMoveDistance;
+                
+                textLogger?.Log($"[{GetType().Name}] {agent.Name} smart move calculation: Required={requiredMoveDistance:F1}m, MaxAP={maxMoveDistance:F1}m, Actual={actualMoveDistance:F1}m", LogLevel.Debug);
+                
                 blackboard.IntendedMovePosition = calculatedIntendedPosition;
                 blackboard.DecidedActionType = CombatActionEvents.ActionType.Move;
                 return NodeStatus.Success;
             }
+        }
+
+        /// <summary>
+        /// 현재 AP로 이동 가능한 최대 거리를 계산합니다.
+        /// </summary>
+        private float CalculateMaxMoveDistanceForCurrentAP(ArmoredFrame agent, CombatContext context)
+        {
+            // 이진 탐색으로 최대 이동 가능 거리 찾기
+            float maxDistance = agent.CombinedStats.Speed * 3f; // 상한선 (충분히 큰 값)
+            float minDistance = 0f;
+            
+            for (int i = 0; i < 12; i++) // 12회 반복으로 정밀도 확보
+            {
+                float testDistance = (maxDistance + minDistance) * 0.5f;
+                float requiredAP = context.ActionExecutor.CalculateMoveAPCost(agent, testDistance);
+                
+                if (agent.HasEnoughAP(requiredAP))
+                    minDistance = testDistance;
+                else
+                    maxDistance = testDistance;
+            }
+            return minDistance;
         }
     }
 } 

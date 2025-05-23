@@ -10,24 +10,14 @@ namespace AF.AI.BehaviorTree
     /// </summary>
     public class IsTargetTooCloseNode : ConditionNode
     {
-        private readonly float _explicitKitingDistance = -1f; // Explicit distance to check against. -1f means not set.
         private const float DefaultMaxRangeRatioForSafetyMargin = 0.1f; // Safety margin as a ratio of MaxRange
         private const float MinimalSafetyMarginAbsolute = 1.0f;     // Minimum absolute safety margin
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="IsTargetTooCloseNode"/> class with a specific kiting distance.
-        /// </summary>
-        /// <param name="explicitKitingDistance">The specific distance to consider "too close".</param>
-        public IsTargetTooCloseNode(float explicitKitingDistance)
-        {
-            this._explicitKitingDistance = explicitKitingDistance;
-        }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="IsTargetTooCloseNode"/> class.
-        /// Uses default kiting behavior (weapon's MinRange + DefaultKitingBuffer).
+        /// Uses weapon's MinRange + a default buffer as the kiting threshold.
         /// </summary>
-        public IsTargetTooCloseNode() : this(-1f) // Calls the other constructor with -1f to indicate no explicit distance
+        public IsTargetTooCloseNode()
         {
         }
 
@@ -56,15 +46,13 @@ namespace AF.AI.BehaviorTree
 
             float kitingThreshold;
 
-            if (_explicitKitingDistance >= 0f) // An explicit distance was provided
+            float safetyMargin = MinimalSafetyMarginAbsolute; // 고정 안전 마진 1.0m
+            kitingThreshold = selectedWeapon.MinRange + safetyMargin;
+            
+            // MinRange가 매우 작거나 0에 가까울 때는 safetyMargin만 사용 (너무 가까운 기준)
+            if (selectedWeapon.MinRange < MinimalSafetyMarginAbsolute) // MinRange가 안전 마진보다 작으면
             {
-                kitingThreshold = _explicitKitingDistance;
-            }
-            else // No explicit distance, use weapon's MinRange + default buffer
-            {
-                float safetyMargin = selectedWeapon.MaxRange * DefaultMaxRangeRatioForSafetyMargin;
-                safetyMargin = Mathf.Max(safetyMargin, MinimalSafetyMarginAbsolute);
-                kitingThreshold = selectedWeapon.MinRange + safetyMargin;
+                kitingThreshold = MinimalSafetyMarginAbsolute; // 안전 마진 자체를 기준으로 사용
             }
 
             float distanceToTarget = Vector3.Distance(agent.Position, currentTarget.Position);

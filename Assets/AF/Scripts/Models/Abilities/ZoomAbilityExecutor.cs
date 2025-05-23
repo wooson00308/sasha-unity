@@ -81,7 +81,7 @@ namespace AF.Models.Abilities
 
             // 추가 조건: 다음 공격할 충분한 AP가 있어야 함 (정밀 조준 후 바로 공격 가능)
             float attackAPCost = ctx?.ActionExecutor?.GetActionAPCost(
-                CombatActionEvents.ActionType.Attack, user, primaryWeapon) ?? 2.0f;
+                CombatActionEvents.ActionType.Attack, user, null, primaryWeapon) ?? 2.0f;
             
             if (user.CurrentAP < data.APCost + attackAPCost) return false;
 

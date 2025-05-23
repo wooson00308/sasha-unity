@@ -24,19 +24,13 @@ namespace AF.AI.BehaviorTree.PilotBTs
                 if (primaryWeapon != null)
                 {
                     // 주무기 최대 사거리의 50%를 카이팅 거리로 사용, 단 최소 2m는 확보
-                    kitingDistanceOverride = Mathf.Max(primaryWeapon.MaxRange * 0.5f, 2f); 
+                    // SASHA: 선택된 무기 기준으로 변경하기 위해 이 로직 제거
+                    // kitingDistanceOverride = Mathf.Max(primaryWeapon.MaxRange * 0.5f, 2f); 
                 }
             }
 
-            IsTargetTooCloseNode isTargetTooCloseNode;
-            if (kitingDistanceOverride >= 0f)
-            {
-                isTargetTooCloseNode = new IsTargetTooCloseNode(kitingDistanceOverride);
-            }
-            else
-            {
-                isTargetTooCloseNode = new IsTargetTooCloseNode(); // 기본 동작 사용
-            }
+            // SASHA: kitingDistanceOverride를 넘기지 않고 기본 생성자 사용
+            IsTargetTooCloseNode isTargetTooCloseNode = new IsTargetTooCloseNode();
 
             return new SelectorNode(new List<BTNode> // Root Selector
             {
@@ -176,7 +170,7 @@ namespace AF.AI.BehaviorTree.PilotBTs
             {
                 new HasValidTargetNode(),
                 new CanMoveThisActivationNode(),
-                new IsTargetTooCloseNode(kitingDistance),
+                new IsTargetTooCloseNode(),
                 new HasEnoughAPNode(CombatActionEvents.ActionType.Move),
                 new MoveAwayFromTargetNode()
             });
@@ -194,7 +188,7 @@ namespace AF.AI.BehaviorTree.PilotBTs
             {
                 new HasValidTargetNode(),
                 new IsTargetInRangeNode(),
-                new InverterNode(new IsTargetTooCloseNode(kitingDistance)),
+                new InverterNode(new IsTargetTooCloseNode()),
                 new HasEnoughAPNode(CombatActionEvents.ActionType.Attack),
                 new AttackTargetNode()
             });

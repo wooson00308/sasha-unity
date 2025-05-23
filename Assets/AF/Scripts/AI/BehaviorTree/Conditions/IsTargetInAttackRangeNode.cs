@@ -26,16 +26,19 @@ namespace AF.AI.BehaviorTree.Conditions
             }
 
             float distanceToTarget = Vector3.Distance(agent.Position, blackboard.CurrentTarget.Position);
-            float attackRange = blackboard.SelectedWeapon.MaxRange;
+            float minAttackRange = blackboard.SelectedWeapon.MinRange;
+            float maxAttackRange = blackboard.SelectedWeapon.MaxRange;
 
-            if (distanceToTarget <= attackRange)
+            bool isInOptimalRange = distanceToTarget >= minAttackRange && distanceToTarget <= maxAttackRange;
+
+            if (isInOptimalRange)
             {
-                // Debug.Log($"[BT] {agent?.Name} - Target {blackboard.CurrentTarget.Name} is IN attack range ({distanceToTarget} <= {attackRange}).");
+                // Debug.Log($"[BT] {agent?.Name} - Target {blackboard.CurrentTarget.Name} is IN optimal attack range ({distanceToTarget:F1}m, Range: {minAttackRange:F1}-{maxAttackRange:F1}m).");
                 return NodeStatus.Success;
             }
             else
             {
-                // Debug.Log($"[BT] {agent?.Name} - Target {blackboard.CurrentTarget.Name} is OUT of attack range ({distanceToTarget} > {attackRange}).");
+                // Debug.Log($"[BT] {agent?.Name} - Target {blackboard.CurrentTarget.Name} is OUT of optimal attack range ({distanceToTarget:F1}m, Range: {minAttackRange:F1}-{maxAttackRange:F1}m).");
                 return NodeStatus.Failure;
             }
         }

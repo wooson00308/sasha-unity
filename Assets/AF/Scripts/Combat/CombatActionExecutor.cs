@@ -6,6 +6,7 @@ using AF.EventBus;
 using AF.Models;
 using AF.Models.Abilities;
 using AF.Data;
+using AF.AI.BehaviorTree;
 
 namespace AF.Combat
 {
@@ -435,6 +436,7 @@ namespace AF.Combat
         public float GetActionAPCost(
             CombatActionEvents.ActionType actionType,
             ArmoredFrame actor,
+            AF.AI.BehaviorTree.Blackboard blackboard,
             Weapon weapon = null,
             AbilityEffect abilityEffect = null)
         {
@@ -445,7 +447,17 @@ namespace AF.Combat
                 case CombatActionEvents.ActionType.Attack:
                     return weapon != null ? CalculateAttackAPCost(actor, weapon) : float.MaxValue;
                 case CombatActionEvents.ActionType.Move:
-                    return CalculateMoveAPCost(actor);
+                    if (blackboard != null && blackboard.IntendedMovePosition.HasValue)
+                    {
+                        float moveDistance = Vector3.Distance(actor.Position, blackboard.IntendedMovePosition.Value);
+                        if (moveDistance < 0.1f) return Mathf.Max(0.3f, actor.TotalWeight * 0.005f - actor.CombinedStats.Speed * 0.075f);
+
+                        return CalculateMoveAPCost(actor, moveDistance);
+                    }
+                    else
+                    {
+                        return CalculateMoveAPCost(actor);
+                    }
                 case CombatActionEvents.ActionType.Defend:
                     return DEFEND_AP_COST;
                 case CombatActionEvents.ActionType.Reload:
@@ -455,7 +467,6 @@ namespace AF.Combat
                 case CombatActionEvents.ActionType.RepairSelf:
                     return REPAIR_SELF_AP_COST;
                 case CombatActionEvents.ActionType.UseAbility:
-                    // Execute 메서드와 동일한 로직으로 수정
                     return (abilityEffect != null && abilityEffect.SourceSO != null) ? abilityEffect.SourceSO.APCost : float.MaxValue;
                 case CombatActionEvents.ActionType.None:
                     return 0f;
@@ -467,10 +478,26 @@ namespace AF.Combat
         public float CalculateMoveAPCost(ArmoredFrame unit)
         {
             if (unit == null) return float.MaxValue;
-            float baseCost  = 1f;
-            float weightPen = unit.TotalWeight * 0.005f;
-            float speedBon  = unit.CombinedStats.Speed * 0.075f; 
-            return Mathf.Max(0.5f, baseCost + weightPen - speedBon);
+            
+            // 평균 이동거리 가정: 유닛의 스피드 * 0.7 (적당한 이동거리)
+            float averageMoveDistance = unit.CombinedStats.Speed * 0.7f;
+            
+            // 새로운 거리 기반 메서드를 호출하여 일관성 확보
+            return CalculateMoveAPCost(unit, averageMoveDistance);
+        }
+
+        // 새로운 거리 기반 이동 AP 계산 메서드
+        public float CalculateMoveAPCost(ArmoredFrame unit, float distance)
+        {
+            if (unit == null || distance < 0) return float.MaxValue;
+            
+            // 거리 기반 AP 계산
+            float baseCost = 0.5f; // 기본 이동 시작 비용
+            float distanceCost = distance * 0.15f; // 거리당 AP (기존보다 세밀하게)
+            float weightPenalty = unit.TotalWeight * 0.005f;
+            float speedBonus = unit.CombinedStats.Speed * 0.075f;
+            
+            return Mathf.Max(0.3f, baseCost + distanceCost + weightPenalty - speedBonus);
         }
 
         public float CalculateAttackAPCost(ArmoredFrame unit, Weapon weapon)
