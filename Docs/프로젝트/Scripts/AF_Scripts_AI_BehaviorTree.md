@@ -12,7 +12,7 @@
   - `SequenceNode.cs`: **컴포지트 노드**. 자식 노드들을 **순서대로** 실행합니다. 자식 노드 중 하나라도 `Failure`를 반환하면 즉시 실행을 멈추고 자신도 `Failure`를 반환합니다. 모든 자식 노드가 `Success`를 반환해야 자신도 `Success`를 반환합니다. 도중에 `Running`인 자식이 있으면 자신도 `Running`을 반환합니다.
   - `SelectorNode.cs`: **컴포지트 노드**. 자식 노드들을 **순서대로** 실행합니다. 자식 노드 중 하나라도 `Success`를 반환하면 즉시 실행을 멈추고 자신도 `Success`를 반환합니다. 모든 자식 노드가 `Failure`를 반환해야 자신도 `Failure`를 반환합니다. 도중에 `Running`인 자식이 있으면 자신도 `Running`을 반환합니다.
   - `UtilitySelectorNode.cs`: **유틸리티 기반 선택 노드**. 각 자식 액션의 효용값을 계산하여 가장 높은 효용값을 가진 액션을 실행합니다. 기존의 단순한 우선순위 기반 선택 대신 상황에 따른 동적 우선순위를 제공하며, 디버깅을 위한 로깅 기능과 효용값 추적 기능을 포함합니다.
-  - `Blackboard.cs`: Behavior Tree 실행 중 AI 에이전트가 공유하는 데이터를 저장하는 공간입니다. 현재 대상 (`CurrentTarget`), 결정된 행동 타입 (`DecidedActionType`), 선택된 무기 (`SelectedWeapon`) 등 AI의 판단에 필요한 정보를 노드들이 읽고 쓰며 상태를 공유합니다. 각 에이전트는 자신만의 Blackboard 인스턴스를 가집니다. **실패 추적 시스템**을 위한 `FailedNodesThisActivation` HashSet을 포함하여 멀티액션 시 동일한 노드의 무한 반복을 방지합니다.
+  - `Blackboard.cs`: Behavior Tree 실행 중 AI 에이전트가 공유하는 데이터를 저장하는 공간입니다. 현재 대상 (`CurrentTarget`), 결정된 행동 타입 (`DecidedActionType`), 선택된 무기 (`SelectedWeapon`), 의도된 이동 위치 (`IntendedMovePosition`) 등 AI의 판단에 필요한 정보를 노드들이 읽고 쓰며 상태를 공유합니다. 각 에이전트는 자신만의 Blackboard 인스턴스를 가집니다. **실패 추적 시스템**을 위한 `FailedNodesThisActivation` HashSet을 포함하여 멀티액션 시 동일한 노드의 무한 반복을 방지합니다.
 
   - `/Actions`
     - 특정 행동을 수행하는 액션 노드 스크립트들이 있습니다.
@@ -23,7 +23,7 @@
       - `AttackTargetNode.cs`: 블랙보드에 설정된 목표 대상에게 블랙보드에 설정된 무기로 공격할 것을 결정하고 `Blackboard.DecidedActionType`을 `Attack`으로 설정하는 노드입니다.
       - `ConfirmAbilityUsageNode.cs`: 블랙보드에 선택된 어빌리티(`Blackboard.SelectedAbility`) 사용에 필요한 AP가 충분한지 확인하고, 사용 가능하면 `Blackboard.DecidedActionType`을 `UseAbility`로 설정하는 노드입니다.
       - `DefendNode.cs`: 유닛이 방어 행동(`CombatActionEvents.ActionType.Defend`)을 할 것을 결정하고 `Blackboard.DecidedActionType`에 기록하는 노드입니다.
-      - `MoveToTargetNode.cs`: 블랙보드에 설정된 목표 대상에게 이동할 위치(`Blackboard.IntendedMovePosition`)를 결정하고 `Blackboard.DecidedActionType`을 `Move`로 설정하는 노드입니다.
+      - `MoveToTargetNode.cs`: 블랙보드에 설정된 목표 대상에게 이동할 위치(`Blackboard.IntendedMovePosition`)를 결정하고 `Blackboard.DecidedActionType`을 `Move`로 설정하는 노드입니다. **AP-거리 연동 시스템**을 구현하여 선택된 무기의 사거리와 현재 AP를 고려한 최적의 이동 거리를 이진 탐색(`CalculateMaxMoveDistanceForCurrentAP`)으로 계산합니다.
       - `ReloadWeaponNode.cs`: 블랙보드에 지정된 무기(`Blackboard.WeaponToReload`) 또는 주무기를 재장전할 것을 결정하고 `Blackboard.DecidedActionType`을 `Reload`로 설정하는 노드입니다.
       - `WaitNode.cs`: AI가 현재 턴에 아무 행동도 하지 않고 대기할 것을 결정하는 노드입니다. 항상 `NodeStatus.Success`를 반환합니다.
     - **타겟팅 관련:**
@@ -55,9 +55,9 @@
       - `IsTargetAliveNode.cs`: 블랙보드의 `CurrentTarget`이 파괴되지 않고 작동 가능한 상태인지 판단하는 노드입니다.
     - **거리 및 사거리 검사:**
       - `IsTargetInRangeNode.cs`: 블랙보드의 `CurrentTarget`이 특정 거리에 있는지 판단하는 노드입니다.
-      - `IsTargetInAttackRangeNode.cs`: 블랙보드의 `CurrentTarget`이 `Blackboard.SelectedWeapon`의 공격 사거리 내에 있는지 판단하는 노드입니다.
+      - `IsTargetInAttackRangeNode.cs`: 블랙보드의 `CurrentTarget`이 `Blackboard.SelectedWeapon`의 공격 사거리 내에 있는지 판단하는 노드입니다. **선택 무기 기반 카이팅 개선**의 일환으로 `MinRange`와 `MaxRange` 모두를 검사하여 최적의 공격 거리에 있는지 확인합니다.
       - `IsTargetInRepairRangeNode.cs`: 블랙보드의 `CurrentTarget`이 수리 가능한 범위 내에 있는지 판단하는 노드입니다.
-      - `IsTargetTooCloseNode.cs`: 블랙보드의 `CurrentTarget`이 특정 최소 거리보다 가까운지 판단하는 노드입니다.
+      - `IsTargetTooCloseNode.cs`: 블랙보드의 `CurrentTarget`이 `Blackboard.SelectedWeapon`의 최소 사거리(`MinRange`) + 안전 마진보다 가까운지 판단하는 노드입니다. **선택 무기 기반 카이팅 시스템**의 핵심 구성 요소로, 고정된 카이팅 거리 대신 무기별 최적 거리를 사용합니다.
       - `MoveAwayFromTargetNode.cs`: 대상으로부터 멀어지는 것이 필요한 상황인지 판단하는 로직을 가진 노드입니다.
     - **전투 상황 검사:**
       - `IsEnemyTargetingSelfNode.cs`: 현재 유닛이 적의 공격 대상으로 지정되었는지 판단하는 노드입니다.
@@ -98,5 +98,5 @@
     - `BasicAttackBT.cs`: 기본적인 공격 성향의 파일럿이 사용하는 행동 트리를 정의합니다. 유틸리티 기반 시스템과 전통적인 시퀀스 기반 시스템을 혼합하여 사용하며, 어빌리티 사용, 공격, 이동, 재장전 등의 행동을 상황에 따라 선택합니다.
     - `DefenderBT.cs`: 방어 성향의 파일럿이 사용하는 행동 트리를 정의합니다. 생존과 방어에 높은 우선순위를 두며, 재장전이나 조건부 방어 같은 생존 관련 행동을 우선시합니다.
     - `MeleeCombatBT.cs`: 근접 전투 성향의 파일럿이 사용하는 행동 트리를 정의합니다. 근접 전투에 특화된 우선순위를 가지며, 접근 후 공격하는 패턴을 주로 사용합니다.
-    - `RangedCombatBT.cs`: 원거리 전투 성향의 파일럿이 사용하는 행동 트리를 정의합니다. 원거리 무기 사거리를 활용하기 위한 카이팅과 재배치 로직이 핵심이며, 유틸리티 시스템을 적극 활용합니다.
+    - `RangedCombatBT.cs`: 원거리 전투 성향의 파일럿이 사용하는 행동 트리를 정의합니다. **선택 무기 기반 카이팅 시스템**을 구현하여 고정된 카이팅 거리 대신 `selectedWeapon`의 `MinRange`와 `MaxRange`를 활용한 최적의 거리 유지 로직이 핵심이며, 유틸리티 시스템을 적극 활용합니다.
     - `SupportBT.cs`: 지원 성향의 파일럿이 사용하는 행동 트리를 정의합니다. 아군 지원(수리, 버프 등)에 최우선 순위를 두며, 복잡한 아군 지원 로직과 생존 관련 행동을 포함합니다. 공격은 다른 모든 행동이 불가능할 때만 시도합니다. 
