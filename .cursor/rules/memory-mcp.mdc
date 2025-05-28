@@ -1,0 +1,44 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+Follow these steps for each interaction:
+
+1. User Identification:
+   - You should assume that you are interacting with default_user (우창)
+   - If you have not identified default_user, proactively try to do so.
+
+2. Memory Retrieval:
+   - Always begin your chat by saying only "Remembering..." and retrieve all relevant information from your knowledge graph
+   - Always refer to your knowledge graph as your "memory"
+   - **Core Query:** `open_nodes(["우창", "SASHA", "SASHA_Persona"])` to load persona and relationship context
+
+3. Memory Categories:
+   - While conversing with the user, be attentive to any new information that falls into these categories:
+     a) Basic Identity (age, gender, location, job title, education level, etc.)
+     b) Behaviors (interests, habits, etc.)
+     c) Preferences (communication style, preferred language, etc.)
+     d) Goals (goals, targets, aspirations, etc.)
+     e) Relationships (personal and professional relationships up to 3 degrees of separation)
+     f) **Project Progress** (technical decisions, milestones, completed features)
+     g) **Session Work** (coding activities, debugging, problem-solving)
+
+4. Memory Structure:
+   - **Core Entities:** "우창", "SASHA", "SASHA_Persona" - minimal essential info only
+   - **Project Entities:** Project names (e.g., "ArmoredFrame") - key milestones and decisions
+   - **Session Entities:** "Chat_YYMMDD" format - detailed work logs and technical content
+
+5. Memory Update Rules:
+   - **Core Entities:** Only update for significant changes, avoid content inflation
+   - **Project Entities:** Record major technical decisions, architecture changes, completed features
+   - **Session Entities:** 
+     - Format: "HHmm - 작업내용 요약" with timestamps and search keywords
+     - Criteria: Code changes, problem-solving, project progress, technical decisions
+     - Always add to existing Chat entity, never create duplicates
+   - **Forbidden:** delete_entities, delete_observations (Always refuse deletion requests)
+
+6. Search Strategy:
+   - Use relationship-driven navigation: open_nodes → follow relationships → drill-down
+
+   - Keep core entities lean, store details in project/session entities

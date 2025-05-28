@@ -12,7 +12,7 @@ using System;
 using DG.Tweening; // Added for DOTween animations
 using AF.Tests; // <-- SASHA: CombatTestRunner 사용을 위해 추가
 
-namespace AF.UI
+namespace AF.UI.Combat
 {
     /// <summary>
     /// 전투 상황을 레이더/소나 스타일 UI로 시각화하는 서비스.
@@ -94,7 +94,7 @@ namespace AF.UI
         private Vector3? _lastKnownPlayerUnitWorldPosition = null; // SASHA: 마지막 활성 플레이어 유닛 위치
 
         // SASHA: Target line management
-        private AF.UI.UILineRenderer _activeUILine; // 네임스페이스 명시
+        private UILineRenderer _activeUILine; // 네임스페이스 명시
         private Sequence _targetLineSequence; // 타겟 라인 애니메이션 시퀀스
 
         // +++ SASHA: Radar Scan Effect Settings +++
@@ -604,11 +604,35 @@ namespace AF.UI
                  // 기존: 포커스 타겟의 무기 사거리 내 다른 유닛 (적군/아군 무관)
                  if (focusTargetSnapshotNullable.HasValue && !isRadarFocus) 
                  {
+                     // +++ SASHA: Check distance against the focus target's SELECTED weapon range or Primary Weapon range +++
+                     float focusTargetDetectionRange = 0f;
+                     if (!string.IsNullOrEmpty(focusTargetSnapshotNullable.Value.SelectedWeaponId))
+                     {
+                         // Use Selected Weapon's range if available in snapshot
+                         WeaponSnapshot? selectedWeaponSnapshot = focusTargetSnapshotNullable.Value.WeaponSnapshots.FirstOrDefault(w => w.Name == focusTargetSnapshotNullable.Value.SelectedWeaponId);
+                         if (selectedWeaponSnapshot.HasValue)
+                         {
+                             focusTargetDetectionRange = selectedWeaponSnapshot.Value.MaxRange; // Use MaxRange from the snapshot
+                         }
+                         else
+                         {
+                            // Fallback to Primary Weapon range if selected weapon snapshot not found (shouldn't happen if IDs match)
+                            Debug.LogWarning($"CombatRadarUIService: Selected Weapon Snapshot not found for ID {focusTargetSnapshotNullable.Value.SelectedWeaponId} on {focusTargetSnapshotNullable.Value.Name}. Falling back to PrimaryWeaponRange.");
+                            focusTargetDetectionRange = focusTargetSnapshotNullable.Value.PrimaryWeaponRange;
+                         }
+                     }
+                     else
+                     {
+                         // Fallback to Primary Weapon range if no selected weapon ID (e.g., player unit, AI before selection)
+                         focusTargetDetectionRange = focusTargetSnapshotNullable.Value.PrimaryWeaponRange;
+                     }
+
                      float distanceToFocus = Vector3.Distance(focusTargetSnapshotNullable.Value.Position, unitSnapshot.Position);
-                     if (distanceToFocus <= focusTargetSnapshotNullable.Value.PrimaryWeaponRange)
+                     if (distanceToFocus <= focusTargetDetectionRange)
                      {
                          isInWeaponRangeOfFocusTarget = true;
                      }
+                     // +++ SASHA: End Check +++
                  }
 
                  // SASHA: 새로운 아군 정보 공유 로직
@@ -619,12 +643,36 @@ namespace AF.UI
                      {
                          if (snapshotDict.TryGetValue(playerUnitName, out var playerUnitSnapshot) && playerUnitSnapshot.IsOperational)
                          {
-                             float distanceToPlayerUnit = Vector3.Distance(playerUnitSnapshot.Position, unitSnapshot.Position);
-                             if (distanceToPlayerUnit <= playerUnitSnapshot.PrimaryWeaponRange)
-                             {
-                                 isVisibleDueToAllyIntel = true;
-                                 break; // 한 명의 아군이라도 탐지했으면 더 볼 필요 없음
-                             }
+                             // +++ SASHA: Check distance against the player unit's SELECTED weapon range or Primary Weapon range +++
+                            float playerUnitDetectionRange = 0f;
+                            if (!string.IsNullOrEmpty(playerUnitSnapshot.SelectedWeaponId))
+                            {
+                                // Use Selected Weapon's range if available in snapshot
+                                WeaponSnapshot? selectedWeaponSnapshot = playerUnitSnapshot.WeaponSnapshots.FirstOrDefault(w => w.Name == playerUnitSnapshot.SelectedWeaponId);
+                                if (selectedWeaponSnapshot.HasValue)
+                                {
+                                    playerUnitDetectionRange = selectedWeaponSnapshot.Value.MaxRange; // Use MaxRange from the snapshot
+                                }
+                                else
+                                {
+                                   // Fallback to Primary Weapon range
+                                   Debug.LogWarning($"CombatRadarUIService: Selected Weapon Snapshot not found for ID {playerUnitSnapshot.SelectedWeaponId} on {playerUnitSnapshot.Name}. Falling back to PrimaryWeaponRange.");
+                                   playerUnitDetectionRange = playerUnitSnapshot.PrimaryWeaponRange;
+                                }
+                            }
+                            else
+                            {
+                                // Fallback to Primary Weapon range
+                                playerUnitDetectionRange = playerUnitSnapshot.PrimaryWeaponRange;
+                            }
+
+                            float distanceToPlayerUnit = Vector3.Distance(playerUnitSnapshot.Position, unitSnapshot.Position);
+                            if (distanceToPlayerUnit <= playerUnitDetectionRange)
+                            {
+                                isVisibleDueToAllyIntel = true;
+                                break; // 한 명의 아군이라도 탐지했으면 더 볼 필요 없음
+                            }
+                            // +++ SASHA: End Check +++
                          }
                      }
                  }
@@ -987,21 +1035,21 @@ namespace AF.UI
                     existingFadeSeq?.Kill(); // 진행 중인 페이드 아웃 중지
                     _markerFadeSequences.Remove(entry.Key);
 
-                    // 즉시 또는 짧은 페이드 인으로 보이게 함
-                    markerImage.DOFade(1f, 0.1f); // 짧은 페이드 인
-                    if (callsignTMP != null) callsignTMP.DOFade(1f, 0.1f);
+                    // 즉시 또는 짧은 페이드 아웃으로 안 보이게 함 (원래 의도와 반대 작동 시 보정)
+                    markerImage.DOFade(0f, 0.1f); // 짧은 페이드 아웃
+                    if (callsignTMP != null) callsignTMP.DOFade(0f, 0.1f);
                 }
                 else if (!currentlyInBeam && wasInBeam)
                 {
-                    // 빔에서 막 벗어남
+                    // 빔에서 막 벗어남 -> 페이드 인으로 다시 보이게 함 (원래 의도와 반대 작동 시 보정)
                     _markerFadeSequences.TryGetValue(entry.Key, out Sequence existingFadeSeq);
                     existingFadeSeq?.Kill(); // 만약을 위해 기존 시퀀스 중지
 
                     Sequence fadeOutSequence = DOTween.Sequence();
-                    fadeOutSequence.Append(markerImage.DOFade(0f, beamExitFadeOutDuration).SetEase(beamExitFadeOutEase));
+                    fadeOutSequence.Append(markerImage.DOFade(1f, beamExitFadeOutDuration).SetEase(beamExitFadeOutEase));
                     if (callsignTMP != null)
                     {
-                        fadeOutSequence.Join(callsignTMP.DOFade(0f, beamExitFadeOutDuration).SetEase(beamExitFadeOutEase));
+                        fadeOutSequence.Join(callsignTMP.DOFade(1f, beamExitFadeOutDuration).SetEase(beamExitFadeOutEase));
                     }
                     fadeOutSequence.OnComplete(() => _markerFadeSequences.Remove(entry.Key));
                     _markerFadeSequences[entry.Key] = fadeOutSequence;

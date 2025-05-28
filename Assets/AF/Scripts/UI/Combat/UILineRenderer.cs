@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 
-namespace AF.UI
+namespace AF.UI.Combat
 {
     public class UILineRenderer : Graphic
     {

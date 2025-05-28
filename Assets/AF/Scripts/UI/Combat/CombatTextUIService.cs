@@ -14,7 +14,7 @@ using System.Text;
 using System.Threading; // <<< CancellationTokenSource 사용 위해 추가
 using Sirenix.OdinInspector; // <<< SASHA: OdinInspector 사용 위해 추가
 
-namespace AF.UI
+namespace AF.UI.Combat
 {
     // +++ SASHA: LogEventType별 속도 파라미터 구조체 +++
     [Serializable]
@@ -546,7 +546,8 @@ namespace AF.UI
             Dictionary<string, PartSnapshot> newPartSnapshots = null,
             Vector3? newPosition = null,
             float? newCurrentAP = null, // Optional: Add other fields to update as needed
-            bool? newIsOperationalOverride = null // <<< SASHA: IsOperational 오버라이드 파라미터 추가
+            bool? newIsOperationalOverride = null, // <<< SASHA: IsOperational 오버라이드 파라미터 추가
+            string newSelectedWeaponId = null // SASHA: SelectedWeaponId 업데이트 파라미터 추가
             )
         {
             var partsToUse = newPartSnapshots ?? original.PartSnapshots;
@@ -587,14 +588,15 @@ namespace AF.UI
                 newPosition ?? original.Position,
                 original.TeamId,
                 newCurrentAP ?? original.CurrentAP,
-                original.MaxAP, // Assuming MaxAP doesn't change mid-combat from these deltas
-                totalCurrentDurability, // Use recalculated value
-                totalMaxDurability,   // Use recalculated value
-                isOperational,        // Use recalculated value
-                original.CombinedStats, // Assuming stats don't change mid-combat from these deltas
+                original.MaxAP,
+                totalCurrentDurability,
+                totalMaxDurability,
+                isOperational,
+                original.CombinedStats,
                 partsToUse ?? new Dictionary<string, PartSnapshot>(),
                 original.WeaponSnapshots ?? new List<WeaponSnapshot>(), // Assuming weapons don't change from these deltas
-                original.PrimaryWeaponRange // SASHA: 누락된 primaryWeaponRange 파라미터 전달 추가
+                original.PrimaryWeaponRange, // SASHA: 누락된 primaryWeaponRange 파라미터 전달 추가
+                newSelectedWeaponId ?? original.SelectedWeaponId // SASHA: SelectedWeaponId 전달
             );
         }
 

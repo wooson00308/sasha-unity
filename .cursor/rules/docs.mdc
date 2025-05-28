@@ -1,0 +1,129 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description: ArmoredFrame project documentation structure and management rules
+globs: ["Docs/**/*.md"]
+alwaysApply: true
+---
+
+# Documentation Structure Rules
+
+## Directory Organization
+
+### Main Structure
+```
+Docs/
+├── Meetings/           # Meeting notes and session records
+├── Planning/           # Game design documents and specifications
+├── Architecture/       # Technical architecture documents
+├── API/               # API documentation and technical references
+└── Assets/            # Documentation-related assets (images, diagrams)
+```
+
+### File Naming Convention
+- **Format**: `YYYYMMDD_Category_Title.md`
+- **Examples**:
+  - `20250525_ArmoredFrame_Architecture.md`
+  - `20250526_GameDesign_CombatSystem.md`
+  - `20250527_API_EventBusReference.md`
+
+## Document Categories
+
+### Meetings (`Docs/Meetings/`)
+- **Purpose**: Session records, decision logs, progress tracking
+- **Content**: Agenda, attendees, decisions, action items, next steps
+- **Format**: Structured markdown with consistent headers
+
+### Planning (`Docs/Planning/`)
+- **Purpose**: Game design documents, feature specifications
+- **Content**: Game mechanics, user stories, feature requirements
+- **Format**: Detailed specifications with examples and mockups
+
+### Architecture (`Docs/Architecture/`)
+- **Purpose**: Technical design documents, system overviews
+- **Content**: System diagrams, code structure, design patterns
+- **Format**: Technical documentation with code examples
+
+### API (`Docs/API/`)
+- **Purpose**: Code documentation, usage guides, references
+- **Content**: Class references, method documentation, usage examples
+- **Format**: Auto-generated or manually maintained API docs
+
+## Documentation Standards
+
+### Markdown Structure
+```markdown
+# Document Title
+
+**Date:** YYYY-MM-DD
+**Author:** [Author Name]
+**Status:** [Draft/Review/Approved]
+
+---
+
+## Overview
+[Brief description]
+
+## Content Sections
+[Main content with clear headers]
+
+---
+
+**Next Steps:** [If applicable]
+**Related Documents:** [Cross-references]
+```
+
+### Content Guidelines
+- Use clear, descriptive headings (H1-H4)
+- Include table of contents for long documents
+- Add cross-references between related documents
+- Include code examples with proper syntax highlighting
+- Use bullet points and numbered lists for clarity
+
+## Version Control
+
+### Document Status
+- **Draft**: Work in progress, not finalized
+- **Review**: Ready for review, pending approval
+- **Approved**: Finalized and officially adopted
+- **Archived**: Outdated but kept for reference
+
+### Update Protocol
+- Always update modification date when editing
+- Maintain changelog for significant documents
+- Archive old versions when major revisions occur
+- Cross-link related documents when updating
+
+## Responsibility Matrix
+
+### SASHA (Documentation Manager)
+- Create and maintain document templates
+- Ensure consistent formatting and structure
+- Generate meeting notes and technical documentation
+- Maintain cross-references and document organization
+
+### Woochang (Content Approver)
+- Review and approve all documentation
+- Provide technical content and specifications
+- Make final decisions on document structure changes
+- Validate technical accuracy of documentation
+
+## Quality Assurance
+
+### Review Checklist
+- [ ] Proper file naming convention followed
+- [ ] Document structure matches template
+- [ ] All technical information is accurate
+- [ ] Cross-references are valid and up-to-date
+- [ ] Language is clear and concise
+- [ ] Code examples are tested and working
+
+### Maintenance Schedule
+- **Weekly**: Review and update active documents
+- **Monthly**: Archive outdated documents
+- **Quarterly**: Review overall documentation structure
+- **As needed**: Update templates and standards
+

@@ -1,5 +1,3 @@
-using UnityEngine;
-
 namespace AF.Services
 {
     /// <summary>

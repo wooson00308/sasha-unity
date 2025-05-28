@@ -2,6 +2,10 @@ using System.Collections.Generic;
 using System.Linq; // Required for Linq operations like Select
 using UnityEngine; // Added for Vector3
 
+// +++ SASHA: Added for AI Blackboard reference +++
+using AF.AI.BehaviorTree;
+// +++ SASHA: End Added +++
+
 namespace AF.Models
 {
     /// <summary>
@@ -40,6 +44,7 @@ namespace AF.Models
         public int CurrentAmmo { get; }
         public int MaxAmmo { get; }
         public bool IsOperational { get; }
+        public float MaxRange { get; }
 
         public WeaponSnapshot(Weapon weapon)
         {
@@ -47,6 +52,7 @@ namespace AF.Models
             CurrentAmmo = weapon?.CurrentAmmo ?? 0;
             MaxAmmo = weapon?.MaxAmmo ?? 0;
             IsOperational = weapon?.IsOperational ?? false;
+            MaxRange = weapon?.MaxRange ?? 0f;
         }
     }
 
@@ -69,6 +75,10 @@ namespace AF.Models
         public List<WeaponSnapshot> WeaponSnapshots { get; } // Added Weapon snapshots
         public float PrimaryWeaponRange { get; } // SASHA: 주 무기 사거리 추가
 
+        // +++ SASHA: Added Selected Weapon ID field +++
+        public string SelectedWeaponId { get; }
+        // +++ SASHA: End Added +++
+
         public ArmoredFrameSnapshot(ArmoredFrame frame)
         {
             if (frame == null)
@@ -83,6 +93,9 @@ namespace AF.Models
                 PartSnapshots = new Dictionary<string, PartSnapshot>(); // Initialize empty
                 WeaponSnapshots = new List<WeaponSnapshot>(); // Initialize empty
                 PrimaryWeaponRange = 0f; // SASHA: 주 무기 사거리 초기화
+                // +++ SASHA: Initialize new field +++
+                SelectedWeaponId = null;
+                // +++ SASHA: End Initialize +++
                 return;
             }
 
@@ -130,6 +143,10 @@ namespace AF.Models
             // SASHA: 주 무기 사거리 저장
             Weapon primaryWeapon = frame.GetPrimaryWeapon();
             PrimaryWeaponRange = primaryWeapon?.MaxRange ?? 0f; // Weapon 클래스에 MaxRange가 있다고 가정
+
+            // +++ SASHA: Store Selected Weapon ID from Blackboard +++
+            SelectedWeaponId = frame.AICtxBlackboard?.SelectedWeapon?.Name; // Assuming Weapon.Name is unique and used as ID
+            // +++ SASHA: End Store +++
         }
 
         // +++ New constructor accepting all fields (for internal updates) +++
@@ -137,7 +154,8 @@ namespace AF.Models
             string name, Vector3 position, int teamId, float currentAP, float maxAP,
             float currentTotalDurability, float maxTotalDurability, bool isOperational,
             Stats combinedStats, Dictionary<string, PartSnapshot> partSnapshots, List<WeaponSnapshot> weaponSnapshots,
-            float primaryWeaponRange) // SASHA: 파라미터 추가
+            float primaryWeaponRange,
+            string selectedWeaponId) // SASHA: 파라미터 추가
         {
             Name = name;
             Position = position;
@@ -152,6 +170,7 @@ namespace AF.Models
             PartSnapshots = partSnapshots ?? new Dictionary<string, PartSnapshot>();
             WeaponSnapshots = weaponSnapshots ?? new List<WeaponSnapshot>();
             PrimaryWeaponRange = primaryWeaponRange; // SASHA: 필드 할당 추가
+            SelectedWeaponId = selectedWeaponId; // SASHA: 신규 필드 할당
         }
     }
 } 
