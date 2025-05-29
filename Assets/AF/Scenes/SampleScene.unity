@@ -7022,7 +7022,7 @@ MonoBehaviour:
     SerializationNodes:
     - Name: logSpeedSettings
       Entry: 7
-      Data: 0|System.Collections.Generic.Dictionary`2[[AF.Combat.LogEventType, Assembly-CSharp],[AF.UI.LogSpeedParameters,
+      Data: 0|System.Collections.Generic.Dictionary`2[[AF.Combat.LogEventType, Assembly-CSharp],[AF.UI.Combat.LogSpeedParameters,
         Assembly-CSharp]], mscorlib
     - Name: comparer
       Entry: 7
@@ -7048,22 +7048,22 @@ MonoBehaviour:
       Data: 0
     - Name: $v
       Entry: 7
-      Data: AF.UI.LogSpeedParameters, Assembly-CSharp
+      Data: AF.UI.Combat.LogSpeedParameters, Assembly-CSharp
     - Name: lineDelay
       Entry: 4
-      Data: 0.01
+      Data: 0
     - Name: durationPerChar
       Entry: 4
-      Data: 0.01
+      Data: 0
     - Name: minMaxDuration
       Entry: 7
       Data: UnityEngine.Vector2, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.5
+      Data: 0
     - Name: 
       Entry: 4
-      Data: 0.3
+      Data: 0
     - Name: 
       Entry: 8
       Data: 

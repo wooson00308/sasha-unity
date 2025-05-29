@@ -48,7 +48,9 @@ namespace AF.Sound
         [SerializeField] private SoundClipSetting reloadCompletedSound;
         [SerializeField] private SoundClipSetting defendActionSound;
         [SerializeField] private SoundClipSetting repairCompletedSound;
-        // TODO: 무기 타입별, 파츠 타입별, 액션 타입별 상세 사운드 클립 추가 가능
+        [SerializeField] private SoundClipSetting abilityUsedSound; // <<< 어빌리티 사용 사운드 추가
+        // [SerializeField] private SoundClipSetting attackActionSound; // 공격은 보통 WeaponFired/DamageApplied로 커버되지만, 필요시 추가 가능
+        // [SerializeField] private SoundClipSetting waitActionSound; // 대기 사운드는 보통 없음
 
         private EventBus.EventBus _eventBus;
         private SoundService _soundService;
@@ -147,6 +149,12 @@ namespace AF.Sound
                 case LogEventType.PartDestroyed:
                     soundSettingToPlay = logEntry.PartDestroyed_FrameWasActuallyDestroyed ? defaultFrameDestroyedSound : defaultPartDestroyedSound;
                     break;
+                case LogEventType.ActionStart:
+                    switch (logEntry.Action_Type)
+                    {
+                        // TODO: 다른 액션 타입 시작 시 사운드 추가 가능 (예: Charge 시작 등)
+                    }
+                    break;
                 case LogEventType.ActionCompleted:
                     if (logEntry.Action_IsSuccess) // 성공한 액션에 대해서만 사운드 재생
                     {
@@ -158,14 +166,18 @@ namespace AF.Sound
                             case CombatActionEvents.ActionType.Reload:
                                 soundSettingToPlay = reloadCompletedSound;
                                 break;
-                            case CombatActionEvents.ActionType.Defend:
-                                soundSettingToPlay = defendActionSound;
-                                break;
                             case CombatActionEvents.ActionType.RepairAlly:
                             case CombatActionEvents.ActionType.RepairSelf:
                                 soundSettingToPlay = repairCompletedSound;
                                 break;
-                            // 다른 액션 타입에 대한 사운드 추가 가능
+                            case CombatActionEvents.ActionType.UseAbility: // <<< 어빌리티 사용 완료 사운드 추가
+                                soundSettingToPlay = abilityUsedSound;
+                                break;
+                            // SASHA: 방어 완료 사운드 추가 (HandleActionStart에서 옮김)
+                            case CombatActionEvents.ActionType.Defend:
+                                soundSettingToPlay = defendActionSound;
+                                break;
+                            // TODO: 다른 액션 타입 완료 시 사운드 추가 가능
                         }
                     }
                     break;

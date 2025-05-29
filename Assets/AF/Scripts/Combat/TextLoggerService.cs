@@ -469,8 +469,8 @@ namespace AF.Combat
 
         private void HandleActionStart(CombatActionEvents.ActionStartEvent ev)
         {
-            // 원래 주석 처리 되어 있었으므로 유지
-            //_textLogger?.Log($"{ev.Actor.Name} 행동 시작.", LogLevel.Info, ev.Actor, false);
+            // SASHA: Defend ActionStart 로깅은 HandleActionCompleted로 다시 옮겨졌습니다.
+            // 다른 ActionStart 이벤트 로깅이 필요하면 여기에 추가합니다.
         }
 
         private void HandleActionCompleted(CombatActionEvents.ActionCompletedEvent ev)
@@ -512,11 +512,12 @@ namespace AF.Combat
             }
             else if (ev.Action == CombatActionEvents.ActionType.Defend && ev.Success)
             {
+                // SASHA: Defend ActionCompleted 로깅을 다시 활성화
                 string prefix = _textLogger.UseIndentation ? "  " : "";
                 string actorNameColored = GetTeamColoredName(ev.Actor.Name, ev.Actor.TeamId);
                 string actionIconTag = _useSpriteIcons ? "<sprite index=9> " : "";
                 string apInfo = $"잔여 동력: {ev.Actor.CurrentAP:F1}/{ev.Actor.CombinedStats.MaxAP:F1}.";
-                logMsg = $"{prefix}{actionIconTag}{actorNameColored} 방어 태세 돌입. {apInfo}";
+                logMsg = $"{prefix}{actionIconTag}{actorNameColored} 방어 태세 돌입 완료. {apInfo}";
             }
             else if (_logActionSummaries)
             {
@@ -985,7 +986,7 @@ namespace AF.Combat
                 logEntry.StatusApplied_Duration = ev.Duration;
                 logEntry.StatusApplied_Magnitude = ev.Magnitude;
 
-                _textLogger.AddLogEntryDirectly(logEntry);
+                //_textLogger.AddLogEntryDirectly(logEntry);
             }
             // +++ 델타 로그 기록 로직 끝 +++
         }
@@ -1051,7 +1052,7 @@ namespace AF.Combat
                 logEntry.StatusExpired_EffectType = ev.EffectType;
                 logEntry.StatusExpired_WasDispelled = ev.WasDispelled;
 
-                _textLogger.AddLogEntryDirectly(logEntry);
+                //_textLogger.AddLogEntryDirectly(logEntry);
             }
             // +++ 델타 로그 기록 로직 끝 +++
         }

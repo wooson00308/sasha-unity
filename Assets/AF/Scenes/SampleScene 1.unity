@@ -282,12 +282,6 @@ MonoBehaviour:
   detectedPulseDuration: 0.3
   detectedPulseEaseOut: 15
   detectedPulseEaseIn: 14
-  radarScanTransform: {fileID: 37133621}
-  scanArcWidthDegrees: 150
-  scanFadeRangeDegrees: 5
-  markersMaterial: {fileID: 2100000, guid: a86abbff25b8f6e42960462b07076d24, type: 2}
-  beamExitFadeOutDuration: 1.5
-  beamExitFadeOutEase: 6
 --- !u!1 &32071439
 GameObject:
   m_ObjectHideFlags: 0
@@ -5860,35 +5854,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerSquadSetups:
   - useCustomAssembly: 0
-    customAFName: "\uC774\uC9C0\uC2A4 \uBE0C\uB8E8\uD2B8"
-    assembly: {fileID: 11400000, guid: 5e47060da970ffa4c84b40ffafeb5c9a, type: 2}
+    customAFName: "\uCF54\uC5B4 \uC624\uB514\uC138\uC6B0\uC2A4"
+    assembly: {fileID: 11400000, guid: 73c0634859cc52c46aad4fe6598d4313, type: 2}
     teamId: 0
     teamColorPreview: {r: 0.3, g: 0.8, b: 0.9, a: 1}
     startPosition: {x: 0, y: 0, z: 0}
-    customFrame: {fileID: 11400000, guid: 2f3ab135c4ee9f04f9d7766182558530, type: 2}
-    customHead: {fileID: 11400000, guid: c17d24d80f042d14dafb91b33f031952, type: 2}
-    customBody: {fileID: 11400000, guid: fa7d5079db657c049a0a756e7a98027b, type: 2}
-    customArms: {fileID: 11400000, guid: 0654311e8f4497d44a0e15ec923dba9a, type: 2}
-    customLegs: {fileID: 11400000, guid: 1a6c2c79492caf34b8a6b282503c92e0, type: 2}
-    customWeaponR1: {fileID: 11400000, guid: 23f2a3a7b78fb0248a186a91ed9bc5e8, type: 2}
-    customWeaponL1: {fileID: 11400000, guid: 328a63a0c361d734fa7757b86086e2f1, type: 2}
-    customPilot: {fileID: 11400000, guid: cdf4349c46d2dd24ab6528c99ae30261, type: 2}
-    callsign: "\uBE0C\uB8E8\uD2B8"
-  - useCustomAssembly: 0
-    customAFName: "\uC774\uC9C0\uC2A4 \uC13C\uD2F0\uB12C"
-    assembly: {fileID: 11400000, guid: 96bc9ac1230fb6f45877ba2321543473, type: 2}
-    teamId: 0
-    teamColorPreview: {r: 0.3, g: 0.8, b: 0.9, a: 1}
-    startPosition: {x: 10, y: 0, z: 0}
-    customFrame: {fileID: 11400000, guid: 2f3ab135c4ee9f04f9d7766182558530, type: 2}
-    customHead: {fileID: 11400000, guid: d2c922a49b7d8df41b3c0e4cf1f551d0, type: 2}
-    customBody: {fileID: 11400000, guid: dbd261696a1933b4e89a186e97f5b169, type: 2}
-    customArms: {fileID: 11400000, guid: a9661a722dcbe2542b77ec3bdd9ca442, type: 2}
-    customLegs: {fileID: 11400000, guid: 7b4a85ff94f543747bb816bce1149890, type: 2}
-    customWeaponR1: {fileID: 11400000, guid: 7fe3d8808773a7c4ea65ebcfe4c64f2c, type: 2}
-    customWeaponL1: {fileID: 11400000, guid: bdf248f208e52064ba06b768628b0585, type: 2}
-    customPilot: {fileID: 11400000, guid: 3929abb0af8a6de46a85c714c1523a43, type: 2}
-    callsign: "\uC774\uC9C0\uC2A4"
+    customFrame: {fileID: 11400000, guid: 2282a7e72fc85f54680a9c915984189c, type: 2}
+    customHead: {fileID: 11400000, guid: 6a02a0fb0fca73f489a8193f876daf3f, type: 2}
+    customBody: {fileID: 11400000, guid: ec2ec947d3e852844b17ba7dd7f88458, type: 2}
+    customArms: {fileID: 11400000, guid: 0864ef455a0ad0842a1ca2e9121efba0, type: 2}
+    customLegs: {fileID: 11400000, guid: 3a5f7dcc9a6eb1b459130cbe8b72b19a, type: 2}
+    customWeaponR1: {fileID: 11400000, guid: e0138cbee493fbf4cbf037ddceb87f8d, type: 2}
+    customWeaponL1: {fileID: 11400000, guid: 098a64a2905c3004a9dd91684d7752af, type: 2}
+    customPilot: {fileID: 11400000, guid: e4c60061ae1e5ac45ae8c50db7532043, type: 2}
+    callsign: "CORE-\uC624\uB514\uC138\uC6B0\uC2A4"
   afSetups:
   - useCustomAssembly: 0
     customAFName: "\uD5EC\uB9AC\uC624\uC2A4 \uD15C\uD398\uC2A4\uD2B8"
@@ -5904,7 +5883,7 @@ MonoBehaviour:
     customWeaponR1: {fileID: 11400000, guid: d27b3dd19afbaac4c8b2caac8c3dfdc4, type: 2}
     customWeaponL1: {fileID: 11400000, guid: e0138cbee493fbf4cbf037ddceb87f8d, type: 2}
     customPilot: {fileID: 11400000, guid: cdd1a8108797cab46a4133199710bc44, type: 2}
-    callsign: "\uD15C\uD398\uC2A4\uD2B8"
+    callsign: "HLS-\uD15C\uD398\uC2A4\uD2B8"
   logCombatDetails: 0
   showLogLevelPrefix: 0
   showTurnPrefix: 0

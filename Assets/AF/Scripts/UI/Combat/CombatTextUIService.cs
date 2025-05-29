@@ -648,6 +648,7 @@ namespace AF.UI.Combat
             _playbackCts?.Dispose();
             _playbackCts = new CancellationTokenSource();
 
+
             // 전투 시작 시 초기 참가자 정보 표시 시도 -> 제거: ProcessLogsAsync에서 첫 로그 처리 시 업데이트됨
             /*
             UniTask.Void(async () => 
